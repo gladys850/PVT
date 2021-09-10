@@ -263,6 +263,7 @@ class LoanController extends Controller
     * @bodyParam guarantors[0].contributionable_ids array required Ids de las contribuciones asocidas al prestamo por afiliado. Example: [1,2,3]
     * @bodyParam guarantors[0].contributionable_type enum required  Nombre de la tabla de contribuciones. Example: contributions
     * @bodyParam guarantors[0].loan_contributions_adjust_ids array required  Ids de los ajustes de la(s) contribución(s). Example: []
+    * @bodyParam guarantors[0].loan_contributions_adjust_ref_id array ID del registro de la cuota refinanciado sismu caso garante. Example:5 
     * @bodyParam data_loan array Datos Sismu.
     * @bodyParam data_loan[0].code string required Codigo del prestamo en el Sismu. Example: PRESTAMO123
     * @bodyParam data_loan[0].amount_approved numeric required Monto aprovado del prestamo del Sismu. Example: 5000.50
@@ -766,6 +767,17 @@ class LoanController extends Controller
                         $ajuste=LoanContributionAdjust::find($adjustid);
                         $ajuste->loan_id=$loan->id;
                         $ajuste->update();
+                    }
+                    if(array_key_exists('loan_contributions_adjust_ref_id', $affiliate)){
+                        $loan_contributions_adjust_refs = $affiliate['loan_contributions_adjust_ref_id'];  
+                    }else{                    
+                        $loan_contributions_adjust_refs = [];
+                    }
+                    foreach ($loan_contributions_adjust_refs as $loan_contributions_adjust_ref){
+                        $loan_contributions_adjust_ref = LoanContributionAdjust::find($loan_contributions_adjust_ref);
+                        $loan_contributions_adjust_ref->loan_id=$loan->id;
+                        $loan_contributions_adjust_ref->adjustable_id = $loan->id;
+                        $loan_contributions_adjust_ref->update();  
                     }
                     $a++;
                 }
