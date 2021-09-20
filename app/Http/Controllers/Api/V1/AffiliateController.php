@@ -68,6 +68,10 @@ class AffiliateController extends Controller
         if($affiliate->affiliate_state !=null) $affiliate->affiliate_state;
         return $affiliate;
     }
+    public static function append_data_prueba(Affiliate $affiliate, $with_category = false)
+    {
+        return $affiliate;
+    }
 
     public static function append_data_list_affiliate(Affiliate $affiliate, $with_category = false)
     {
@@ -166,7 +170,7 @@ class AffiliateController extends Controller
     */
     public function show(Affiliate $affiliate)
     {
-        return self::append_data($affiliate, true);
+        return self::append_data_prueba($affiliate, true);
     }
 
     /**
