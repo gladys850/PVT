@@ -2104,7 +2104,7 @@ class LoanController extends Controller
 
     
     // almacenamiento del plan de pagos
-    public function get_plan_payments(Loan $loan, $disbursement_date)
+    public function get_plan_payments(Loan $loan)
     {
         DB::beginTransaction();
         try{
@@ -2120,20 +2120,25 @@ class LoanController extends Controller
                 $estimated_quota = $loan->estimated_quota;
                 for($i = 1 ;$i<= $loan->loan_term; $i++){
                     if($i == 1){
-                        $date_ini = Carbon::parse($disbursement_date)->format('d-m-Y');
+                        $date_ini = Carbon::parse($loan->disbursement_date)->format('d-m-Y');
                         if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
                             $date_fin = Carbon::parse($date_ini)->endOfMonth();
                             $days = $date_fin->diffInDays($date_ini);
                             $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance);
                             $capital = $estimated_quota - $interest;
+                            $payment = $capital + $interest;
                         }
                         else{
-                            $date_fin = Carbon::parse($date_ini)->startOfMonth()->addMonth()->endOfMonth();
-                            $capital = ($estimated_quota - LoanPayment::interest_by_days($date_fin->day, $loan->interest->annual_interest, $balance));
-                            $days = $date_fin->diffInDays($date_ini);
-                            $interest = LoanPayment::interest_by_days($date_fin->day, $loan->interest->annual_interest, $balance) + LoanPayment::interest_by_days(Carbon::parse($date_ini)->endOfMonth()->format('d') - Carbon::parse($date_ini)->format('d'), $loan->interest->annual_interest, $balance);
+                            $date_ini = Carbon::parse($loan->disbursement_date)->startOfDay()->format('d');
+                            $date_pay = Carbon::parse($loan->disbursement_date)->endOfMonth()->endOfDay()->format('d');
+                            $extra_days = $date_pay - $date_ini;
+                            $extra_interest = LoanPayment::interest_by_days($extra_days, $loan->interest->annual_interest, $balance);
+                            $payment = $loan->estimated_quota + $extra_interest;
+                            $date_fin = Carbon::parse($loan->disbursement_date)->startOfMonth()->addMonth()->endOfMonth()->endOfDay();
+                            $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
+                            $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance);
+                            $capital = $payment - $interest;
                         }
-                        $payment = round(($capital + $interest),2);
                     }
                     else{
                         $date_fin = Carbon::parse($date_ini)->endOfMonth();
@@ -2142,12 +2147,12 @@ class LoanController extends Controller
                         $capital = $estimated_quota - $interest;
                         $payment = $estimated_quota;
                     }
-                    $balance = ($balance - $capital);
+                    $balance = $balance - $capital;
                     if($i == 1){
                         $loan_payment = new LoanPlanPayment;
                         $loan_payment->loan_id = $loan->id;
                         $loan_payment->user_id = Auth::user()->id;
-                        $loan_payment->disbursement_date = $disbursement_date;
+                        $loan_payment->disbursement_date = $loan->disbursement_date;
                         $loan_payment->quota_number = $i;
                         $loan_payment->estimated_date = Carbon::parse($date_fin)->endOfDay();
                         $loan_payment->days = $days + $days_aux;
@@ -2162,7 +2167,7 @@ class LoanController extends Controller
                             $loan_payment = new LoanPlanPayment;
                             $loan_payment->loan_id = $loan->id;
                             $loan_payment->user_id = Auth::user()->id;
-                            $loan_payment->disbursement_date = $disbursement_date;
+                            $loan_payment->disbursement_date = $loan->disbursement_date;
                             $loan_payment->quota_number = $i;
                             $loan_payment->estimated_date = Carbon::parse($date_fin)->endOfDay();
                             $loan_payment->days = $days;
@@ -2176,7 +2181,7 @@ class LoanController extends Controller
                             $loan_payment = new LoanPlanPayment;
                             $loan_payment->loan_id = $loan->id;
                             $loan_payment->user_id = Auth::user()->id;
-                            $loan_payment->disbursement_date = $disbursement_date;
+                            $loan_payment->disbursement_date = $loan->disbursement_date;
                             $loan_payment->quota_number = $i;
                             $loan_payment->estimated_date = Carbon::parse($date_fin)->endOfDay();
                             $loan_payment->days = $days;
@@ -2200,16 +2205,20 @@ class LoanController extends Controller
 
     public function generate_plans()
     {
-        $loans = Loan::whereNotNull('disbursement_date')->get();
-        $c=0;
-        foreach($loans as $loan)
-        {
-            if($loan->loan_plan->count() == 0)
+        try{
+            $loans = Loan::whereNotNull('disbursement_date')->get();
+            $c=0;
+            foreach($loans as $loan)
             {
-                $this->get_plan_payments($loan, $loan->disbursement_date);
-                $c++;
+                if($loan->loan_plan->count() == 0)
+                {
+                    $this->get_plan_payments($loan, $loan->disbursement_date);
+                    $c++;
+                }
             }
+            return $c;
+        }catch(\Exception $e){
+            return $e;
         }
-        return $c;
     }
 }
