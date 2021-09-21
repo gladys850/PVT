@@ -19,7 +19,8 @@ class LoanContributionAdjust extends Model
         'amount',
         'type_adjust',
         'period_date',
-        'description'
+        'description',
+        'database_name'
     ]; 
     public function Loan()
     {
