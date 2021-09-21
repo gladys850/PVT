@@ -24,7 +24,7 @@ class CreateLoanContributionAdjustsTable extends Migration
             $table->morphs('adjustable'); 
             $table->enum('type_affiliate',['lender', 'guarantor','cosigner']); // tipificacion de asignacion de prest//titular, codeudor,garante
             $table->float('amount',10,2)->default(0);  // monto de ajuste al liquido para calificacion
-            $table->enum('type_adjust',['adjust','liquid','refinance_sismu']);// tipificacion de monto// ajuste, liquido, monto refinanciamiento sismu
+            $table->enum('type_adjust',['adjust','liquid','refinance']);// tipificacion de monto// ajuste, liquido, monto refinanciamiento 
             $table->date('period_date');// Fecha del periodo de la boleta
             $table->string('description')->nullable();// Descripcion por lo que se realiza el ajuste
             $table->timestamps();   
