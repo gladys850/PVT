@@ -34,6 +34,7 @@ class LoanContributionAdjustForm extends FormRequest
             'adjustable_type' => ['string'],
             'amount' =>['numeric'],
             'type_adjust'=>['string','in:adjust,liquid,refinance_sismu'],
+            'database_name'=>['nullable','string','in:PVT,SISMU'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],        
         ];
         switch ($this->method()) {
