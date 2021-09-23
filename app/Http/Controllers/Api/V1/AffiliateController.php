@@ -70,6 +70,7 @@ class AffiliateController extends Controller
     }
     public static function append_data_prueba(Affiliate $affiliate, $with_category = false)
     {
+        $affiliate->picture_saved = $affiliate->picture_saved;
         return $affiliate;
     }
 
