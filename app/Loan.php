@@ -372,22 +372,13 @@ class Loan extends Model
         }
         else{
             $date_pay = $date_ini->startOfMonth()->addMonth()->endOfMonth()->endOfDay()->format('Y-m-d');
-            $sw = true;
         }
         $date_pay = Carbon::parse($date_pay)->endOfDay();
         $estimated_date = Carbon::parse($estimated_date)->endOfDay();
         if($quota->quota_number == 1 && $estimated_date <= $date_pay){
             $penal_days = 0;
             $current_days = (Carbon::parse($quota->previous_payment_date)->diffInDays(Carbon::parse($estimated_date)));
-            if($estimated_date != $date_pay){
-                $interest_generated = LoanPayment::interest_by_days($current_days, $this->interest->annual_interest, $this->balance);
-            }
-            else{
-                if($sw)
-                    $interest_generated = LoanPayment::interest_by_days(Carbon::parse($this->disbursement_date)->endOfMonth()->format('d') - Carbon::parse($this->disbursement_date)->format('d'), $this->interest->annual_interest, $this->balance) + LoanPayment::interest_by_days(Carbon::parse($this->disbursement_date)->startOfMonth()->addMonth()->endOfMonth()->format('d'),$this->interest->annual_interest,$this->balance);
-                else
-                    $interest_generated = LoanPayment::interest_by_days($current_days, $this->interest->annual_interest, $this->balance);
-            }
+            $interest_generated = LoanPayment::interest_by_days($current_days, $this->interest->annual_interest, $this->balance);
         }
         else{
             $current_days = (Carbon::parse($quota->previous_payment_date)->diffInDays(Carbon::parse($estimated_date)));
@@ -1278,25 +1269,27 @@ class Loan extends Model
                     if(!$this->last_payment_validated){
                             $date_ini = CarbonImmutable::parse($this->disbursement_date);
                             if($date_ini->day <= LoanGlobalParameter::latest()->first()->offset_interest_day){
-                                //$date_pay = Carbon::parse($this->disbursement_date)->endOfMonth()->format('d-m-Y');
-                                $extra_days = 0;
                                 $suggested_amount = $this->estimated_quota;
                             }
                             else{
-                                $extra_days = Carbon::parse(Carbon::parse($this->disbursement_date)->format('d-m-Y'))->diffInDays(Carbon::parse($this->disbursement_date)->endOfMonth()->format('d-m-Y'));
-                                $date_pay = Carbon::parse($this->disbursement_date)->startOfMontH()->addMonth()->endOfMonth();
+                                $date_pay = Carbon::parse($this->disbursement_date)->startOfMonth()->addMonth()->endOfMonth();
                                 $loan_payment_date = Carbon::parse($loan_payment_date);
-                                if($loan_payment_date->lt($date_pay))
+                                if($loan_payment_date->lt($date_pay))// less than
+                                {
+                                    $extra_days = Carbon::parse(Carbon::parse($this->disbursement_date)->format('d-m-Y'))->diffInDays(Carbon::parse($this->disbursement_date)->endOfMonth()->format('d-m-Y'));
                                     $suggested_amount = LoanPayment::interest_by_days($extra_days, $this->interest->annual_interest, $this->balance) + $this->estimated_quota;
+                                }
                                 else
+                                {
                                     $suggested_amount = $this->estimated_quota;
+                                }
                             }
                     }
                     else{
                         if($this->verify_regular_payments() && ($this->paymentsKardex->count()+1) == $this->loan_term){
                             $days = Carbon::parse($loan_payment_date)->format('d');
                             $interest_by_days = LoanPayment::interest_by_days($days, $this->interest->annual_interest, $this->balance);
-                            $suggested_amount = $this->estimated_quota + $this->balance;
+                            $suggested_amount = $interest_by_days + $this->balance;
                         }
                         else{
                             if($this->balance > $this->estimated_quota)
