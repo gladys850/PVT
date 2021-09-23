@@ -2137,7 +2137,8 @@ class LoanController extends Controller
                             $date_fin = Carbon::parse($loan->disbursement_date)->startOfMonth()->addMonth()->endOfMonth()->endOfDay();
                             $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
                             $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance);
-                            $capital = $payment - $interest;
+                            //$capital = $payment - $interest;
+                            $capital = $payment;
                         }
                     }
                     else{
