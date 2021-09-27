@@ -393,12 +393,14 @@ class Affiliate extends Model
             if($loan_global_parameter->max_guarantor_passive <= count($this->active_guarantees()) + count($this->active_guarantees_sismu())) $guarantor = false;
           }
           if($this->affiliate_state->affiliate_state_type->name != 'Activo' && $this->affiliate_state->affiliate_state_type->name != 'Pasivo') $guarantor = false; // en otro caso no corresponde ya que seria Disponibilidad A o C
-          if($this->defaulted_lender || $this->defaulted_guarantor) $guarantor = false;
+          //if($this->defaulted_lender || $this->defaulted_guarantor) $guarantor = false;
           if($this->affiliate_state->name == 'Comisión') $guarantor = false;
       }
     }
+    $affiliate= AffiliateController::append_data($this, true);
+    $affiliate->loan=$affiliate->loans;
       return response()->json([
-          'affiliate' => AffiliateController::append_data($this, true),
+          'affiliate' => $affiliate,
           'guarantor' => $guarantor,
           'active_guarantees_quantity' => count($this->active_guarantees()) - $remake_loan,
           'guarantor_information' => self::verify_information($this),
