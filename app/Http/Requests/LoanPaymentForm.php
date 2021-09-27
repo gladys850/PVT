@@ -46,7 +46,7 @@ class LoanPaymentForm extends FormRequest
             'categorie_id'=>['required','integer', 'exists:loan_payment_categories,id'],
             'estimated_date' => 'nullable|date_format:Y-m-d|after_or_equal:'.$date,
             'voucher' => ['nullable','string','min:3'],
-            'estimated_quota' => 'nullable|numeric|min:1',
+            'estimated_quota' => 'nullable|numeric|min:0.01',
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'loan_payment_date'=>['nullable|date_format:Y-m-d'],
             'liquidate' => ['boolean'],
