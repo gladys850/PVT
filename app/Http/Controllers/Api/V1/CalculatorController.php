@@ -194,10 +194,9 @@ class CalculatorController extends Controller
                 {
                     $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
                 }
-                $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
+                /*$active_guarantees_sismu = $affiliate->active_guarantees_sismu();
                 foreach($active_guarantees_sismu as $res)
                     $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
-            //
                 if($quantity_guarantors && $request->liquid_qualification_calculated_lender >0)
                     $indebtedness_calculated = ($quota_calculated + $sum_quota)/$liquid['liquid_qualification_calculated']*100;
                 if($quantity_guarantors%2==0){
@@ -432,7 +431,7 @@ class CalculatorController extends Controller
                 if($request->remake_evaluation && $res->id != $request->remake_loan_id)
                     $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
             }
-            $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
+            /*$active_guarantees_sismu = $affiliate->active_guarantees_sismu();
             foreach($active_guarantees_sismu as $res)
                 $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
             $liquid_rest = Util::round(($liquid_qualification_calculated * 0.5) - ($quota_calculated + $sum_quota));

@@ -26,7 +26,7 @@ class VoucherForm extends FormRequest
     {
             $rules = [
                 'voucher_type_id' => 'exists:voucher_types,id',
-                'voucher_amount_total'=>'nullable|numeric|min:1',
+                'voucher_amount_total'=>'nullable|numeric|min:0.01',
                 'voucher_payment_date'=>'date_format:"Y-m-d"|required_if:voucher_type_id,3',
                 'bank_pay_number' => 'nullable|required_if:voucher_type_id,3|integer|min:1',
                 'description' => 'min:3|nullable'
