@@ -58,7 +58,7 @@ class LoanPaymentPeriodController extends Controller
             return LoanPaymentPeriod::create($loan_payment_period->toArray());
         }else{  
         $last_date=Carbon::parse($last_period->year.'-'.$last_period->month); 
-        if($last_period->import_command && $last_period->import_senasir){    
+       // if($last_period->import_command && $last_period->import_senasir){    
             $estimated_date = $last_date->addMonth();
             $loan_payment_period = new LoanPaymentPeriod;
             $loan_payment_period->year = $estimated_date->year;
@@ -67,10 +67,10 @@ class LoanPaymentPeriodController extends Controller
             $loan_payment_period->import_command = false;
             $loan_payment_period->import_senasir = false;          
             return LoanPaymentPeriod::create($loan_payment_period->toArray());
-            } 
+         /*   } 
         else{
           $result['message'] = "Para realizar la creación de un nuevo periodo, debe realizar la confirmación de los pagos de Comando y Senasir del periodo de ".$last_date->isoFormat('MMMM');
-        }
+        }*/
         }  
         return $result;      
     }
