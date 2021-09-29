@@ -278,7 +278,7 @@ class ImportationReportController extends Controller
          $estimated_date = Carbon::parse($estimated_date)->format('Y-m-d');
          //todos los prestamos menores o iguales a la fecha de corte
          $current_loans =  "select id_loan as id from view_loan_borrower
-         where  CAST(disbursement_date_loan AS date) <= CAST('$estimated_date' AS date) and state_affiliate in('Servicio','Disponibilidad') and state_loan ='Vigente'"; 
+         where  CAST(disbursement_date_loan AS date) <= CAST('$estimated_date' AS date) and state_affiliate in('Servicio','Disponibilidad','Comisión') and state_loan ='Vigente'"; 
          $current_loans = DB::select($current_loans);
          $data = array(
             array("Nro Préstamo", "Fecha de desembolso", "Ciudad", "tipo", "Matricula Titular",
