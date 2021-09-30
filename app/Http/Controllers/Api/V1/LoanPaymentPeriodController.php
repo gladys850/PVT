@@ -50,7 +50,7 @@ class LoanPaymentPeriodController extends Controller
         $create_period = false;
 
         $request->validate([
-            'importation_type' => 'required'
+            'importation_type' => 'string|required|in:COMANDO,SENASIR',
         ]);
        $result = [];
         if($request->importation_type == "COMANDO"){
@@ -145,9 +145,10 @@ class LoanPaymentPeriodController extends Controller
     public function get_list_month(Request $request)
     {
         $request->validate([
-            'year' => 'required|exists:loan_payment_periods,year'
+            'year' => 'required|exists:loan_payment_periods,year',
+            'importation_type' => 'string|required|in:COMANDO,SENASIR',
         ]);
-        $loan_payment_period = LoanPaymentPeriod::where('year',$request->year)->orderBy('month', 'asc')->get();
+        $loan_payment_period = LoanPaymentPeriod::where('year',$request->year)->where('importation_type',$request->importation_type)->orderBy('month', 'asc')->get();
         return $loan_payment_period;
     }
 
