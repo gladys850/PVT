@@ -385,12 +385,12 @@ class Affiliate extends Model
           if($this->affiliate_state->affiliate_state_type->name == 'Activo'){
             if($remake_evaluation)
               $remake_loan = 1;
-            if($loan_global_parameter->max_guarantor_active <= count($this->active_guarantees()) + count($this->active_guarantees_sismu()) - $remake_loan) $guarantor = false;
+            //if($loan_global_parameter->max_guarantor_active <= count($this->active_guarantees()) + count($this->active_guarantees_sismu()) - $remake_loan) $guarantor = false;
           }
           if($this->affiliate_state->affiliate_state_type->name == 'Pasivo'){
             if($remake_evaluation)
               $remake_loan = count($this->guarantees->where('id', $remake_loan_id)->first());
-            if($loan_global_parameter->max_guarantor_passive <= count($this->active_guarantees()) + count($this->active_guarantees_sismu())) $guarantor = false;
+            //if($loan_global_parameter->max_guarantor_passive <= count($this->active_guarantees()) + count($this->active_guarantees_sismu())) $guarantor = false;
           }
           if($this->affiliate_state->affiliate_state_type->name != 'Activo' && $this->affiliate_state->affiliate_state_type->name != 'Pasivo') $guarantor = false; // en otro caso no corresponde ya que seria Disponibilidad A o C
           //if($this->defaulted_lender || $this->defaulted_guarantor) $guarantor = false;
