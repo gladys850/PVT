@@ -190,11 +190,11 @@ class CalculatorController extends Controller
                 $affiliate = Affiliate::find($liquid['affiliate_id']);
             // descuento por garantias adicionado
                 $active_guarantees = $affiliate->active_guarantees();$sum_quota = 0;
-                foreach($active_guarantees as $res)
+                /*foreach($active_guarantees as $res)
                 {
                     $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
                 }
-                /*$active_guarantees_sismu = $affiliate->active_guarantees_sismu();
+                $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
                 foreach($active_guarantees_sismu as $res)
                     $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
                 if($quantity_guarantors && $request->liquid_qualification_calculated_lender >0)
@@ -426,12 +426,12 @@ class CalculatorController extends Controller
             $total_bonuses = $contribution_first['position_bonus']+$contribution_first['border_bonus']+$contribution_first['public_security_bonus']+$contribution_first['east_bonus'];
             $liquid_qualification_calculated = $this->liquid_qualification($type, $payable_liquid_average, $total_bonuses, $affiliate);
             $active_guarantees = $affiliate->active_guarantees();$sum_quota = 0;
-            foreach($active_guarantees as $res)
+            /*foreach($active_guarantees as $res)
             {
                 if($request->remake_evaluation && $res->id != $request->remake_loan_id)
                     $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
             }
-            /*$active_guarantees_sismu = $affiliate->active_guarantees_sismu();
+            $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
             foreach($active_guarantees_sismu as $res)
                 $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
             $liquid_rest = Util::round(($liquid_qualification_calculated * 0.5) - ($quota_calculated + $sum_quota));

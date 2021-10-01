@@ -801,47 +801,61 @@ class LoanPaymentReportController extends Controller
 
         $File="ListadoPrestamos";
         $data=array(
-                 array("Id del préstamo", "Código préstamo", "Fecha desembolso préstamo","estado del afiliado","Tipo de estado del afiliado", "Nro de carnet", "Matrícula", "Primer apellido","Segundo apellido","Primer nombre","Segundo nombre","Apellido casada","Nombre completo afiliado",
-                 "Nro de carnet del Prestatario", "Matrícula del prestatario", "Primer apellido del prestatario","Segundo apellido del prestatario","Primer nombre del prestatario","Segundo nombre del prestatario","Apellido casada del prestatario","Nombre completo del prestatario",
-                 "Entidad de pensión del afiliado","Código pago","fecha de pago","Total pagado","Nro comprobante","Modalidad pago","Modalidad pago nombre","Tipo amortización","Estado del pago", "Tipo de Pago",
-                 "Pagado por","Capital pagado","Interés corriente pagado","Interés penal pagado","Interés corriente pendiente","Interés penal pendiente","Total pagado","Saldo anterior","Saldo actual","fecha y hora de cobro")
-        );
+          array("CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***","COD PRÉSTAMO", "FECHA DE DESEMBOLSO", "TIPO ESTADO","ESTADO AFILIADO",
+          "MODALIDAD PRÉSTAMO",
+          "MATRICULA", "CI", "PRIMER NOMBRE","SEGUNDO NOMBRE","APELLIDO PATERNO","APELLIDO MATERNO","APELLIDO CASADA","NOMBRE COMPLETO","ENTIDAD DE PENSIÓN",
+          "**",
+          "COD AMORTIZACIÓN","FECHA DE CALCULO","FECHA DE TRANSACCIÓN",
+
+          "CAPITAL","INTERÉS CORRIENTE","INTERÉS PENAL","INTERÉS CORRIENTE PENDIENTE",
+          "INTERÉS PENAL PENDIENTE","TOTAL PAGADO","SALDO ANTERIOR", "SALDO ACTUAL",
+          "PAGADO POR","TIPO DESCUENTO","TIPO DE PAGO","CBTE","ESTADO AMORTIZACIÓN","COD TRANSACCIÓN")
+      );
              foreach ($list_loan as $row){
                  array_push($data, array(
-                     $row->id_loan,
-                     $row->code_loan,
-                     $row->disbursement_date_loan,
-                     $row->state_type_affiliate,
-                     $row->state_affiliate,
-                     $row->identity_card_affiliate,
-                     $row->registration_affiliate,
-                     $row->last_name_affiliate,
-                     $row->mothers_last_name_affiliate,
-                     $row->first_name_affiliate,
-                     $row->second_name_affiliate,
-                     $row->surname_husband_affiliate,
-                     $row->full_name_affiliate,
-                     $row->identity_card_borrower,
-                     $row->registration_borrower,
-                     $row->last_name_borrower,
-                     $row->mothers_last_name_borrower,
-                     $row->first_name_borrower,
-                     $row->second_name_borrower,
-                     $row->surname_husband_borrower,
-                     $row->full_name_borrower,
-                     $row->pension_entity_affiliate,
-                     $row->code_loan_payment,
-                     $row->estimated_date_loan_payment,
-                     $row->quota_loan_payment,
-                     $row->voucher_loan_payment,
-                     $row->modality_loan_payment,
-                     $row->modality_shortened_loan_payment,
-                     $row->procedure_loan_payment,
-                     $row->states_loan_payment,
-                     $row->voucher_type_loan_payment,
-                     $row->paid_by_loan_payment,$row->capital_payment,$row->interest_payment,$row->penal_payment,
-                     $row->interest_remaining,$row->penal_remaining,$row->quota_loan_payment,$row->previous_balance,$row->date_loan_payment
 
+                  $row->identity_card_affiliate,
+                  $row->registration_affiliate,
+                  $row->full_name_affiliate,
+                  "***",
+                  $row->code_loan,
+                  Carbon::parse($row->disbursement_date_loan)->format('d/m/Y H:i:s'),
+                  $row->state_affiliate_loan_payment,
+                  $row->state_affiliate,
+
+                  $row->procedure_type_loan, //MOdalidad preetsamo
+
+                  $row->registration_borrower,
+                  $row->identity_card_borrower,
+                  $row->first_name_borrower,
+                  $row->second_name_borrower,
+                  $row->last_name_borrower,
+                  $row->mothers_last_name_borrower,
+                  $row->surname_husband_borrower,
+                  $row->full_name_borrower,
+                  $row->pension_entity_affiliate,
+                  "**",
+                  $row->code_loan_payment,
+                  Carbon::parse($row->estimated_date_loan_payment)->format('d/m/Y'),//fecha de pago/calculo
+                  Carbon::parse($row->date_loan_payment)->format('d/m/Y H:i:s'),//fecha de transacción
+
+
+                  Util::money_format($row->capital_payment),//capital .. pagado
+                  Util::money_format($row->interest_payment), //interes corriente
+                  Util::money_format($row->penal_payment),// interes penal
+
+                  Util::money_format($row->interest_accumulated),//interes corriente pendiente
+                  Util::money_format($row->penal_accumulated),//interes penal pendiente
+                  Util::money_format($row->quota_loan_payment),//total pagado
+                  Util::money_format($row->previous_balance),// saldo anterior
+                  Util::money_format($row->current_balance),//saldo actual
+
+                  $row->paid_by_loan_payment,//pagado por
+                  $row->modality_shortened_loan_payment,// tipo de descuento
+                  $row->voucher_type_loan_payment, //TIPO DE DESCUENTO EFECTIVO O DEP EN CUENTA
+                  $row->voucher_loan_payment, //comprobante
+                  $row->states_loan_payment,//estado del cobro
+                  $row->code_voucher
                  ));
              }
              $export = new ArchivoPrimarioExport($data);

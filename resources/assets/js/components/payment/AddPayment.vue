@@ -15,6 +15,10 @@
                       <v-container >
                         <template>
                           <v-row>
+                            <v-col cols="12" class="ma-0 py-2">
+                              <label><b>Pago a Interés Corriente:</b></label>
+                              {{payment_detail.interest_payment | moneyString}}
+                            </v-col>
                             <v-col cols="6" class="ma-0 py-2">
                               <label><b>Pago a Capital:</b></label>
                               {{payment_detail.capital_payment | moneyString}}
