@@ -220,7 +220,7 @@ class ImportationController extends Controller
         $procedure_modality_id = ProcedureModality::whereShortened('DES-SENASIR')->first()->id;
         $categorie_id = LoanPaymentCategorie::whereTypeRegister('SISTEMA')->first()->id;
         $senasir_lender = 0; $senasir_guarantor = 0;
-        if(!$period->import_senasir){
+        if(!$period->importation){
             $estimated_date = Carbon::create($period->year, $period->month, 1);
             $estimated_date = Carbon::parse($estimated_date)->endOfMonth()->format('Y-m-d');
 
@@ -302,9 +302,9 @@ class ImportationController extends Controller
                 }
             }
 
-            $update_period = "UPDATE loan_payment_periods set import_senasir = true where id = $period->id";
+            $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
             $update_period = DB::select($update_period);
-            Log::info('Se actualizo el estado del periodo en la columna import_senasir  del id_periodo: '.$period->id);
+            Log::info('Se actualizo el estado del periodo en la columna importation  del id_periodo: '.$period->id);
 
             $paids = [
                 'period'=>$period,
@@ -625,7 +625,7 @@ class ImportationController extends Controller
         try{
             $period = LoanPaymentPeriod::whereId($request->period)->first();
             $c = 0;$sw = false;$c2 = 0;
-            if(!$period->import_command)
+            if(!$period->importation)
             {
                 $query = "select * from loan_payment_group_commands where period_id = $period->id order by id";
                 $payments = DB::select($query);//return $payments;
@@ -718,7 +718,7 @@ class ImportationController extends Controller
                     $update_command_grupded = "UPDATE loan_payment_group_commands set amount_balance = $amount where id = $payment->id";
                     $update_command_grupded = DB::select($update_command_grupded);
                 }
-                $update_period = "UPDATE loan_payment_periods set import_command = true where id = $period->id";
+                $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
                 $update_period = DB::select($update_period);
                 DB::commit();
                 $paids = [
@@ -833,13 +833,13 @@ class ImportationController extends Controller
             $period = $request->period;$origin = $request->origin;
             $period = LoanPaymentPeriod::whereId($request->period)->first();
 
-            if($origin == 'C' && !$period->import_command){
+            if($origin == 'C' && !$period->importation){
                 $this->delete_agroups_payments($period->id,$origin);
                 $this->delete_copy_payments($period->id,$origin);
                 $validated_rollback = true;
 
             }
-            if($origin == 'S' && !$period->import_senasir){
+            if($origin == 'S' && !$period->importation){
                 $this->delete_agroups_payments($period->id,$origin);
                 $this->delete_copy_payments($period->id,$origin);
                 $validated_rollback = true;
@@ -909,7 +909,7 @@ class ImportationController extends Controller
             where period_id = $request->period_id" ;
             $query_step_2 = DB::select($query_grouped)[0]->num_reg;
             $result['reg_group'] = DB::select($query_grouped)[0]->num_reg_group;
-            $query_step_3 = $period->import_command;
+            $query_step_3 = $period->importation;
             if($query_step_1 == true && $query_step_2 == true && $query_step_3 == true ){
                 $result['percentage'] = 100;
                 $result['query_step_3'] = true;
@@ -942,7 +942,7 @@ class ImportationController extends Controller
             where period_id = $request->period_id" ;
             $query_step_2 = DB::select($query_grouped)[0]->num_reg;
             $result['reg_group'] = DB::select($query_grouped)[0]->num_reg_group;
-            $query_step_3 = $period->import_senasir;
+            $query_step_3 = $period->importation;
             if($query_step_1 == true && $query_step_2 == true && $query_step_3 == true ){
                 $result['percentage'] = 100;
                 $result['query_step_3'] = true;
