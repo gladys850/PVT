@@ -11,6 +11,7 @@ Route::group([
     Route::apiResource('affiliate', 'Api\V1\AffiliateController')->only('show');//b
     Route::apiResource('record', 'Api\V1\RecordController')->only('index');//b
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//b
+    Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
