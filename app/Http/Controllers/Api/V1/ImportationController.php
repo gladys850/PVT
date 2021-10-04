@@ -520,8 +520,8 @@ class ImportationController extends Controller
          $result['validate'] = false;
         try {
             $extencion= strtolower($request->file->getClientOriginalExtension()); 
-            $last_period = LoanPaymentPeriod::orderBy('id')->get()->last();
-            $last_date = Carbon::parse($last_period->year.'-'.$last_period->month)->format('Y-m');            
+            $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
+            $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();            
         if($extencion == "csv"){
             $file_name_entry = $request->file->getClientOriginalName(); 
             $file_name_entry = explode(".csv",$file_name_entry);
@@ -529,20 +529,24 @@ class ImportationController extends Controller
             $result=[];
             $period_state = false;
             if($request->state == "C"){
-                $origin = "comando-".$last_period->year;
-                $period_state = $last_period->import_command;
+                $last_date = Carbon::parse($last_period_comand->year.'-'.$last_period_comand->month)->format('Y-m'); 
+                $origin = "comando-".$last_period_comand->year;
+                $period_state = $last_period_comand->importation;
                 $new_file_name ="comando-".$last_date;
+                $period_id = $last_period_comand->id;
             }else{
-                $origin = "senasir-".$last_period->year;
-                $period_state = $last_period->import_senasir;
+                $last_date = Carbon::parse($last_period_senasir->year.'-'.$last_period_senasir->month)->format('Y-m'); 
+                $origin = "senasir-".$last_period_senasir->year;
+                $period_state = $last_period_senasir->importation;
                 $new_file_name ="senasir-".$last_date;
+                $period_id = $last_period_senasir->id;
             }
             if($file_name_entry == $new_file_name){
                 if($period_state == false){
                     $file_name = $new_file_name.'.csv';
                     $base_path = 'cobranzas-importacion/'.$origin;    
                     $file_path = Storage::disk('ftp')->putFileAs($base_path,$request->file,$file_name);
-                    $request['period_id'] = $last_period->id;
+                    $request['period_id'] = $period_id;
                     $request['location'] = $base_path;
                     $request['type'] = $request->state;
                     $request['file_name'] = $file_name;
