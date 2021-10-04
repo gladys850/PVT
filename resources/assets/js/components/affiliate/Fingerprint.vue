@@ -64,23 +64,12 @@
                 ></v-img>
               </v-col>
             </template>
-            <v-col cols="12">
-              <v-btn
-              color="primary"
-              @click="deletefingerprintCapture()" v-if="editable && permission.secondary"
-              :disabled="fingerprintSucess"
-            >
-              <v-icon left>mdi-fingerprint</v-icon>
-              <span>Eliminar huella capturada</span>
-              </v-btn>
-            </v-col>
           </v-row>
           <v-row v-else>
             <v-col cols="12">
               Sin registro de huellas
             </v-col>
           </v-row>
-          
         </v-row>
         <v-row>
           <v-col cols="12">
