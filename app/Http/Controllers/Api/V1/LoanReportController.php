@@ -382,7 +382,7 @@ class LoanReportController extends Controller
             if(count($loan->personal_references)>0){
                 $loan->personal_ref = $loan->personal_references;
             }
-            $loan->separation="*";
+            $loan->separation="*"; 
     
             $loans_mora_total->push($loan);
           }
@@ -428,7 +428,7 @@ class LoanReportController extends Controller
             if(isset($row->guarantor[1])){
                 $phone_number_g2 = str_replace(array("(", ")", "-"), '', $row->guarantor[1]->cell_phone_number);
                 $phone_number_g2 = explode(",",$phone_number_g2);
-                if(count($phone_number)>1)
+                if(count($phone_number_g2)>1)
                     $sw_g2 = true;
             }
             array_push($data_mora_total, array(
@@ -524,7 +524,7 @@ class LoanReportController extends Controller
             if(isset($row->guarantor[1])){
                 $phone_number_g2 = str_replace(array("(", ")", "-"), '', $row->guarantor[1]->cell_phone_number);
                 $phone_number_g2 = explode(",",$phone_number_g2);
-                if(count($phone_number)>1)
+                if(count($phone_number_g2)>1)
                     $sw_g2 = true;
             }
             array_push($data_mora_parcial, array(
@@ -621,7 +621,7 @@ class LoanReportController extends Controller
             if(isset($row->guarantor[1])){
                 $phone_number_g2 = str_replace(array("(", ")", "-"), '', $row->guarantor[1]->cell_phone_number);
                 $phone_number_g2 = explode(",",$phone_number_g2);
-                if(count($phone_number)>1)
+                if(count($phone_number_g2)>1)
                     $sw_g2 = true;
             }
             array_push($data_mora, array(
@@ -1635,13 +1635,13 @@ class LoanReportController extends Controller
                      $row->full_name_borrower,
                      $row->sub_modality_loan,
                      $row->modality_loan,
-                     $row->amount_approved_loan,
+                     Util::money_format($row->amount_approved_loan),
                      $row->state_type_affiliate,
                      $row->state_affiliate,
-                     $row->quota_loan,
+                     Util::money_format($row->quota_loan),
                      $row->state_loan,
                      $row->pension_entity_affiliate,
-                     $row->disbursement_date_loan,
+                     $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y H:i:s'):'',
                      $row->type_affiliate_spouse_loan
                  ));
              }
@@ -1699,10 +1699,10 @@ class LoanReportController extends Controller
                         $lender->registration,
                         $lender->spouse ? $lender->spouse->registration : "",
                         $loan->code,
-                        $loan->request_date,
+                        Carbon::parse($loan->request_date)->format('d/m/Y'),
                         Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
-                        $loan->amount_approved,
-                        $loan->balance,
+                        Util::money_format($loan->amount_approved),
+                        Util::money_format($loan->balance),
                         $lender->pivot->quota_treat,
                         "PVT",
                         "TITULAR",
@@ -1762,10 +1762,10 @@ class LoanReportController extends Controller
                             $lender->registration,
                             $lender->spouse ? $lender->spouse->registration : "",
                             $loan->code,
-                            $loan->request_date,
+                            Carbon::parse($loan->request_date)->format('d/m/Y'),
                             Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
-                            $loan->amount_approved,
-                            $loan->balance,
+                            Util::money_format($loan->amount_approved),
+                            Util::money_format($loan->balance),
                             $lender->pivot->quota_treat,
                             "PVT",
                             "TITULAR",
@@ -2053,8 +2053,8 @@ class LoanReportController extends Controller
                        $row->full_name_affiliate,
                        $row->id_loan,
                        $row->code_loan,
-                       $row->request_date_loan,
-                       $row->disbursement_date_loan,
+                       Carbon::parse($row->request_date_loan)->format('d/m/Y'),
+                       Carbon::parse($row->disbursement_date_loan)->format('d/m/Y H:i:s'),
                        $row->city_loan,
                        $row->indebtedness_borrower,
                        $row->sub_modality_loan,
@@ -2066,15 +2066,15 @@ class LoanReportController extends Controller
                        $row->mothers_last_name_borrower,
                        $row->surname_husband_borrower,
                        $row->first_name_borrower,
-                       $row->second_name_borrower, 
-                       $row->num_accounting_voucher_loan,   
-                       $row->amount_approved_loan,
+                       $row->second_name_borrower,
+                       $row->num_accounting_voucher_loan,
+                       Util::money_format($row->amount_approved_loan),
                        $row->state_type_affiliate,
                        $row->state_affiliate,
-                       $row->quota_loan,
+                       Util::money_format($row->quota_loan),
                        $row->state_loan,
                        $row->pension_entity_affiliate,
-                       $row->balance_loan,       
+                       Util::money_format($row->balance_loan),
                        $row->type_affiliate_spouse_loan
                    ));
                }
