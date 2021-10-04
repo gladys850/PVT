@@ -42,7 +42,7 @@
             </tr>
             <tr>
                 <td class="data-row py-5">{{ Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s' )}}</td>
-                <td class="data-row py-5">{{ $lender->title }} {{ $lender->full_name }}  {{ $is_dead?  '' : $lender->affiliate_state->affiliate_state_type->name}} </td>
+                <td class="data-row py-5">{{ $lender->title }} {{ $lender->full_name }}</td>
                 <td class="data-row py-5">{{ $lender->identity_card_ext }}</td>
                 <td class="data-row py-5">{{ $lender->registration }}</td>      
             </tr>

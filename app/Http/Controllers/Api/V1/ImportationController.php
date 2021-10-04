@@ -220,7 +220,7 @@ class ImportationController extends Controller
         $procedure_modality_id = ProcedureModality::whereShortened('DES-SENASIR')->first()->id;
         $categorie_id = LoanPaymentCategorie::whereTypeRegister('SISTEMA')->first()->id;
         $senasir_lender = 0; $senasir_guarantor = 0;
-        if(!$period->import_senasir){
+        if(!$period->importation){
             $estimated_date = Carbon::create($period->year, $period->month, 1);
             $estimated_date = Carbon::parse($estimated_date)->endOfMonth()->format('Y-m-d');
 
@@ -302,9 +302,9 @@ class ImportationController extends Controller
                 }
             }
 
-            $update_period = "UPDATE loan_payment_periods set import_senasir = true where id = $period->id";
+            $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
             $update_period = DB::select($update_period);
-            Log::info('Se actualizo el estado del periodo en la columna import_senasir  del id_periodo: '.$period->id);
+            Log::info('Se actualizo el estado del periodo en la columna importation  del id_periodo: '.$period->id);
 
             $paids = [
                 'period'=>$period,
@@ -520,8 +520,8 @@ class ImportationController extends Controller
          $result['validate'] = false;
         try {
             $extencion= strtolower($request->file->getClientOriginalExtension()); 
-            $last_period = LoanPaymentPeriod::orderBy('id')->get()->last();
-            $last_date = Carbon::parse($last_period->year.'-'.$last_period->month)->format('Y-m');            
+            $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
+            $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();            
         if($extencion == "csv"){
             $file_name_entry = $request->file->getClientOriginalName(); 
             $file_name_entry = explode(".csv",$file_name_entry);
@@ -529,20 +529,24 @@ class ImportationController extends Controller
             $result=[];
             $period_state = false;
             if($request->state == "C"){
-                $origin = "comando-".$last_period->year;
-                $period_state = $last_period->import_command;
+                $last_date = Carbon::parse($last_period_comand->year.'-'.$last_period_comand->month)->format('Y-m'); 
+                $origin = "comando-".$last_period_comand->year;
+                $period_state = $last_period_comand->importation;
                 $new_file_name ="comando-".$last_date;
+                $period_id = $last_period_comand->id;
             }else{
-                $origin = "senasir-".$last_period->year;
-                $period_state = $last_period->import_senasir;
+                $last_date = Carbon::parse($last_period_senasir->year.'-'.$last_period_senasir->month)->format('Y-m'); 
+                $origin = "senasir-".$last_period_senasir->year;
+                $period_state = $last_period_senasir->importation;
                 $new_file_name ="senasir-".$last_date;
+                $period_id = $last_period_senasir->id;
             }
             if($file_name_entry == $new_file_name){
                 if($period_state == false){
                     $file_name = $new_file_name.'.csv';
                     $base_path = 'cobranzas-importacion/'.$origin;    
                     $file_path = Storage::disk('ftp')->putFileAs($base_path,$request->file,$file_name);
-                    $request['period_id'] = $last_period->id;
+                    $request['period_id'] = $period_id;
                     $request['location'] = $base_path;
                     $request['type'] = $request->state;
                     $request['file_name'] = $file_name;
@@ -621,7 +625,7 @@ class ImportationController extends Controller
         try{
             $period = LoanPaymentPeriod::whereId($request->period)->first();
             $c = 0;$sw = false;$c2 = 0;
-            if(!$period->import_command)
+            if(!$period->importation)
             {
                 $query = "select * from loan_payment_group_commands where period_id = $period->id order by id";
                 $payments = DB::select($query);//return $payments;
@@ -714,7 +718,7 @@ class ImportationController extends Controller
                     $update_command_grupded = "UPDATE loan_payment_group_commands set amount_balance = $amount where id = $payment->id";
                     $update_command_grupded = DB::select($update_command_grupded);
                 }
-                $update_period = "UPDATE loan_payment_periods set import_command = true where id = $period->id";
+                $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
                 $update_period = DB::select($update_period);
                 DB::commit();
                 $paids = [
@@ -829,13 +833,13 @@ class ImportationController extends Controller
             $period = $request->period;$origin = $request->origin;
             $period = LoanPaymentPeriod::whereId($request->period)->first();
 
-            if($origin == 'C' && !$period->import_command){
+            if($origin == 'C' && !$period->importation){
                 $this->delete_agroups_payments($period->id,$origin);
                 $this->delete_copy_payments($period->id,$origin);
                 $validated_rollback = true;
 
             }
-            if($origin == 'S' && !$period->import_senasir){
+            if($origin == 'S' && !$period->importation){
                 $this->delete_agroups_payments($period->id,$origin);
                 $this->delete_copy_payments($period->id,$origin);
                 $validated_rollback = true;
@@ -905,7 +909,7 @@ class ImportationController extends Controller
             where period_id = $request->period_id" ;
             $query_step_2 = DB::select($query_grouped)[0]->num_reg;
             $result['reg_group'] = DB::select($query_grouped)[0]->num_reg_group;
-            $query_step_3 = $period->import_command;
+            $query_step_3 = $period->importation;
             if($query_step_1 == true && $query_step_2 == true && $query_step_3 == true ){
                 $result['percentage'] = 100;
                 $result['query_step_3'] = true;
@@ -938,7 +942,7 @@ class ImportationController extends Controller
             where period_id = $request->period_id" ;
             $query_step_2 = DB::select($query_grouped)[0]->num_reg;
             $result['reg_group'] = DB::select($query_grouped)[0]->num_reg_group;
-            $query_step_3 = $period->import_senasir;
+            $query_step_3 = $period->importation;
             if($query_step_1 == true && $query_step_2 == true && $query_step_3 == true ){
                 $result['percentage'] = 100;
                 $result['query_step_3'] = true;
