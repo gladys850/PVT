@@ -382,7 +382,7 @@ class LoanReportController extends Controller
             if(count($loan->personal_references)>0){
                 $loan->personal_ref = $loan->personal_references;
             }
-            $loan->separation="*";
+            $loan->separation="*"; 
     
             $loans_mora_total->push($loan);
           }
@@ -428,7 +428,7 @@ class LoanReportController extends Controller
             if(isset($row->guarantor[1])){
                 $phone_number_g2 = str_replace(array("(", ")", "-"), '', $row->guarantor[1]->cell_phone_number);
                 $phone_number_g2 = explode(",",$phone_number_g2);
-                if(count($phone_number)>1)
+                if(count($phone_number_g2)>1)
                     $sw_g2 = true;
             }
             array_push($data_mora_total, array(
@@ -524,7 +524,7 @@ class LoanReportController extends Controller
             if(isset($row->guarantor[1])){
                 $phone_number_g2 = str_replace(array("(", ")", "-"), '', $row->guarantor[1]->cell_phone_number);
                 $phone_number_g2 = explode(",",$phone_number_g2);
-                if(count($phone_number)>1)
+                if(count($phone_number_g2)>1)
                     $sw_g2 = true;
             }
             array_push($data_mora_parcial, array(
@@ -621,7 +621,7 @@ class LoanReportController extends Controller
             if(isset($row->guarantor[1])){
                 $phone_number_g2 = str_replace(array("(", ")", "-"), '', $row->guarantor[1]->cell_phone_number);
                 $phone_number_g2 = explode(",",$phone_number_g2);
-                if(count($phone_number)>1)
+                if(count($phone_number_g2)>1)
                     $sw_g2 = true;
             }
             array_push($data_mora, array(
