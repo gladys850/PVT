@@ -1,66 +1,74 @@
 <template>
-  <v-container class="ma-0 pa-0">
+  <v-container fluid>
     <v-row>
-      <v-col cols="4" class="ma-0 pa-2 pt-0">
-        <v-card color="info_card">
-          <v-card-title class="ma-0 pa-0">
-            <v-col cols="5" md="5">
-              <v-row>
-                <div class="pl-3">
-                  <div v-if="profilePictures.length > 0">
-                    <v-avatar class="mx-auto d-block elevation-3" tile size="125">
-                      <v-img
-                        :src="`data:${profilePictures[0].format};base64,${profilePictures[0].content}`"
-                      />
-                    </v-avatar>
-                  </div>
-                  <div v-else>
-                    <v-avatar class="mx-auto d-block elevation-3" tile size="125">
-                      <v-icon size="125" color="black" v-if="affiliate.gender==='M'">mdi-face</v-icon>
-                      <v-icon size="125" color="black" v-else>mdi-face-woman</v-icon>
-                    </v-avatar>
-                  </div>
-                </div>
-              </v-row>
-            </v-col>
-            <v-col cols="7" md="7" class="text--lighten-5">
-              <v-card-text>
-                C.I.: {{affiliate.identity_card_ext}}
-                <br />
-                Categoría: <span v-if="affiliate.category != null">{{affiliate.category.name}}</span>
-                <br />
-                Estado:  {{this.state_name_status}}
-                <br />
-                Grado: {{this.degree_name}}
-                <br/>
-                Unidad: {{this.unit_name}}
-                <br />
-                Estado Civil: <span v-if ="affiliate.gender==='M'">
-                  {{affiliate.civil_status=='C'? 'CASADO':affiliate.civil_status=='S'? 'SOLTERO':affiliate.civil_status=='D'?'DIVORCIADO':'VIUDO'}}
-                  </span>
-                <span v-else>
-                  {{affiliate.civil_status=='C'? 'CASADA':affiliate.civil_status=='S'? 'SOLTERA':affiliate.civil_status=='D'?'DIVORCIADA':'VIUDA'}}
-                  </span>
-              </v-card-text>
-            </v-col>
-          </v-card-title>
-          <v-card-text class="ma-0 pa-0 pl-3 pb-3" v-if="affiliate.dead && !affiliate.dead_spouse">
-              <v-col cols="12" color="info_card" class="text--lighten-5 ma-0 pa-0">
-                <strong>Conyugue:</strong> {{$options.filters.fullName(affiliate.spouse, true) }}
+      <v-col cols="12" md="3" class="ma-0 pa-2 pt-0" align="center">
+        <v-progress-linear
+          indeterminate
+          color="primary"
+          v-if="loading_affiliate"
+        ></v-progress-linear>
+        <v-card color="info_card elevation-1" max-width="350" :loading="loading_affiliate">
+          <div class="pa-3" >
+            <div v-if="profilePictures.length > 0">
+              <v-avatar class="mx-auto d-block elevation-3" tile size="125">
+                <v-img
+                  :src="`data:${profilePictures[0].format};base64,${profilePictures[0].content}`"
+                />
+              </v-avatar>
+            </div>
+            <div v-else>
+              <v-avatar class="mx-auto d-block " tile size="125">
+                <v-icon size="125" color="tertiary" v-if="affiliate.gender==='M'">mdi-face</v-icon>
+                <v-icon size="125" color="tertiary" v-else>mdi-face-woman</v-icon>
+              </v-avatar>
+            </div>
+          </div>
+          <v-divider class="mx-4"></v-divider>
+          <v-card-text class="black--text my-0 py-0" v-if="affiliate.dead && !affiliate.dead_spouse">
+            <v-row>
+              <v-col cols="12" color="info_card" align="start" class=" subtitle-1">
+                <strong>Cónyuge:</strong> {{$options.filters.fullName(affiliate.spouse, true) }}
                 <br />
                 <strong>C.I.:</strong> {{affiliate.spouse.identity_card}}
                 <br />
                 <strong>Matrícula:</strong> {{affiliate.spouse.registration}}
                 <br />
               </v-col>
+            </v-row>
+          </v-card-text>
+          <v-divider class="mx-4"></v-divider>
+          <v-card-text class="black--text my-0 py-0">
+            <v-row>
+              <v-col cols="12" md="12" align="start" class="subtitle-1">
+                <h4 align="center" v-if="affiliate.dead && !affiliate.dead_spouse">
+                  Datos del Afiliado
+                </h4>  
+                <b>C.I.:  </b> {{affiliate.identity_card_ext}}
+                <br>
+                <b>Categoría:</b> <span v-if="affiliate.category != null">{{affiliate.category.name}}</span>
+                <br />
+                <b>Estado:</b>  {{this.state_name_status}}
+                <br />
+                <b>Grado:</b> {{this.degree_name}}
+                <br/>
+                <b>Unidad:</b> {{this.unit_name}}
+                <br />
+                <b>Estado Civil:</b> <span v-if ="affiliate.gender==='M'">
+                  {{affiliate.civil_status=='C'? 'CASADO':affiliate.civil_status=='S'? 'SOLTERO':affiliate.civil_status=='D'?'DIVORCIADO':'VIUDO'}}
+                  </span>
+                <span v-else>
+                  {{affiliate.civil_status=='C'? 'CASADA':affiliate.civil_status=='S'? 'SOLTERA':affiliate.civil_status=='D'?'DIVORCIADA':'VIUDA'}}
+                </span>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
         <div class="red--text pa-4" v-if="affiliate.spouse != null">
           <span v-if="affiliate.dead && affiliate.dead_spouse">
-              *El afiliado y conyugue se encuentran registrados como fallecidos.
+              *El afiliado y cónyuge se encuentran registrados como fallecidos.
           </span>
           <span  v-if="!affiliate.dead  && !affiliate.dead_spouse">
-              **Se tiene el registro datos del conyugue. Verifique el estado del afiliado/a
+              **Se tiene el registro datos del cónyuge. Verifique el estado del afiliado/a
           </span>
           <span  v-if="(cleanSpace(affiliate.death_certificate_number) != null ||
                     cleanSpace(affiliate.date_death) != null  ||
@@ -69,9 +77,13 @@
           </span>
         </div>
       </v-col>
-
-      <v-col cols="8" class="text-center pt-0">
-        <v-card color="info_card" shaped class="mx-5">
+      <v-col cols="12" md="9" class="text-center ma-0 pa-2 pt-0">
+        <v-progress-linear
+          indeterminate
+          color="primary"
+          v-if="loading_loan"
+        ></v-progress-linear>
+        <v-card v-else color="info_card " shaped class="elevation-1" >
           <v-card-title>Préstamos</v-card-title>
           <v-card-text>
             <div>
@@ -273,6 +285,9 @@ export default {
       type: Object,
       required: true
     },
+    loading_affiliate:{
+      required: true
+    }
   },
   data: () => ({
     loading: false,
@@ -291,7 +306,8 @@ export default {
     loan_affiliate: {},
     spouse: {},
     global_parameters: {},
-    validate_affiliate: false
+    validate_affiliate: false,
+    loading_loan: true
   }),
   created() {
     this.randomColor = common.randomColor
@@ -389,7 +405,8 @@ export default {
       } catch (e) {
         console.log(e);
       } finally {
-        this.loading = false;
+        this.loading = false
+        this.loading_loan=false
       }
     },
     async getState_name(id) {
@@ -516,7 +533,6 @@ export default {
         console.log(e)
       }
     },
-
   }
 };
 </script>
