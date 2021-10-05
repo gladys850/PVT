@@ -68,11 +68,6 @@ class AffiliateController extends Controller
         if($affiliate->affiliate_state !=null) $affiliate->affiliate_state;
         return $affiliate;
     }
-    public static function append_data_prueba(Affiliate $affiliate, $with_category = false)
-    {
-        $affiliate->picture_saved = $affiliate->picture_saved; 
-        return $affiliate;
-    }
 
     public static function append_data_list_affiliate(Affiliate $affiliate, $with_category = false)
     {
@@ -163,7 +158,7 @@ class AffiliateController extends Controller
     }
 
     /**
-    * Detalle de afiliado
+    * Detalle de afiliado biometrico
     * Devuelve el detalle de un afiliado mediante su ID
     * @urlParam affiliate required ID de afiliado. Example: 54
     * @authenticated
@@ -171,7 +166,19 @@ class AffiliateController extends Controller
     */
     public function show(Affiliate $affiliate)
     {
-        return self::append_data_prueba($affiliate, true);
+        return $affiliate;
+    }
+
+    /**
+    * Detalle de afiliado prestamos
+    * Devuelve el detalle de un afiliado mediante su ID
+    * @urlParam affiliate required ID de afiliado. Example: 54
+    * @authenticated
+    * @responseFile responses/affiliate/show.200.json
+    */
+    public function affiliate_show(Affiliate $affiliate)
+    {
+        return self::append_data($affiliate, true);
     }
 
     /**
@@ -343,7 +350,7 @@ class AffiliateController extends Controller
         return $files;
     }
 
-    /** @group Biométrico
+        /** @group Biométrico
     * Imagen huellas afiliado
     * Elimina las huellas dactilares del afiliado
     */
