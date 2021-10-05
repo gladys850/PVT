@@ -10,6 +10,7 @@
               <v-tooltip bottom >
                 <template v-slot:activator="{ on }">
                   <v-btn
+                    :loading="loading_print_solicitude"
                     fab
                     x-small
                     outlined
@@ -20,11 +21,12 @@
                     ><v-icon>mdi-file-document</v-icon>
                   </v-btn>
                 </template>
-                <span>Imprimir Solictud</span>
+                <span>Imprimir Solicitud</span>
               </v-tooltip>
               <v-tooltip bottom >
                 <template v-slot:activator="{ on }">
                   <v-btn
+                    :loading="loading_print_contract"
                     fab
                     x-small
                     outlined
@@ -40,6 +42,7 @@
               <v-tooltip bottom v-if="loan.state.name == 'Vigente' || loan.state.name == 'Liquidado'">
                 <template v-slot:activator="{ on }">
                   <v-btn
+                    :loading="loading_print_plan"
                     fab
                     x-small
                     outlined
@@ -55,6 +58,7 @@
               <v-tooltip bottom v-if="loan.state.name == 'Vigente' || loan.state.name == 'Liquidado'">
                 <template v-slot:activator="{ on }">
                   <v-btn
+                    :loading="loading_print_kardex"
                     fab
                     x-small
                     outlined
@@ -154,6 +158,10 @@ export default {
     role_name: null,
     user_name: null,
     id_street: 0,
+    loading_print_solicitude:false,
+    loading_print_contract:false,
+    loading_print_plan:false,
+    loading_print_kardex:false
   }),
    mounted() {
     this.getloan(this.$route.params.id)
@@ -337,12 +345,16 @@ export default {
       try {
         let res;
         if (id == 1) {
+          this.loading_print_contract=true
           res = await axios.get(`loan/${item}/print/contract`);
         } else if (id == 2) {
+          this.loading_print_solicitude=true
           res = await axios.get(`loan/${item}/print/form`);
         } else if (id == 3) {
+          this.loading_print_plan=true
           res = await axios.get(`loan/${item}/print/plan`);
         } else {
+          this.loading_print_kardex=true
           res = await axios.get(`loan/${item}/print/kardex`);
         }
         printJS({
@@ -355,7 +367,17 @@ export default {
         this.toastr.error("Ocurrió un error en la impresión.");
         console.log(e);
       }
+      finally{
+        this.clean()
+      }
     },
+    //Metodo para dejar los valores por defecto
+    clean(){
+      this.loading_print_solicitude=false
+      this.loading_print_contract=false
+      this.loading_print_plan=false
+      this.loading_print_kardex=false
+    }
   },
 }
 </script>
