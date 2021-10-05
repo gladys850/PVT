@@ -51,7 +51,7 @@
             >
               <v-icon left>mdi-fingerprint</v-icon>
               <span v-if="fingerprintSucess">Huella capturada</span>
-              <span v-else>Capturar huella</span>
+              <span v-else> Capturar huella </span>
             </v-btn>
           </v-col>
           <v-row v-if="fingerprints.length > 0">
@@ -71,6 +71,18 @@
             </v-col>
           </v-row>
         </v-row>
+        <v-row>
+          <v-col cols="12">
+              <v-btn
+              color="red"
+              @click="deletefingerprintCapture()" v-if="editable && permission.secondary"
+              :disabled="fingerprintSucess"
+            >
+              <v-icon left>mdi-fingerprint</v-icon>
+              <span>Eliminar huella</span>
+              </v-btn>
+            </v-col>
+          </v-row>
       </v-col>
     </v-row>
     <v-dialog
@@ -129,6 +141,17 @@
         <camara></camara>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5">¿Desea eliminar las huellas dactilares?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete">No</v-btn>
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm">Si</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
   </v-container>
 </template>
 
@@ -159,7 +182,8 @@ export default {
     fingerprintSaved: false,
     fingerprintSucess: null,
     fingerprints: [],
-    profilePictures: []
+    profilePictures: [],
+    dialogDelete: false,
   }),
   components: {
     'camara': Cam
@@ -215,7 +239,34 @@ export default {
         this.toastr.error('Error al comunicarse con el dispositivo de captura de huellas')
         this.fingerprintCapture = false
       }
-    }
+    },
+    async deletefingerprintCapture() {
+      try {
+        // if(confirm("¿Desea eliminar las huellas dactilares?"))
+        // {
+        //   await axios.get(`affiliate/${this.affiliate.id}/deletefingerprint`)
+        //   this.toastr.success('Huellas capturadas eliminidas')
+        // }
+        this.dialogDelete=true
+      } catch (e) {
+        console.log(e)
+        this.toastr.error('Error al eliminar las huellas capturadas')
+      }
+    },
+
+    closeDelete () {
+        this.dialogDelete = false
+    },
+    async deleteItemConfirm () {
+        try {
+          await axios.get(`affiliate/${this.affiliate.id}/deletefingerprint`)
+          this.toastr.success('Huellas capturadas eliminidas')
+          this.closeDelete()
+        }catch (e) {
+          console.log(e)
+          this.toastr.error('Error al eliminar las huellas capturadas')
+        }
+      },
   }
 }
 </script>

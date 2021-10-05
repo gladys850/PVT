@@ -68,6 +68,11 @@ class AffiliateController extends Controller
         if($affiliate->affiliate_state !=null) $affiliate->affiliate_state;
         return $affiliate;
     }
+    public static function append_data_prueba(Affiliate $affiliate, $with_category = false)
+    {
+        $affiliate->picture_saved = $affiliate->picture_saved; 
+        return $affiliate;
+    }
 
     public static function append_data_list_affiliate(Affiliate $affiliate, $with_category = false)
     {
@@ -166,7 +171,7 @@ class AffiliateController extends Controller
     */
     public function show(Affiliate $affiliate)
     {
-        return self::append_data($affiliate, true);
+        return self::append_data_prueba($affiliate, true);
     }
 
     /**
@@ -336,6 +341,35 @@ class AffiliateController extends Controller
             }
         } catch (\Exception $e) {}
         return $files;
+    }
+
+    /** @group Biométrico
+    * Imagen huellas afiliado
+    * Elimina las huellas dactilares del afiliado
+    */
+    public function fingerprint_delete($affiliate)
+    {
+        $files = [];
+        try {
+            $base_path = 'picture/';
+            $fingerprint_files = ['_left_four.png', '_right_four.png', '_thumbs.png'];
+            foreach ($fingerprint_files as $file) {
+                if (Storage::disk('ftp')->exists($base_path . $affiliate . $file)) {
+                    Storage::disk('ftp')->delete($base_path . $affiliate . $file);
+                }
+            }
+
+            $base_path = 'fingerprint/';
+            $fingerprint_files = ['_left_index.wsq', '_left_little.wsq', '_left_middle.wsq', '_left_ring.wsq', '_left_thumb.wsq', '_right_index.wsq', '_right_little.wsq', '_right_middle.wsq', '_right_ring.wsq', '_right_thumb.wsq'];
+            foreach ($fingerprint_files as $file) {
+                if (Storage::disk('ftp')->exists($base_path . $affiliate . $file)) {
+                    Storage::disk('ftp')->delete($base_path . $affiliate . $file);
+                }
+            }
+        } catch (\Exception $e) {}
+        return response()->json([
+            'message' => 'Huellas dactilares eliminadas'
+        ], 200);
     }
 
     /** @group Biométrico
