@@ -74,6 +74,7 @@ class LoanController extends Controller
             {
                 $guarantor->affiliate_state = $guarantor->affiliate_state;
                 $guarantor->spouse = $guarantor->spouse;
+                $guarantor->ballots = $loan->ballot_affiliate($guarantor->id);
             }
             $loan->lenders = $loan->lenders;
             $loan->guarantors = $loan->guarantors;
