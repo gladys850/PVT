@@ -148,7 +148,7 @@
                       </v-row>
                     </v-card-text>
                     <v-progress-linear color="white"></v-progress-linear>
-                    <v-card-actions v-show="item.import_senasir && item.import_command" class="text-center blue-grey lighten-5">
+                    <v-card-actions class="text-center blue-grey lighten-5">
                       <v-row justify="center">
                         <v-col cols="12" class="py-0">
                           <h3  class="caption">REPORTES</h3>
@@ -158,8 +158,8 @@
                           <v-tooltip top>
                             <template v-slot:activator="{ on }">
                               <v-btn
+                                :disabled="!item.import_command"
                                 fab
-                                dark
                                 small
                                 :color="'primary'"
                                 bottom
@@ -176,27 +176,27 @@
                               <span>Reporte Pago Comando</span>
                             </div>
                           </v-tooltip>
-                            <v-tooltip top>
-                          <template v-slot:activator="{ on }">
-                            <v-btn
-                              fab
-                              dark
-                              small
-                              :color="'primary'"
-                              bottom
-                              right
-                              v-on="on"
-                              v-model="report_button_senasir[i]"
-                              :loading="report_loading_senasir[i]"
-                              @click.stop="reporteComandoSenasir(item.id,'S',i)"
-                            >
-                              <v-icon >mdi-home-analytics</v-icon>
-                            </v-btn>
-                          </template>
-                          <div>
-                            <span>Reporte Pago Senasir</span>
-                          </div>
-                        </v-tooltip>
+                          <v-tooltip top>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                :disabled="!item.import_senasir"
+                                fab
+                                small
+                                :color="'primary'"
+                                bottom
+                                right
+                                v-on="on"
+                                v-model="report_button_senasir[i]"
+                                :loading="report_loading_senasir[i]"
+                                @click.stop="reporteComandoSenasir(item.id,'S',i)"
+                              >
+                                <v-icon >mdi-home-analytics</v-icon>
+                              </v-btn>
+                            </template>
+                            <div>
+                              <span>Reporte Pago Senasir</span>
+                            </div>
+                          </v-tooltip>
                         </v-col>
                       </v-row>
                     </v-card-actions>
@@ -1048,6 +1048,8 @@ export default {
       {
         this.report_button_command.push(j)
         this.report_loading_command.push(false)
+        this.report_button_senasir.push(j)
+        this.report_loading_senasir.push(false)
       }
       if(tipo=='C' )
       {

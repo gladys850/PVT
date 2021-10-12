@@ -31,8 +31,6 @@ use App\Contribution;
 use App\AidContribution;
 use App\LoanContributionAdjust;
 use App\LoanGlobalParameter;
-//use App\FundRotatory;
-//use App\FundRotatoryOutput;
 use App\MovementConcept;
 use App\MovementFundRotatory;
 use App\Http\Requests\LoansForm;
@@ -44,7 +42,6 @@ use App\Events\LoanFlowEvent;
 use Carbon;
 use App\Helpers\Util;
 use App\Http\Controllers\Api\V1\LoanPaymentController;
-use App\Http\Controllers\Api\V1\FundRotatoryOutputController;
 use Carbon\CarbonImmutable;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ArchivoPrimarioExport;
@@ -77,6 +74,7 @@ class LoanController extends Controller
             {
                 $guarantor->affiliate_state = $guarantor->affiliate_state;
                 $guarantor->spouse = $guarantor->spouse;
+                $guarantor->ballots = $loan->ballot_affiliate($guarantor->id);
             }
             $loan->lenders = $loan->lenders;
             $loan->guarantors = $loan->guarantors;
