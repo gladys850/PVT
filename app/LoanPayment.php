@@ -273,4 +273,12 @@ class LoanPayment extends Model
         }
         return (object)$interest;
     }
+
+    //es el ultimo pago del prestamo en el kardex
+    public function is_last_payment_kardex(){
+        $is_last = false;
+        $last_kardex_loan = $this->loan->payment_kardex_last();
+        if($last_kardex_loan->id == $this->id) $is_last = true;
+        return $is_last;
+    }
 }
