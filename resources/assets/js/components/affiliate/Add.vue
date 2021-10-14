@@ -168,7 +168,7 @@
         <v-card flat tile >
           <v-card-text>
             <Dashboard
-              :affiliate.sync="affiliate"/>
+              :affiliate.sync="affiliate" :loading_affiliate="loading_affiliate"/>
           </v-card-text>
         </v-card>
       </v-tab-item>
@@ -319,6 +319,7 @@ export default {
     has_registered_spouse: false,
     bus: new Vue(),
     id_street: 0,
+    loading_affiliate:false
   }),
   created(){
     this.cleanSpace = common.cleanSpace
@@ -447,6 +448,7 @@ export default {
     async getAffiliate(id) {
       try {
         this.loading = true
+        this.loading_affiliate=true
         let res = await axios.get(`affiliate_show/${id}`)
         this.affiliate = res.data
         this.setBreadcrumbs()
@@ -456,6 +458,7 @@ export default {
         console.log(e)
       } finally {
         this.loading = false
+        this.loading_affiliate=false
       }
     },
     async getSpouse(id) {

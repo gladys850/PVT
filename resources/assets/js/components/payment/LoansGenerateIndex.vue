@@ -233,6 +233,32 @@
                                       </v-menu>
                                     </template>
 
+                                    <template v-slot:[`header.guarantor_amortizing_loan`]="{ header }">
+                                      {{ header.text }}{{searching.guarantor_amortizing_loan}}<br>
+                                      <v-menu offset-y :close-on-content-click="false">
+                                        <template v-slot:activator="{ on, attrs }">
+                                          <v-btn icon v-bind="attrs" v-on="on">
+                                            <v-icon small :color="searching.guarantor_amortizing_loan !='' ? 'red' : 'black' ">
+                                              mdi-filter
+                                            </v-icon>
+                                          </v-btn>
+                                        </template>
+                                        <div>
+                                          <v-select
+                                            dense
+                                            :items="items"
+                                            item-text="name"
+                                            item-value="value"
+                                            v-model="searching.guarantor_amortizing_loan"
+                                            :label="'Buscar ' + header.text"
+                                            @change="search_loans()"
+                                            hide-details
+                                            single-line
+                                          ></v-select>
+                                        </div>
+                                      </v-menu>
+                                    </template>
+
                                     <template v-slot:[`item.shortened_sub_modality_loan`]="{ item }">
                                       <v-tooltip top>
                                         <template v-slot:activator="{ on }">
@@ -252,6 +278,9 @@
                                     </template>
                                     <template v-slot:[`item.quota_loan`]="{ item }">
                                       {{ item.quota_loan | moneyString }}
+                                    </template>
+                                    <template v-slot:[`item.guarantor_amortizing_loan`]="{ item }">
+                                      {{ item.guarantor_amortizing_loan == false ? 'T':'G' }}
                                     </template>
 
                                     <template v-slot:[`item.actions`]="{ item }">
@@ -343,6 +372,7 @@ export default {
         full_name_borrower:"",
         shortened_sub_modality_loan: "",
         state_type_affiliate: "",
+        guarantor_amortizing_loan:""
       },
       headers: [
         { text: 'Cód. Préstamo', value: 'code_loan',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '15%'},
@@ -355,6 +385,7 @@ export default {
         { text: 'Saldo Capital',value:'balance_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
         { text: 'Cuota',value:'quota_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
         { text: 'Sector',value:'state_type_affiliate',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
+        { text: 'Amortizar por',value:'guarantor_amortizing_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
         { text: 'Estado',value:'state_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
         { text: 'Acción',value:'actions',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'], sortable: false,width: '10%'},
       ],
@@ -368,7 +399,21 @@ export default {
       },
       totalLoans: 0,
       loading_download: false,
-      loading_table: false
+      loading_table: false,
+      items: [
+        {
+          name: "G",
+          value: 'TRUE',
+        },
+        {
+          name: "T",
+          value: 'FALSE',
+        },
+        {
+          name: "TODOS",
+          value: '',
+        },
+      ],
   }),
 
   computed: {
@@ -421,6 +466,7 @@ export default {
             shortened_sub_modality_loan: this.searching.shortened_sub_modality_loan,
             state_type_affiliate: this.searching.state_type_affiliate,
             state_loan: this.tab == 0 ? 'Vigente' : 'Liquidado',
+            guarantor_amortizing_loan: this.searching.guarantor_amortizing_loan,
             excel: false,
             page: this.options.page,
             per_page: this.options.itemsPerPage,
@@ -455,6 +501,7 @@ export default {
           shortened_sub_modality_loan: this.searching.shortened_sub_modality_loan,
           state_type_affiliate: this.searching.state_type_affiliate,
           state_loan: this.tab == 0 ? 'Vigente' : 'Liquidado',
+          guarantor_amortizing_loan: this.searching.guarantor_amortizing_loan,
           excel: true,
         },
       })
@@ -481,6 +528,7 @@ export default {
       this.searching.modality_loan = "",
       this.searching.shortened_sub_modality_loan = "",
       this.searching.state_type_affiliate = "",
+      this.searching.guarantor_amortizing_loan = ""
       this.search_loans()
     },
 

@@ -1050,11 +1050,12 @@ class AffiliateController extends Controller
 
     public function get_mixed_loans($id, $type){
         if($type){
-            $loans = Loan::where('affiliate_id', $id)->get();
+            //$loans = Loan::where('affiliate_id', $id)->get();
+            $loans = Affiliate::whereId($id)->first()->loans;
             $ci=Affiliate::whereId($id)->first()->identity_card;
         }
         else{
-            $loans = Spouse::find($id)->spouse_loans;
+            $loans = Spouse::whereId($id)->first()->spouse_loans;
             //$loans = Loan::where('disbursable_id', $id)->where('disbursable_type', 'spouses')->get();
             $ci=Spouse::whereId($id)->first()->identity_card;
         }
@@ -1114,15 +1115,17 @@ class AffiliateController extends Controller
     public function get_mixed_guarantees($id, $type){
         if($type){
             $affiliate = Affiliate::whereId($id)->first();
+            $loans_guarantees = $affiliate->active_guarantees();
             $ci = $affiliate->identity_card;
         }
         else{
             $affiliate = Spouse::whereId($id)->first()->affiliate;
+            $loans_guarantees = $affiliate->spouse->spouse_guarantees;
             $ci = Spouse::whereId($id)->first()->identity_card;
         }
         $loans = $affiliate->guarantees;
         $data = array();
-        $loans_guarantees = $affiliate->active_guarantees();
+        //$loans_guarantees = $affiliate->active_guarantees();
         foreach($loans_guarantees as $loan){
                 $data_loan = array(
                     "id" => $loan->id,

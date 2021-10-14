@@ -1865,7 +1865,7 @@ class LoanReportController extends Controller
         if ($standalone) return Util::pdf_to_base64([$view], $file_name,'Reporte Estado de Solicitudes de Prestamos','letter', $request->copies ?? 1);
         return $view;
     }
-  /**
+  /** @group Reportes de Prestamos
    * Listar prestamos generando reportes
    * Lista todos los prestamos con opcion a busquedas
    * @queryParam sortDesc Vector de orden descendente(0) o ascendente(1). Example: 0
@@ -1894,6 +1894,7 @@ class LoanReportController extends Controller
    * @queryParam guarantor_loan Buscar los garantes del préstamo. Example: false
    * @queryParam pension_entity_affiliate Buscar por la La pension entidad del afiliado. Example: SENASIR
    * @queryParam disbursement_date_loan Buscar por fecha de desembolso. Example: 2021
+   * @queryParam guarantor_amortizing_loan Filtra los prestamos que estan amortizando garantes(TRUE) y amortizando Titular(FALSE). Example: true
    * @authenticated
    * @responseFile responses/loan/list_loans_generate.200.json
    */
@@ -1949,7 +1950,9 @@ class LoanReportController extends Controller
     $disbursement_date_loan = request('disbursement_date_loan') ?? '';
  
     $amount_approved_loan = request('amount_approved_loan') ?? '';
- 
+
+    $guarantor_amortizing_loan = request('guarantor_amortizing_loan') ?? '';
+
        if ($id_loan != '') {
         array_push($conditions, array('view_loan_borrower.id_loan', 'ilike', "%{$id_loan}%"));
       }
@@ -2028,6 +2031,9 @@ class LoanReportController extends Controller
       if ($disbursement_date_loan != '') {
         array_push($conditions, array('view_loan_borrower.disbursement_date_loan', 'ilike', "%{$disbursement_date_loan}%"));
       }
+      if ($guarantor_amortizing_loan != '') {
+        array_push($conditions, array('view_loan_borrower.guarantor_amortizing_loan', '=', "{$guarantor_amortizing_loan}"));
+      }
  
       if($excel==true){
                 $list_loan = DB::table('view_loan_borrower')
@@ -2043,7 +2049,8 @@ class LoanReportController extends Controller
                $data=array(
                    array("CI AFILIADO","EXP","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","ID PRESTAMO", "COD. PRESTAMO","FECHA DE SOLICITUD","FECHA DE DESEMBOLSO","DPTO","ÍNDICE DE ENDEUDAMIENTO","SUB MODALIDAD",
                    "MODALIDAD","CI PRESTATARIO","EXP",
-                   "MATRÍCULA PRESTATARIO","APELLIDO PATERNO ","APELLIDO MATERNO","AP. CASADA","1ER. NOMBRE","2DO. NOMBRE","NRO CPTE CTB","MONTO","ESTADO AFILIADO","TIPO ESTADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO",'SALDO PRÉSTAMO','TIPO SOLICITUD AFILIADO/ESPOSA' )
+                   "MATRÍCULA PRESTATARIO","APELLIDO PATERNO ","APELLIDO MATERNO","AP. CASADA","1ER. NOMBRE","2DO. NOMBRE","NRO CPTE CTB","MONTO","ESTADO AFILIADO","TIPO ESTADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO",'SALDO PRÉSTAMO','TIPO SOLICITUD AFILIADO/ESPOSA',
+                   'AMORTIZANDO?' )
                );
                foreach ($list_loan as $row){
                    array_push($data, array(
@@ -2075,7 +2082,8 @@ class LoanReportController extends Controller
                        $row->state_loan,
                        $row->pension_entity_affiliate,
                        Util::money_format($row->balance_loan),
-                       $row->type_affiliate_spouse_loan
+                       $row->type_affiliate_spouse_loan,
+                       $row->guarantor_amortizing_loan? 'PRES. AMORTIZANDO GARANTE':'PRES. AMORTIZANDO TITULAR'
                    ));
                }
                $export = new ArchivoPrimarioExport($data);
