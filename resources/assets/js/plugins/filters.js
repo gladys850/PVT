@@ -24,6 +24,9 @@ Vue.filter('date', value => {
 	return moment(value).format('L')
 	else ''
 })
+Vue.filter('dateperiod', value => {
+	return moment(value).isValid()?moment(value).format('MM/YYYY'):'Fecha Invalida.'
+})
 Vue.filter('money', value => {
 	if(value == 0) return '0,00'
 	//else return value.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')

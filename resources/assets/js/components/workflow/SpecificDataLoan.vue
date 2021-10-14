@@ -131,7 +131,7 @@
                                     </div>
                                   </v-col>
                                   <v-progress-linear></v-progress-linear>
-                                  <BallotsAdjust :loan_ballots="loan.lenders[0].ballots"/>
+                                  <BallotsAdjust :ballots="loan.lenders[0].ballots"/>
                                   <v-progress-linear v-show="loan_refinancing.refinancing"></v-progress-linear>
                                     <v-col cols="12" md="6" class="pb-0" v-show="loan_refinancing.refinancing">
                                     <p style="color:teal"><b>DATOS DEL PRÉSTAMO A REFINANCIAR{{' => '+ loan_refinancing.description}}</b></p>
@@ -494,8 +494,8 @@
                                 <v-card-text class="pa-0 mb-0">
                                   <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
                                     <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo'">
-                                      <li v-for="guarantor in loan.guarantors" :key="guarantor.id">
-                                        <v-col cols="12" md="12" class="pa-0">
+                                      <li v-for="(guarantor) in loan.borrowerguarantors" :key="guarantor.id">
+                                        <v-col cols="12" md="12" class="pa-0 mb-0">
                                           <v-row class="pa-2">
                                             <v-col cols="12" md="12" class="py-0">
                                               <p style="color:teal"><b>GARANTE
@@ -520,32 +520,33 @@
                                               </b></p>
                                             </v-col>
                                             <v-progress-linear></v-progress-linear><br>
-                                            <v-col cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>NOMBRE:</b> {{$options.filters.fullName(guarantor, true)}}</p>
                                             </v-col>
-                                            <v-col cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>CÉDULA DE IDENTIDAD:</b> {{guarantor.identity_card +" "+ identityCardExt(guarantor.city_identity_card_id) }}</p>
                                             </v-col>
-                                            <v-col cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>TELÉFONO:</b> {{guarantor.cell_phone_number}}</p>
                                             </v-col>
-                                            <v-col cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.pivot.payment_percentage|percentage }}%</p>
                                             </v-col>
-                                             <v-col cols="12" md="3">
+                                             <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.pivot.payable_liquid_calculated | moneyString}}</p>
                                             </v-col>
-                                            <v-col cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>PROMEDIO DE BONOS:</b> {{guarantor.pivot.bonus_calculated| moneyString }}</p>
                                             </v-col>
-                                            <v-col cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.pivot.liquid_qualification_calculated | moneyString}}</p>
                                             </v-col>
-                                            <v-col cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.pivot.indebtedness_calculated|percentage }}%</p>
                                             </v-col>
                                           </v-row>
                                         </v-col>
+                                        <BallotsAdjust :ballots="guarantor.ballots"/>
                                       </li>
                                       <br>
                                       <p v-if="loan.guarantors.length==0" style="color:teal"><b> NO TIENE GARANTES </b></p>
