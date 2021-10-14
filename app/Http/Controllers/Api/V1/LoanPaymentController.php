@@ -166,6 +166,7 @@ class LoanPaymentController extends Controller
                     $loanPayment->user = User::whereId($loanPayment->user_id)->first();
                     $loanPayment->modality;
                     $loanPayment->voucher_treasury;
+                    $loanPayment->is_last_payment_kardex = $loanPayment->is_last_payment_kardex();
                     $payments->push($loanPayment);
                 }
             }

@@ -1381,4 +1381,9 @@ class Loan extends Model
         ->get();
         return $loans_borrowers;
     }
+     //ultimo pago del kardex web y kardex de impresión
+     public function payment_kardex_last()
+     {
+         return $this->paymentsKardex->sortByDesc('id')->first();
+     }
 }
