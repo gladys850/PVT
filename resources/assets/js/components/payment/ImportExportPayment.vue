@@ -1,16 +1,23 @@
 <template>
   <v-container fluid>
-    <v-card flat>
-      <v-card-title class="pa-0 pb-3">
-        <v-toolbar dense color="tertiary" class="font-weight-regular pa-3">
-          <v-col cols="12" md="12">
-            <v-row>
-              <v-col cols="12" md="8" class="py-0">
-                <v-toolbar-title>GENERACIÓN DE PERIODOS </v-toolbar-title>
-              </v-col>
-              <v-col cols="12" md="2" class="py-0">
+      <v-card flat>
+        <v-toolbar dense color="tertiary" class="font-weight-regular">
+          <v-toolbar-title>GENERACIÓN DE PERIODOS </v-toolbar-title>
+          <div class="flex-grow-1"></div>
+                <v-btn-toggle
+                  v-model="period_type"
+                  color="teal"
+                  group
+                  mandatory
+                >
+                  <v-btn value="COMANDO">
+                    Comando
+                  </v-btn>
+                  <v-btn value="SENASIR">
+                    Senasir
+                  </v-btn>
+                </v-btn-toggle>
                 <v-select
-                  dense
                   :items="year"
                   item-text="year"
                   item-value="year"
@@ -18,9 +25,10 @@
                   label="Gestion"
                   v-model="period_year"
                   @change="Onchange()"
+                  dense
+                  outlined
+                  class="select-year"
                 ></v-select>
-              </v-col>
-              <v-col cols="12" md="2" class="py-0">
                 <v-tooltip top>
                   <template v-slot:activator="{ on }">
                     <v-btn
@@ -32,6 +40,7 @@
                       right
                       v-on="on"
                       @click.stop="savePeriod()"
+                      class="mx-2"
                     >
                       <v-icon>mdi-plus</v-icon>
                     </v-btn>
@@ -40,178 +49,146 @@
                     <span>Añadir Periodo</span>
                   </div>
                 </v-tooltip>
-              </v-col>
-            </v-row>
-          </v-col>
         </v-toolbar>
-      </v-card-title>
-          <template>
-            <v-container fluid class="px-2 pt-0">
-              <v-row justify="center" class="py-0">
-                  <v-col cols="12" sm="6" md="4" lg="3" class="py-0"
-                  v-for="(item, i) in month"
-                  :key="i">
-                  <v-card class="headline font-weight-bold"  max-width="100%" max-height="500" >
-                    <v-card-title class="teal text-center"> <v-row justify="center"> <h2 class="white--text"> {{meses[item.month - 1]}}</h2></v-row></v-card-title>
-                    <v-card-text class="blue-grey lighten-5" >
-                      <v-row>
-                        <v-progress-linear color="white"></v-progress-linear>
-                        <br>
-                        <v-divider inset class="my-2"></v-divider>
-                        <v-col cols="12" md="12" class="py-0">
-                          <b>SOLICITUD <v-icon small>mdi-arrow-down</v-icon></b>
-                        </v-col>
-                        <v-col cols="12" md="12" class="py-0">
-                           <v-row align="center" justify="space-around">
-                              <v-tooltip top>
-                                <template v-slot:activator="{ on }">
-                                  <v-btn
-                                    class="ma-2 teal white--text"
-                                    small
-                                    bottom
-                                    right
-                                    v-on="on"
-                                    :disabled="item.import_command"
-                                    :loading="loading_sc && i == l_index"
-                                    @click.stop="l_index=i;solicitudComando('C', item.id)"
-                                  >
-                                  <v-icon dark left>mdi-city-variant-outline</v-icon> Comando
-                                  </v-btn>
-                                </template>
-                                <div>
-                                  <span>Descargar Solicitud Comando</span>
-                                </div>
-                              </v-tooltip>
-                              <v-tooltip top>
-                                <template v-slot:activator="{ on}">
-                                  <v-btn
-                                    class="ma-2 teal white--text"
-                                    small
-                                    right
-                                    v-on="on"
-                                    :loading="loading_ss && i == l_index"
-                                    :disabled="item.import_senasir"
-                                    @click.stop="l_index = i;solicitudSenasir('S', item.id)"
-                                  >
-                                    <v-icon  dark left>mdi-city</v-icon>Senasir
-                                  </v-btn>
-                                </template>
-                                <div>
-                                  <span>Solicitud Senasir</span>
-                                </div>
-                              </v-tooltip>
-                           </v-row>                     
-                        </v-col>
-                        <v-divider inset class="my-2"></v-divider>
-                        <v-col cols="12" md="12" class="py-0">
-                          <b>IMPORTACION <v-icon small>mdi-arrow-up</v-icon></b>
-                        </v-col>
-                        <v-col cols="12" md="12" class="py-0">
-                          <v-row align="center" justify="space-around">
-                           <v-tooltip top>
-                            <template v-slot:activator="{ on }">
-                              <v-btn
-                                class="ma-2 info white--text"
-                                small
-                                bottom
-                                right
-                                v-on="on"
-                                :disabled="item.import_command"
-                                @click.stop="importacionComando(item.month, item.id)"
-                               >
-                                <v-icon dark left>mdi-warehouse</v-icon>Comando
-                              </v-btn>
-                            </template>
-                            <div>
-                              <span>Importación Comando</span>
-                            </div>
-                          </v-tooltip>
-                           <v-tooltip top>
-                            <template v-slot:activator="{ on}">
-                              <v-btn
-                                class="ma-2 info white--text"
-                                small
-                                right
-                                v-on="on"
-                                :disabled="item.import_senasir"
-                                 @click.stop="importacionSenasir(item.month, item.id)"
-                              >
-                                <v-icon dark left >mdi-home-analytics</v-icon>Senasir
-                              </v-btn>
-                            </template>
-                            <div>
-                              <span>Importación Senasir</span>
-                            </div>
-                          </v-tooltip>
-                          </v-row>
-                        </v-col>
-                      </v-row>
-                    </v-card-text>
-                    <v-progress-linear color="white"></v-progress-linear>
-                    <v-card-actions class="text-center blue-grey lighten-5">
-                      <v-row justify="center">
-                        <v-col cols="12" class="py-0">
-                          <h3  class="caption">REPORTES</h3>
-                          <h3  class="caption">Comando/Senasir</h3>
-                        </v-col>
-                        <v-col cols="12">
-                          <v-tooltip top>
-                            <template v-slot:activator="{ on }">
-                              <v-btn
-                                :disabled="!item.import_command"
-                                fab
-                                small
-                                :color="'primary'"
-                                bottom
-                                right
-                                v-on="on"
-                                :v-model="report_button_command[i]"
-                                :loading="report_loading_command[i]"
-                                @click.stop="reporteComandoSenasir(item.id,'C', i)"
-                              >
-                                <v-icon>mdi-warehouse</v-icon>
-                              </v-btn>
-                            </template>
-                            <div>
-                              <span>Reporte Pago Comando</span>
-                            </div>
-                          </v-tooltip>
-                          <v-tooltip top>
-                            <template v-slot:activator="{ on }">
-                              <v-btn
-                                :disabled="!item.import_senasir"
-                                fab
-                                small
-                                :color="'primary'"
-                                bottom
-                                right
-                                v-on="on"
-                                v-model="report_button_senasir[i]"
-                                :loading="report_loading_senasir[i]"
-                                @click.stop="reporteComandoSenasir(item.id,'S',i)"
-                              >
-                                <v-icon >mdi-home-analytics</v-icon>
-                              </v-btn>
-                            </template>
-                            <div>
-                              <span>Reporte Pago Senasir</span>
-                            </div>
-                          </v-tooltip>
-                        </v-col>
-                      </v-row>
-                    </v-card-actions>
-                  </v-card>
-                  <br>
+      </v-card>
+      <v-row justify="center" class="py-0 mt-2">
+          <v-card class="headline font-weight-bold ma-2" max-width="200px"  v-for="(item, i) in month" :key="i">
+            <v-card-title class="teal text-center">
+              <v-row justify="center"> <h3 class="white--text"> {{meses[item.month - 1]}}</h3></v-row>
+            </v-card-title>
+            <v-progress-linear color="white"></v-progress-linear>          
+            <v-card-text class="blue-grey lighten-5">
+              <v-row v-if="period_type==='COMANDO'">
+                <v-col cols="12" md="12" class="py-0">
+                  <b>Comando <v-icon small>mdi-city</v-icon></b>
+                </v-col>
+                 <v-divider inset></v-divider>
+                <v-col cols="12" md="12" class="py-0">
+                    <v-tooltip top>
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            class="ma-2 teal white--text btn-period"
+                            v-on="on"
+                            :disabled="item.importation"
+                            :loading="loading_sc && i == l_index"
+                            @click.stop="l_index=i;solicitudComando('C', item.id,meses[item.month - 1])"
+                          >
+                          <v-icon dark left small>mdi-arrow-down</v-icon> Solicitud
+                          </v-btn>
+                        </template>
+                        <div>
+                          <span>Descargar Solicitud Comando</span>
+                        </div>
+                    </v-tooltip>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          class="ma-2 info white--text btn-period"
+                          v-on="on"
+                          :disabled="item.importation"
+                          @click.stop="importacionComando(item.month, item.id)"
+                        >
+                          <v-icon dark left small>mdi-arrow-up</v-icon>Importación
+                        </v-btn>
+                      </template>
+                      <div>
+                        <span>Importación Comando</span>
+                      </div>
+                    </v-tooltip>           
                 </v-col>
               </v-row>
-            </v-container>
-            <v-dialog
+              <v-row v-if="period_type==='SENASIR'">
+                <v-col cols="12" md="12" class="py-0">
+                  <b>Senasir <v-icon small>mdi-home-analytics</v-icon></b>
+                </v-col>
+                <v-divider inset></v-divider>
+                <v-col cols="12" md="12" class="py-0">
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on}">
+                        <v-btn
+                          class="ma-2 teal white--text btn-period"
+                          v-on="on"
+                          :loading="loading_ss && i == l_index"
+                          :disabled="item.importation"
+                          @click.stop="l_index = i;solicitudSenasir('S', item.id,meses[item.month - 1])"
+                        >
+                          <v-icon  dark left small>mdi-arrow-down</v-icon>Solicitud
+                        </v-btn>
+                      </template>
+                      <div>
+                        <span>Solicitud Senasir</span>
+                      </div>
+                    </v-tooltip>
+                    <v-tooltip top>
+                    <template v-slot:activator="{ on}">
+                      <v-btn
+                        class="ma-2 info white--text btn-period"
+                        v-on="on"
+                        :disabled="item.importation"
+                         @click.stop="importacionSenasir(item.month, item.id)"
+                      >
+                        <v-icon dark left small>mdi-arrow-up</v-icon>Importación
+                      </v-btn>
+                    </template>
+                    <div>
+                      <span>Importación Senasir</span>
+                    </div>
+                    </v-tooltip>
+                </v-col>
+              </v-row>
+            </v-card-text>
+            <v-progress-linear color="white"></v-progress-linear>
+            <v-card-actions class="blue-grey lighten-5">
+              <v-spacer></v-spacer>
+              <v-tooltip top v-if="period_type==='COMANDO'" class="my-0">
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    :disabled="!item.importation"
+                    small
+                    :color="'primary'"
+                    fab
+                    v-on="on"
+                    :v-model="report_button_command[i]"
+                    :loading="report_loading_command[i]"
+                    @click.stop="reporteComandoSenasir(item.id,'C', i)"
+                  >
+                    <v-icon>mdi-file-document</v-icon>
+                  </v-btn>
+                </template>
+                <div>
+                  <span>Reporte Pago Comando</span>
+                </div>
+              </v-tooltip>
+              <v-tooltip top v-if="period_type==='SENASIR'">
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    :disabled="!item.importation"
+                    small
+                    :color="'primary'"
+                    fab
+                    v-on="on"
+                    v-model="report_button_senasir[i]"
+                    :loading="report_loading_senasir[i]"
+                    @click.stop="reporteComandoSenasir(item.id,'S',i)"
+                  >
+                    <v-icon >mdi-file-document</v-icon> 
+                  </v-btn>
+                </template>
+                <div>
+                  <span>Reporte Pago Senasir</span>
+                </div>
+              </v-tooltip>
+            </v-card-actions>
+          </v-card>
+      </v-row>
+      <!-- Dialogs de importacion -->
+      <v-dialog
               v-model="dialog"
               fullscreen
               hide-overlay
               transition="dialog-bottom-transition"
             >
-              <v-card>
+            <v-card>
                 <v-toolbar dark color="primary" >
                   <v-btn icon dark @click="dialog=close()" >
                     <v-icon>mdi-close</v-icon>
@@ -566,9 +543,9 @@
                     </v-col>
                   </v-row>
                 </v-col>
-              </v-card>
-            </v-dialog>
-            <v-dialog
+            </v-card>
+      </v-dialog>
+      <v-dialog
               v-model="dialog_confirm"
               max-width="600"
             >
@@ -596,8 +573,8 @@
                   </v-btn>
                 </v-card-actions>
               </v-card>
-            </v-dialog>
-            <v-dialog
+      </v-dialog>
+      <v-dialog
               v-model="dialog_confirm_import"
               max-width="500"
             >
@@ -624,9 +601,7 @@
                   </v-btn>
                 </v-card-actions>
               </v-card>
-            </v-dialog>
-          </template>
-        </v-card>
+      </v-dialog>
   </v-container>
 </template>
 <script>
@@ -672,6 +647,7 @@ export default {
   year:[],
   month:[],
   percentage:0,
+  period_type:'COMANDO',
   //variables para el uso de los loadings
   l_index: -1,
   loading_sc: false,
@@ -684,6 +660,9 @@ export default {
         this.e1 = val
       }
     },
+    period_type(){
+        this.getMonthYear();
+    }
   },
   beforeMount() {
     this.getYear();
@@ -784,7 +763,8 @@ export default {
       try {
          let res = await axios.get(`get_list_month`,{
           params:{
-            year:this.period_year
+            year:this.period_year,
+            importation_type: this.period_type
           }
         });
         this.month = res.data
@@ -798,7 +778,11 @@ export default {
     //Metodo para crear el periodo
     async savePeriod() {
       try {
-         let res = await axios.post(`periods`);
+         let res = await axios.post(`periods`,
+            {
+              importation_type: this.period_type
+            }
+          );
          if(res.data.message){
             this.toastr.error(res.data.message)
          }else{
@@ -1107,7 +1091,7 @@ export default {
       }
     },
     //Metodo para sacar la solicitud de pago de comando
-    async solicitudComando(tipo, id){
+    async solicitudComando(tipo, id,month){
       try {
         this.loading_sc=true;
         const formData = new FormData();
@@ -1128,7 +1112,7 @@ export default {
            const url = window.URL.createObjectURL(new Blob([response.data]));
            const link = document.createElement("a");
            link.href = url;
-           link.setAttribute("download", "SolicitudComando.xls");
+           link.setAttribute("download", `SolicitudComando${this.$options.filters.capitalize(month)}.xls`);
            document.body.appendChild(link);
            link.click();
         })
@@ -1144,7 +1128,7 @@ export default {
       }
     },
     //Metodo para sacar la solicitud de pago de senasir
-       async solicitudSenasir(tipo, id){
+       async solicitudSenasir(tipo, id,month){
         try {
         this.loading_ss=true;
         const formData = new FormData();
@@ -1165,7 +1149,7 @@ export default {
            const url = window.URL.createObjectURL(new Blob([response.data]));
            const link = document.createElement("a");
            link.href = url;
-           link.setAttribute("download", "SolicitudSenasir.xls");
+           link.setAttribute("download", `SolicitudSenasir${this.$options.filters.capitalize(month)}.xls`);
            document.body.appendChild(link);
            link.click();
         })
@@ -1181,3 +1165,13 @@ export default {
   },
 };
 </script>
+<style scoped>
+  .select-year {
+    max-width: 100px;
+    margin-bottom: -30px;
+  }
+  .btn-period.v-btn:not(.v-btn--round).v-size--default{
+    min-width: 160px;
+    height: 25px;
+  }
+</style>

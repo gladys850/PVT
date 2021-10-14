@@ -28,6 +28,7 @@ class LoanContributionAdjustController extends Controller
     * @bodyParam type_adjust enum required   (adjust,liquid) Example: adjust
     * @bodyParam period_date fecha required  Periodo a la que corresponde la boleta Example:2010-06-20
     * @bodyParam description string required  Descripcion del por que se realizo el ajuste del liquido. Example:ninguno
+    * @bodyParam database_name enum nombre de la base de datos en la que se encuentra registrada la garantia (PVT,SISMU) Example: SISMU
     * @queryParam search Parámetro de búsqueda. Example: 2000
     * @queryParam sortBy Vector de ordenamiento. Example: []
     * @queryParam sortDesc Vector de orden descendente(true) o ascendente(false). Example: [true]
@@ -51,6 +52,7 @@ class LoanContributionAdjustController extends Controller
     * @bodyParam type_affiliate  enum  required tipificación del afiliado como (lender,guarantor,cosigner) Example: lender
     * @bodyParam amount numeric de ajuste para el liquido Example: 10000.50
     * @bodyParam type_adjust enum required   (adjust,liquid) Example: adjust
+    * @bodyParam database_name enum nombre de la base de datos en la que se encuentra registrada la garantia (PVT,SISMU) Example: SISMU
     * @bodyParam period_date fecha required  Periodo a la que corresponde la boleta Example:2010-06-20
     * @bodyParam description string required  Descripcion del por que se realizo el ajuste del liquido. Example:ninguno
     * @authenticated
@@ -121,6 +123,7 @@ class LoanContributionAdjustController extends Controller
     * @bodyParam type_adjust enum (adjust,liquid)  Example: 10000.50
     * @bodyParam period_date fecha Periodo a la que corresponde la boleta Example: 2010-06-20 
     * @bodyParam description string Descripcion del por que se realizo el ajuste del liquido. Example:ninguno
+    * @bodyParam database_name enum nombre de la base de datos en la que se encuentra registrada la garantia (PVT,SISMU) Example: SISMU
     * @authenticated
     * @responseFile responses/loan_contribution_adjust/updateOrCreate.200.json
     */
