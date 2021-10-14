@@ -16,30 +16,30 @@
         </div>
 
         <div class="row">
-        <!--<div class="col-md-12">
+        <div class="col-md-12">
             <select v-model="camera">
             <option>-- Select Device --</option>
             <option v-for="device in devices"
             :key="device.deviceId"
             :value="device.deviceId">{{ device.label }}</option>
             </select>
-        </div>-->
+        </div>
         <div class="col-md-12">
             <v-btn
                 value="picture"
                 color="primary"
                 @click.stop="onCapture()"
             >CAPTURAR FOTO</v-btn>
-            <!--<v-btn
+            <v-btn
                 color="error"
-                @click.onStop="onStop()"
+                @click.stop="onStop()"
             >STOP CAMARA</v-btn>
 
             <v-btn
                 color="accent"
-                @click.onStar="onStart()"
+                @click="onStart()"
             >HABILITAR CAMARA</v-btn>
-            -->
+
         </div>
         </div>
     </div>
@@ -49,7 +49,7 @@
         <img :src="img" class="img-responsive" width="95%" height="95%" style="border:5px solid #ddd">
         </figure>
         <v-btn @click="savePicture()"
-                :disabled="errors.any()"
+                :disabled="false"
             color="primary"
         >GUARDAR FOTOGRAFIA</v-btn>
     </div>
@@ -127,7 +127,7 @@ methods: {
     },
     async savePicture() {
     try {
-        //this.img = this.$refs.webcam.capture();
+        this.img = this.$refs.webcam.capture();
         this.$route.params.id
         console.log(this.img)
         //let res = await axios.patch(`affiliate/${this.affiliate.id}`, this.img)
@@ -147,7 +147,7 @@ methods: {
     async getAffiliate(id) {
     try {
         this.loading = true
-        let res = await axios.get(`affiliate/${id}`)
+        let res = await axios.get(`affiliate_show/${id}`)
         this.affiliate = res.data
     } catch (e) {
         console.log(e)

@@ -290,6 +290,12 @@ export default {
       if(newVal!= oldVal){
         this.search_loans()
       }
+    },
+    searching: {
+      deep: true,
+      handler(val) {
+        this.options.page=1
+      }
     }
   },
   mounted() {

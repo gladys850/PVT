@@ -569,7 +569,7 @@ export default {
     },
     async getAffiliate(id){
       try {
-        let res= await axios.get(`affiliate/${id}`)
+        let res= await axios.get(`affiliate_show/${id}`)
         let data_codebtor = res.data
         this.editedItem.identity_card = data_codebtor.identity_card
         this.editedItem.first_name = data_codebtor.first_name
