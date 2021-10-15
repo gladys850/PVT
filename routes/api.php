@@ -110,6 +110,7 @@ Route::group([
         Route::get('get_list_month', 'Api\V1\LoanPaymentPeriodController@get_list_month');//listado de meses por gestion
         Route::get('get_list_year', 'Api\V1\LoanPaymentPeriodController@get_list_year');//listado de meses por gestion
         Route::apiResource('periods', 'Api\V1\LoanPaymentPeriodController')->only('index', 'show', 'store', 'update', 'destroy');//cambiar a cobranzas
+        Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'
