@@ -44,7 +44,7 @@
                 <td>Tipo de Desembolso</td>
             </tr>
             <tr>
-                <td class="data-row py-5">{{ Util::money_format($loan->amount_requested) }} <span class="capitalize">Bs.</span></td>
+                <td class="data-row py-5">{{ Util::money_format($loan->amount_approved) }} <span class="capitalize">Bs.</span></td>
                 <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">Meses</span></td>
                 <td class="data-row py-5">
                     @if($loan->payment_type->name=='Depósito Bancario')
