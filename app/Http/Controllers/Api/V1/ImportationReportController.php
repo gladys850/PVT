@@ -178,11 +178,14 @@ class ImportationReportController extends Controller
         //filtros
         $final_date = $estimated_date? $estimated_date:'';
 
-        $loans_request = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->where('disbursement_date', '<=', $final_date)->orderby('disbursement_date')->get();
+        //$loans_request = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->where('disbursement_date', '<=', $final_date)->orderby('disbursement_date')->get();
 
+        $loans_request =  "select id_loan as id from view_loan_borrower
+         where  CAST(disbursement_date_loan AS date) <= CAST('$estimated_date' AS date) and state_loan ='Vigente'"; 
+        $loans_request = DB::select($loans_request);
 
         $id_senasir = array();
-        foreach (ProcedureModality::where('name', 'like', '%SENASIR')->get() as $procedure) {
+        foreach (ProcedureModality::where('name', 'like', '%SENASIR%')->get() as $procedure) {
             array_push($id_senasir, $procedure->id);
         }
 
@@ -197,6 +200,7 @@ class ImportationReportController extends Controller
 
 
         foreach ($loans_request as $loan) {
+            $loan = Loan::find($loan->id);
             if (in_array($loan->procedure_modality_id, $id_senasir)) {
                 foreach ($loan->lenders as $lender) {
                     array_push($senasir_ancient, array(

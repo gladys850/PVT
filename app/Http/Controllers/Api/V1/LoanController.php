@@ -74,7 +74,6 @@ class LoanController extends Controller
             {
                 $guarantor->affiliate_state = $guarantor->affiliate_state;
                 $guarantor->spouse = $guarantor->spouse;
-                $guarantor->ballots = $loan->ballot_affiliate($guarantor->id);
             }
             $loan->lenders = $loan->lenders;
             $loan->guarantors = $loan->guarantors;
@@ -2219,4 +2218,29 @@ class LoanController extends Controller
             return $e;
         }
     }
+     /**
+    * Actualializar indice de endeudamiento
+    * devuelve el monto a pagar del titular o garante del prestamo
+    * @bodyParam loan_id integer required ID del préstamo. Example: 2
+    * @bodyParam affiliate_id integer required liquidacion del prestamo. Example: 1555
+    * @bodyParam indebtedness_calculated_input numeric required liquidacion del prestamo. Example: 11.5
+    * @authenticated
+    * @responseFile responses/loan/payment_amount.200.json
+    */
+   public function update_loan_affiliates(request $request){
+    $request->validate([
+     'loan_id'=>'required|integer|exists:loans,id',
+     'affiliate_id'=>'required|integer|exists:affiliates,id',
+     'indebtedness_calculated_input' =>'required'
+    ]);
+    $affiliate_id = $request->affiliate_id;
+    $loan_id = $request->loan_id;
+    $indebtedness_calculated_input = $request->indebtedness_calculated_input;
+    $loan_affiliate_indebtedness_update = "update loan_affiliates set indebtedness_calculated = $indebtedness_calculated_input,indebtedness_calculated_previous = $indebtedness_calculated_input
+                      where affiliate_id = $affiliate_id and loan_id = $loan_id";
+    $update_loan_affiliate = DB::select($loan_affiliate_indebtedness_update);
+    $loan = Loan::whereId($request->loan_id)->first();
+
+    return $loan->loan_affiliates;
+ }
 }

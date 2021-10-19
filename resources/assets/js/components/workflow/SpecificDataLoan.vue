@@ -517,6 +517,47 @@
                                                   </template>
                                                   <span>Ver datos del afiliado</span>
                                                 </v-tooltip>
+                                                <v-tooltip top >
+                                                  <template v-slot:activator="{ on }">
+                                                    <v-btn
+                                                      icon
+                                                      dark
+                                                      x-small
+                                                      :color="'error'"
+                                                      top
+                                                      right
+                                                      v-on="on"
+                                                      @click.stop="resetForm()"
+                                                      v-show="edit_indebtedness_calculated"
+                                                    >
+                                                    <v-icon>mdi-close</v-icon>
+                                                    </v-btn>
+                                                  </template>
+                                                  <div>
+                                                    <span>Cancelar</span>
+                                                  </div>
+                                                </v-tooltip>
+                                                <v-tooltip top >
+                                                  <template v-slot:activator="{ on }">
+                                                    <v-btn
+                                                      icon
+                                                      dark
+                                                      x-small
+                                                      :color="edit_indebtedness_calculated ? 'danger' : 'success'"
+                                                      top
+                                                      right
+                                                      v-on="on"
+                                                      @click.stop="editIndebtednessGuarantor(guarantor.id, guarantor.pivot.indebtedness_calculated)"
+                                                    >
+                                                      <v-icon v-if="edit_indebtedness_calculated">mdi-check</v-icon>
+                                                      <v-icon v-else>mdi-pencil</v-icon>
+                                                    </v-btn>
+                                                  </template>
+                                                  <div>
+                                                    <span v-if="edit_indebtedness_calculated">Guardar Indice Garante</span>
+                                                    <span v-else>Editar </span>
+                                                  </div>
+                                                </v-tooltip>
                                               </b></p>
                                             </v-col>
                                             <v-progress-linear></v-progress-linear><br>
@@ -541,9 +582,17 @@
                                             <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.pivot.liquid_qualification_calculated | moneyString}}</p>
                                             </v-col>
-                                            <v-col class="my-0 py-0" cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_indebtedness_calculated">
                                               <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.pivot.indebtedness_calculated|percentage }}%</p>
                                             </v-col>
+                                            <v-col cols="12" md="3" v-show="edit_indebtedness_calculated" class="pb-0" >
+                                              <v-text-field
+                                                dense
+                                                label="INDICE DE ENDEUDAMIENTO CALCULADO"
+                                                v-model="guarantor.pivot.indebtedness_calculated"
+                                                :outlined="true"
+                                              ></v-text-field>
+                                          </v-col>
                                           </v-row>
                                         </v-col>
                                         <BallotsAdjust :ballots="guarantor.ballots"/>
@@ -1166,6 +1215,7 @@ export default {
       edit_delivery_date_regional : false,
       edit_hipotecary: false,
       edit_disbursement: false,
+      edit_indebtedness_calculated: false,
       reload: false,
       payment_types:[],
       city: [],
@@ -1325,6 +1375,7 @@ export default {
       this.edit_hipotecari = false
       this.edit_disbursement = false
       this.qualification_edit = false
+      this.edit_indebtedness_calculated = false
       this.collection_edit=false
       this.collection_edit_sismu=false
       this.edit_return_date = false
@@ -1597,6 +1648,22 @@ export default {
         this.loading = false
       }
     },
+    async editIndebtednessGuarantor(affiliate_id, indebtedness_calculated_input){
+      try {
+        if (!this.edit_indebtedness_calculated) {
+          this.edit_indebtedness_calculated = true
+        }else{
+          let res = await axios.post(`loan/update_loan_affiliates`,{
+            loan_id: this.loan.id,
+            affiliate_id: affiliate_id,
+            indebtedness_calculated_input: indebtedness_calculated_input
+          })
+        this.edit_indebtedness_calculated = false
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
   }
 }
 </script>
