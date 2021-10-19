@@ -131,7 +131,7 @@ export default {
       async getAffiliate(id) {
       try {
         this.loading = true
-        let res = await axios.get(`affiliate/${id}`)
+        let res = await axios.get(`affiliate_show/${id}`)
         this.affiliate = res.data
         this.setBreadcrumbs()
       } catch (e) {

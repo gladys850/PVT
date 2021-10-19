@@ -71,6 +71,23 @@
                 </template>
                 <span>Imprimir Kardex</span>
               </v-tooltip>
+              <v-tooltip bottom >
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-if="permissionSimpleSelected.includes('print-qualification-form')"
+                    :loading="loading_print_form_calification"
+                    fab
+                    x-small
+                    outlined
+                    v-on="on"
+                    color="primary"
+                    class="ml-1"
+                    @click="imprimir(5, loan.id)"
+                    ><v-icon>mdi-playlist-check</v-icon>
+                  </v-btn>
+                </template>
+                <span>Imprimir Formulario de Calificación</span>
+              </v-tooltip>
           <v-divider vertical class="mx-4"></v-divider>
           <h6 class="caption">
           <strong>Ubicación trámite:</strong> <br />
@@ -161,13 +178,20 @@ export default {
     loading_print_solicitude:false,
     loading_print_contract:false,
     loading_print_plan:false,
-    loading_print_kardex:false
+    loading_print_kardex:false,
+    loading_print_form_calification:false
   }),
    mounted() {
     this.getloan(this.$route.params.id)
     this.getObservation(this.$route.params.id)
     this.getObservationType()
     this.getCity()
+  },
+  computed:{
+    //permisos del selector global por rol
+    permissionSimpleSelected () {
+      return this.$store.getters.permissionSimpleSelected
+    },
   },
   methods: {
     setBreadcrumbs() {
@@ -353,9 +377,12 @@ export default {
         } else if (id == 3) {
           this.loading_print_plan=true
           res = await axios.get(`loan/${item}/print/plan`);
-        } else {
+        } else if (id == 4) {
           this.loading_print_kardex=true
           res = await axios.get(`loan/${item}/print/kardex`);
+        } else {
+          this.loading_print_form_calification=true
+          res = await axios.get(`loan/${item}/print/qualification`);
         }
         printJS({
           printable: res.data.content,
@@ -377,6 +404,7 @@ export default {
       this.loading_print_contract=false
       this.loading_print_plan=false
       this.loading_print_kardex=false
+      this.loading_print_form_calification=false
     }
   },
 }

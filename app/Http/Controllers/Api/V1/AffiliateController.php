@@ -158,13 +158,25 @@ class AffiliateController extends Controller
     }
 
     /**
-    * Detalle de afiliado
+    * Detalle de afiliado biometrico
     * Devuelve el detalle de un afiliado mediante su ID
     * @urlParam affiliate required ID de afiliado. Example: 54
     * @authenticated
     * @responseFile responses/affiliate/show.200.json
     */
     public function show(Affiliate $affiliate)
+    {
+        return $affiliate;
+    }
+
+    /**
+    * Detalle de afiliado prestamos
+    * Devuelve el detalle de un afiliado mediante su ID
+    * @urlParam affiliate required ID de afiliado. Example: 54
+    * @authenticated
+    * @responseFile responses/affiliate/show.200.json
+    */
+    public function affiliate_show(Affiliate $affiliate)
     {
         return self::append_data($affiliate, true);
     }
@@ -336,6 +348,35 @@ class AffiliateController extends Controller
             }
         } catch (\Exception $e) {}
         return $files;
+    }
+
+        /** @group Biométrico
+    * Imagen huellas afiliado
+    * Elimina las huellas dactilares del afiliado
+    */
+    public function fingerprint_delete($affiliate)
+    {
+        $files = [];
+        try {
+            $base_path = 'picture/';
+            $fingerprint_files = ['_left_four.png', '_right_four.png', '_thumbs.png'];
+            foreach ($fingerprint_files as $file) {
+                if (Storage::disk('ftp')->exists($base_path . $affiliate . $file)) {
+                    Storage::disk('ftp')->delete($base_path . $affiliate . $file);
+                }
+            }
+
+            $base_path = 'fingerprint/';
+            $fingerprint_files = ['_left_index.wsq', '_left_little.wsq', '_left_middle.wsq', '_left_ring.wsq', '_left_thumb.wsq', '_right_index.wsq', '_right_little.wsq', '_right_middle.wsq', '_right_ring.wsq', '_right_thumb.wsq'];
+            foreach ($fingerprint_files as $file) {
+                if (Storage::disk('ftp')->exists($base_path . $affiliate . $file)) {
+                    Storage::disk('ftp')->delete($base_path . $affiliate . $file);
+                }
+            }
+        } catch (\Exception $e) {}
+        return response()->json([
+            'message' => 'Huellas dactilares eliminadas'
+        ], 200);
     }
 
     /** @group Biométrico

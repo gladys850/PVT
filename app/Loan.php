@@ -1347,11 +1347,14 @@ class Loan extends Model
                 $titular_guarantor = $guarantor;
                 $titular_guarantor->city_identity_card = $guarantor->city_identity_card;
                 $titular_guarantor->type_initials = "G-".$guarantor->initials;
+                $titular_guarantor->ballots = $this->ballot_affiliate($guarantor->id);
             }
             if($guarantor->pivot->type == "spouses"){
                 $titular_guarantor = $guarantor->spouse;
                 $titular_guarantor->city_identity_card = $guarantor->spouse->city_identity_card;
                 $titular_guarantor->type_initials = "G-".$guarantor->spouse->initials;
+                $titular_guarantor->pivot = $guarantor->pivot;
+                $titular_guarantor->ballots = $this->ballot_affiliate($guarantor->spouse->affiliate_id);
             }
             $titular_guarantor->account_number = $guarantor->account_number;
             $titular_guarantor->financial_entity = $guarantor->financial_entity;
@@ -1381,4 +1384,9 @@ class Loan extends Model
         ->get();
         return $loans_borrowers;
     }
+     //ultimo pago del kardex web y kardex de impresión
+     public function payment_kardex_last()
+     {
+         return $this->paymentsKardex->sortByDesc('id')->first();
+     }
 }

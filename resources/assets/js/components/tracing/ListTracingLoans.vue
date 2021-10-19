@@ -43,6 +43,24 @@
             </template>
             <span class="caption">Limpiar todos los filtros</span>
           </v-tooltip>
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                fab
+                @click="_show_filter()"
+                :color="show_filter?'dark':'teal'"
+                dark
+                v-on="on"
+                x-small
+                absolute
+                left
+                style="margin-top: -53px; margin-left:340px"
+              >
+                <v-icon> mdi-filter </v-icon>
+              </v-btn>
+            </template>
+            <span class="caption">Mostrar/Ocultar filtros</span>
+          </v-tooltip>
           <v-tooltip top v-if="permissionSimpleSelected.includes('show-deleted-loan')">
             <template v-slot:activator="{ on }">
               <v-btn
@@ -72,249 +90,39 @@
             :loading = loading_table
           >
             <template v-slot:[`header.city_loan`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="searching.city_loan != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.city_loan"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.city_loan? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.name_role_loan`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="searching.name_role_loan != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.name_role_loan"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.name_role_loan? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.user_loan`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="searching.user_loan != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.user_loan"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.user_loan? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.code_loan`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="searching.code_loan != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.code_loan"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.code_loan? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.identity_card_borrower`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="searching.identity_card_borrower != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.identity_card_borrower"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.identity_card_borrower? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.registration_borrower`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="searching.registration_borrower != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.registration_borrower"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.registration_borrower? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.full_name_borrower`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="
-                        searching.full_name_borrower != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.full_name_borrower"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.full_name_borrower? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.shortened_sub_modality_loan`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="
-                        searching.shortened_sub_modality_loan != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.shortened_sub_modality_loan"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.shortened_sub_modality_loan? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.state_loan`]="{ header }">
-              {{ header.text }}<br />
-              <v-menu offset-y :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon
-                      small
-                      :color="
-                        searching.state_loan != '' ? 'red' : 'black'"
-                    >
-                      mdi-filter
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <div>
-                  <v-text-field
-                    dense
-                    v-model="searching.state_loan"
-                    type="text"
-                    :label="'Buscar ' + header.text"
-                    @keydown.enter="search_loans()"
-                    hide-details
-                    single-line
-                  ></v-text-field>
-                </div>
-              </v-menu>
+              <span :class="searching.state_loan? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`item.shortened_sub_modality_loan`]="{ item }">
@@ -387,6 +195,25 @@
                 </v-menu>
               </template>
             </template>
+            <!-- Vista de los filtros -->
+            <template slot="body.prepend">
+              <tr v-if="show_filter">
+                  <td><v-text-field placeholder="Dpto." spellcheck="false" class="filter-text" v-model="searching.city_loan" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field placeholder="Área" spellcheck="false" class="filter-text" v-model="searching.name_role_loan" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field placeholder="Usuario" spellcheck="false" class="filter-text" v-model="searching.user_loan" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field placeholder="Cod. Préstamo" spellcheck="false" class="filter-text" v-model="searching.code_loan" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field placeholder="C.I." spellcheck="false" class="filter-text" v-model="searching.identity_card_borrower" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field placeholder="Matricula" spellcheck="false" class="filter-text" v-model="searching.registration_borrower" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field placeholder="Nombre Com." spellcheck="false" class="filter-text" v-model="searching.full_name_borrower" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field placeholder="Cor. Sub. Mod." spellcheck="false" class="filter-text" v-model="searching.shortened_sub_modality_loan" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field disabled class="filter-text"></v-text-field></td>
+                  <td><v-text-field disabled class="filter-text"></v-text-field></td>
+                  <td><v-text-field disabled class="filter-text"></v-text-field></td>
+                  <td><v-text-field disabled class="filter-text"></v-text-field></td>
+                  <td><v-text-field placeholder="Estado" class="filter-text" v-model="searching.state_loan" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td></td>
+              </tr>
+            </template>
           </v-data-table>
         </v-card>
       </v-form>
@@ -438,7 +265,8 @@ export default {
       totalLoans: 0,
       loading: false,
       loading_table: false,
-      trashed_loan: false
+      trashed_loan: false,
+      show_filter:true
     };
   },
   computed: {
@@ -461,6 +289,12 @@ export default {
     trashed_loan: function(newVal, oldVal){
       if(newVal!= oldVal){
         this.search_loans()
+      }
+    },
+    searching: {
+      deep: true,
+      handler(val) {
+        this.options.page=1
       }
     }
   },
@@ -615,6 +449,9 @@ export default {
         console.log(e)
         this.toastr.error("Ocurrió un error en la liberación del trámite...")
       }
+    },
+    _show_filter(){
+       this.show_filter=!this.show_filter
     }
   },
 }
@@ -627,6 +464,14 @@ export default {
   margin: 0px;
   font-size: 0.8em;
   border-color: teal;
+}
+.filter-text{
+  font-size: 12px;
+  height: 2px;
+  margin: 0 0 40px 0;
+  padding: 0;
+  width: 100%
+
 }
 </style>
 <style>

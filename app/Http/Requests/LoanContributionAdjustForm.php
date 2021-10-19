@@ -3,9 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Waavi\Sanitizer\Laravel\SanitizesInput;
 
 class LoanContributionAdjustForm extends FormRequest
-{
+{    use SanitizesInput;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -32,7 +33,8 @@ class LoanContributionAdjustForm extends FormRequest
             'adjustable_id'=>['integer'],
             'adjustable_type' => ['string'],
             'amount' =>['numeric'],
-            'type_adjust'=>['string','in:adjust,liquid'],
+            'type_adjust'=>['string','in:adjust,liquid,refinance_sismu'],
+            'database_name'=>['nullable','string','in:PVT,SISMU'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],        
         ];
         switch ($this->method()) {
@@ -49,5 +51,11 @@ class LoanContributionAdjustForm extends FormRequest
         return $rules;
 
        
+    }
+    public function filters()
+    {
+        return [
+            'description' => 'trim|uppercase',
+        ];
     }
 }

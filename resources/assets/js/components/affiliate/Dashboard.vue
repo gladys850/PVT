@@ -24,7 +24,7 @@
             </div>
           </div>
           <v-divider class="mx-4"></v-divider>
-          <v-card-text class="black--text my-0 py-0" v-if="affiliate.dead && !affiliate.dead_spouse">
+          <v-card-text class="black--text my-0 py-0" v-if="affiliate.dead && affiliate.dead_spouse == false">
             <v-row>
               <v-col cols="12" color="info_card" align="start" class=" subtitle-1">
                 <strong>Cónyuge:</strong> {{$options.filters.fullName(affiliate.spouse, true) }}
@@ -40,7 +40,7 @@
           <v-card-text class="black--text my-0 py-0">
             <v-row>
               <v-col cols="12" md="12" align="start" class="subtitle-1">
-                <h4 align="center" v-if="affiliate.dead && !affiliate.dead_spouse">
+                <h4 align="center" v-if="affiliate.dead && affiliate.dead_spouse == false">
                   Datos del Afiliado
                 </h4>  
                 <b>C.I.:  </b> {{affiliate.identity_card_ext}}

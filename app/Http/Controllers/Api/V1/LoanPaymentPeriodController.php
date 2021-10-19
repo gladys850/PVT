@@ -37,41 +37,59 @@ class LoanPaymentPeriodController extends Controller
      * Inserta el periodo 
      * @bodyParam year numeric Año del periodo. Example: 2021
      * @bodyParam month numeric mes de la boleta es requerido. Example: 2
-     * @bodyParam import_command boolean estado de los registros de pago. Example: true
+     * @bodyParam importation_type enum required (SENASIR, COMANDO) Tipo de importacion. Example: SENASIR
      * @bodyParam import_senasir boolean mes de . Example: false
      * @bodyParam description string Descripcion del periodo. Example: Periodo de descripción
      * @authenticated
      * @responseFile responses/periods/store.200.json
      */
     public function store(Request $request)
-    {  $last_period = LoanPaymentPeriod::orderBy('id')->get()->last();
-     
+    {  //$last_period = LoanPaymentPeriod::orderBy('id')->get()->last();
+        $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
+        $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();
+        $create_period = false;
+
+        $request->validate([
+            'importation_type' => 'string|required|in:COMANDO,SENASIR',
+        ]);
        $result = [];
-        if(!$last_period){
-        $estimated_date = Carbon::now()->endOfMonth();
-        $loan_payment_period = new LoanPaymentPeriod;
-            $loan_payment_period->year = $estimated_date->year;
-            $loan_payment_period->month = $estimated_date->month;
-            $loan_payment_period->description = $request->description;
-            $loan_payment_period->import_command = false;
-            $loan_payment_period->import_senasir = false;          
-            return LoanPaymentPeriod::create($loan_payment_period->toArray());
-        }else{  
-        $last_date=Carbon::parse($last_period->year.'-'.$last_period->month); 
-       // if($last_period->import_command && $last_period->import_senasir){    
-            $estimated_date = $last_date->addMonth();
+        if($request->importation_type == "COMANDO"){
+            if(!$last_period_comand){
+            $estimated_date = Carbon::now()->endOfMonth();
+            $create_period = true;
+            }else{  
+                $last_date = Carbon::parse($last_period_comand->year.'-'.$last_period_comand->month); 
+                if($last_period_comand->importation){    
+                    $estimated_date = $last_date->addMonth();   
+                    $create_period = true;
+                }else{
+                $result['message'] = "Para realizar la creación de un nuevo periodo, debe realizar la confirmación de los pagos de Comando del periodo de ".$last_date->isoFormat('MMMM');
+                }
+            } 
+        }
+        if($request->importation_type == "SENASIR"){
+            if(!$last_period_senasir){
+            $estimated_date = Carbon::now()->endOfMonth();
+            $create_period = true;
+            }else{  
+                $last_date = Carbon::parse($last_period_senasir->year.'-'.$last_period_senasir->month); 
+                if($last_period_senasir->importation){    
+                    $estimated_date = $last_date->addMonth();   
+                    $create_period = true;
+                }else{
+                $result['message'] = "Para realizar la creación de un nuevo periodo, debe realizar la confirmación de los pagos de Senasir del periodo de ".$last_date->isoFormat('MMMM');
+                }
+            } 
+        }
+        if($create_period){
             $loan_payment_period = new LoanPaymentPeriod;
-            $loan_payment_period->year = $estimated_date->year;
-            $loan_payment_period->month = $estimated_date->month;
-            $loan_payment_period->description = $request->description;
-            $loan_payment_period->import_command = false;
-            $loan_payment_period->import_senasir = false;          
-            return LoanPaymentPeriod::create($loan_payment_period->toArray());
-         /*   } 
-        else{
-          $result['message'] = "Para realizar la creación de un nuevo periodo, debe realizar la confirmación de los pagos de Comando y Senasir del periodo de ".$last_date->isoFormat('MMMM');
-        }*/
-        }  
+                $loan_payment_period->year = $estimated_date->year;
+                $loan_payment_period->month = $estimated_date->month;
+                $loan_payment_period->description = $request->description;
+                $loan_payment_period->importation_type = $request->importation_type;
+                $loan_payment_period->importation = false;          
+                return LoanPaymentPeriod::create($loan_payment_period->toArray());
+            }
         return $result;      
     }
 
@@ -127,9 +145,10 @@ class LoanPaymentPeriodController extends Controller
     public function get_list_month(Request $request)
     {
         $request->validate([
-            'year' => 'required|exists:loan_payment_periods,year'
+            'year' => 'required|exists:loan_payment_periods,year',
+            'importation_type' => 'string|required|in:COMANDO,SENASIR',
         ]);
-        $loan_payment_period = LoanPaymentPeriod::where('year',$request->year)->orderBy('month', 'asc')->get();
+        $loan_payment_period = LoanPaymentPeriod::where('year',$request->year)->where('importation_type',$request->importation_type)->orderBy('month', 'asc')->get();
         return $loan_payment_period;
     }
 

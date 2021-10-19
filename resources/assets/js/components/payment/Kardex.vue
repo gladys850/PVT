@@ -237,7 +237,7 @@
                 small
                 v-on="on"
                 color="error"
-                v-if="last_payment(item)"
+                v-if="item.is_last_payment_kardex"
                 @click.stop="bus.$emit('openRemoveDialog', `delete_last_payment/${item.id}/payment`)"
               >
                 <v-icon>mdi-file-cancel-outline</v-icon>
@@ -595,13 +595,14 @@ export default {
       }
     },
 
+    /*Obtener ultimo pago desde front
     last_payment(item){
       if(item.id == this.payments[this.payments.length -1].id ){
         return true
       }else{
         return false
       }
-    },
+    },*/
 
   },
 };

@@ -8,6 +8,10 @@ Route::group([
     Route::get('config', 'Api\V1\ConfigController');
     Route::apiResource('auth', 'Api\V1\AuthController')->only('store');
     Route::patch('edit_loan/{loan}/qualification', 'Api\V1\LoanController@edit_amounts_loan_term');
+    Route::apiResource('affiliate', 'Api\V1\AffiliateController')->only('show');//TODO biometrico VERIFICAR RUTA ABIERTA 
+    Route::apiResource('record', 'Api\V1\RecordController')->only('index');//TODO biometrico VERIFICAR RUTA ABIERTA 
+    Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
+    Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
@@ -31,9 +35,8 @@ Route::group([
         Route::apiResource('loan_global_parameter', 'Api\V1\LoanGlobalParameterController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('last_loan_global_parameter', 'Api\V1\LoanGlobalParameterController@get_last_global_parameter');
         Route::apiResource('loan_destiny', 'Api\V1\LoanDestinyController')->only('index', 'show', 'store', 'update', 'destroy');
-        Route::apiResource('affiliate', 'Api\V1\AffiliateController')->only('show');
+        Route::get('affiliate_show/{affiliate}', 'Api\V1\AffiliateController@affiliate_show');//TODO mostrar datos del afiliado para prestaos, ruta adaptadda para que no afecte al biometrico
         Route::apiResource('affiliate_state', 'Api\V1\AffiliateStateController')->only('index');
-        Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');
         Route::apiResource('city', 'Api\V1\CityController')->only('index', 'show');
         Route::apiResource('pension_entity', 'Api\V1\PensionEntityController')->only('index', 'show');
         Route::apiResource('degree', 'Api\V1\DegreeController')->only('index', 'show');
@@ -53,7 +56,6 @@ Route::group([
         Route::get('module/{module}/amortization_loan', 'Api\V1\ModuleController@get_amortization_types');
         Route::patch('loans', 'Api\V1\LoanController@bulk_update_role');
         Route::patch('loan_payments', 'Api\V1\LoanPaymentController@bulk_update_role');
-        Route::apiResource('record', 'Api\V1\RecordController')->only('index');
         Route::get('record_payment', 'Api\V1\RecordController@record_loan_payment');
         Route::apiResource('statistic', 'Api\V1\StatisticController')->only('index', 'show');
         Route::apiResource('voucher_type', 'Api\V1\VoucherTypeController')->only('index', 'show');
@@ -108,6 +110,7 @@ Route::group([
         Route::get('get_list_month', 'Api\V1\LoanPaymentPeriodController@get_list_month');//listado de meses por gestion
         Route::get('get_list_year', 'Api\V1\LoanPaymentPeriodController@get_list_year');//listado de meses por gestion
         Route::apiResource('periods', 'Api\V1\LoanPaymentPeriodController')->only('index', 'show', 'store', 'update', 'destroy');//cambiar a cobranzas
+        Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'

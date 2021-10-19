@@ -117,6 +117,7 @@ class LoanForm extends FormRequest
             'guarantors.*.contributionable_ids' => ['array'],
             'guarantors.*.contributionable_type' => ['string','required','in:contributions,aid_contributions,loan_contribution_adjusts'],
             'guarantors.*.loan_contributions_adjust_ids'  => ['array','nullable','exists:loan_contribution_adjusts,id'],
+            'guarantors.*.loan_contributions_adjust_ref_id' => ['array','nullable','exists:loan_contribution_adjusts,id'],
             'data_loan' =>['array', $sismu? 'required':'nullable'],
             'data_loan.*.code'=>['required','string'],
             'data_loan.*.amount_approved'=>['required','numeric'],

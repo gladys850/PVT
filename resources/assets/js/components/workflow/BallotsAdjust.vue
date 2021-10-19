@@ -1,15 +1,14 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="mt-0 pt-0">
     <v-row>
-      <v-col cols="12" class="pb-0">
+      <v-col cols="12" class="pb-0 mb-0">
         <p style="color: teal">
           <b>DATOS DE BOLETA</b>
         </p>
       </v-col>
-      <v-progress-linear color="blue-grey lighten-3"></v-progress-linear>
     </v-row>
     <v-row>
-      <v-col cols="12" sm="12" :md="col_size">
+      <v-col cols="12" sm="12" :md="col_size" class="mt-0 pt-0">
         <v-data-table
           dense
           :headers="_headers"
@@ -20,7 +19,7 @@
           <!-- Boletas de pago y bonos aplicando el formato de moneda -->
           <template v-slot:item="{ item }">
             <tr>
-              <td>{{ item.month_year }}</td>
+              <td>{{ item.month_year|dateperiod }}</td>
               <td>{{ item.payable_liquid | money }}</td>
               <td>{{ item.mount_adjust | money }}</td>
               <td v-show="type == 'contributions'">{{ item.border_bonus | money }}</td>
@@ -53,7 +52,7 @@
 export default {
   name: "workflow-ballots-adjust",
   props: {
-    loan_ballots: {
+    ballots: {
       type: Object,
       required: true,
     },
@@ -124,9 +123,9 @@ export default {
     ],
   }),
   beforeMount() {
-    this.type = this.loan_ballots.contribution_type
-    this.ballot_adjusts = this.loan_ballots.ballot_adjusts
-    this.average_ballot_adjust = this.loan_ballots.average_ballot_adjust[0]
+    this.type = this.ballots.contribution_type
+    this.ballot_adjusts = this.ballots.ballot_adjusts
+    this.average_ballot_adjust = this.ballots.average_ballot_adjust[0]
   },
   computed: {
     //Filtrando los encabezados segun el tipo de contribucion 
