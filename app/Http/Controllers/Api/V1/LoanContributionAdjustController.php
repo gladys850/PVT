@@ -147,7 +147,7 @@ class LoanContributionAdjustController extends Controller
     * Actualizar o crear el array de Objeto del ajuste a las contribuciones 
     * @authenticated
     */
-    public function updateOrCreateRefinance(Request $request) { 
+    public function updateOrCreateWarrantyRegistration(Request $request) { 
     
        $loan_contribution_refinance_ids = collect();
         foreach ($request->all() as $loan_contribution_adjust) {
@@ -167,16 +167,16 @@ class LoanContributionAdjustController extends Controller
                                                   ->where('adjustable_id',$loan_contribution_adjust['adjustable_id'])
                                                   ->where('type_affiliate',$loan_contribution_adjust['type_affiliate'])
                                                   ->where('type_adjust',$loan_contribution_adjust['type_adjust'])
-                                                  ->where('period_date',$loan_contribution_adjust['period_date'])->first();
-                                              
+                                                  ->where('period_date',$loan_contribution_adjust['period_date'])
+                                                  ->where('period_date',$loan_contribution_adjust['period_date'])
+                                                  ->whereNull('loan_id')->first();                                  
             if($adjust_contribution){
                 $adjust_contribution->update();
                 $loan_contribution_refinance_ids->push($adjust_contribution->id);
             }else{
                $loan_contribution_refinance->save();
                $loan_contribution_refinance_ids->push($loan_contribution_refinance->id);
-            }
-                    
+            }                   
         }
         $loan_contribution_refinance_ids= array('loan_contribution_refinance_ids'=>$loan_contribution_refinance_ids);
         return $loan_contribution_refinance_ids;
