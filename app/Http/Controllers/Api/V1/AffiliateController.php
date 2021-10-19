@@ -20,6 +20,7 @@ use App\AidContribution;
 use App\Unit;
 use App\Loan;
 use App\LoanGlobalParameter;
+use App\LoanModalityParameter;
 use App\ProcedureType;
 use App\ProcedureModality;
 use App\Http\Requests\AffiliateForm;
@@ -1428,5 +1429,114 @@ class AffiliateController extends Controller
         }
         //return sizeof($message);
         return $message;
+    }
+
+        /**
+    * existencia del afiliado
+    * Devuelve el id del afiliado, si es viuda devuelve el id del titular o si es alguien de doble precepción.
+    * @bodyParam identity_card string required Carnet de identidad. Example:492562
+    * @authenticated
+    * @responseFile responses/affiliate/affiliate_existence.200.json
+    */
+    public function existence(request $request)
+    {
+        $request->validate([
+            'identity_card' => 'required|string'
+        ]);
+        $double_perception = false;
+        $affiliate = null;
+        if(Affiliate::where('identity_card', $request->identity_card)->first())
+        {
+            $affiliate = Affiliate::where('identity_card', $request->identity_card)->first()->id;
+            $spouse = null;
+            $double_perception = false;
+        }
+        if(Spouse::where('identity_card', $request->identity_card)->first())
+        {
+            if($affiliate)
+                $double_perception = true;
+            $spouse = Spouse::where('identity_card', $request->identity_card)->first();
+            $deceased_affiliate = $spouse->affiliate->id;
+        }
+        
+        return $data = array(
+            "existence"=>$affiliate ? true : false,
+            "affiliate"=>$affiliate ? $affiliate : null,
+            "double_perception"=>$double_perception,
+            "deceased_affiliate" => $double_perception ? $deceased_affiliate : null,
+            );
+    }
+
+    /**
+    * validacion del garante
+    * Devuelve si el afiliadopuede ser garante acorde al estado y la modalidad.
+    * @bodyParam affiliate_id integer required id del afiliado. Example:12900
+    * @bodyParam procedure_modality_id integer required id de la modalidad. Example:50
+    * @authenticated
+    * @responseFile responses/affiliate/validate_guarantor.200.json
+    */
+    public function validate_guarantor(request $request)
+    {
+        $affiliate = Affiliate::whereId($request->affiliate_id)->first();
+        $modality = ProcedureModality::whereId($request->procedure_modality_id)->first();
+        $guarantor = false;
+        $message = "todo OK";
+        $id_activo = array();
+        foreach (ProcedureModality::where('name', 'like', '%Activo')->orWhere('name', 'like', '%Activo%')->get() as $procedure) {
+            array_push($id_activo, $procedure->id);
+        }
+        $id_senasir = array();
+        foreach (ProcedureModality::where('name', 'like', '%SENASIR')->get() as $procedure) {
+            array_push($id_senasir, $procedure->id);
+        }
+        $id_afp = array();
+        foreach (ProcedureModality::where('name', 'like', '%AFP')->get() as $procedure) {
+            array_push($id_afp, $procedure->id);
+        }
+        switch($request->procedure_modality_id){
+            case (in_array($request->procedure_modality_id, $id_activo)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    $guarantor = true;
+                else
+                    $message = "Afiliado no pertenece al servicio activo o se encuentra en comision o disponibilidad";
+                break;
+            case (in_array($request->procedure_modality_id, $id_senasir)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    $guarantor = true;
+                else
+                {
+                    if($affiliate->pension_entity != null)
+                    {
+                        if(strpos($affiliate->pension_entity->name, "AFP") === 0)
+                            $message = "Afiliado AFP no puede garantizar prestamos";
+                        else
+                            $guarantor = true;
+                    }
+                    else
+                    {
+                        $message = "El afiliado es del sector pasivo y no tiene registrado su ente gestor";
+                    }
+                }
+                break;
+            case (in_array($request->procedure_modality_id, $id_afp)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                {
+                    if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
+                        $guarantor = true;
+                    else
+                        $message = "El afiliado no se encuentra en la categoria necesaria";
+                }
+                else
+                    $message = "Afiliado es pasivo o se encuentra en comision o disponibilidad";
+                break;
+            default:
+                $message = "no corresponde con la modalidad";
+                break;
+        }
+        return $data = array(
+            "guarantor"=>$guarantor,
+            "message"=>$message,
+            "information"=>$affiliate->verify_information($affiliate)
+            );
     }
 }
