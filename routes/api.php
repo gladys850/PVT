@@ -222,7 +222,7 @@ Route::group([
             Route::get('loan/{loan}/print/qualification', 'Api\V1\LoanController@print_qualification');
             Route::apiResource('loan_contribution_adjust', 'Api\V1\LoanContributionAdjustController')->only('index','show','store', 'update', 'destroy');
             Route::post('loan_contribution_adjust/updateOrCreate', 'Api\V1\LoanContributionAdjustController@updateOrCreate');
-            Route::post('loan_contribution_adjust/updateOrCreateWarrantyRegistration', 'Api\V1\LoanContributionAdjustController@updateOrCreateWarrantyRegistration');
+            Route::post('loan_contribution_adjust/updateOrCreateLoanGuaranteeRegister', 'Api\V1\LoanContributionAdjustController@updateOrCreateLoanGuaranteeRegister');
             //Route::get('loan/{loan}/loan_affiliates', 'Api\V1\LoanController@get_loan_affiliates');
             Route::apiResource('loan_property', 'Api\V1\LoanPropertyController')->only('index', 'store', 'show', 'destroy', 'update');
             Route::post('loan/{loan}/validate_re_loan', 'Api\V1\LoanController@validate_re_loan');
