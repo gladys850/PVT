@@ -63,6 +63,9 @@ Route::group([
         Route::post('evaluate_garantor', 'Api\V1\CalculatorController@evaluate_guarantor');
         Route::get('affiliate_record', 'Api\V1\AffiliateController@affiliate_record');
         Route::post('affiliate_guarantor', 'Api\V1\AffiliateController@test_guarantor');
+        //evaluacion de garantes
+        Route::post('existence', 'Api\V1\AffiliateController@existence');
+        Route::post('validate_guarantor', 'Api\V1\AffiliateController@validate_guarantor');
         //Categorias de tipo "USUARIO"
         Route::get('get_categorie_user', 'Api\V1\LoanPaymentCategorieController@get_categorie_user');
         //Evaluacion de prestamos afiliado
