@@ -143,4 +143,42 @@ class LoanContributionAdjustController extends Controller
         }
         return $adjust_contribution;
     }
+    /**
+    * Actualizar o crear el array de Objeto del ajuste a las contribuciones 
+    * @authenticated
+    */
+    public function updateOrCreateLoanGuaranteeRegister (Request $request) { 
+    
+       $loan_contribution_guarantee_register_ids = collect();
+        foreach ($request->all() as $loan_contribution_adjust) {
+            $loan_contribution_guarantee_register = new LoanContributionAdjust();
+            $loan_contribution_guarantee_register->user_id = Auth::id();
+            $loan_contribution_guarantee_register->adjustable_id = $loan_contribution_adjust['adjustable_id'];
+            $loan_contribution_guarantee_register->adjustable_type = $loan_contribution_adjust['adjustable_type'];
+            $loan_contribution_guarantee_register->affiliate_id = $loan_contribution_adjust['affiliate_id'];
+            $loan_contribution_guarantee_register->amount = $loan_contribution_adjust['amount'];
+            $loan_contribution_guarantee_register->description = $loan_contribution_adjust['description'];
+            $loan_contribution_guarantee_register->type_adjust = $loan_contribution_adjust['type_adjust'];
+            $loan_contribution_guarantee_register->type_affiliate = $loan_contribution_adjust['type_affiliate'];
+            $loan_contribution_guarantee_register->period_date = $loan_contribution_adjust['period_date'];
+            $loan_contribution_guarantee_register->database_name = $loan_contribution_adjust['database_name'];
+            $adjust_contribution = LoanContributionAdjust::where('affiliate_id',$loan_contribution_adjust['affiliate_id'])
+                                                  ->where('adjustable_type',$loan_contribution_adjust['adjustable_type'])
+                                                  ->where('adjustable_id',$loan_contribution_adjust['adjustable_id'])
+                                                  ->where('type_affiliate',$loan_contribution_adjust['type_affiliate'])
+                                                  ->where('type_adjust',$loan_contribution_adjust['type_adjust'])
+                                                  ->where('period_date',$loan_contribution_adjust['period_date'])
+                                                  ->where('period_date',$loan_contribution_adjust['period_date'])
+                                                  ->whereNull('loan_id')->first();                                  
+            if($adjust_contribution){
+                $adjust_contribution->update();
+                $loan_contribution_guarantee_register_ids->push($adjust_contribution->id);
+            }else{
+               $loan_contribution_guarantee_register->save();
+               $loan_contribution_guarantee_register_ids->push($loan_contribution_guarantee_register->id);
+            }                   
+        }
+        $loan_contribution_guarantee_register_ids= array('loan_contribution_refinance_ids'=>$loan_contribution_guarantee_register_ids);
+        return $loan_contribution_guarantee_register_ids;
+    }
 }
