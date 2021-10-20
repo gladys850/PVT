@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Laratrust\Traits\LaratrustUserTrait;
 use Util;
+use Illuminate\Support\Facades\DB;
 
 class Spouse extends Model
 {
@@ -101,6 +102,9 @@ class Spouse extends Model
     public function spouse_guarantees(){
         return $this->affiliate->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['type'])->where('type', 'spouses')->whereGuarantor(true)->orderBy('loans.created_at', 'desc');
     }
+    public function spouse_active_guarantees(){
+        return $this->affiliate->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['type'])->where('type', 'spouses')->whereGuarantor(true)->where('loans.state_id', 3)->orderBy('loans.created_at', 'desc');
+    }
     public function current_loans()
     {
       $loan_state = LoanState::whereName('Vigente')->first();
@@ -111,10 +115,11 @@ class Spouse extends Model
     }
 
     public function active_guarantees_sismu(){
-        $query = "SELECT Prestamos.IdPrestamo, Prestamos.PresNumero, Prestamos.IdPadron, Prestamos.PresCuotaMensual, Prestamos.PresEstPtmo, Prestamos.PresMeses
+        $query = "SELECT trim(p2.PadNombres) as PadNombres,trim(p2.PadPaterno) as PadPaterno, trim(p2.PadMaterno) as PadMaterno, trim(p2.PadApellidoCasada) as PadApellidoCasada, Prestamos.IdPrestamo, Prestamos.PresNumero, Prestamos.IdPadron, Prestamos.PresCuotaMensual, Prestamos.PresEstPtmo, Prestamos.PresMeses
         FROM Padron
         join PrestamosLevel1 on PrestamosLevel1.IdPadronGar = Padron.IdPadron
         join Prestamos on PrestamosLevel1.IdPrestamo = prestamos.IdPrestamo
+        join Padron p2 on p2.IdPadron = Prestamos.IdPadron
         where Padron.PadCedulaIdentidad = '$this->identity_card'
         and Prestamos.PresEstPtmo = 'V'";
         $loans = DB::connection('sqlsrv')->select($query);
