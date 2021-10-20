@@ -412,7 +412,7 @@ class Affiliate extends Model
 
     public static function verify_information(Affiliate $affiliate)
     {
-      $needed_keys = ['city_identity_card', 'affiliate_state', 'city_birth', 'category', 'address'];
+      $needed_keys = ['city_identity_card', 'affiliate_state', 'city_birth', 'address'];
       $information = true;
       foreach ($needed_keys as $key) {
           if (!$affiliate[$key]) $information = false;//abort(409, 'Debe actualizar los datos personales de los garantes');
@@ -485,10 +485,11 @@ class Affiliate extends Model
    }
 
    public function active_guarantees_sismu(){
-    $query = "SELECT Prestamos.IdPrestamo, Prestamos.PresNumero, Prestamos.IdPadron, Prestamos.PresCuotaMensual, Prestamos.PresEstPtmo, Prestamos.PresMeses, Prestamos.PresFechaDesembolso, Prestamos.PresFechaPrestamo, Prestamos.PresSaldoAct, Prestamos.PresMntDesembolso
+    $query = "SELECT trim(p2.PadNombres) as PadNombres, trim(p2.PadPaterno) as PadPaterno, trim(p2.PadMaterno) as PadMaterno, trim(p2.PadApellidoCasada) as PadApellidoCasada, Prestamos.IdPrestamo, Prestamos.PresNumero, Prestamos.IdPadron, Prestamos.PresCuotaMensual, Prestamos.PresEstPtmo, Prestamos.PresMeses, Prestamos.PresFechaDesembolso, Prestamos.PresFechaPrestamo, Prestamos.PresSaldoAct, Prestamos.PresMntDesembolso
     FROM Padron
     join PrestamosLevel1 on PrestamosLevel1.IdPadronGar = Padron.IdPadron
     join Prestamos on PrestamosLevel1.IdPrestamo = prestamos.IdPrestamo
+    join Padron p2 on p2.IdPadron = Prestamos.IdPadron
     where Padron.PadCedulaIdentidad = '$this->identity_card'
     and Prestamos.PresEstPtmo = 'V'";
     $loans = DB::connection('sqlsrv')->select($query);

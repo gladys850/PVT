@@ -1480,7 +1480,8 @@ class AffiliateController extends Controller
         $affiliate = Affiliate::whereId($request->affiliate_id)->first();
         $modality = ProcedureModality::whereId($request->procedure_modality_id)->first();
         $guarantor = false;
-        $message = "todo OK";
+        $message = "OK";
+        $information = "";
         $id_activo = array();
         foreach (ProcedureModality::where('name', 'like', '%Activo')->orWhere('name', 'like', '%Activo%')->get() as $procedure) {
             array_push($id_activo, $procedure->id);
@@ -1521,10 +1522,15 @@ class AffiliateController extends Controller
             case (in_array($request->procedure_modality_id, $id_afp)):
                 if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
                 {
-                    if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
-                        $guarantor = true;
+                    if($affiliate->category == null)
+                        $message = "El afiliado no tiene registrado su categoria";
                     else
-                        $message = "El afiliado no se encuentra en la categoria necesaria";
+                    {
+                        if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
+                            $guarantor = true;
+                        else
+                            $message = "El afiliado no se encuentra en la categoria necesaria";
+                    }
                 }
                 else
                     $message = "Afiliado es pasivo o se encuentra en comision o disponibilidad";
@@ -1533,10 +1539,59 @@ class AffiliateController extends Controller
                 $message = "no corresponde con la modalidad";
                 break;
         }
+        if($affiliate->spouse != null && $affiliate->spouse->dead == false)
+        {
+            $affiliate->spouse = $affiliate->spouse;
+            $loans = $affiliate->spouse->spouse_active_guarantees;
+            $loans_sismu = $affiliate->spouse->active_guarantees_sismu();
+        }
+        else
+        {
+            $loans = $affiliate->active_guarantees();
+            $loans_sismu = $affiliate->active_guarantees_sismu();
+        }
+        $data = array();
+        foreach($loans as $loan)
+        {
+            $loans_pvt = array(
+                "id" => $loan->IdPrestamo,
+                "code" => $loan->code,
+                "lender" => $loan->lenders->first()->full_name,
+                "quota" => $loan->guarantors->where('id',$affiliate->id)->pivot->quota_treat,
+                "quota_loan" => $loan->estimated_quota,
+                "state" => $loan->state->name,
+                "type" => "PVT",
+            );
+            array_push($data, $loans_pvt);
+        }
+        foreach($loans_sismu as $loan)
+        {
+            $loans_pvt = array(
+                "id" => $loan->IdPrestamo,
+                "code" => $loan->PresNumero,
+                "lender" => $loan->PadNombres.' '.$loan->PadPaterno.' '.$loan->PadMaterno.' '.$loan->PadApellidoCasada,
+                "quota" => $loan->PresCuotaMensual / $loan->quantity_guarantors,
+                "quota_loan" => $loan->PresCuotaMensual,
+                "state" => $loan->PresEstPtmo,
+                "type" => "SISMU",
+            );
+            array_push($data, $loans_pvt);
+        }
+        if($affiliate->city_identity_card == null)
+            $information = $information."ciudad de expedicion del carnet de identidad,";
+        if($affiliate->affiliate_state == null)
+            $information = $information." estado del afiliado,";
+        if($affiliate->city_birth == null)
+            $information = $information." ciudad de nacimiento,";
+        if($affiliate->address == null)
+            $information = $information."direccion";
         return $data = array(
             "guarantor"=>$guarantor,
             "message"=>$message,
-            "information"=>$affiliate->verify_information($affiliate)
+            "information"=>$affiliate->verify_information($affiliate),
+            "information_missing"=>$information,
+            "affiliate"=>$affiliate,
+            "guarantees"=>$data
             );
     }
 }
