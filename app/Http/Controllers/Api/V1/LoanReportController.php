@@ -1643,7 +1643,7 @@ class LoanReportController extends Controller
                      $row->state_loan,
                      $row->pension_entity_affiliate,
                      Carbon::parse($row->request_date_loan)->format('d/m/Y'),
-                     $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y H:i:s'):'',
+                     $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y'):'',
                      $row->type_affiliate_spouse_loan
                  ));
              }
