@@ -144,8 +144,27 @@ class LoanContributionAdjustController extends Controller
         return $adjust_contribution;
     }
     /**
-    * Actualizar o crear el array de Objeto del ajuste a las contribuciones 
+    * Actualizar o Crear el array de Objeto Registro de Garantía de préstamos
+    * @bodyParam [0].affiliate_id integer ID required de afiliado. Example: 5
+    * @bodyParam [0].adjustable_id  integer required ID del registro de la tabla loans,prestamos.Example: 1
+    * @bodyParam [0].adjustable_type string required registro del nombre de las tablas tabla loans,prestamos. Example: contributions
+    * @bodyParam [0].type_affiliate enum required (lender,guarantor,cosigner) Example:guarantor
+    * @bodyParam [0].amount numeric required cuota del prestamo de los garantes Example: 10000.50
+    * @bodyParam [0].type_adjust enum required (loan_guarantee_register)  Example: loan_guarantee_register
+    * @bodyParam [0].period_date required fecha de desembolso del prestamo de la cuota que se registra Example: 2010-06-20 
+    * @bodyParam [0].description string required Descripcion del codigo del prestamo. Example:ninguno
+    * @bodyParam [0].database_name enum required nombre de la base de datos en la que se encuentra registrada la garantia (PVT,SISMU) Example: SISMU
+    * @bodyParam [1].affiliate_id integer required ID de afiliado. Example: 5
+    * @bodyParam [1].adjustable_id  integer required ID del registro de la tabla loans,prestamos.Example: 1
+    * @bodyParam [1].adjustable_type string required registro del nombre de las tablas tabla loans,prestamos. Example: contributions
+    * @bodyParam [1].type_affiliate enum required (lender,guarantor,cosigner) Example:guarantor
+    * @bodyParam [1].amount numeric required cuota del prestamo de los garantes Example: 10000.50
+    * @bodyParam [1].type_adjust enum required (loan_guarantee_register)  Example: loan_guarantee_register
+    * @bodyParam [1].period_date required fecha de desembolso del prestamo de la cuota que se registra Example: 2010-06-20 
+    * @bodyParam [1].description string required Descripcion del codigo del prestamo. Example:ninguno
+    * @bodyParam [1].database_name enum required nombre de la base de datos en la que se encuentra registrada la garantia (PVT,SISMU) Example: SISMU
     * @authenticated
+    * @responseFile responses/loan_contribution_adjust/updateOrCreateLoanGuaranteeRegister.200.json
     */
     public function updateOrCreateLoanGuaranteeRegister (Request $request) { 
     
@@ -168,7 +187,6 @@ class LoanContributionAdjustController extends Controller
                                                   ->where('type_affiliate',$loan_contribution_adjust['type_affiliate'])
                                                   ->where('type_adjust',$loan_contribution_adjust['type_adjust'])
                                                   ->where('period_date',$loan_contribution_adjust['period_date'])
-                                                  ->where('period_date',$loan_contribution_adjust['period_date'])
                                                   ->whereNull('loan_id')->first();                                  
             if($adjust_contribution){
                 $adjust_contribution->update();
@@ -178,7 +196,7 @@ class LoanContributionAdjustController extends Controller
                $loan_contribution_guarantee_register_ids->push($loan_contribution_guarantee_register->id);
             }                   
         }
-        $loan_contribution_guarantee_register_ids= array('loan_contribution_refinance_ids'=>$loan_contribution_guarantee_register_ids);
+        $loan_contribution_guarantee_register_ids= array('loan_contribution_guarantee_register_ids'=>$loan_contribution_guarantee_register_ids);
         return $loan_contribution_guarantee_register_ids;
     }
 }
