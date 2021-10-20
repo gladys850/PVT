@@ -254,7 +254,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         </div>
     </div>
     @endif
-    <div>
+    <div class="m-t-75">
         <table>
             <tr>
                 @foreach ($employees as $key => $employee)
@@ -492,7 +492,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         </div>
     </div>
     @endif
-    <div>
+    <div class="m-t-75">
         <table>
             <tr>
                 @foreach ($employees as $key => $employee)
