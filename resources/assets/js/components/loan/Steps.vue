@@ -828,6 +828,7 @@ export default {
                     if(this.data_sismu.quota_sismu > 0 && this.data_loan.data_loan != null ){
                       this.saveAdjustment()
                       this.liquidCalificated()
+                      this.data_loan_parent_aux.estimated_quota= this.data_sismu.quota_sismu
                       this.nextStep(1)
                     }else{
                       if(this.data_loan.data_loan == null ){
