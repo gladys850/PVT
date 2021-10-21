@@ -1,9 +1,11 @@
 {
-    "affiliate_id" : 11768,
-    "payable_liquid_calculated": 3500,
-    "bonus_calculated": 500,
-    "liquid_qualification_calculated": 3000,
-    "indebtnes_calculated": 45,
+    "affiliate_id": 22773,
+    "payable_liquid_calculated": 4500,
+    "bonus_calculated": 800,
+    "liquid_qualification_calculated": 5797.96,
+    "indebtnes_calculated": 12.94,
+    "quota_calculated": 750,
+    "payment_percentage": 50,
     "is_valid": true,
-    "livelihood_amount": true
+    "liquid_rest": 2148.98
 }

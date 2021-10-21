@@ -1472,6 +1472,7 @@ class AffiliateController extends Controller
     * Devuelve si el afiliadopuede ser garante acorde al estado y la modalidad.
     * @bodyParam affiliate_id integer required id del afiliado. Example:12900
     * @bodyParam procedure_modality_id integer required id de la modalidad. Example:50
+    * @bodyParam remake_loan_id integer required id del prestamo a rehacer, si es nuevo enviar 0. Example:9
     * @authenticated
     * @responseFile responses/affiliate/validate_guarantor.200.json
     */
@@ -1553,16 +1554,19 @@ class AffiliateController extends Controller
         $data = array();
         foreach($loans as $loan)
         {
-            $loans_pvt = array(
-                "id" => $loan->IdPrestamo,
-                "code" => $loan->code,
-                "lender" => $loan->lenders->first()->full_name,
-                "quota" => $loan->guarantors->where('id',$affiliate->id)->pivot->quota_treat,
-                "quota_loan" => $loan->estimated_quota,
-                "state" => $loan->state->name,
-                "type" => "PVT",
-            );
-            array_push($data, $loans_pvt);
+            if($loan->id != $request->remake_loan_id)
+            {
+                $loans_pvt = array(
+                    "id" => $loan->id,
+                    "code" => $loan->code,
+                    "lender" => $loan->lenders->first()->full_name,
+                    "quota" => $loan->guarantors->where('id',$affiliate->id)->first()->pivot->quota_treat,
+                    "quota_loan" => $loan->estimated_quota,
+                    "state" => $loan->state->name,
+                    "type" => "PVT",
+                );
+                array_push($data, $loans_pvt);
+        }
         }
         foreach($loans_sismu as $loan)
         {
@@ -1572,7 +1576,7 @@ class AffiliateController extends Controller
                 "lender" => $loan->PadNombres.' '.$loan->PadPaterno.' '.$loan->PadMaterno.' '.$loan->PadApellidoCasada,
                 "quota" => $loan->PresCuotaMensual / $loan->quantity_guarantors,
                 "quota_loan" => $loan->PresCuotaMensual,
-                "state" => $loan->PresEstPtmo,
+                "state" => $loan->PresEstPtmo == "V" ? "Vigente" : "Pendiente",
                 "type" => "SISMU",
             );
             array_push($data, $loans_pvt);
