@@ -517,7 +517,7 @@
                                                   </template>
                                                   <span>Ver datos del afiliado</span>
                                                 </v-tooltip>
-                                                <v-tooltip top >
+                                                <v-tooltip top>
                                                   <template v-slot:activator="{ on }">
                                                     <v-btn
                                                       icon
@@ -537,7 +537,7 @@
                                                     <span>Cancelar</span>
                                                   </div>
                                                 </v-tooltip>
-                                                <v-tooltip top >
+                                                <v-tooltip top v-if="permissionSimpleSelected.includes('print-qualification-form')">
                                                   <template v-slot:activator="{ on }">
                                                     <v-btn
                                                       icon
