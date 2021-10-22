@@ -1355,6 +1355,7 @@ class Loan extends Model
                 $titular_guarantor->type_initials = "G-".$guarantor->spouse->initials;
                 $titular_guarantor->pivot = $guarantor->pivot;
                 $titular_guarantor->ballots = $this->ballot_affiliate($guarantor->spouse->affiliate_id);
+                $titular_guarantor->cell_phone_number = $guarantor->cell_phone_number;
             }
             $titular_guarantor->account_number = $guarantor->account_number;
             $titular_guarantor->financial_entity = $guarantor->financial_entity;
