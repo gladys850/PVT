@@ -100,7 +100,7 @@ export default {
       if (process.env.NODE_ENV != 'production') {
         return {
           color: `green darken-4`,
-          text: `PLATAFORMA VIRTUAL DE TRÁMITES (VERSIÓN DE PRUEBA)`
+          text: `PLATAFORMA VIRTUAL DE TRÁMITES (BIOMÉTRICO VERSIÓN DE PRUEBA)`
         }
       } else {
         return {

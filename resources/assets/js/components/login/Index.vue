@@ -12,6 +12,7 @@
             <div class="display-1 font-weight-thin text-md-center text-uppercase">
               <p>PLATAFORMA VIRTUAL</p>
               <p>DE TRÁMITES</p>
+              <h6>REGISTRO BIOMÉTRICO</h6>
             </div>
           </v-card-title>
           <v-spacer></v-spacer>
