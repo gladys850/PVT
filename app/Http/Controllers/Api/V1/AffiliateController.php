@@ -1445,6 +1445,7 @@ class AffiliateController extends Controller
         ]);
         $double_perception = false;
         $affiliate = null;
+        $spouse = null;
         if(Affiliate::where('identity_card', $request->identity_card)->first())
         {
             $affiliate = Affiliate::where('identity_card', $request->identity_card)->first()->id;
@@ -1453,14 +1454,18 @@ class AffiliateController extends Controller
         }
         if(Spouse::where('identity_card', $request->identity_card)->first())
         {
-            if($affiliate)
-                $double_perception = true;
             $spouse = Spouse::where('identity_card', $request->identity_card)->first();
-            $deceased_affiliate = $spouse->affiliate->id;
+            if($affiliate)
+            {
+                $double_perception = true;
+                $deceased_affiliate = $spouse->affiliate->id;
+            }
+            else
+                $affiliate = $spouse->affiliate->id;
         }
         
         return $data = array(
-            "existence"=>$affiliate ? true : false,
+            "existence"=>$affiliate || $spouse ? true : false,
             "affiliate"=>$affiliate ? $affiliate : null,
             "double_perception"=>$double_perception,
             "deceased_affiliate" => $double_perception ? $deceased_affiliate : null,
