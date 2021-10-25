@@ -19,7 +19,7 @@
               v-on="on"
               style="margin-right: 45px;"
               @click.stop="resetForm()"
-              v-show="!isNew && editable"
+              v-show="editable"
             >
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -355,14 +355,17 @@ export default {
     }
   },
   watch:{
-
+    //Al redirecionar, obtener de nuevo los datos del afiliado para el renderizado
+    '$route.path': function(val, oldVal){
+      this.getAffiliate(this.$route.params.id)
+    }
   },
   mounted() {
     if (!this.isNew) {
       this.resetForm()
     } else {
       this.tab = 'tab-2'
-      this.editable = true
+      this.editable = false
       this.setBreadcrumbs()
     }
 
@@ -391,6 +394,8 @@ export default {
             await axios.patch(`affiliate/${res.data.id}/address`, {
               addresses: this.addresses.map(o => o.id)
             })
+            //Redireccionar despues de adicionar al nuevo afiliado
+            this.$router.push(`/affiliate/${res.data.id}`)
           } else {
             // Edit affiliate
             await axios.patch(`affiliate/${this.affiliate.id}`, this.affiliate)
@@ -398,7 +403,8 @@ export default {
               addresses: this.addresses.map(o => o.id),
               addresses_valid: this.id_street
             })
-
+            //Despues de actualizar, obtener datos del afiliado para renderizado
+            this.getAffiliate(this.$route.params.id)
             //Preguntar si afiliado esta fallecido
             if(this.affiliate.affiliate_state_id == 4){
               if(this.spouse.id){
