@@ -186,7 +186,7 @@ class MovementFundRotatoryController extends Controller
         $persons = collect([]);
         foreach ($lenders as $lender) {
             $persons->push([
-                'full_name' => implode(' ', [$lender->full_name, $lender->full_name]),
+                'full_name' => implode(' ', [$lender->full_name]),
                 'identity_card' => $lender->identity_card_ext,
                 'position' => 'RECIBIDO POR'
             ]);
