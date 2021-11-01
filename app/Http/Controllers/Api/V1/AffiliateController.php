@@ -1446,14 +1446,20 @@ class AffiliateController extends Controller
         $double_perception = false;
         $affiliate = null;
         $spouse = null;
+        $type = null;
+        $existence = false;
         if(Affiliate::where('identity_card', $request->identity_card)->first())
         {
-            $affiliate = Affiliate::where('identity_card', $request->identity_card)->first()->id;
+            $existence = true;
+            $affiliate = Affiliate::where('identity_card', $request->identity_card)->first();
             $spouse = null;
             $double_perception = false;
+            if(!$affiliate->dead)
+                $type = 'affiliate';
         }
         if(Spouse::where('identity_card', $request->identity_card)->first())
         {
+            $existence = true;
             $spouse = Spouse::where('identity_card', $request->identity_card)->first();
             if($affiliate)
             {
@@ -1461,12 +1467,21 @@ class AffiliateController extends Controller
                 $deceased_affiliate = $spouse->affiliate->id;
             }
             else
-                $affiliate = $spouse->affiliate->id;
+            {
+                $affiliate = $spouse->affiliate;
+                if(!$spouse->dead)
+                    $type = 'spouse';
+            }
         }
-        
+        if($affiliate && $affiliate->spouse)
+        {
+            if($affiliate->dead && $affiliate->spouse->dead)
+                $existence = false;
+        }
         return $data = array(
-            "existence"=>$affiliate || $spouse ? true : false,
-            "affiliate"=>$affiliate ? $affiliate : null,
+            "existence"=>$existence,
+            "affiliate"=>$existence ? $affiliate->id : null,
+            "type"=>$type,
             "double_perception"=>$double_perception,
             "deceased_affiliate" => $double_perception ? $deceased_affiliate : null,
             );
