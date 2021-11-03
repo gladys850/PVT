@@ -1390,4 +1390,24 @@ class Loan extends Model
      {
          return $this->paymentsKardex->sortByDesc('id')->first();
      }
+
+     //actualizacion del estado del prestamo
+     public function verify_state_loan()
+     {
+        if($this->state->name == "Vigente"){
+            if($this->verify_balance() == 0)
+            {
+                $this->state_id = LoanState::whereName('Liquidado')->first()->id;
+                $this->update();
+            }
+        }
+        if($this->state->name == "Liquidado"){
+            if($this->verify_balance() > 0)
+            {
+                $this->state_id = LoanState::whereName('Vigente')->first()->id;
+                $this->update();
+            }
+        }
+      return $this;
+     }
 }

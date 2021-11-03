@@ -313,6 +313,7 @@ class ImportationController extends Controller
                 'message'=>"SENASIR Importación realizada con exito! ".$period->month.'/'.$period->year,
                 'importation_validated'=> true
             ];
+            LoanController::verify_loans();
             DB::commit();
             return $paids;
 
@@ -720,6 +721,7 @@ class ImportationController extends Controller
                 }
                 $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
                 $update_period = DB::select($update_period);
+                LoanController::verify_loans();
                 DB::commit();
                 $paids = [
                     'period'=> LoanPaymentPeriod::whereId($request->period)->first(),
