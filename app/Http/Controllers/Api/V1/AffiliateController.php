@@ -1521,6 +1521,10 @@ class AffiliateController extends Controller
                     $guarantor = true;
                 else
                     $message = "Afiliado no pertenece al servicio activo o se encuentra en comision o disponibilidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
                 break;
             case (in_array($request->procedure_modality_id, $id_senasir)):
                 if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
@@ -1539,6 +1543,10 @@ class AffiliateController extends Controller
                         $message = "El afiliado es del sector pasivo y no tiene registrado su ente gestor";
                     }
                 }
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
                 break;
             case (in_array($request->procedure_modality_id, $id_afp)):
                 if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
@@ -1547,7 +1555,6 @@ class AffiliateController extends Controller
                         $message = "El afiliado no tiene registrado su categoria";
                     else
                     {
-                        $affiliate->category_name = $affiliate->category->name;
                         if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
                             $guarantor = true;
                         else
@@ -1556,9 +1563,17 @@ class AffiliateController extends Controller
                 }
                 else
                     $message = "Afiliado es pasivo o se encuentra en comision o disponibilidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
                 break;
             default:
                 $message = "no corresponde con la modalidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
                 break;
         }
         if($affiliate->spouse != null && $affiliate->spouse->dead == false)
