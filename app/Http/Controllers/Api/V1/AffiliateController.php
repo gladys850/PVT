@@ -1547,6 +1547,7 @@ class AffiliateController extends Controller
                         $message = "El afiliado no tiene registrado su categoria";
                     else
                     {
+                        $affiliate->category_name = $affiliate->category->name;
                         if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
                             $guarantor = true;
                         else
@@ -1601,6 +1602,7 @@ class AffiliateController extends Controller
             );
             array_push($data, $loans_pvt);
         }
+        $affiliate->active_loans = count($affiliate->active_loans())+count($affiliate->active_loans_sismu());
         if($affiliate->city_identity_card == null)
             $information = $information."ciudad de expedicion del carnet de identidad,";
         if($affiliate->affiliate_state == null)
