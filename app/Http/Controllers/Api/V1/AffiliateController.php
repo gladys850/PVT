@@ -154,7 +154,9 @@ class AffiliateController extends Controller
     */
     public function store(AffiliateForm $request)
     {
-        return Affiliate::create($request->all());
+        $request=$request->all();
+        $request['user_id']=Auth::id();
+        return Affiliate::create($request);
     }
 
     /**
