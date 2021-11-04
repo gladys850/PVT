@@ -223,6 +223,7 @@ class LoanPayment extends Model
         //$payment->amortization_type_id = $payment_type->id;
         $payment->user_id = auth()->id();
         $loan_payment = $loan->payments()->create($payment->toArray());
+        $loan->verify_state_loan();
         return $loan_payment;
     }
 
