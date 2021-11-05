@@ -494,7 +494,7 @@ class CalculatorController extends Controller
             $total_bonuses = $contribution_first['position_bonus']+$contribution_first['border_bonus']+$contribution_first['public_security_bonus']+$contribution_first['east_bonus'];
             $liquid_qualification_calculated = $this->liquid_qualification($type, $payable_liquid_average, $total_bonuses, $affiliate);
             foreach($request->guarantees as $guarantees)
-                $liquid_qualification_calculated += $guarantees['quota'];
+                $liquid_qualification_calculated -= $guarantees['quota'];
             $indebtedness_calculated = $quota_calculated/$liquid_qualification_calculated * 100;
             if($indebtedness_calculated < $debt_index)
                 $liquid_rest = Util::round(($liquid_qualification_calculated * 0.5) - $quota_calculated);
