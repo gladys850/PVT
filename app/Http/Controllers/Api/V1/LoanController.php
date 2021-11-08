@@ -1402,6 +1402,8 @@ class LoanController extends Controller
             //$payment->user_id = $request->user_id;
             //$payment->validated = true;
             $loan_payment = $loan->payments()->create($payment->toArray());
+            $loan = Loan::find($loan->id);
+            $loan->verify_state_loan();
             //generar PDF
             $information_loan= $this->get_information_loan($loan);
             $file_name = implode('_', ['pagos', $loan->modality->shortened, $loan->code]) . '.pdf';
@@ -2011,7 +2013,7 @@ class LoanController extends Controller
    }
 
    //cronjob para actualizacion de prestamos
-   public function verify_loans()
+   public static function verify_loans()
    {
        $loans = Loan::where('state_id', LoanState::whereName('Vigente')->first()->id)->get();
        $c = 0;

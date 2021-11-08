@@ -1355,6 +1355,7 @@ class Loan extends Model
                 $titular_guarantor->type_initials = "G-".$guarantor->spouse->initials;
                 $titular_guarantor->pivot = $guarantor->pivot;
                 $titular_guarantor->ballots = $this->ballot_affiliate($guarantor->spouse->affiliate_id);
+                $titular_guarantor->cell_phone_number = $guarantor->cell_phone_number;
             }
             $titular_guarantor->account_number = $guarantor->account_number;
             $titular_guarantor->financial_entity = $guarantor->financial_entity;
@@ -1388,5 +1389,25 @@ class Loan extends Model
      public function payment_kardex_last()
      {
          return $this->paymentsKardex->sortByDesc('id')->first();
+     }
+
+     //actualizacion del estado del prestamo
+     public function verify_state_loan()
+     {
+        if($this->state->name == "Vigente"){
+            if($this->verify_balance() == 0)
+            {
+                $this->state_id = LoanState::whereName('Liquidado')->first()->id;
+                $this->update();
+            }
+        }
+        if($this->state->name == "Liquidado"){
+            if($this->verify_balance() > 0)
+            {
+                $this->state_id = LoanState::whereName('Vigente')->first()->id;
+                $this->update();
+            }
+        }
+      return $this;
      }
 }
