@@ -260,7 +260,7 @@ class LoanController extends Controller
     * @bodyParam guarantors[0].contributionable_ids array required Ids de las contribuciones asocidas al prestamo por afiliado. Example: [1,2,3]
     * @bodyParam guarantors[0].contributionable_type enum required  Nombre de la tabla de contribuciones. Example: contributions
     * @bodyParam guarantors[0].loan_contributions_adjust_ids array required  Ids de los ajustes de la(s) contribución(s). Example: []
-    * @bodyParam guarantors[0].loan_contributions_adjust_ref_id array ID del registro de la cuota refinanciado sismu caso garante. Example:5 
+    * @bodyParam guarantors[0].loan_contributions_guarantor_reg_ids array ID del registro de la cuota de sus garantias garante. Example:[4,5,6]
     * @bodyParam data_loan array Datos Sismu.
     * @bodyParam data_loan[0].code string required Codigo del prestamo en el Sismu. Example: PRESTAMO123
     * @bodyParam data_loan[0].amount_approved numeric required Monto aprovado del prestamo del Sismu. Example: 5000.50
@@ -473,6 +473,7 @@ class LoanController extends Controller
     * @bodyParam guarantors[0].contributionable_ids array  Ids de las contribuciones asocidas al prestamo por afiliado. Example: [1,2,3]
     * @bodyParam guarantors[0].contributionable_type enum Nombre de la tabla de contribuciones . Example: contributions
     * @bodyParam guarantors[0].loan_contributions_adjust_ids array Ids de los ajustes de la(s) contribución(s). Example: []
+    * @bodyParam guarantors[0].loan_contributions_guarantor_reg_ids array ID del registro de la cuota de sus garantias garante. Example:[4,5,6]
     * @bodyParam guarantors[0].quota_treat cuota del garante. Example: 2315.86
     * @authenticated
     * @responseFile responses/loan/update.200.json
@@ -765,16 +766,16 @@ class LoanController extends Controller
                         $ajuste->loan_id=$loan->id;
                         $ajuste->update();
                     }
-                    if(array_key_exists('loan_contributions_adjust_ref_id', $affiliate)){
-                        $loan_contributions_adjust_refs = $affiliate['loan_contributions_adjust_ref_id'];  
-                    }else{                    
-                        $loan_contributions_adjust_refs = [];
+                    if(array_key_exists('loan_contributions_guarantor_reg_ids', $affiliate)){
+                        $loan_contributions_guarantor_reg_ids = $affiliate['loan_contributions_guarantor_reg_ids'];
+                    }else{
+                        $loan_contributions_guarantor_reg_ids = [];
                     }
-                    foreach ($loan_contributions_adjust_refs as $loan_contributions_adjust_ref){
-                        $loan_contributions_adjust_ref = LoanContributionAdjust::find($loan_contributions_adjust_ref);
-                        $loan_contributions_adjust_ref->loan_id=$loan->id;
-                        $loan_contributions_adjust_ref->adjustable_id = $loan->id;
-                        $loan_contributions_adjust_ref->update();  
+                    foreach ($loan_contributions_guarantor_reg_ids as $loan_contributions_guarantor_reg_id){
+                        $loan_contributions_guarantor_reg = LoanContributionAdjust::find($loan_contributions_guarantor_reg_id);
+                        $loan_contributions_guarantor_reg->loan_id=$loan->id;
+                        $loan_contributions_guarantor_reg->adjustable_id = $loan->id;
+                        $loan_contributions_guarantor_reg->update();  
                     }
                     $a++;
                 }
