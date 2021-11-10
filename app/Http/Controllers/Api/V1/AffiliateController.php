@@ -486,29 +486,53 @@ class AffiliateController extends Controller
 
         if($request->has('choose_diff_month'))
             $choose_diff_month = $request->boolean('choose_diff_month');
-        else 
+        else
             $choose_diff_month =false;
-            
+
         if($request->has('number_diff_month'))
             $number_diff_month = intval($request->number_diff_month);
-        else 
+        else
             $number_diff_month = 1;
 
-        $state_affiliate = $affiliate->affiliate_state->affiliate_state_type->name;
-        $filters = [
-            'affiliate_id' => $affiliate->id
-        ];
-
+       $state_affiliate = $affiliate->affiliate_state->affiliate_state_type->name;
        $table_contribution=null;
        $verify=false;
        $is_latest=false;
+
+        if ($request->has('city_id')) {
+            $is_latest = false;
+            $city = City::findOrFail($request->city_id);
+            $offset_day = LoanGlobalParameter::latest()->first()->offset_ballot_day;
+            $now = CarbonImmutable::now();
+            if($choose_diff_month == true && $request->has('number_diff_month')){
+                $before_month=$number_diff_month;
+                $before_month=$before_month;
+            }else{
+                if($now->day <= $offset_day ){
+                    if ($city->name == 'LA PAZ') $before_month = 2;//
+                    else $before_month = 3;
+                }else{
+                    if ($city->name == 'LA PAZ') $before_month = 1;//
+                    else $before_month = 2;
+                }
+            }
+
+            $current_ticket_true = $now->startOfMonth()->subMonths($before_month);
+            if($request->per_page > 1){
+                $current_ticket_true_inter = $current_ticket_true->startOfMonth()->subMonths($request->per_page - 1);//retrocede 2 meses 
+                //return $current_ticket_true_inter;
+            }else{
+                $current_ticket_true_inter = $current_ticket_true;
+            }
+        }
+
        if ($state_affiliate == 'Activo' &&  $affiliate->affiliate_state->name !=  'Comisión' ){
-            $contributions = Util::search_sort(new Contribution(), $request, $filters);
+            $contributions = Contribution::where('affiliate_id',$affiliate->id)->whereBetween('month_year', [$current_ticket_true_inter->toDateString(), $current_ticket_true->toDateString()])->orderBy('month_year','asc')->paginate($request->per_page);
             $table_contribution='contributions';
             $verify=true;
         }else{
             if ($state_affiliate == 'Pasivo'){
-            $contributions = Util::search_sort(new AidContribution(), $request, $filters);
+            $contributions = AidContribution::where('affiliate_id',$affiliate->id)->whereBetween('month_year', [$current_ticket_true_inter->toDateString(), $current_ticket_true->toDateString()])->orderBy('month_year','asc')->paginate($request->per_page);
             $table_contribution ='aid_contributions';
             $verify=true;
             }else{
@@ -521,52 +545,10 @@ class AffiliateController extends Controller
             }
         }
         if($verify == true && count($affiliate->$table_contribution)>0){
-            if ($request->has('city_id')) {
-                $is_latest = false;
-                $city = City::findOrFail($request->city_id);
-                $offset_day = LoanGlobalParameter::latest()->first()->offset_ballot_day;
-                $now = CarbonImmutable::now();
-                if($choose_diff_month == true && $request->has('number_diff_month')){
-                    $before_month=$number_diff_month;
-                    $before_month=$before_month;
+             //verifica si son consecutivos los meses de las boletas de pago
+                if($request->per_page == count($contributions)){
+                    $is_latest = true;
                 }else{
-                    if($now->day <= $offset_day ){
-                        if ($city->name == 'LA PAZ') $before_month = 2;//
-                        else $before_month = 3;
-                    }else{
-                        if ($city->name == 'LA PAZ') $before_month = 1;//
-                        else $before_month = 2;
-                    }
-                }
-                $current_ticket = CarbonImmutable::parse($contributions[0]->month_year);
-                $current_ticket_true = $now->startOfMonth()->subMonths($before_month);
-                $current_ticket_true_inter = $now->startOfMonth()->subMonths($before_month+2);
-                $filterAffiliate['affiliate_id'] = $affiliate->id;
-                    if($request->per_page == 3)
-                    $filters['month_year'] = $current_ticket_true_inter->toDateString();
-                    if($request->per_page == 1)
-                    $filters['month_year'] = $current_ticket_true->toDateString();
-               
-               if ($state_affiliate == 'Activo' &&  $affiliate->affiliate_state->name !=  'Comisión' ){
-                       $contributions = Util::search_sort_contribution(new Contribution(), $request, $filters,$filterAffiliate);
-                }else{
-                    if ($state_affiliate == 'Pasivo'){
-                        $contributions = Util::search_sort_contribution(new AidContribution(), $request, $filters,$filterAffiliate);
-                    }
-                }
-                if ($now->startOfMonth()->diffInMonths($current_ticket->startOfMonth()) <= $before_month) {
-                    foreach ($contributions as $i => $ticket) {
-                        $is_latest = true;
-                        if ($ticket != $contributions->last()) {
-                            $current_ticket = CarbonImmutable::parse($ticket->month_year);
-                            $next_ticket = CarbonImmutable::parse($contributions[$i+1]->month_year);
-                            if ($current_ticket->startOfMonth()->diffInMonths($next_ticket->startOfMonth()) !== 1) {
-                                $is_latest = false;
-                                break;
-                            }
-                        }
-                    }
-                } else {
                     $is_latest = false;
                 }
                 $contributions = collect([
@@ -579,29 +561,8 @@ class AffiliateController extends Controller
                     'current_tiket'=> $current_ticket_true->toDateTimeString(),
                     'affiliate_id'=>$affiliate->id
                 ])->merge($contributions);
-            }
             return $contributions;
         }else{
-            $offset_day = LoanGlobalParameter::latest()->first()->offset_ballot_day;
-            $now = CarbonImmutable::now();
-            $before_month=0;
-            
-            if ($request->has('city_id')) {
-                $city = City::findOrFail($request->city_id);
-                if($choose_diff_month == true && $request->has('number_diff_month')){
-                    $before_month=$number_diff_month;
-                }else{
-                    if($now->day <= $offset_day ){
-                        if ($city->name == 'LA PAZ') $before_month = 2;
-                        else $before_month = 3;
-                    }else{
-                        if ($city->name == 'LA PAZ') $before_month = 1;
-                        else $before_month = 2;
-                    }
-                }
-            }
-            $current_ticket = $now->startOfMonth()->subMonths($before_month);
-            $now->startOfMonth()->diffInMonths($current_ticket->startOfMonth());
             $contributions = collect([
                 'valid' => $is_latest,
                 'diff_months' => $before_month,
@@ -609,7 +570,7 @@ class AffiliateController extends Controller
                 'name_table_contribution'=>$table_contribution,
                 'current_date'=>$now->toDateTimeString(),
                 'offset_day'=>$offset_day,
-                'current_tiket'=> $current_ticket->toDateTimeString(),
+                'current_tiket'=> $current_ticket_true->toDateTimeString(),
                 'affiliate_id'=>$affiliate->id
             ]);
             return $contributions;
