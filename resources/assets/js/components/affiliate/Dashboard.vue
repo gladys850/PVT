@@ -335,6 +335,8 @@ export default {
           this.getUnit_name(newVal.unit_id)
         }
       }
+      this.getState_name(this.$route.params.id)
+      this.getLoan(this.$route.params.id)
     }
   },
   mounted() {

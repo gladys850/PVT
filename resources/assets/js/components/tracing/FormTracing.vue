@@ -97,13 +97,17 @@
                               <v-card-text  class=" py-0">
                                 <v-col cols="12" md="12" color="orange">
                                   <v-card-text class="pa-0 mb-0">
+                                    <v-col cols="12" md="12" class="py-0 px-0" >
+                                      <p style="color:teal"><b>GARANTÍA</b></p>
+                                    </v-col>
+                                    <v-progress-linear></v-progress-linear>
                                     <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
                                       <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo'">
-                                        <li v-for="guarantor in loan.guarantors" :key="guarantor.id">
+                                        <li v-for="guarantor in loan.borrowerguarantors" :key="guarantor.id">
                                           <v-col cols="12" md="12" class="pa-0">
                                             <v-row class="pa-2">
                                               <v-col cols="12" md="12" class="py-0">
-                                                <p style="color:teal"><b>GARANTE </b></p>
+                                                <p style="color:black"><b>GARANTE </b></p>
                                               </v-col>
                                               <v-progress-linear></v-progress-linear><br>
                                               <v-col cols="12" md="3">
@@ -133,10 +137,6 @@
                                             </v-row>
                                           </v-col>
                                         </li>
-                                        <v-col cols="12" md="12" class="py-0" >
-                                          <p style="color:teal"><b>GARANTES</b></p>
-                                        </v-col>
-                                        <v-progress-linear></v-progress-linear>
                                         <br>
                                         <p v-if="loan.guarantors.length==0" ><b> NO TIENE GARANTES </b></p>
                                       </ul>

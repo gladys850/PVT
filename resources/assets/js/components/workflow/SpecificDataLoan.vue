@@ -517,7 +517,7 @@
                                                   </template>
                                                   <span>Ver datos del afiliado</span>
                                                 </v-tooltip>
-                                                <v-tooltip top >
+                                                <v-tooltip top>
                                                   <template v-slot:activator="{ on }">
                                                     <v-btn
                                                       icon
@@ -528,7 +528,7 @@
                                                       right
                                                       v-on="on"
                                                       @click.stop="resetForm()"
-                                                      v-show="edit_indebtedness_calculated"
+                                                      v-show="edit_update_loan_affiliates"
                                                     >
                                                     <v-icon>mdi-close</v-icon>
                                                     </v-btn>
@@ -537,24 +537,24 @@
                                                     <span>Cancelar</span>
                                                   </div>
                                                 </v-tooltip>
-                                                <v-tooltip top >
+                                                <v-tooltip top v-if="permissionSimpleSelected.includes('print-qualification-form')">
                                                   <template v-slot:activator="{ on }">
                                                     <v-btn
                                                       icon
                                                       dark
                                                       x-small
-                                                      :color="edit_indebtedness_calculated ? 'danger' : 'success'"
+                                                      :color="edit_update_loan_affiliates ? 'danger' : 'success'"
                                                       top
                                                       right
                                                       v-on="on"
-                                                      @click.stop="editIndebtednessGuarantor(guarantor.id, guarantor.pivot.indebtedness_calculated)"
+                                                      @click.stop="update_loan_affiliates(guarantor.id, guarantor.pivot.indebtedness_calculated, guarantor.pivot.payable_liquid_calculated, guarantor.pivot.liquid_qualification_calculated)"
                                                     >
-                                                      <v-icon v-if="edit_indebtedness_calculated">mdi-check</v-icon>
+                                                      <v-icon v-if="edit_update_loan_affiliates">mdi-check</v-icon>
                                                       <v-icon v-else>mdi-pencil</v-icon>
                                                     </v-btn>
                                                   </template>
                                                   <div>
-                                                    <span v-if="edit_indebtedness_calculated">Guardar Indice Garante</span>
+                                                    <span v-if="edit_update_loan_affiliates">Guardar Indice Garante</span>
                                                     <span v-else>Editar </span>
                                                   </div>
                                                 </v-tooltip>
@@ -573,26 +573,42 @@
                                             <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.pivot.payment_percentage|percentage }}%</p>
                                             </v-col>
-                                             <v-col class="my-0 py-0" cols="12" md="3">
+                                             <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
                                               <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.pivot.payable_liquid_calculated | moneyString}}</p>
+                                            </v-col>
+                                            <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
+                                              <v-text-field
+                                                dense
+                                                label="LIQUIDO PARA CALIFICACION"
+                                                v-model="guarantor.pivot.payable_liquid_calculated"
+                                                :outlined="true"
+                                              ></v-text-field>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>PROMEDIO DE BONOS:</b> {{guarantor.pivot.bonus_calculated| moneyString }}</p>
                                             </v-col>
-                                            <v-col class="my-0 py-0" cols="12" md="3">
+                                            <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
                                               <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.pivot.liquid_qualification_calculated | moneyString}}</p>
                                             </v-col>
-                                            <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_indebtedness_calculated">
+                                            <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
+                                              <v-text-field
+                                                dense
+                                                label="LIQUIDO PARA CALIFICACION CALCULADO"
+                                                v-model="guarantor.pivot.liquid_qualification_calculated"
+                                                :outlined="true"
+                                              ></v-text-field>
+                                            </v-col>
+                                            <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
                                               <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.pivot.indebtedness_calculated|percentage }}%</p>
                                             </v-col>
-                                            <v-col cols="12" md="3" v-show="edit_indebtedness_calculated" class="pb-0" >
+                                            <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
                                               <v-text-field
                                                 dense
                                                 label="INDICE DE ENDEUDAMIENTO CALCULADO"
                                                 v-model="guarantor.pivot.indebtedness_calculated"
                                                 :outlined="true"
                                               ></v-text-field>
-                                          </v-col>
+                                            </v-col>
                                           </v-row>
                                         </v-col>
                                         <BallotsAdjust :ballots="guarantor.ballots"/>
@@ -1215,7 +1231,7 @@ export default {
       edit_delivery_date_regional : false,
       edit_hipotecary: false,
       edit_disbursement: false,
-      edit_indebtedness_calculated: false,
+      edit_update_loan_affiliates: false,
       reload: false,
       payment_types:[],
       city: [],
@@ -1375,7 +1391,7 @@ export default {
       this.edit_hipotecari = false
       this.edit_disbursement = false
       this.qualification_edit = false
-      this.edit_indebtedness_calculated = false
+      this.edit_update_loan_affiliates = false
       this.collection_edit=false
       this.collection_edit_sismu=false
       this.edit_return_date = false
@@ -1648,17 +1664,19 @@ export default {
         this.loading = false
       }
     },
-    async editIndebtednessGuarantor(affiliate_id, indebtedness_calculated_input){
+    async update_loan_affiliates(affiliate_id, indebtedness_calculated_input, payable_liquid_calculated, liquid_qualification_calculated){
       try {
-        if (!this.edit_indebtedness_calculated) {
-          this.edit_indebtedness_calculated = true
+        if (!this.edit_update_loan_affiliates) {
+          this.edit_update_loan_affiliates = true
         }else{
           let res = await axios.post(`loan/update_loan_affiliates`,{
             loan_id: this.loan.id,
             affiliate_id: affiliate_id,
-            indebtedness_calculated_input: indebtedness_calculated_input
+            indebtedness_calculated_input: indebtedness_calculated_input,
+            payable_liquid_calculated_input: payable_liquid_calculated,
+            liquid_qualification_calculated_input: liquid_qualification_calculated,
           })
-        this.edit_indebtedness_calculated = false
+        this.edit_update_loan_affiliates = false
         }
       } catch (e) {
         console.log(e)

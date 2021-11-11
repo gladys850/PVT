@@ -492,6 +492,9 @@ export default {
       this.formatDate('paymentDate', date);
       this.data_payment.pago=''
     },
+    'data_payment.affiliate_id':function(){
+      this.data_payment.pago=''
+    },
     data_payment:{
       deep:true,
       handler(){

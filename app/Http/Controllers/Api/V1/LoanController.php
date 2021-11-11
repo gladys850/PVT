@@ -1403,6 +1403,8 @@ class LoanController extends Controller
             //$payment->user_id = $request->user_id;
             //$payment->validated = true;
             $loan_payment = $loan->payments()->create($payment->toArray());
+            $loan = Loan::find($loan->id);
+            $loan->verify_state_loan();
             //generar PDF
             $information_loan= $this->get_information_loan($loan);
             $file_name = implode('_', ['pagos', $loan->modality->shortened, $loan->code]) . '.pdf';
@@ -2012,7 +2014,7 @@ class LoanController extends Controller
    }
 
    //cronjob para actualizacion de prestamos
-   public function verify_loans()
+   public static function verify_loans()
    {
        $loans = Loan::where('state_id', LoanState::whereName('Vigente')->first()->id)->get();
        $c = 0;
@@ -2220,26 +2222,63 @@ class LoanController extends Controller
         }
     }
      /**
-    * Actualializar indice de endeudamiento
-    * devuelve el monto a pagar del titular o garante del prestamo
+    * Actualializar loan_affiliates tabla
+    * Actualiza los datos de la tabla loan affiliates
     * @bodyParam loan_id integer required ID del préstamo. Example: 2
     * @bodyParam affiliate_id integer required liquidacion del prestamo. Example: 1555
-    * @bodyParam indebtedness_calculated_input numeric required liquidacion del prestamo. Example: 11.5
+    * @bodyParam indebtedness_calculated_input numeric  liquidacion del prestamo. Example: 11.5
+    * @bodyParam payable_liquid_calculated_input numeric  Liquido pagable calculado(promediado). Example: 4500
+    * @bodyParam liquid_qualification_calculated_input numeric Liaquido para calificacion calculado. Example: 4250
+    * @bodyParam payment_percentage_input numeric  Porcentage de pago. Example: 50
+    * @bodyParam bonus_calculated_input numeric Bono calculado(promedio). Example: 100
     * @authenticated
-    * @responseFile responses/loan/payment_amount.200.json
+    * @responseFile responses/loan/update_loan_affiliates.200.json
     */
    public function update_loan_affiliates(request $request){
     $request->validate([
      'loan_id'=>'required|integer|exists:loans,id',
      'affiliate_id'=>'required|integer|exists:affiliates,id',
-     'indebtedness_calculated_input' =>'required'
+     'indebtedness_calculated_input' =>'numeric|nullable',
+     'payable_liquid_calculated_input' =>'numeric|nullable',
+     'liquid_qualification_calculated_input' =>'numeric|nullable',
+     'payment_percentage_input' =>'numeric|nullable',
+     'bonus_calculated_input' =>'numeric|nullable',
     ]);
     $affiliate_id = $request->affiliate_id;
     $loan_id = $request->loan_id;
-    $indebtedness_calculated_input = $request->indebtedness_calculated_input;
-    $loan_affiliate_indebtedness_update = "update loan_affiliates set indebtedness_calculated = $indebtedness_calculated_input,indebtedness_calculated_previous = $indebtedness_calculated_input
+
+    if(isset($request->indebtedness_calculated_input)){
+        $indebtedness_calculated_input = $request->indebtedness_calculated_input;
+        $loan_affiliate_indebtedness_update = "update loan_affiliates set indebtedness_calculated = $indebtedness_calculated_input,indebtedness_calculated_previous = $indebtedness_calculated_input
                       where affiliate_id = $affiliate_id and loan_id = $loan_id";
-    $update_loan_affiliate = DB::select($loan_affiliate_indebtedness_update);
+         $update_loan_affiliate = DB::select($loan_affiliate_indebtedness_update);
+    }
+
+    if(isset($request->payable_liquid_calculated_input)){
+        $payable_liquid_calculated_input = $request->payable_liquid_calculated_input;
+        $loan_affiliate_payable_liquid_update = "update loan_affiliates set payable_liquid_calculated = $payable_liquid_calculated_input
+                      where affiliate_id = $affiliate_id and loan_id = $loan_id";
+         $update_loan_affiliate = DB::select($loan_affiliate_payable_liquid_update);
+    }
+    if(isset($request->liquid_qualification_calculated_input)){
+        $liquid_qualification_calculated_input = $request->liquid_qualification_calculated_input;
+        $loan_affiliate_liquid_qualification_update = "update loan_affiliates set liquid_qualification_calculated = $liquid_qualification_calculated_input
+                      where affiliate_id = $affiliate_id and loan_id = $loan_id";
+         $update_loan_affiliate = DB::select($loan_affiliate_liquid_qualification_update);
+    }
+    if(isset($request->payment_percentage_input)){
+        $payment_percentage_input = $request->payment_percentage_input;
+        $loan_affiliate_payment_percentage_update = "update loan_affiliates set payment_percentage = $payment_percentage_input
+                      where affiliate_id = $affiliate_id and loan_id = $loan_id";
+         $update_loan_affiliate = DB::select($loan_affiliate_payment_percentage_update);
+    }
+    if(isset($request->bonus_calculated_input)){
+        $bonus_calculated_input = $request->bonus_calculated_input;
+        $loan_affiliate_bonus_calculated_update = "update loan_affiliates set bonus_calculated = $bonus_calculated_input
+                      where affiliate_id = $affiliate_id and loan_id = $loan_id";
+         $update_loan_affiliate = DB::select($loan_affiliate_bonus_calculated_update);
+    }
+
     $loan = Loan::whereId($request->loan_id)->first();
 
     return $loan->loan_affiliates;

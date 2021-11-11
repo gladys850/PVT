@@ -445,7 +445,7 @@ class LoanReportController extends Controller
                 $sw ? $phone_number[1] : "",
                 //$row->lenders[0]->cell_phone_number,
                 $row->lenders[0]->phone_number,
-                $row->lenders[0]->city_birth->name,
+                $row->lenders[0]->address->cityName(),
                 $row->lenders[0]->address->full_address,
                 $row->code,
                 //$row->disbursement_date,
@@ -540,7 +540,7 @@ class LoanReportController extends Controller
                 $phone_number[0],
                 $sw ? $phone_number[1] : "",
                 $row->lenders[0]->phone_number,
-                $row->lenders[0]->city_birth->name,
+                $row->lenders[0]->address->cityName(),
                 $row->lenders[0]->address->full_address,
                 $row->code,
                 //$row->disbursement_date,
@@ -637,7 +637,7 @@ class LoanReportController extends Controller
                 $phone_number[0],
                 $sw ? $phone_number[1] : "",
                 $row->lenders[0]->phone_number,
-                $row->lenders[0]->city_birth->name,
+                $row->lenders[0]->address->cityName(),
                 $row->lenders[0]->address->full_address,
                 $row->code,
                 //$row->disbursement_date,
@@ -1617,7 +1617,7 @@ class LoanReportController extends Controller
                   $File="ListadoPrestamos";
                   $data=array(
                       array("DPTO","ÁREA","USUARIO","ID PRESTAMO", "COD. PRESTAMO", "ID AFILIADO","CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","CI PRESTATARIO", "MATRÍCULA PRESTATARIO", "NOMBRE COMPLETO PRESTATARIO","SUB MODALIDAD",
-                      "MODALIDAD","MONTO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO",'FECHA DE DESEMBOLSO','TIPO SOLICITUD AFILIADO/ESPOSA' )
+                      "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD",'FECHA DE DESEMBOLSO','TIPO SOLICITUD AFILIADO/ESPOSA' )
              );
                   foreach ($list_loan as $row){
                  array_push($data, array(
@@ -1636,12 +1636,14 @@ class LoanReportController extends Controller
                      $row->sub_modality_loan,
                      $row->modality_loan,
                      Util::money_format($row->amount_approved_loan),
+                     $row->loan_term,
                      $row->state_type_affiliate,
                      $row->state_affiliate,
                      Util::money_format($row->quota_loan),
                      $row->state_loan,
                      $row->pension_entity_affiliate,
-                     $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y H:i:s'):'',
+                     Carbon::parse($row->request_date_loan)->format('d/m/Y'),
+                     $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y'):'',
                      $row->type_affiliate_spouse_loan
                  ));
              }

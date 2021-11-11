@@ -265,6 +265,8 @@ class LoanPaymentController extends Controller
             $loanPayment->update(['loan_payment_date' => Carbon::now()]);
             $loanPayment->save();
         }*/
+        $loan = Loan::find($loanPayment->loan_id);
+        $loan->verify_state_loan();
         return  $loanPayment;
     }
 
@@ -283,6 +285,8 @@ class LoanPaymentController extends Controller
             $loanPayment->state()->associate($state);
             $loanPayment->save();
             $loanPayment->delete();
+            $loan = Loan::find($loanPayment->loan_id);
+            $loan->verify_state_loan();
             return $loanPayment;  
         }else{
             abort(403, 'El registro a eliminar no está en estado Pendiente');
@@ -386,6 +390,7 @@ class LoanPaymentController extends Controller
                     $user = User::whereUsername('admin')->first();
                 }
                 $loan=Loan::find($loanPayment->loan_id);
+                $loan->verify_state_loan();
                  //generar PDF
                     $information_loan= $this->get_information_loan($loan);
                     $file_name = implode('_', ['voucher', $voucher->code]) . '.pdf';
