@@ -993,12 +993,13 @@ export default {
       {
         if(this.modalidad.guarantors==this.guarantors.length)
         {
-          if(this.loan_detail.simulador==true)
+          this.nextStep(3)
+          /*if(this.loan_detail.simulador==true)
           {
             this.nextStep(3)
           }else{
               this.toastr.error("Debe calcular la cuota del garante")
-          }
+          }*/
         }
         else{
           this.toastr.error("Le falta añadir garantes.")
