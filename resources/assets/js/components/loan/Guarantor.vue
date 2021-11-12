@@ -134,9 +134,9 @@
                 <h6 v-show="affiliate_guarantor.information_missing != ''">Información faltante: {{affiliate_guarantor.information_missing}}</h6>
               </h3>
            <!--selectedGuaranteedLoans<pre>{{selectedGuaranteedLoans}}</pre>
-           contribution<pre>{{contribution}}</pre>-->
+           contribution<pre>{{contribution}}</pre>
             guarantor_detail<pre>{{guarantor_detail}}</pre>
-            guarantors<pre>{{guarantors}}</pre>
+            guarantors<pre>{{guarantors}}</pre>-->
            </v-col>
 
             <v-progress-linear></v-progress-linear>
@@ -708,9 +708,9 @@
     enabled: false,
     editar: true,
     contributions: [],
-    
-    contributionable_type: null,
-    loan_contributions_adjust_ids: [],
+
+    //contributionable_type: null,
+    //loan_contributions_adjust_ids: [],
     contributionable_ids: [],
     affiliate_contribution: {},
     loan_contribution_guarantee_register_ids: [],
@@ -722,7 +722,11 @@
    guarantor_ci: function(newVal, oldVal){
      if(newVal != oldVal)
      this.clear()
-   }
+   },
+   selectedGuaranteedLoans: function(newVal, oldVal){
+     if(newVal != oldVal)
+     this.valid_contrib= false
+   },
  },
   computed: {
     remake() {
@@ -1025,7 +1029,7 @@
 
 
     //Ajuste del Titular
-    async saveAdjustment(){
+    /*async saveAdjustment(){
       try {
       this.loan_contributions_adjust_ids = []
       this.contributionable_ids = []
@@ -1127,7 +1131,7 @@
         this.guarantor = {}
         this.guarantor.loan_contribution_guarantee_register_ids = []
 
-        this.saveAdjustment()
+        //this.saveAdjustment()
 
         // registro de garantias de prestamos
         if(this.selectedGuaranteedLoans.length > 0){
@@ -1136,12 +1140,76 @@
             guarantees: this.selectedGuaranteedLoans
           })
           this.guarantor.loan_contribution_guarantee_register_ids = res.data.loan_contribution_guarantee_register_ids
+        }
+        //Inico ajuste
+      this.loan_contributions_adjust_ids = []
+      let contributionable_ids = []
+      let contributionable_type = null
+      console.log(contributionable_ids)
+
+      this.contributions = this.contribution
+
+ 
+        //Verificar si el afiliado es pasivo para introducir su contribución
+        if(this.affiliate_contribution.state_affiliate == 'Pasivo'){
+          let res = await axios.post(`aid_contribution/updateOrCreate`,{
+            affiliate_id: this.affiliate_guarantor.affiliate.id,
+            month_year: this.contributions[0].period,
+            rent: this.contributions[0].payable_liquid,
+            dignity_rent: this.contributions[0].dignity_rent,
+          })
+
+          let contribution_passive = res.data
+            this.contributions[0].contributionable_id = contribution_passive.id
+            if (contributionable_ids.indexOf(this.contributions[0].contributionable_id) === -1) {
+              contributionable_ids.push(this.contributions[0].contributionable_id)
+               this.guarantor.contributionable_ids = contributionable_ids
+            }
+            contributionable_type = 'aid_contributions'
+            this.guarantor.contributionable_type = contributionable_type
+        }
+        else if(this.affiliate_contribution.state_affiliate == 'Activo') {
+          if (contributionable_ids.indexOf(this.contributions[0].contributionable_id) === -1) {
+            contributionable_ids.push(this.contributions[0].contributionable_id)
+             this.guarantor.contributionable_ids = contributionable_ids
+          }
+          contributionable_type = 'contributions'
+          this.guarantor.contributionable_type = contributionable_type
+        }
+        else if(this.affiliate_contribution.state_affiliate == 'Comisión') {
+          contributionable_type = 'loan_contribution_adjusts'
+          this.guarantor.contributionable_type = contributionable_type
+        }
+
+        //Para el ajuste
+        if(this.contributions[0].adjustment_amount > 0){ //aqui se debe colocar la edicion del ajuste, hacer condicional
+          //guardar el ajuste
+          let res = await axios.post(`loan_contribution_adjust/updateOrCreate`, {
+            affiliate_id: this.affiliate_guarantor.affiliate.id,
+            adjustable_id: this.affiliate_contribution.state_affiliate != 'Comisión' ? this.contributions[0].contributionable_id : this.$route.query.affiliate_id,
+            adjustable_type: this.affiliate_contribution.state_affiliate != 'Comisión' ? this.affiliate_contribution.name_table_contribution : 'affiliates',
+            type_affiliate: 'guarantor',
+            amount: this.contributions[0].adjustment_amount,
+            type_adjust: this.affiliate_contribution.state_affiliate != 'Comisión' ? 'adjust' : 'liquid',
+            period_date: this.contributions[0].period,
+            description: this.affiliate_contribution.state_affiliate != 'Comisión' ? this.contributions[0].adjustment_description : 'Liquido pagable por Comisión'
+          })
+          this.contributions[0].loan_contributions_adjust_id = res.data.id
+          console.log(this.contributions[0].loan_contributions_adjust_id)
+          if (this.loan_contributions_adjust_ids.indexOf(this.contributions[0].loan_contributions_adjust_id) === -1) {
+            this.loan_contributions_adjust_ids.push(this.contributions[0].loan_contributions_adjust_id)
           }
 
+        }else{
+          console.log('No tiene ajuste')
+        }
+
+
+        //fin ajuste
         this.guarantor.affiliate_id = this.affiliate_guarantor.affiliate.id,
         this.guarantor.bonus_calculated = this.evaluate_garantor.bonus_calculated,
-        this.guarantor.contributionable_ids = this.contributionable_ids,
-        this.guarantor.contributionable_type = this.contributionable_type,
+        this.guarantor.contributionable_ids = contributionable_ids,
+        this.guarantor.contributionable_type = contributionable_type,
         this.guarantor.indebtedness_calculated = this.evaluate_garantor.indebtnes_calculated
         this.guarantor.liquid_qualification_calculated = this.evaluate_garantor.liquid_qualification_calculated,
         this.guarantor.loan_contributions_adjust_ids = this.loan_contributions_adjust_ids,
@@ -1171,7 +1239,7 @@
     deleteGuarantor(i) {
       this.guarantors.splice(i, 1)
       this.guarantor_detail.splice(i, 1)
-      
+
     },
 
     //Retrocede las contribuciones
