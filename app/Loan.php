@@ -1044,7 +1044,7 @@ class Loan extends Model
                     foreach($ballots as $ballot)
                     {
                         foreach($adjusts as $adjust){
-                        if($list_ballot->period_date == $adjust->period_date)
+                        if($ballot->period_date == $adjust->period_date)
                            $mount_adjust = $adjust->amount;
                         }
                         $ballot_adjust->push([
