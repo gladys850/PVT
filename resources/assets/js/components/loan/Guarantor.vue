@@ -792,12 +792,12 @@
                     this.show_garante=true
                     this.show_spouse=true
                     this.getBallots(this.affiliate_guarantor.affiliate.id)
-                    this.toastr.error("como esposa")
+                    //this.toastr.error("como esposa")
                 }else{
                   this.show_garante=true
                   this.show_spouse= false
                   this.getBallots(this.affiliate_guarantor.affiliate.id)
-                  this.toastr.error("como titular")
+                  //this.toastr.error("como titular")
                 }
               }else{
                 //Enviar a la segunda ruta el id del afiliado
@@ -821,7 +821,7 @@
                 } else {
                   this.toastr.error("No se encontraron resultados como afiliado ni conyuge")
                 }
-                this.toastr.error("No es doble percepcion")
+                //this.toastr.error("No es doble percepcion")
               }
             }else{
               this.toastr.error("No puede ser garante")
