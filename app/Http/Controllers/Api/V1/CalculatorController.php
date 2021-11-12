@@ -459,4 +459,62 @@ class CalculatorController extends Controller
             return abort(403, 'no corresponde a esta modalidad');
         }
     }
+
+
+    /**
+    * Nueva Evaluacion individual de garantes
+    * @bodyParam procedure_modality_id integer required ID de modalidad. Example: 34
+    * @bodyParam affiliate_id integer required ID del afiliado. Example: 1
+    * @bodyParam quota_calculated_total_lender cuota calculada del titular. Example: 900
+    * @bodyParam contributions[0].payable_liquid integer required Líquido pagable. Example: 2000
+    * @bodyParam contributions[0].position_bonus integer required Bono Cargo . Example: 0.00
+    * @bodyParam contributions[0].border_bonus integer required Bono Frontera . Example: 0.00
+    * @bodyParam contributions[0].public_security_bonus integer required Bono Seguridad Ciudadana . Example: 0.00
+    * @bodyParam contributions[0].east_bonus integer required Bono Oriente. Example: 0.00
+    * @bodyParam guarantees[0].id integer id del prestamo. Example: 9
+    * @bodyParam guarantees[0].code string codigo del prestamo del prestamo. Example: PTMO000009-2021
+    * @bodyParam guarantees[0].lender string titular del prestamo. Example: IVAN
+    * @bodyParam guarantees[0].quota float required quota del prestamo como garante del prestamo. Example: 1314.2
+    * @bodyParam guarantees[0].quota_loan float required cuota total del prestamo. Example: 2628.39
+    * @bodyParam guarantees[0].state string required estado del prestamo. Example: VIGENTE
+    * @bodyParam guarantees[0].type string required tipo del tramite PVT, SISMU del prestamo. Example: VIGENTE
+    * @authenticated
+    * @responseFile responses/calculator/evaluate_guarantor.200.json
+    */
+    public function evaluate_guarantor2(Guarantor_evaluateForm $request){
+        $quantity_guarantors = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter->guarantors;
+        if($quantity_guarantors > 0){
+            $type = false;
+            $debt_index = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter->debt_index; // solo para garantias se evalua al 50%
+            $affiliate = Affiliate::findOrFail($request->affiliate_id);
+            $contributions = collect($request->contributions);
+            $payable_liquid_average = $contributions->avg('payable_liquid');
+            $quota_calculated = $request->quota_calculated_total_lender/$quantity_guarantors;
+            $contribution_first = $contributions->first();
+            $total_bonuses = $contribution_first['position_bonus']+$contribution_first['border_bonus']+$contribution_first['public_security_bonus']+$contribution_first['east_bonus'];
+            $liquid_qualification_calculated = $this->liquid_qualification($type, $payable_liquid_average, $total_bonuses, $affiliate);
+            foreach($request->guarantees as $guarantees)
+                $liquid_qualification_calculated -= $guarantees['quota'];
+            $indebtedness_calculated = $quota_calculated/$liquid_qualification_calculated * 100;
+            if($indebtedness_calculated < $debt_index)
+                $liquid_rest = Util::round(($liquid_qualification_calculated * 0.5) - $quota_calculated);
+            else
+                $liquid_rest = 0;
+            $response = array(
+                "affiliate_id" => $affiliate->id,
+                "payable_liquid_calculated" => Util::round2($payable_liquid_average),
+                "bonus_calculated" => Util::round2($total_bonuses),
+                "liquid_qualification_calculated" => Util::round2($liquid_qualification_calculated),
+                "indebtnes_calculated" => Util::round2($indebtedness_calculated),
+                "quota_calculated" => Util::round2($quota_calculated),
+                'payment_percentage' => Util::round2(100/$quantity_guarantors),
+                "is_valid" => $indebtedness_calculated > $debt_index ? false : true,
+                "liquid_rest" => Util::round2($liquid_rest)
+            );
+            return $response;
+        }
+        else{
+            return abort(403, 'no corresponde a esta modalidad');
+        }
+    }
 }

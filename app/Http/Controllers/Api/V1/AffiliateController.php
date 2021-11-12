@@ -20,6 +20,7 @@ use App\AidContribution;
 use App\Unit;
 use App\Loan;
 use App\LoanGlobalParameter;
+use App\LoanModalityParameter;
 use App\ProcedureType;
 use App\ProcedureModality;
 use App\Http\Requests\AffiliateForm;
@@ -1391,5 +1392,210 @@ class AffiliateController extends Controller
         }
         //return sizeof($message);
         return $message;
+    }
+
+        /**
+    * existencia del afiliado
+    * Devuelve el id del afiliado, si es viuda devuelve el id del titular o si es alguien de doble precepción.
+    * @bodyParam identity_card string required Carnet de identidad. Example:492562
+    * @authenticated
+    * @responseFile responses/affiliate/affiliate_existence.200.json
+    */
+    public function existence(request $request)
+    {
+        $request->validate([
+            'identity_card' => 'required|string'
+        ]);
+        $double_perception = false;
+        $affiliate = null;
+        $spouse = null;
+        $type = null;
+        $existence = false;
+        if(Affiliate::where('identity_card', $request->identity_card)->first())
+        {
+            $existence = true;
+            $affiliate = Affiliate::where('identity_card', $request->identity_card)->first();
+            $spouse = null;
+            $double_perception = false;
+            if(!$affiliate->dead)
+                $type = 'affiliate';
+        }
+        if(Spouse::where('identity_card', $request->identity_card)->first())
+        {
+            $existence = true;
+            $spouse = Spouse::where('identity_card', $request->identity_card)->first();
+            if($affiliate)
+            {
+                $double_perception = true;
+                $deceased_affiliate = $spouse->affiliate->id;
+            }
+            else
+            {
+                $affiliate = $spouse->affiliate;
+                if(!$spouse->dead)
+                    $type = 'spouse';
+            }
+        }
+        if($affiliate && $affiliate->spouse)
+        {
+            if($affiliate->dead && $affiliate->spouse->dead)
+                $existence = false;
+        }
+        return $data = array(
+            "existence"=>$existence,
+            "affiliate"=>$existence ? $affiliate->id : null,
+            "type"=>$type,
+            "double_perception"=>$double_perception,
+            "deceased_affiliate" => $double_perception ? $deceased_affiliate : null,
+            );
+    }
+
+    /**
+    * validacion del garante
+    * Devuelve si el afiliadopuede ser garante acorde al estado y la modalidad.
+    * @bodyParam affiliate_id integer required id del afiliado. Example:12900
+    * @bodyParam procedure_modality_id integer required id de la modalidad. Example:50
+    * @bodyParam remake_loan_id integer required id del prestamo a rehacer, si es nuevo enviar 0. Example:9
+    * @authenticated
+    * @responseFile responses/affiliate/validate_guarantor.200.json
+    */
+    public function validate_guarantor(request $request)
+    {
+        $affiliate = Affiliate::whereId($request->affiliate_id)->first();
+        $modality = ProcedureModality::whereId($request->procedure_modality_id)->first();
+        $guarantor = false;
+        $message = "OK";
+        $information = "";
+        $id_activo = array();
+        foreach (ProcedureModality::where('name', 'like', '%Activo')->orWhere('name', 'like', '%Activo%')->get() as $procedure) {
+            array_push($id_activo, $procedure->id);
+        }
+        $id_senasir = array();
+        foreach (ProcedureModality::where('name', 'like', '%SENASIR')->get() as $procedure) {
+            array_push($id_senasir, $procedure->id);
+        }
+        $id_afp = array();
+        foreach (ProcedureModality::where('name', 'like', '%AFP')->get() as $procedure) {
+            array_push($id_afp, $procedure->id);
+        }
+        switch($request->procedure_modality_id){
+            case (in_array($request->procedure_modality_id, $id_activo)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    $guarantor = true;
+                else
+                    $message = "Afiliado no pertenece al servicio activo o se encuentra en comision o disponibilidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
+                break;
+            case (in_array($request->procedure_modality_id, $id_senasir)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    $guarantor = true;
+                else
+                {
+                    if($affiliate->pension_entity != null)
+                    {
+                        if(strpos($affiliate->pension_entity->name, "AFP") === 0)
+                            $message = "Afiliado AFP no puede garantizar prestamos";
+                        else
+                            $guarantor = true;
+                    }
+                    else
+                    {
+                        $message = "El afiliado es del sector pasivo y no tiene registrado su ente gestor";
+                    }
+                }
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
+                break;
+            case (in_array($request->procedure_modality_id, $id_afp)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                {
+                    if($affiliate->category == null)
+                        $message = "El afiliado no tiene registrado su categoria";
+                    else
+                    {
+                        if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
+                            $guarantor = true;
+                        else
+                            $message = "El afiliado no se encuentra en la categoria necesaria";
+                    }
+                }
+                else
+                    $message = "Afiliado es pasivo o se encuentra en comision o disponibilidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
+                break;
+            default:
+                $message = "no corresponde con la modalidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
+                break;
+        }
+        if($affiliate->spouse != null && $affiliate->spouse->dead == false)
+        {
+            $affiliate->spouse = $affiliate->spouse;
+            $loans = $affiliate->spouse->spouse_active_guarantees;
+            $loans_sismu = $affiliate->spouse->active_guarantees_sismu();
+        }
+        else
+        {
+            $loans = $affiliate->active_guarantees();
+            $loans_sismu = $affiliate->active_guarantees_sismu();
+        }
+        $data = array();
+        foreach($loans as $loan)
+        {
+            if($loan->id != $request->remake_loan_id)
+            {
+                $loans_pvt = array(
+                    "id" => $loan->id,
+                    "code" => $loan->code,
+                    "lender" => $loan->lenders->first()->full_name,
+                    "quota" => $loan->guarantors->where('id',$affiliate->id)->first()->pivot->quota_treat,
+                    "quota_loan" => $loan->estimated_quota,
+                    "state" => $loan->state->name,
+                    "type" => "PVT",
+                );
+                array_push($data, $loans_pvt);
+        }
+        }
+        foreach($loans_sismu as $loan)
+        {
+            $loans_pvt = array(
+                "id" => $loan->IdPrestamo,
+                "code" => $loan->PresNumero,
+                "lender" => $loan->PadNombres.' '.$loan->PadPaterno.' '.$loan->PadMaterno.' '.$loan->PadApellidoCasada,
+                "quota" => $loan->PresCuotaMensual / $loan->quantity_guarantors,
+                "quota_loan" => $loan->PresCuotaMensual,
+                "state" => $loan->PresEstPtmo == "V" ? "Vigente" : "Pendiente",
+                "type" => "SISMU",
+            );
+            array_push($data, $loans_pvt);
+        }
+        $affiliate->active_loans = count($affiliate->active_loans())+count($affiliate->active_loans_sismu());
+        if($affiliate->city_identity_card == null)
+            $information = $information."ciudad de expedicion del carnet de identidad,";
+        if($affiliate->affiliate_state == null)
+            $information = $information." estado del afiliado,";
+        if($affiliate->city_birth == null)
+            $information = $information." ciudad de nacimiento,";
+        if($affiliate->address == null)
+            $information = $information."direccion";
+        return $data = array(
+            "guarantor"=>$guarantor,
+            "message"=>$message,
+            "information"=>$affiliate->verify_information($affiliate),
+            "information_missing"=>$information,
+            "affiliate"=>$affiliate,
+            "guarantees"=>$data
+            );
     }
 }
