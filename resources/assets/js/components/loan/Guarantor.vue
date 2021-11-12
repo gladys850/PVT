@@ -812,12 +812,12 @@
                     this.show_garante=true
                     this.show_spouse=true
                     this.getBallots(this.affiliate_guarantor.affiliate.id)
-                    this.toastr.error("ES esposa")
+                    //this.toastr.error("ES esposa")
                 } else if (this.existence_garantor.type == 'affiliate'){
                   this.show_garante=true
                   this.show_spouse=false
                   this.getBallots(this.affiliate_guarantor.affiliate.id)
-                  this.toastr.error("ES TITULAR")
+                  //this.toastr.error("ES TITULAR")
                 } else {
                   this.toastr.error("No se encontraron resultados como afiliado ni conyuge")
                 }
