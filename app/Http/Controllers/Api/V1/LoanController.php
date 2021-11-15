@@ -30,6 +30,7 @@ use App\ProcedureType;
 use App\Contribution;
 use App\AidContribution;
 use App\LoanContributionAdjust;
+use App\LoanGuaranteeRegister;
 use App\LoanGlobalParameter;
 use App\MovementConcept;
 use App\MovementFundRotatory;
@@ -772,9 +773,9 @@ class LoanController extends Controller
                         $loan_contribution_guarantee_register_ids = [];
                     }
                     foreach ($loan_contribution_guarantee_register_ids as $loan_contribution_guarantee_register_id){
-                        $loan_contribution_guarantee_register = LoanContributionAdjust::find($loan_contribution_guarantee_register_id);
+                        $loan_contribution_guarantee_register = LoanGuaranteeRegister::find($loan_contribution_guarantee_register_id);
                         $loan_contribution_guarantee_register->loan_id=$loan->id;
-                        $loan_contribution_guarantee_register->adjustable_id = $loan->id;
+                        $loan_contribution_guarantee_register->guarantable_id = $loan->id;
                         $loan_contribution_guarantee_register->update();
                     }
                     $a++;
