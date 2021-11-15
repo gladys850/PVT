@@ -21,13 +21,14 @@ class CreateLoanGuaranteeRegistersTable extends Migration
             $table->foreign('loan_id')->references('id')->on('loans')->onDelete('cascade');
             $table->unsignedBigInteger('affiliate_id')->unsigned();
             $table->foreign('affiliate_id')->references('id')->on('affiliates');
-            $table->morphs('guarantable');
-            $table->float('amount',10,2)->default(0);  // monto de ajuste al liquido para calificacion
+            $table->morphs('guarantable'); //tabla donde se almacena garantía del préstamo loans o prestamos
+            $table->float('amount',10,2)->default(0);  // monto por el cual esta garantiza el prestamo
             $table->date('period_date');// Fecha del periodo de la boleta
-            $table->enum('database_name',['PVT','SISMU'])->nullable();
-            $table->string('loan_code_guarantee')->nullable();
-            $table->string('description')->nullable();// Descripcion por lo que se realiza el ajuste
-            $table->timestamps();  
+            $table->enum('database_name',['PVT','SISMU'])->nullable();// nombre de la base de datos
+            $table->string('loan_code_guarantee')->nullable();// codigo de prestamo de la garantia
+            $table->string('description')->nullable();// Descripcion rel registro de la garantia
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
