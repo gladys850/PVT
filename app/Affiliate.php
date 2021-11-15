@@ -390,7 +390,7 @@ class Affiliate extends Model
           }
           if($this->affiliate_state->affiliate_state_type->name == 'Pasivo'){
             if($remake_evaluation)
-              $remake_loan = count($this->guarantees->where('id', $remake_loan_id)->first());
+              $remake_loan = count($this->guarantees->where('id', $remake_loan_id));
             //if($loan_global_parameter->max_guarantor_passive <= count($this->active_guarantees()) + count($this->active_guarantees_sismu())) $guarantor = false;
           }
           if($this->affiliate_state->affiliate_state_type->name != 'Activo' && $this->affiliate_state->affiliate_state_type->name != 'Pasivo') $guarantor = false; // en otro caso no corresponde ya que seria Disponibilidad A o C
