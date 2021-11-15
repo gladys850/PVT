@@ -131,7 +131,7 @@
                 <h6>{{affiliate_guarantor.message}}</h6>
               </h3>
               <h3 class="success--text text-center" v-show="affiliate_guarantor.guarantor"> PUEDE SER GARANTE
-                <h6 v-show="affiliate_guarantor.information_missing != ''">Información faltante: {{affiliate_guarantor.information_missing}}</h6>
+                <h6 class="orange--text" v-show="affiliate_guarantor.information_missing != ''">Información faltante: {{affiliate_guarantor.information_missing}}</h6>
               </h3>
            <!--selectedGuaranteedLoans<pre>{{selectedGuaranteedLoans}}</pre>
            contribution<pre>{{contribution}}</pre>
@@ -204,7 +204,7 @@
           <v-card class="pa-2">
             <v-row>
             <v-col cols="12" md="12" class="font-weight-black caption py-0">
-              NRO DE PRÉSTAMOS {{guarantors.length}} {{$route.query.loan_id}}
+              NRO DE PRÉSTAMOS
             </v-col>
 
             <v-col
