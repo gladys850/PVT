@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class LoanGuaranteeRegisterController extends Controller
 {
     /**
-    * Actualizar o Crear el array de Objeto Registro de Garantía de préstamos
+    * Registro de Garantía Actualizar o Crear el array de Objeto Registro de Garantía de préstamos
     * @bodyParam affiliate_id integer ID required de afiliado. Example: 9              
     * @bodyParam guarantees[0].id  integer required ID del registro de la tabla loans o prestamos.Example: 1
     * @bodyParam guarantees[0].type string required registro del nombre de las tablas tabla loans,prestamos. Example: prestamos
@@ -30,15 +30,15 @@ class LoanGuaranteeRegisterController extends Controller
     public function updateOrCreateLoanGuaranteeRegister(Request $request) { 
           $request->validate([
             'affiliate_id' => 'required|integer|exists:affiliates,id',
+            'role_id' => 'required|integer|exists:roles,id',
             'guarantees' => 'required|array'
           ]);
-        //return $request->guarantees;
          $loan_contribution_guarantee_register_ids = collect();
           foreach ($request->guarantees as $loan_contribution_adjust) {
               $adjustable_type = $loan_contribution_adjust['type'];
-
               $loan_contribution_guarantee_register = new LoanGuaranteeRegister();
               $loan_contribution_guarantee_register->user_id = Auth::id();
+              $loan_contribution_guarantee_register->role_id = $request->role_id;
               $loan_contribution_guarantee_register->guarantable_id = $loan_contribution_adjust['id'];
               $loan_contribution_guarantee_register->guarantable_type = $loan_contribution_adjust['type']=="SISMU" ? "prestamos":"loans";
               $loan_contribution_guarantee_register->affiliate_id = $request->affiliate_id;
@@ -52,7 +52,7 @@ class LoanGuaranteeRegisterController extends Controller
                                                     ->where('guarantable_id',$loan_contribution_guarantee_register->guarantable_id)
                                                     ->where('loan_code_guarantee',$loan_contribution_guarantee_register->loan_code_guarantee)
                                                     ->where('period_date',$loan_contribution_guarantee_register->period_date)
-                                                    //->where('database_name',$loan_contribution_guarantee_register->database_name)
+                                                    ->where('database_name',$loan_contribution_guarantee_register->database_name)
                                                     ->whereNull('loan_id')->first();  
             //return $adjust_contribution;                           
               if($adjust_contribution){
