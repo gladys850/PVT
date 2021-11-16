@@ -45,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
             'sismus' => 'App\Sismu',
             'movement_fund_rotatories'=>'App\MovementFundRotatory',
             'movement_concepts'=>'App\MovementConcept',
+            'loan_guarantee_registers'=>'App\LoanGuaranteeRegister',
 
         ]);
 
