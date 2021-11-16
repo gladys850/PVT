@@ -144,6 +144,23 @@
             <v-row>
             <v-col cols="12" md="12" class="font-weight-black caption ma-0 py-0">
               DATOS DEL AFILIADO
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    icon
+                    small
+                    color="warning"
+                    :to="{
+                      name: 'affiliateAdd',
+                      params: { id: !type_affiliate && existence_garantor.type == 'affiliate' ? existence_garantor.affiliate : existence_garantor.deceased_affiliate },
+                    }"
+                    target="_blank"
+                    ><v-icon>mdi-eye</v-icon>
+                  </v-btn>
+                  </template>
+                <span>Ver información</span>
+              </v-tooltip>
             </v-col>
             <v-col cols="12" md="12" class="ma-0 py-0 font-weight-light caption">
               AFILIADO : {{$options.filters.fullName(affiliate_guarantor.affiliate, true)}}
@@ -1135,8 +1152,9 @@
 
         // registro de garantias de prestamos
         if(this.selectedGuaranteedLoans.length > 0){
-          let res = await axios.post(`loan_contribution_adjust/updateOrCreateLoanGuaranteeRegister`,{
+          let res = await axios.post(`loan_guarantee_register/updateOrCreateLoanGuaranteeRegister`,{
             affiliate_id: this.affiliate_guarantor.affiliate.id,
+            role_id: this.$store.getters.rolePermissionSelected.id,
             guarantees: this.selectedGuaranteedLoans
           })
           this.guarantor.loan_contribution_guarantee_register_ids = res.data.loan_contribution_guarantee_register_ids
