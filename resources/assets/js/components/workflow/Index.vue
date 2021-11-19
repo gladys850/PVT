@@ -156,11 +156,8 @@
                 grow
                 center-active
                 active-class="secondary"
-
               >
-                <v-tab
-                :disabled="loading"
-                v-for="(procedureType, index) in $store.getters.modalityLoan" :key="procedureType.id">
+                <v-tab v-for="(procedureType, index) in $store.getters.modalityLoan" :key="procedureType.id">
                    <!--:content="procedureTypesCount.hasOwnProperty(index) ? procedureTypesCount[index].toString() : '-'"-->
                   <v-badge
                    :content="procedureTypesCount.hasOwnProperty(index) ? procedureTypesCount[index].toString() : '-'"
@@ -262,7 +259,7 @@ export default {
       },
       loans: [],
       totalLoans: 0,
-      loading: false,
+      loading: true,
       procedureModalities: [],
       //affiliate_id: this.$route.params.id > 0 ? this.$route.params.id : 0,
       //affiliate: [],
