@@ -1483,7 +1483,15 @@ class AffiliateController extends Controller
                 if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
                     $guarantor = true;
                 else
-                    $message = "Afiliado no pertenece al servicio activo o se encuentra en comision o disponibilidad";
+                {
+                    if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
+                        $message = "Afiliado no pertenece al servicio activo";
+                    else
+                    {
+                        if($affiliate->affiliate_state->name != "Servicio")
+                        $message = "Afiliado se encuentra en comisión o disponibilidad";
+                    }
+                }
                 if($affiliate->category == null)
                     $affiliate->category_name = null;
                 else
@@ -1525,7 +1533,15 @@ class AffiliateController extends Controller
                     }
                 }
                 else
-                    $message = "Afiliado es pasivo o se encuentra en comision o disponibilidad";
+                {
+                    if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
+                        $message = "Afiliado pasivo no puede garantizar a un afp";
+                    else
+                    {
+                        if($affiliate->affiliate_state->name != "Servicio")
+                        $message = "Afiliado se encuentra en comision o disponibilidad";
+                    }
+                }
                 if($affiliate->category == null)
                     $affiliate->category_name = null;
                 else

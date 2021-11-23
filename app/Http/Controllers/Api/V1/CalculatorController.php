@@ -495,11 +495,17 @@ class CalculatorController extends Controller
             $liquid_qualification_calculated = $this->liquid_qualification($type, $payable_liquid_average, $total_bonuses, $affiliate);
             foreach($request->guarantees as $guarantees)
                 $liquid_qualification_calculated -= $guarantees['quota'];
-            $indebtedness_calculated = $quota_calculated/$liquid_qualification_calculated * 100;
-            if($indebtedness_calculated < $debt_index)
-                $liquid_rest = Util::round(($liquid_qualification_calculated * 0.5) - $quota_calculated);
-            else
+            if($liquid_qualification_calculated > 0)
+            {
+                $indebtedness_calculated = $quota_calculated/$liquid_qualification_calculated * 100;
+                if($indebtedness_calculated < $debt_index)
+                    $liquid_rest = Util::round(($liquid_qualification_calculated * 0.5) - $quota_calculated);
+                else
+                    $liquid_rest = 0;
+            }else{
+                $indebtedness_calculated = 100;
                 $liquid_rest = 0;
+            }
             $response = array(
                 "affiliate_id" => $affiliate->id,
                 "payable_liquid_calculated" => Util::round2($payable_liquid_average),
