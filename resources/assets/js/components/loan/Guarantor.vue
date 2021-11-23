@@ -821,7 +821,7 @@
                 let res1 = await axios.post(`validate_guarantor`,{
                   affiliate_id: this.existence_garantor.affiliate,
                   procedure_modality_id: this.modalidad_id,
-                  remake_loan_id: !this.remake ? 0 : 1
+                  remake_loan_id: !this.remake ? 0 : this.$route.query.loan_id
                 } )
                 this.affiliate_guarantor = res1.data
                 if(this.existence_garantor.type == 'spouse')
