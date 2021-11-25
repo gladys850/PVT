@@ -21,7 +21,6 @@ class LoanGuaranteeRegister extends Model
         'period_date',
         'database_name',
         'loan_code_guarantee',
-        'description',
     ]; 
     public function Loan()
     {

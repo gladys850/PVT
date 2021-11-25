@@ -28,7 +28,6 @@ class CreateLoanGuaranteeRegistersTable extends Migration
             $table->date('period_date');// Fecha del periodo de la boleta
             $table->enum('database_name',['PVT','SISMU'])->nullable();// nombre de la base de datos
             $table->string('loan_code_guarantee')->nullable();// codigo de prestamo de la garantia
-            $table->string('description')->nullable();// Descripcion rel registro de la garantia
             $table->timestamps();
             $table->softDeletes();
         });
