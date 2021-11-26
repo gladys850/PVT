@@ -44,7 +44,7 @@ class LoanGuaranteeRegisterController extends Controller
               $loan_contribution_guarantee_register->affiliate_id = $request->affiliate_id;
               $loan_contribution_guarantee_register->amount = $loan_contribution_adjust['quota'];
               $loan_contribution_guarantee_register->loan_code_guarantee = $loan_contribution_adjust['code'];
-              $loan_contribution_guarantee_register->period_date = Carbon::now()->format('d-m-Y');
+              $loan_contribution_guarantee_register->period_date = Carbon::now()->format('Y-m-d');
               $loan_contribution_guarantee_register->database_name = $adjustable_type;
               $adjust_contribution = LoanGuaranteeRegister::where('affiliate_id',$request->affiliate_id)
                                                     ->where('guarantable_type',$loan_contribution_guarantee_register->guarantable_type)
