@@ -1179,6 +1179,53 @@ class LoanController extends Controller
         $view = view()->make('loan.forms.request_form')->with($data)->render();
         if ($standalone) return Util::pdf_to_base64([$view], $file_name,$information_loan, 'legal', $request->copies ?? 1);
         return $view;
+        }
+        
+        /**
+       * Impresión de Formulario de solicitud prestamos anticipos
+       * Devuelve el pdf del Formulario de solicitud acorde a un ID de préstamo
+       * @urlParam loan required ID del préstamo. Example: 1
+       * @queryParam copies Número de copias del documento. Example: 2
+       * @authenticated
+       * @responseFile responses/loan/print_form_advance.200.json
+       */
+       public function print_advance_form(Request $request, Loan $loan, $standalone = true){
+        $lenders = [];
+        $persons = collect([]);
+        $file_title = implode('_', ['FORM','SOLICITUD','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
+        foreach ($loan->lenders as $lender) {
+            array_push($lenders,self::verify_loan_affiliates($lender,$loan));
+        }
+        foreach($lenders as $lender){
+            $lender =$lender->disbursable;
+            $persons->push([
+                'id' => $lender->id,
+                'full_name' => implode(' ', [$lender->title ? $lender->title : '', $lender->full_name]),
+                'identity_card' => $lender->identity_card_ext,
+                'position' => 'SOLICITANTE',
+            ]);
+        }
+        $data = [
+            'header' => [
+                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+                'unity' => 'UNIDAD DE INVERSIÓN EN PRÉSTAMOS',
+                'table' => [
+                    ['Tipo', $loan->modality->procedure_type->second_name],
+                    ['Modalidad', $loan->modality->shortened],
+                    ['Usuario', Auth::user()->username]
+                ]
+            ],
+            'loan' => $loan,
+            'title' => 'SOLICITUD Y APROBACIÓN DE PRÉSTAMO',
+            'signers' => $persons,
+            'lenders' => collect($lenders),
+            'file_title' => $file_title
+        ];
+        $information_loan = $this->get_information_loan($loan);
+        $file_name = implode('_', ['solicitud', 'prestamo','anticipo', $loan->code]) . '.pdf';
+        $view = view()->make('loan.forms.request_advance_form')->with($data)->render();
+        if ($standalone) return Util::pdf_to_base64([$view], $file_name,$information_loan, 'legal', $request->copies ?? 1);
+        return $view;
     }
 
     /**
