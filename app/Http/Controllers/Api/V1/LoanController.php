@@ -483,6 +483,7 @@ class LoanController extends Controller
     public function update(LoanForm $request, Loan $loan)
     {   DB::beginTransaction();
         try {
+        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
         $request['validate'] = false;
          if($request->date_signal == true || ($request->date_signal == false && $request->has('disbursement_date') && $request->disbursement_date != NULL)){
             $state_id = LoanState::whereName('Vigente')->first()->id;
@@ -597,6 +598,7 @@ class LoanController extends Controller
     */
     public function destroy(Loan $loan)
     {
+        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
         $state = LoanState::whereName('Anulado')->first();
         $loan->state()->associate($state);
         $loan->save();
@@ -1940,6 +1942,7 @@ class LoanController extends Controller
         'loan_term' => 'required|integer'
     ]);
     DB::beginTransaction();
+    if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
     $validate = $loan->validate_loan_affiliate_edit($request->amount_approved,$request->loan_term);
     $message = false;
     if($validate == 1){
@@ -1962,7 +1965,7 @@ class LoanController extends Controller
                 $lenders_update = "update loan_affiliates set quota_treat = $new_quota_treat, indebtedness_calculated = $new_indebtedness_lender 
                                   where affiliate_id = $affiliate_id and loan_id = $loan_id";
                 $update_loan_affiliate = DB::select($lenders_update);
-            }            
+            }
             $guarantor_update = [];
             if(count($loan->guarantors)>0){  
                 foreach ($loan->guarantors  as $guarantor) {
@@ -1970,7 +1973,7 @@ class LoanController extends Controller
                     $active_guarantees = $affiliate->active_guarantees();$sum_quota = 0;
                     foreach($active_guarantees as $res)
                         $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas se incluye esta la que se esta editando
-                        $active_guarantees_sismu = $affiliate->active_guarantees_sismu();                          
+                        $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
                     foreach($active_guarantees_sismu as $res)
                         $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
                         $quota_estimated_guarantor = Util::round2(($quota_estimated/100)*$guarantor->pivot->payment_percentage);          
@@ -1985,13 +1988,14 @@ class LoanController extends Controller
         return self::append_data($loan, true); 
     } catch (\Exception $e) {
         DB::rollback();
-        throw $e;
-        }    
-    }  
+        //throw $e;
+        return ['message' => $e->getMessage()];
+        }
+    }
     else{
         $message['message']= "El monto y plazo en meses no puede ser editado por que el prestamo ya se encuentra desembolsado";
         return $message;
-        }             
+        }
     }
     return $validate;
 }
@@ -2003,6 +2007,7 @@ class LoanController extends Controller
    * @responseFile responses/loan/update_refinancing_balance.200.json
    */
     public function update_balance_refinancing(Loan $loan){
+        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
         $balance_parent = 0;
         if($loan->data_loan){
             $balance_parent=$loan->balance_parent_refi();
@@ -2293,6 +2298,8 @@ class LoanController extends Controller
      'payment_percentage_input' =>'numeric|nullable',
      'bonus_calculated_input' =>'numeric|nullable',
     ]);
+    $loan = Loan::find($request->loan_id);
+    if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
     $affiliate_id = $request->affiliate_id;
     $loan_id = $request->loan_id;
 
@@ -2331,5 +2338,15 @@ class LoanController extends Controller
     $loan = Loan::whereId($request->loan_id)->first();
 
     return $loan->loan_affiliates;
+ }
+//verifica si el usuario puede realizar acciones sobre el prestamo con su rol
+ public function can_user_loan_action(Loan $loan){
+     $user = Auth::user();
+     $user_roles = Auth::user()->roles->pluck('id')->toArray();
+     if (in_array($loan->role_id, $user_roles)) {
+         return true;
+     } else {
+         return false;
+     }
  }
 }

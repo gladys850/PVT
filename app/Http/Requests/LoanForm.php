@@ -7,6 +7,7 @@ use App\Rules\LoanIntervalAmount;
 use App\Rules\LoanIntervalTerm;
 use App\Rules\LoanDestiny;
 use App\Rules\LoanRole;
+use App\Rules\LoanValidated;
 use App\Rules\ProcedureRequirements;
 use App\Loan;
 use App\ProcedureModality;
@@ -158,6 +159,7 @@ class LoanForm extends FormRequest
             case 'PUT':
             case 'PATCH':{
                 $rules['role_id'] = ['integer', 'exists:roles,id', new LoanRole($this->loan->id)];
+                $rules['validated'] = [new LoanValidated($this->loan)];
                 return $rules;
             }
         }
