@@ -135,6 +135,7 @@ class LoanContributionAdjustController extends Controller
                                                   ->where('adjustable_id',$request->adjustable_id)
                                                   ->where('type_affiliate',$request->type_affiliate)
                                                   ->where('type_adjust',$request->type_adjust)
+                                                  ->whereNull('loan_id')
                                                   ->where('period_date',$request->period_date)->first();
         if($adjust_contribution){
             $adjust_contribution->fill($request->all());
