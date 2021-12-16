@@ -770,16 +770,16 @@ class LoanController extends Controller
                         $ajuste->loan_id=$loan->id;
                         $ajuste->update();
                     }
-                    if(array_key_exists('loan_contribution_guarantee_register_ids', $affiliate)){
-                        $loan_contribution_guarantee_register_ids = $affiliate['loan_contribution_guarantee_register_ids'];
+                    if(array_key_exists('loan_guarantee_register_ids', $affiliate)){
+                        $loan_guarantee_register_ids = $affiliate['loan_guarantee_register_ids'];
                     }else{
-                        $loan_contribution_guarantee_register_ids = [];
+                        $loan_guarantee_register_ids = [];
                     }
-                    foreach ($loan_contribution_guarantee_register_ids as $loan_contribution_guarantee_register_id){
-                        $loan_contribution_guarantee_register = LoanGuaranteeRegister::find($loan_contribution_guarantee_register_id);
-                        $loan_contribution_guarantee_register->loan_id=$loan->id;
-                        $loan_contribution_guarantee_register->guarantable_id = $loan->id;
-                        $loan_contribution_guarantee_register->update();
+                    foreach ($loan_guarantee_register_ids as $loan_guarantee_register_id){
+                        $loan_guarantee_register = LoanGuaranteeRegister::find($loan_guarantee_register_id);
+                        $loan_guarantee_register->loan_id=$loan->id;
+                        $loan_guarantee_register->guarantable_id = $loan->id;
+                        $loan_guarantee_register->update();
                     }
                     $a++;
                 }
