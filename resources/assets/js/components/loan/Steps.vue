@@ -127,7 +127,7 @@
         </v-stepper-content>
         <v-stepper-content :key="`${3}-content`" :step="3" >
           <v-card color="grey lighten-1">
-            <h3 class="text-uppercase text-center">{{modalidad.name}} {{loan_detail.quota_calculated_total_lender}}</h3>
+            <h3 class="text-uppercase text-center">{{modalidad.name}}</h3>
             <HipotecaryData ref="HipotecaryData"
               v-show="modalidad.procedure_type_name=='Préstamo Hipotecario' || modalidad.procedure_type_name=='Refinanciamiento Préstamo Hipotecario'"
               :loan_detail.sync="loan_detail"
