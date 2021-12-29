@@ -14,8 +14,6 @@ class AddGeolocationToAddressesTable extends Migration
     public function up()
     {
         Schema::table('addresses', function (Blueprint $table) {
-            $table->float('latitude', 16, 14)->nullable();
-            $table->float('longitude', 17, 14)->nullable();
             $table->string('description')->nullable();
         });
     }
@@ -28,7 +26,7 @@ class AddGeolocationToAddressesTable extends Migration
     public function down()
     {
         Schema::table('addresses', function (Blueprint $table) {
-            $table->dropColumn(['latitude', 'longitude']);
+            $table->dropColumn(['description']);
         });
     }
 }
