@@ -137,10 +137,23 @@ class MovementFundRotatoryController extends Controller
                 if($request->has('date_check_delivery')){
                     $movement_concept= MovementConcept::whereIsValid(true)->whereType("INGRESO")->whereShortened("FON-ROT-IN")->first();
                     $abbreviated_supporting_document = $movement_concept->abbreviated_supporting_document;
-                    $movement_concept_code = MovementFundRotatory::where('movement_concept_id',$movement_concept->id)->withTrashed()->count()+1;
+                    //$movement_concept_code = MovementFundRotatory::where('movement_concept_id',$movement_concept->id)->withTrashed()->count()+1;
                     $movement_fund_rotatory = new MovementFundRotatory;
                     $movement_fund_rotatory->user_id = Auth::id();
-                    $movement_fund_rotatory->movement_concept_code = $movement_concept->abbreviated_supporting_document."-".$movement_concept_code.'/'.Carbon::now()->year;
+                    //$movement_fund_rotatory->movement_concept_code = $movement_concept->abbreviated_supporting_document."-".$movement_concept_code.'/'.Carbon::now()->year;
+                    switch($movement_concept->abbreviated_supporting_document)
+                    {
+                        case 'REC':
+                            $correlative = Util::correlative('recibo');
+                        break;
+                        case 'CH':
+                            $correlative = Util::correlative('cheque');
+                        break;
+                        case 'C':
+                            $correlative = Util::correlative('cierre');
+                        break;
+                    };
+                    $movement_fund_rotatory->movement_concept_code = $movement_concept->abbreviated_supporting_document."-".$correlative.'/'.Carbon::now()->year;
                     $movement_fund_rotatory->date_check_delivery = $request->input('date_check_delivery');
                     $movement_fund_rotatory->entry_amount = $request->input('entry_amount');
                     $movement_fund_rotatory->description = $request->input('description');

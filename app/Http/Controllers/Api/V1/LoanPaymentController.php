@@ -384,6 +384,11 @@ class LoanPaymentController extends Controller
                 $payment->description = $request->input('description', null);
                 $payment->bank_pay_number = $request->input('bank_pay_number', null);
                 $bank_pay_number=$request->input('bank_pay_number', null);
+                //obtencion de codigo de pago
+                $correlative = 0;
+                $correlative = Util::correlative('voucher');
+                $payment->code = implode(['TRANS', str_pad($correlative + 1, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
+                //fin obtencion de codigo;
                 $voucher = $loanPayment->voucher_treasury()->create($payment->toArray());
                 $loanPayment->update(['state_id' => $Pagado,'user_id' => $payment->user_id,'validated'=>true,'loan_payment_date'=>Carbon::now(),'voucher'=>$bank_pay_number]);
                 if($loanPayment->loan->payments->count() == 1 && $loanPayment->loan->payments->first()->state_id == $Pagado){
