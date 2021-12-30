@@ -165,6 +165,7 @@ class ImportationReportController extends Controller
             $period = LoanPaymentPeriod::whereId($period_id)->first();
             $estimated_date = Carbon::create($period->year, $period->month, 1);
             $estimated_date = Carbon::parse($estimated_date)->format('Y-m-d');
+            $estimated_date_calculate =Carbon::parse($estimated_date)->endOfMonth()->endOfDay()->format('Y-m-d');  //fecha de calculo
         } else {
             if ($estimated_date_entry) {
                 $estimated_date  = $estimated_date_entry;
@@ -223,7 +224,7 @@ class ImportationReportController extends Controller
                             $loan->getBorrowers()->where('id_affiliate', $lender->id)->first()->surname_husband_borrower,
                             Util::money_format($loan->balance),
                             Util::money_format($loan->estimated_quota),
-                            Util::money_format($loan->get_amount_payment($estimated_date,false,'T')),
+                            Util::money_format($loan->get_amount_payment($estimated_date_calculate,false,'T')),
                             $loan->interest->annual_interest,
                             $loan->guarantor_amortizing? 'Amort. Garante':'Amort. Titular',
                             $loan->guarantor_amortizing? $loan->getGuarantors()->first()->identity_card_affiliate : '',
@@ -242,7 +243,7 @@ class ImportationReportController extends Controller
                             $loan->guarantor_amortizing? $loan->getGuarantors()->first()->mothers_last_name_borrower : '',
                             $loan->guarantor_amortizing? $loan->getGuarantors()->first()->surname_husband_borrower : '',
                             $loan->guarantor_amortizing? $loan->guarantors[0]->pivot->quota_treat : '',
-                            $loan->guarantor_amortizing? Util::money_format($loan->get_amount_payment($estimated_date,false,'G')) : '',
+                            $loan->guarantor_amortizing? Util::money_format($loan->get_amount_payment($estimated_date_calculate,false,'G')) : '',
                     ));
                 }
             }
@@ -280,6 +281,7 @@ class ImportationReportController extends Controller
          }
          $estimated_date = Carbon::create($year,$month, 15);
          $estimated_date = Carbon::parse($estimated_date)->format('Y-m-d');
+         $estimated_date_calculate =Carbon::parse($estimated_date)->endOfMonth()->endOfDay()->format('Y-m-d');  //fecha de calculo
          //todos los prestamos menores o iguales a la fecha de corte
          $current_loans =  "select id_loan as id from view_loan_borrower
          where  CAST(disbursement_date_loan AS date) <= CAST('$estimated_date' AS date) and state_affiliate in('Servicio','Disponibilidad','Comisión') and state_loan ='Vigente'"; 
@@ -310,7 +312,7 @@ class ImportationReportController extends Controller
                         $lender->surname_husband,
                         Util::money_format($loan->balance),
                         Util::money_format($loan->estimated_quota),
-                        Util::money_format($loan->get_amount_payment($estimated_date,false,'T')),
+                        Util::money_format($loan->get_amount_payment($estimated_date_calculate,false,'T')),
                         $loan->interest->annual_interest,
                         $loan->guarantor_amortizing? 'Amort. Garante':'Amort. Titular',
                         $loan->guarantor_amortizing? $loan->guarantors[0]->affiliate_state->affiliate_state_type->name: '',
@@ -324,7 +326,7 @@ class ImportationReportController extends Controller
                         $loan->guarantor_amortizing? $loan->guarantors[0]->mothers_last_name : '',
                         $loan->guarantor_amortizing? $loan->guarantors[0]->surname_husband : '',
                         $loan->guarantor_amortizing? $loan->guarantors[0]->pivot->quota_treat : '',
-                        $loan->guarantor_amortizing? Util::money_format($loan->get_amount_payment($estimated_date=null,false,'G')) : '',
+                        $loan->guarantor_amortizing? Util::money_format($loan->get_amount_payment($estimated_date_calculate,false,'G')) : '',
                         $loan->guarantor_amortizing? ((isset($loan->guarantors[1])) ? $loan->guarantors[1]->affiliate_state->affiliate_state_type->name : ''): '' ,
                         $loan->guarantor_amortizing? ((isset($loan->guarantors[1])) ? $loan->guarantors[1]->affiliate_state->name : ''): '' ,
                         $loan->guarantor_amortizing? ((isset($loan->guarantors[1])) ? $loan->guarantors[1]->registration : ''): '' ,
@@ -336,7 +338,7 @@ class ImportationReportController extends Controller
                         $loan->guarantor_amortizing? ((isset($loan->guarantors[1])) ? $loan->guarantors[1]->mothers_last_name : ''): '' ,
                         $loan->guarantor_amortizing? ((isset($loan->guarantors[1])) ? $loan->guarantors[1]->surname_husband : ''): '' ,
                         $loan->guarantor_amortizing? ((isset($loan->guarantors[1])) ? $loan->guarantors[1]->pivot->quota_treat  : ''): '' ,
-                        $loan->guarantor_amortizing? ((isset($loan->guarantors[1])) ? Util::money_format($loan->get_amount_payment($estimated_date=null,false,'G')) : ''):'',           
+                        $loan->guarantor_amortizing? ((isset($loan->guarantors[1])) ? Util::money_format($loan->get_amount_payment($estimated_date_calculate,false,'G')) : ''):'',           
                 ));
             }     
         }    
