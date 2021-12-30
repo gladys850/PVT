@@ -639,9 +639,16 @@ class LoanController extends Controller
             }
         } else {
             if($request->has('remake_loan_id') && $request->remake_loan_id != null)
-                $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]), false);
+            {
+                $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]));
+            }
             else
-                $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]), true);
+            {
+                $correlative = Util::Correlative('loan');
+                $code = implode(['PTMO', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
+                $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]));
+                $loan->code = $code;
+            }
         }
         //rehacer obtener cod
         if($request->has('remake_loan_id')&& $request->remake_loan_id != null)

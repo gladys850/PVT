@@ -68,7 +68,7 @@ class Loan extends Model
         'affiliate_id'
     ];
 
-    function __construct(array $attributes = [], $status = null)
+    function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         if (!$this->request_date) {
@@ -88,13 +88,12 @@ class Loan extends Model
                     else
                         $this->code = $this->parent_loan->code;
             }else{
-                //$latest_loan = DB::table('loans')->find(DB::table('loans')->max('id'));
-                $correlative = 0;
+                /*$correlative = 0;
                 if($status != null)
                 {
                     $correlative = Util::Correlative('loan');
                 }
-                $this->code = implode(['PTMO', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
+                $this->code = implode(['PTMO', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);*/
             }
         }
     }
