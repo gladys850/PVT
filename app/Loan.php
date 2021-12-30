@@ -13,7 +13,6 @@ use App\Http\Controllers\Api\V1\CalculatorController;
 use Carbon;
 use Util;
 use App\Affiliate;
-use App\LoanCorrelative;
 
 class Loan extends Model
 {
@@ -93,25 +92,8 @@ class Loan extends Model
                 $correlative = 0;
                 if($status != null)
                 {
-                    if(LoanCorrelative::where('year', Carbon::now()->year)->where('type', 'loan')->count() == 0)
-                    {
-                        $loan_correlative = new LoanCorrelative();
-                        $loan_correlative->year = Carbon::now()->year;
-                        $loan_correlative->correlative = 1;
-                        $loan_correlative->type = 'loan';
-                        $loan_correlative->save();
-                        $correlative = 1;
-                    }
-                    else
-                    {
-                        $loan_correlative = LoanCorrelative::where('year', Carbon::now()->year)->first();
-                        $loan_correlative->correlative++;
-                        $loan_correlative->save();
-                        $correlative = $loan_correlative->correlative;
-                    }
+                    $correlative = Util::Correlative('loan');
                 }
-                /*if (!$latest_loan) $latest_loan = (object)['id' => 0];
-                $this->code = implode(['PTMO', str_pad($latest_loan->id + 1, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);*/
                 $this->code = implode(['PTMO', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
             }
         }

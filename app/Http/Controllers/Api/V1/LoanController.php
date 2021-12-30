@@ -48,7 +48,6 @@ use App\Exports\ArchivoPrimarioExport;
 use App\Exports\FileWithMultipleSheetsReport;
 use App\Exports\FileWithMultipleSheetsDefaulted;
 use App\LoanPlanPayment;
-use App\LoanCorrelative;
 
 /** @group Préstamos
 * Datos de los trámites de préstamos y sus relaciones
@@ -1386,22 +1385,7 @@ class LoanController extends Controller
 
             //obtencion de codigo de pago
             $correlative = 0;
-            if(LoanCorrelative::where('year', Carbon::now()->year)->where('type', 'payment')->count() == 0)
-            {
-                $loan_correlative = new LoanCorrelative();
-                $loan_correlative->year = Carbon::now()->year;
-                $loan_correlative->correlative = 1;
-                $loan_correlative->type = 'payment';
-                $loan_correlative->save();
-                $correlative = 1;
-            }
-            else
-            {
-                $loan_correlative = LoanCorrelative::where('year', Carbon::now()->year)->where('type', 'payment')->first();
-                $loan_correlative->correlative++;
-                $loan_correlative->save();
-                $correlative = $loan_correlative->correlative;
-            }
+            $correlative = Util::correlative('payment');
             $payment->code = implode(['PAY', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
             //fin obtencion de codigo;
 
