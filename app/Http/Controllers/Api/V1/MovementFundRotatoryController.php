@@ -141,18 +141,7 @@ class MovementFundRotatoryController extends Controller
                     $movement_fund_rotatory = new MovementFundRotatory;
                     $movement_fund_rotatory->user_id = Auth::id();
                     //$movement_fund_rotatory->movement_concept_code = $movement_concept->abbreviated_supporting_document."-".$movement_concept_code.'/'.Carbon::now()->year;
-                    switch($movement_concept->abbreviated_supporting_document)
-                    {
-                        case 'REC':
-                            $correlative = Util::correlative('recibo');
-                        break;
-                        case 'CH':
-                            $correlative = Util::correlative('cheque');
-                        break;
-                        case 'C':
-                            $correlative = Util::correlative('cierre');
-                        break;
-                    };
+                    $correlative = Util::correlative('cheque');
                     $movement_fund_rotatory->movement_concept_code = $movement_concept->abbreviated_supporting_document."-".$correlative.'/'.Carbon::now()->year;
                     $movement_fund_rotatory->date_check_delivery = $request->input('date_check_delivery');
                     $movement_fund_rotatory->entry_amount = $request->input('entry_amount');
@@ -511,11 +500,8 @@ class MovementFundRotatoryController extends Controller
                 $movement_fund_rotatory->output_amount = $last_mov->balance;
                 $movement_fund_rotatory->balance = $last_mov->balance - $last_mov->balance;
                 $movement_fund_rotatory->movement_concept_id = $closing_concept->id;
-
-
-                 $count_closing = MovementFundRotatory::where('movement_concept_id','=',$closing_concept->id)->withTrashed()->count();
-                 $code_count = $count_closing+1;
-                $movement_fund_rotatory->movement_concept_code = $closing_concept->abbreviated_supporting_document.'-'.$code_count.'/'.Carbon::now()->year;
+                $correlative = Util::correlative('cierre');
+                $movement_fund_rotatory->movement_concept_code = $closing_concept->abbreviated_supporting_document.'-'.$correlative.'/'.Carbon::now()->year;
 
                 $movement_fund_rotatory = MovementFundRotatory::create($movement_fund_rotatory->toArray());
                 DB::commit();
