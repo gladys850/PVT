@@ -392,8 +392,6 @@ class ImportationController extends Controller
             $base_path ='ftp://'.env('FTP_HOST').env('FTP_ROOT').$base_path;
             $username =env('FTP_USERNAME');
             $password =env('FTP_PASSWORD');
-            $username = 'pvtp_pruebas';
-            $password ='Alch3m1st$';
             $this->delete_copy_payments($request->period_id, $request->type);
             if(LoanPaymentPeriod::whereId($request->period_id)->first()){
                 $drop = "drop table if exists payments_aux";
@@ -471,7 +469,7 @@ class ImportationController extends Controller
             }
         }catch(\Illuminate\Database\QueryException $e){
             DB::rollback();
-            return $e;
+            return false;
         }
     }
 
