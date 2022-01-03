@@ -88,9 +88,12 @@ class Loan extends Model
                     else
                         $this->code = $this->parent_loan->code;
             }else{
-                $latest_loan = DB::table('loans')->find(DB::table('loans')->max('id'));
-                if (!$latest_loan) $latest_loan = (object)['id' => 0];
-                $this->code = implode(['PTMO', str_pad($latest_loan->id + 1, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
+                /*$correlative = 0;
+                if($status != null)
+                {
+                    $correlative = Util::Correlative('loan');
+                }
+                $this->code = implode(['PTMO', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);*/
             }
         }
     }
