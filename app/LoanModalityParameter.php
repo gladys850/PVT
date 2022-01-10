@@ -26,7 +26,8 @@ class LoanModalityParameter extends Model
         'maximum_term_modality',
         'minimum_term_modality',
         'print_contract_platform',
-        'print_receipt_fund_rotary'
+        'print_receipt_fund_rotary',
+        'print_form_qualification_platform',
     ];
 
     public function getDecimalIndexAttribute()

@@ -21,7 +21,7 @@ class UserController extends Controller
 
     /**
     * Lista de usuarios
-    * Devuelve el listado con los datos paginados
+    * Devuelve el listado de usuarios con los datos paginados
     * @queryParam active Usuarios activos(1) o inactivos(0). Example: 1
     * @queryParam search Parámetro de búsqueda. Example: TORRE
     * @queryParam sortBy Vector de ordenamiento. Example: [last_name]

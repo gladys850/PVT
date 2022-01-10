@@ -30,6 +30,7 @@ use App\ProcedureType;
 use App\Contribution;
 use App\AidContribution;
 use App\LoanContributionAdjust;
+use App\LoanGuaranteeRegister;
 use App\LoanGlobalParameter;
 use App\MovementConcept;
 use App\MovementFundRotatory;
@@ -260,7 +261,7 @@ class LoanController extends Controller
     * @bodyParam guarantors[0].contributionable_ids array required Ids de las contribuciones asocidas al prestamo por afiliado. Example: [1,2,3]
     * @bodyParam guarantors[0].contributionable_type enum required  Nombre de la tabla de contribuciones. Example: contributions
     * @bodyParam guarantors[0].loan_contributions_adjust_ids array required  Ids de los ajustes de la(s) contribución(s). Example: []
-    * @bodyParam guarantors[0].loan_contributions_adjust_ref_id array ID del registro de la cuota refinanciado sismu caso garante. Example:5 
+    * @bodyParam guarantors[0].loan_contribution_guarantee_register_ids array ID del registro de la cuota de sus garantias garante. Example:[4,5,6]
     * @bodyParam data_loan array Datos Sismu.
     * @bodyParam data_loan[0].code string required Codigo del prestamo en el Sismu. Example: PRESTAMO123
     * @bodyParam data_loan[0].amount_approved numeric required Monto aprovado del prestamo del Sismu. Example: 5000.50
@@ -343,10 +344,11 @@ class LoanController extends Controller
         $information_loan= $this->get_information_loan($loan);
         $file_name = implode('_', ['solicitud', 'prestamo', $loan->code]) . '.pdf';
         if(Auth::user()->can('print-contract-loan')){
-            if($loan->modality->loan_modality_parameter->print_contract_platform){
+            if($loan->modality->loan_modality_parameter->print_contract_platform || $loan->modality->loan_modality_parameter->print_form_qualification_platform){
                 $loan->attachment = Util::pdf_to_base64([
                     $this->print_form(new Request([]), $loan, false),
-                    //$this->print_contract(new Request([]), $loan, false)//ya no visualiza el contratos
+                    //$this->print_contract(new Request([]), $loan, false),//ya no visualiza el contratos
+                    $this->print_qualification(new Request([]), $loan, false)//vizualiza el formulario de calificación para los que esten en true el valor print form qualification
                 ], $file_name,$information_loan, 'legal',$request->copies ?? 1);
             }else{
                 $loan->attachment = Util::pdf_to_base64([
@@ -459,6 +461,7 @@ class LoanController extends Controller
     * @bodyParam guarantors[0].contributionable_ids array  Ids de las contribuciones asocidas al prestamo por afiliado. Example: [1,2,3]
     * @bodyParam guarantors[0].contributionable_type enum Nombre de la tabla de contribuciones . Example: contributions
     * @bodyParam guarantors[0].loan_contributions_adjust_ids array Ids de los ajustes de la(s) contribución(s). Example: []
+    * @bodyParam guarantors[0].loan_contribution_guarantee_register_ids array ID del registro de la cuota de sus garantias garante. Example:[4,5,6]
     * @bodyParam guarantors[0].quota_treat cuota del garante. Example: 2315.86
     * @authenticated
     * @responseFile responses/loan/update.200.json
@@ -466,6 +469,7 @@ class LoanController extends Controller
     public function update(LoanForm $request, Loan $loan)
     {   DB::beginTransaction();
         try {
+        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
         $request['validate'] = false;
          if($request->date_signal == true || ($request->date_signal == false && $request->has('disbursement_date') && $request->disbursement_date != NULL)){
             $state_id = LoanState::whereName('Vigente')->first()->id;
@@ -580,6 +584,7 @@ class LoanController extends Controller
     */
     public function destroy(Loan $loan)
     {
+        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
         $state = LoanState::whereName('Anulado')->first();
         $loan->state()->associate($state);
         $loan->save();
@@ -753,16 +758,16 @@ class LoanController extends Controller
                         $ajuste->loan_id=$loan->id;
                         $ajuste->update();
                     }
-                    if(array_key_exists('loan_contributions_adjust_ref_id', $affiliate)){
-                        $loan_contributions_adjust_refs = $affiliate['loan_contributions_adjust_ref_id'];  
-                    }else{                    
-                        $loan_contributions_adjust_refs = [];
+                    if(array_key_exists('loan_guarantee_register_ids', $affiliate)){
+                        $loan_guarantee_register_ids = $affiliate['loan_guarantee_register_ids'];
+                    }else{
+                        $loan_guarantee_register_ids = [];
                     }
-                    foreach ($loan_contributions_adjust_refs as $loan_contributions_adjust_ref){
-                        $loan_contributions_adjust_ref = LoanContributionAdjust::find($loan_contributions_adjust_ref);
-                        $loan_contributions_adjust_ref->loan_id=$loan->id;
-                        $loan_contributions_adjust_ref->adjustable_id = $loan->id;
-                        $loan_contributions_adjust_ref->update();  
+                    foreach ($loan_guarantee_register_ids as $loan_guarantee_register_id){
+                        $loan_guarantee_register = LoanGuaranteeRegister::find($loan_guarantee_register_id);
+                        $loan_guarantee_register->loan_id=$loan->id;
+                        $loan_guarantee_register->guarantable_id = $loan->id;
+                        $loan_guarantee_register->update();
                     }
                     $a++;
                 }
@@ -1163,6 +1168,53 @@ class LoanController extends Controller
         $information_loan= $this->get_information_loan($loan);
         $file_name = implode('_', ['solicitud', 'prestamo', $loan->code]) . '.pdf';
         $view = view()->make('loan.forms.request_form')->with($data)->render();
+        if ($standalone) return Util::pdf_to_base64([$view], $file_name,$information_loan, 'legal', $request->copies ?? 1);
+        return $view;
+        }
+        
+        /**
+       * Impresión de Formulario de solicitud prestamos anticipos
+       * Devuelve el pdf del Formulario de solicitud acorde a un ID de préstamo
+       * @urlParam loan required ID del préstamo. Example: 1
+       * @queryParam copies Número de copias del documento. Example: 2
+       * @authenticated
+       * @responseFile responses/loan/print_form_advance.200.json
+       */
+       public function print_advance_form(Request $request, Loan $loan, $standalone = true){
+        $lenders = [];
+        $persons = collect([]);
+        $file_title = implode('_', ['FORM','SOLICITUD','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
+        foreach ($loan->lenders as $lender) {
+            array_push($lenders,self::verify_loan_affiliates($lender,$loan));
+        }
+        foreach($lenders as $lender){
+            $lender =$lender->disbursable;
+            $persons->push([
+                'id' => $lender->id,
+                'full_name' => implode(' ', [$lender->title ? $lender->title : '', $lender->full_name]),
+                'identity_card' => $lender->identity_card_ext,
+                'position' => 'SOLICITANTE',
+            ]);
+        }
+        $data = [
+            'header' => [
+                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+                'unity' => 'UNIDAD DE INVERSIÓN EN PRÉSTAMOS',
+                'table' => [
+                    ['Tipo', $loan->modality->procedure_type->second_name],
+                    ['Modalidad', $loan->modality->shortened],
+                    ['Usuario', Auth::user()->username]
+                ]
+            ],
+            'loan' => $loan,
+            'title' => 'SOLICITUD Y APROBACIÓN DE PRÉSTAMO',
+            'signers' => $persons,
+            'lenders' => collect($lenders),
+            'file_title' => $file_title
+        ];
+        $information_loan = $this->get_information_loan($loan);
+        $file_name = implode('_', ['solicitud', 'prestamo','anticipo', $loan->code]) . '.pdf';
+        $view = view()->make('loan.forms.request_advance_form')->with($data)->render();
         if ($standalone) return Util::pdf_to_base64([$view], $file_name,$information_loan, 'legal', $request->copies ?? 1);
         return $view;
     }
@@ -1885,6 +1937,7 @@ class LoanController extends Controller
         'loan_term' => 'required|integer'
     ]);
     DB::beginTransaction();
+    if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
     $validate = $loan->validate_loan_affiliate_edit($request->amount_approved,$request->loan_term);
     $message = false;
     if($validate == 1){
@@ -1907,7 +1960,7 @@ class LoanController extends Controller
                 $lenders_update = "update loan_affiliates set quota_treat = $new_quota_treat, indebtedness_calculated = $new_indebtedness_lender 
                                   where affiliate_id = $affiliate_id and loan_id = $loan_id";
                 $update_loan_affiliate = DB::select($lenders_update);
-            }            
+            }
             $guarantor_update = [];
             if(count($loan->guarantors)>0){  
                 foreach ($loan->guarantors  as $guarantor) {
@@ -1915,7 +1968,7 @@ class LoanController extends Controller
                     $active_guarantees = $affiliate->active_guarantees();$sum_quota = 0;
                     foreach($active_guarantees as $res)
                         $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas se incluye esta la que se esta editando
-                        $active_guarantees_sismu = $affiliate->active_guarantees_sismu();                          
+                        $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
                     foreach($active_guarantees_sismu as $res)
                         $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
                         $quota_estimated_guarantor = Util::round2(($quota_estimated/100)*$guarantor->pivot->payment_percentage);          
@@ -1930,13 +1983,14 @@ class LoanController extends Controller
         return self::append_data($loan, true); 
     } catch (\Exception $e) {
         DB::rollback();
-        throw $e;
-        }    
-    }  
+        //throw $e;
+        return ['message' => $e->getMessage()];
+        }
+    }
     else{
         $message['message']= "El monto y plazo en meses no puede ser editado por que el prestamo ya se encuentra desembolsado";
         return $message;
-        }             
+        }
     }
     return $validate;
 }
@@ -1948,6 +2002,7 @@ class LoanController extends Controller
    * @responseFile responses/loan/update_refinancing_balance.200.json
    */
     public function update_balance_refinancing(Loan $loan){
+        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
         $balance_parent = 0;
         if($loan->data_loan){
             $balance_parent=$loan->balance_parent_refi();
@@ -2238,6 +2293,8 @@ class LoanController extends Controller
      'payment_percentage_input' =>'numeric|nullable',
      'bonus_calculated_input' =>'numeric|nullable',
     ]);
+    $loan = Loan::find($request->loan_id);
+    if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
     $affiliate_id = $request->affiliate_id;
     $loan_id = $request->loan_id;
 
@@ -2276,5 +2333,15 @@ class LoanController extends Controller
     $loan = Loan::whereId($request->loan_id)->first();
 
     return $loan->loan_affiliates;
+ }
+//verifica si el usuario puede realizar acciones sobre el prestamo con su rol
+ public function can_user_loan_action(Loan $loan){
+     $user = Auth::user();
+     $user_roles = Auth::user()->roles->pluck('id')->toArray();
+     if (in_array($loan->role_id, $user_roles)) {
+         return true;
+     } else {
+         return false;
+     }
  }
 }

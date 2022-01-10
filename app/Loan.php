@@ -162,16 +162,17 @@ class Loan extends Model
     {
         return $this->belongsToMany(ProcedureDocument::class, 'loan_submitted_documents', 'loan_id')->withPivot('reception_date', 'comment', 'is_valid');
     }
+    //Lista requisitos de un prestamos
     public function documents_modality()
     {     
-        $ids= $this->submitted_documents->pluck('id');
-        $documents=collect();
-        foreach($ids as $id){
-           $documents->push(ProcedureDocument::where('procedure_documents.id',$id)->leftJoin('procedure_requirements as req','req.procedure_document_id','=','procedure_documents.id')->select('procedure_documents.name','req.number')->first());
-        }  
-         return (object)$documents->sortBy('number');
+        $submitted_documents=  "SELECT l.id, lsd.procedure_document_id, pr.number, pd.name FROM loans l
+        JOIN loan_submitted_documents lsd  ON l.id = lsd.loan_id
+        JOIN procedure_requirements pr ON pr.procedure_document_id = lsd.procedure_document_id
+        JOIN procedure_documents pd ON pd.id = pr.procedure_document_id WHERE l.id = $this->id  AND l.procedure_modality_id = pr.procedure_modality_id ORDER BY pr.number  ASC";
+        $submitted_documents = DB::select($submitted_documents);
+            return $submitted_documents;
     }
-
+  
     public function getSubmittedDocumentsListAttribute()
     {
         return  [
@@ -1047,7 +1048,7 @@ class Loan extends Model
                     foreach($ballots as $ballot)
                     {
                         foreach($adjusts as $adjust){
-                        if($list_ballot->period_date == $adjust->period_date)
+                        if($ballot->period_date == $adjust->period_date)
                            $mount_adjust = $adjust->amount;
                         }
                         $ballot_adjust->push([

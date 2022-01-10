@@ -140,10 +140,11 @@
             :modalidad.sync="modalidad"
             :loan_detail.sync="loan_detail"
             :data_loan_parent_aux.sync="data_loan_parent_aux"
-            :guarantors.sync="guarantors"
             :affiliate.sync="affiliate"
             :global_parameters ="global_parameters"
-            :modalidad_id.sync="modalidad.id"/>
+            :modalidad_id.sync="modalidad.id"
+            :calculator_result_amount_requested.sync="calculator_result.amount_requested"
+            :calculator_result.sync ="calculator_result"/>
           <v-container class="py-0" v-show="modalidad.procedure_type_name!='Préstamo Hipotecario' && modalidad.procedure_type_name!='Refinanciamiento Préstamo Hipotecario'">
             <v-row>
             <v-spacer></v-spacer><v-spacer></v-spacer> <v-spacer></v-spacer>
@@ -208,7 +209,6 @@
             :lenders.sync="lenders"
             :modalidad.sync="modalidad"
             :modalidad_id.sync="modalidad.id"
-            :guarantors.sync="guarantors"
             :loan_property_id.sync ="loan_property.id"
             :data_loan_parent.sync="data_loan_parent"
             :data_loan_parent_aux.sync="data_loan_parent_aux"/>
@@ -279,7 +279,7 @@ export default {
     calculator_result:{},
     steps: 6,
     modalities: [],
-    guarantors: [],
+
     lenders:[],
     data_loan_parent_aux:{},
     data_loan_parent:[],
@@ -991,14 +991,15 @@ export default {
     {
       if(this.modalidad.guarantors > 0)
       {
-        if(this.modalidad.guarantors==this.guarantors.length)
+        if(this.modalidad.guarantors==this.loan_detail.guarantors.length)
         {
-          if(this.loan_detail.simulador==true)
+          this.nextStep(3)
+          /*if(this.loan_detail.simulador==true)
           {
             this.nextStep(3)
           }else{
               this.toastr.error("Debe calcular la cuota del garante")
-          }
+          }*/
         }
         else{
           this.toastr.error("Le falta añadir garantes.")
