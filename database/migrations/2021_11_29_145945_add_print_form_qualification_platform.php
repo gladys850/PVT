@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddDatabaseNameToLoanContributionAdjustsTable extends Migration
+class AddPrintFormQualificationPlatform extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,9 @@ class AddDatabaseNameToLoanContributionAdjustsTable extends Migration
      * @return void
      */
     public function up()
-    {   
-        Schema::table('loan_contribution_adjusts', function (Blueprint $table) {
-            $table->enum('database_name',['PVT','SISMU'])->nullable();
+    {
+        Schema::table('loan_modality_parameters', function (Blueprint $table) {
+            $table->boolean('print_form_qualification_platform')->default(false);
         });
     }
 
@@ -25,8 +25,8 @@ class AddDatabaseNameToLoanContributionAdjustsTable extends Migration
      */
     public function down()
     {
-        Schema::table('loan_contribution_adjusts', function (Blueprint $table) {
-            //
+        Schema::table('loan_modality_parameters', function (Blueprint $table) {
+            $table->dropColumn('print_form_qualification_platform');
         });
     }
 }

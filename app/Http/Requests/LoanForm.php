@@ -7,6 +7,7 @@ use App\Rules\LoanIntervalAmount;
 use App\Rules\LoanIntervalTerm;
 use App\Rules\LoanDestiny;
 use App\Rules\LoanRole;
+use App\Rules\LoanValidated;
 use App\Rules\ProcedureRequirements;
 use App\Loan;
 use App\ProcedureModality;
@@ -102,6 +103,7 @@ class LoanForm extends FormRequest
             'lenders.*.indebtedness_calculated' => ['required', 'numeric'],
             'lenders.*.liquid_qualification_calculated' => ['required', 'numeric'],
             'lenders.*.contributionable_ids' => ['array'],
+            'lenders.*.contributionable_ids.*' => ['integer','min:1'],
             'lenders.*.contributionable_type'  => ['string','required','in:contributions,aid_contributions,loan_contribution_adjusts'],
             'lenders.*.loan_contributions_adjust_ids'  => ['array','nullable','exists:loan_contribution_adjusts,id'],
             'property_id' => ['nullable', $hypothecary? 'required':'nullable','exists:loan_properties,id'],
@@ -115,9 +117,10 @@ class LoanForm extends FormRequest
             'guarantors.*.indebtedness_calculated' => ['required', 'numeric'],
             'guarantors.*.liquid_qualification_calculated' => ['required', 'numeric'],
             'guarantors.*.contributionable_ids' => ['array'],
+            'guarantors.*.contributionable_ids.*' => ['integer','min:1'],
             'guarantors.*.contributionable_type' => ['string','required','in:contributions,aid_contributions,loan_contribution_adjusts'],
             'guarantors.*.loan_contributions_adjust_ids'  => ['array','nullable','exists:loan_contribution_adjusts,id'],
-            'guarantors.*.loan_contribution_guarantee_register_ids' => ['array','nullable','exists:loan_contribution_adjusts,id'],
+            'guarantors.*.loan_guarantee_register_ids' => ['array','nullable','exists:loan_guarantee_registers,id'],
             'data_loan' =>['array', $sismu? 'required':'nullable'],
             'data_loan.*.code'=>['required','string'],
             'data_loan.*.amount_approved'=>['required','numeric'],
@@ -158,6 +161,7 @@ class LoanForm extends FormRequest
             case 'PUT':
             case 'PATCH':{
                 $rules['role_id'] = ['integer', 'exists:roles,id', new LoanRole($this->loan->id)];
+                $rules['validated'] = [new LoanValidated($this->loan)];
                 return $rules;
             }
         }
