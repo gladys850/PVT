@@ -172,10 +172,7 @@ export default {
     //ids_items: []
   }),
   props: {
-    guarantors: {
-      type: Array,
-      required: true
-    },
+
     data_loan_parent: {
       type: Array,
       required: true
@@ -303,22 +300,22 @@ export default {
               cosigners:this.loan_detail.cosigners,
               disbursable_id: this.$route.query.affiliate_id,
               lenders:this.lenders,
-              guarantors: this.guarantors,
+              guarantors: this.loan_detail.guarantors,
               data_loan:this.data_loan_parent,
               documents: this.selected.concat(this.itemsOpc.concat(this.radios.filter(Boolean))),
               notes: this.otherDocuments,
               user_id: this.$store.getters.id,
               remake_loan_id: this.$route.params.hash == 'remake' ? this.$route.query.loan_id : 0
-            });             
+            });
             if(res.status==201 || res.status == 200){
-              this.status_click = false        
+              this.status_click = false
             }
             printJS({
               printable: res.data.attachment.content,
               type: res.data.attachment.type,
               base64: true
             })
-            this.$router.push('/workflow')  
+            this.$router.push('/workflow')
           }
         } else {
           this.toastr.error("Falta seleccionar requisitos, todos los requisitos deben ser presentados.")

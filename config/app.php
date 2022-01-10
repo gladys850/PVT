@@ -152,6 +152,7 @@ return [
         App\Providers\SismuServiceProvider::class,
         App\Providers\MovementFundRotatoryServiceProvider::class,
         App\Providers\MovementConceptServiceProvider::class,
+        App\Providers\LoanGuaranteeRegisterServiceProvider::class,
 
         /*
         * Application Service Providers...
