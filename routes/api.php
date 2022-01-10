@@ -12,6 +12,7 @@ Route::group([
     Route::apiResource('record', 'Api\V1\RecordController')->only('index');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
+    Route::post('evaluate_garantor2', 'Api\V1\CalculatorController@evaluate_guarantor2');
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
@@ -63,6 +64,9 @@ Route::group([
         Route::post('evaluate_garantor', 'Api\V1\CalculatorController@evaluate_guarantor');
         Route::get('affiliate_record', 'Api\V1\AffiliateController@affiliate_record');
         Route::post('affiliate_guarantor', 'Api\V1\AffiliateController@test_guarantor');
+        //evaluacion de garantes
+        Route::post('existence', 'Api\V1\AffiliateController@existence');
+        Route::post('validate_guarantor', 'Api\V1\AffiliateController@validate_guarantor');
         //Categorias de tipo "USUARIO"
         Route::get('get_categorie_user', 'Api\V1\LoanPaymentCategorieController@get_categorie_user');
         //Evaluacion de prestamos afiliado
@@ -219,6 +223,7 @@ Route::group([
             Route::get('loan/{loan}/print/qualification', 'Api\V1\LoanController@print_qualification');
             Route::apiResource('loan_contribution_adjust', 'Api\V1\LoanContributionAdjustController')->only('index','show','store', 'update', 'destroy');
             Route::post('loan_contribution_adjust/updateOrCreate', 'Api\V1\LoanContributionAdjustController@updateOrCreate');
+            Route::post('loan_contribution_adjust/updateOrCreateLoanGuaranteeRegister', 'Api\V1\LoanContributionAdjustController@updateOrCreateLoanGuaranteeRegister');
             //Route::get('loan/{loan}/loan_affiliates', 'Api\V1\LoanController@get_loan_affiliates');
             Route::apiResource('loan_property', 'Api\V1\LoanPropertyController')->only('index', 'store', 'show', 'destroy', 'update');
             Route::post('loan/{loan}/validate_re_loan', 'Api\V1\LoanController@validate_re_loan');

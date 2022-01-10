@@ -20,6 +20,7 @@ use App\AidContribution;
 use App\Unit;
 use App\Loan;
 use App\LoanGlobalParameter;
+use App\LoanModalityParameter;
 use App\ProcedureType;
 use App\ProcedureModality;
 use App\Http\Requests\AffiliateForm;
@@ -486,29 +487,53 @@ class AffiliateController extends Controller
 
         if($request->has('choose_diff_month'))
             $choose_diff_month = $request->boolean('choose_diff_month');
-        else 
+        else
             $choose_diff_month =false;
-            
+
         if($request->has('number_diff_month'))
             $number_diff_month = intval($request->number_diff_month);
-        else 
+        else
             $number_diff_month = 1;
 
-        $state_affiliate = $affiliate->affiliate_state->affiliate_state_type->name;
-        $filters = [
-            'affiliate_id' => $affiliate->id
-        ];
-
+       $state_affiliate = $affiliate->affiliate_state->affiliate_state_type->name;
        $table_contribution=null;
        $verify=false;
        $is_latest=false;
+
+        if ($request->has('city_id')) {
+            $is_latest = false;
+            $city = City::findOrFail($request->city_id);
+            $offset_day = LoanGlobalParameter::latest()->first()->offset_ballot_day;
+            $now = CarbonImmutable::now();
+            if($choose_diff_month == true && $request->has('number_diff_month')){
+                $before_month=$number_diff_month;
+                $before_month=$before_month;
+            }else{
+                if($now->day <= $offset_day ){
+                    if ($city->name == 'LA PAZ') $before_month = 2;//
+                    else $before_month = 3;
+                }else{
+                    if ($city->name == 'LA PAZ') $before_month = 1;//
+                    else $before_month = 2;
+                }
+            }
+
+            $current_ticket_true = $now->startOfMonth()->subMonths($before_month);
+            if($request->per_page > 1){
+                $current_ticket_true_inter = $current_ticket_true->startOfMonth()->subMonths($request->per_page - 1);//retrocede 2 meses 
+                //return $current_ticket_true_inter;
+            }else{
+                $current_ticket_true_inter = $current_ticket_true;
+            }
+        }
+
        if ($state_affiliate == 'Activo' &&  $affiliate->affiliate_state->name !=  'Comisión' ){
-            $contributions = Util::search_sort(new Contribution(), $request, $filters);
+            $contributions = Contribution::where('affiliate_id',$affiliate->id)->whereBetween('month_year', [$current_ticket_true_inter->toDateString(), $current_ticket_true->toDateString()])->orderBy('month_year','asc')->paginate($request->per_page);
             $table_contribution='contributions';
             $verify=true;
         }else{
             if ($state_affiliate == 'Pasivo'){
-            $contributions = Util::search_sort(new AidContribution(), $request, $filters);
+            $contributions = AidContribution::where('affiliate_id',$affiliate->id)->whereBetween('month_year', [$current_ticket_true_inter->toDateString(), $current_ticket_true->toDateString()])->orderBy('month_year','asc')->paginate($request->per_page);
             $table_contribution ='aid_contributions';
             $verify=true;
             }else{
@@ -521,52 +546,10 @@ class AffiliateController extends Controller
             }
         }
         if($verify == true && count($affiliate->$table_contribution)>0){
-            if ($request->has('city_id')) {
-                $is_latest = false;
-                $city = City::findOrFail($request->city_id);
-                $offset_day = LoanGlobalParameter::latest()->first()->offset_ballot_day;
-                $now = CarbonImmutable::now();
-                if($choose_diff_month == true && $request->has('number_diff_month')){
-                    $before_month=$number_diff_month;
-                    $before_month=$before_month;
+             //verifica si son consecutivos los meses de las boletas de pago
+                if($request->per_page == count($contributions)){
+                    $is_latest = true;
                 }else{
-                    if($now->day <= $offset_day ){
-                        if ($city->name == 'LA PAZ') $before_month = 2;//
-                        else $before_month = 3;
-                    }else{
-                        if ($city->name == 'LA PAZ') $before_month = 1;//
-                        else $before_month = 2;
-                    }
-                }
-                $current_ticket = CarbonImmutable::parse($contributions[0]->month_year);
-                $current_ticket_true = $now->startOfMonth()->subMonths($before_month);
-                $current_ticket_true_inter = $now->startOfMonth()->subMonths($before_month+2);
-                $filterAffiliate['affiliate_id'] = $affiliate->id;
-                    if($request->per_page == 3)
-                    $filters['month_year'] = $current_ticket_true_inter->toDateString();
-                    if($request->per_page == 1)
-                    $filters['month_year'] = $current_ticket_true->toDateString();
-               
-               if ($state_affiliate == 'Activo' &&  $affiliate->affiliate_state->name !=  'Comisión' ){
-                       $contributions = Util::search_sort_contribution(new Contribution(), $request, $filters,$filterAffiliate);
-                }else{
-                    if ($state_affiliate == 'Pasivo'){
-                        $contributions = Util::search_sort_contribution(new AidContribution(), $request, $filters,$filterAffiliate);
-                    }
-                }
-                if ($now->startOfMonth()->diffInMonths($current_ticket->startOfMonth()) <= $before_month) {
-                    foreach ($contributions as $i => $ticket) {
-                        $is_latest = true;
-                        if ($ticket != $contributions->last()) {
-                            $current_ticket = CarbonImmutable::parse($ticket->month_year);
-                            $next_ticket = CarbonImmutable::parse($contributions[$i+1]->month_year);
-                            if ($current_ticket->startOfMonth()->diffInMonths($next_ticket->startOfMonth()) !== 1) {
-                                $is_latest = false;
-                                break;
-                            }
-                        }
-                    }
-                } else {
                     $is_latest = false;
                 }
                 $contributions = collect([
@@ -579,29 +562,8 @@ class AffiliateController extends Controller
                     'current_tiket'=> $current_ticket_true->toDateTimeString(),
                     'affiliate_id'=>$affiliate->id
                 ])->merge($contributions);
-            }
             return $contributions;
         }else{
-            $offset_day = LoanGlobalParameter::latest()->first()->offset_ballot_day;
-            $now = CarbonImmutable::now();
-            $before_month=0;
-            
-            if ($request->has('city_id')) {
-                $city = City::findOrFail($request->city_id);
-                if($choose_diff_month == true && $request->has('number_diff_month')){
-                    $before_month=$number_diff_month;
-                }else{
-                    if($now->day <= $offset_day ){
-                        if ($city->name == 'LA PAZ') $before_month = 2;
-                        else $before_month = 3;
-                    }else{
-                        if ($city->name == 'LA PAZ') $before_month = 1;
-                        else $before_month = 2;
-                    }
-                }
-            }
-            $current_ticket = $now->startOfMonth()->subMonths($before_month);
-            $now->startOfMonth()->diffInMonths($current_ticket->startOfMonth());
             $contributions = collect([
                 'valid' => $is_latest,
                 'diff_months' => $before_month,
@@ -609,7 +571,7 @@ class AffiliateController extends Controller
                 'name_table_contribution'=>$table_contribution,
                 'current_date'=>$now->toDateTimeString(),
                 'offset_day'=>$offset_day,
-                'current_tiket'=> $current_ticket->toDateTimeString(),
+                'current_tiket'=> $current_ticket_true->toDateTimeString(),
                 'affiliate_id'=>$affiliate->id
             ]);
             return $contributions;
@@ -1430,5 +1392,210 @@ class AffiliateController extends Controller
         }
         //return sizeof($message);
         return $message;
+    }
+
+        /**
+    * existencia del afiliado
+    * Devuelve el id del afiliado, si es viuda devuelve el id del titular o si es alguien de doble precepción.
+    * @bodyParam identity_card string required Carnet de identidad. Example:492562
+    * @authenticated
+    * @responseFile responses/affiliate/affiliate_existence.200.json
+    */
+    public function existence(request $request)
+    {
+        $request->validate([
+            'identity_card' => 'required|string'
+        ]);
+        $double_perception = false;
+        $affiliate = null;
+        $spouse = null;
+        $type = null;
+        $existence = false;
+        if(Affiliate::where('identity_card', $request->identity_card)->first())
+        {
+            $existence = true;
+            $affiliate = Affiliate::where('identity_card', $request->identity_card)->first();
+            $spouse = null;
+            $double_perception = false;
+            if(!$affiliate->dead)
+                $type = 'affiliate';
+        }
+        if(Spouse::where('identity_card', $request->identity_card)->first())
+        {
+            $existence = true;
+            $spouse = Spouse::where('identity_card', $request->identity_card)->first();
+            if($affiliate)
+            {
+                $double_perception = true;
+                $deceased_affiliate = $spouse->affiliate->id;
+            }
+            else
+            {
+                $affiliate = $spouse->affiliate;
+                if(!$spouse->dead)
+                    $type = 'spouse';
+            }
+        }
+        if($affiliate && $affiliate->spouse)
+        {
+            if($affiliate->dead && $affiliate->spouse->dead)
+                $existence = false;
+        }
+        return $data = array(
+            "existence"=>$existence,
+            "affiliate"=>$existence ? $affiliate->id : null,
+            "type"=>$type,
+            "double_perception"=>$double_perception,
+            "deceased_affiliate" => $double_perception ? $deceased_affiliate : null,
+            );
+    }
+
+    /**
+    * validacion del garante
+    * Devuelve si el afiliadopuede ser garante acorde al estado y la modalidad.
+    * @bodyParam affiliate_id integer required id del afiliado. Example:12900
+    * @bodyParam procedure_modality_id integer required id de la modalidad. Example:50
+    * @bodyParam remake_loan_id integer required id del prestamo a rehacer, si es nuevo enviar 0. Example:9
+    * @authenticated
+    * @responseFile responses/affiliate/validate_guarantor.200.json
+    */
+    public function validate_guarantor(request $request)
+    {
+        $affiliate = Affiliate::whereId($request->affiliate_id)->first();
+        $modality = ProcedureModality::whereId($request->procedure_modality_id)->first();
+        $guarantor = false;
+        $message = "OK";
+        $information = "";
+        $id_activo = array();
+        foreach (ProcedureModality::where('name', 'like', '%Activo')->orWhere('name', 'like', '%Activo%')->get() as $procedure) {
+            array_push($id_activo, $procedure->id);
+        }
+        $id_senasir = array();
+        foreach (ProcedureModality::where('name', 'like', '%SENASIR')->get() as $procedure) {
+            array_push($id_senasir, $procedure->id);
+        }
+        $id_afp = array();
+        foreach (ProcedureModality::where('name', 'like', '%AFP')->get() as $procedure) {
+            array_push($id_afp, $procedure->id);
+        }
+        switch($request->procedure_modality_id){
+            case (in_array($request->procedure_modality_id, $id_activo)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    $guarantor = true;
+                else
+                    $message = "Afiliado no pertenece al servicio activo o se encuentra en comision o disponibilidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
+                break;
+            case (in_array($request->procedure_modality_id, $id_senasir)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    $guarantor = true;
+                else
+                {
+                    if($affiliate->pension_entity != null)
+                    {
+                        if(strpos($affiliate->pension_entity->name, "AFP") === 0)
+                            $message = "Afiliado AFP no puede garantizar prestamos";
+                        else
+                            $guarantor = true;
+                    }
+                    else
+                    {
+                        $message = "El afiliado es del sector pasivo y no tiene registrado su ente gestor";
+                    }
+                }
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
+                break;
+            case (in_array($request->procedure_modality_id, $id_afp)):
+                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                {
+                    if($affiliate->category == null)
+                        $message = "El afiliado no tiene registrado su categoria";
+                    else
+                    {
+                        if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
+                            $guarantor = true;
+                        else
+                            $message = "El afiliado no se encuentra en la categoria necesaria";
+                    }
+                }
+                else
+                    $message = "Afiliado es pasivo o se encuentra en comision o disponibilidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
+                break;
+            default:
+                $message = "no corresponde con la modalidad";
+                if($affiliate->category == null)
+                    $affiliate->category_name = null;
+                else
+                    $affiliate->category_name = $affiliate->category->name;
+                break;
+        }
+        if($affiliate->spouse != null && $affiliate->spouse->dead == false)
+        {
+            $affiliate->spouse = $affiliate->spouse;
+            $loans = $affiliate->spouse->spouse_active_guarantees;
+            $loans_sismu = $affiliate->spouse->active_guarantees_sismu();
+        }
+        else
+        {
+            $loans = $affiliate->active_guarantees();
+            $loans_sismu = $affiliate->active_guarantees_sismu();
+        }
+        $data = array();
+        foreach($loans as $loan)
+        {
+            if($loan->id != $request->remake_loan_id)
+            {
+                $loans_pvt = array(
+                    "id" => $loan->id,
+                    "code" => $loan->code,
+                    "lender" => $loan->lenders->first()->full_name,
+                    "quota" => $loan->guarantors->where('id',$affiliate->id)->first()->pivot->quota_treat,
+                    "quota_loan" => $loan->estimated_quota,
+                    "state" => $loan->state->name,
+                    "type" => "PVT",
+                );
+                array_push($data, $loans_pvt);
+        }
+        }
+        foreach($loans_sismu as $loan)
+        {
+            $loans_pvt = array(
+                "id" => $loan->IdPrestamo,
+                "code" => $loan->PresNumero,
+                "lender" => $loan->PadNombres.' '.$loan->PadPaterno.' '.$loan->PadMaterno.' '.$loan->PadApellidoCasada,
+                "quota" => $loan->PresCuotaMensual / $loan->quantity_guarantors,
+                "quota_loan" => $loan->PresCuotaMensual,
+                "state" => $loan->PresEstPtmo == "V" ? "Vigente" : "Pendiente",
+                "type" => "SISMU",
+            );
+            array_push($data, $loans_pvt);
+        }
+        $affiliate->active_loans = count($affiliate->active_loans())+count($affiliate->active_loans_sismu());
+        if($affiliate->city_identity_card == null)
+            $information = $information."ciudad de expedicion del carnet de identidad,";
+        if($affiliate->affiliate_state == null)
+            $information = $information." estado del afiliado,";
+        if($affiliate->city_birth == null)
+            $information = $information." ciudad de nacimiento,";
+        if($affiliate->address == null)
+            $information = $information."direccion";
+        return $data = array(
+            "guarantor"=>$guarantor,
+            "message"=>$message,
+            "information"=>$affiliate->verify_information($affiliate),
+            "information_missing"=>$information,
+            "affiliate"=>$affiliate,
+            "guarantees"=>$data
+            );
     }
 }

@@ -199,7 +199,10 @@
                                     <p><b>Fecha Desembolso Ptmo Padre:</b> {{loan_refinancing.disbursement_date | date}}</p>
                                   </v-col>
                                   <v-col cols="12" md="4" class="py-0"  v-show="!collection_edit_sismu" v-if="loan_refinancing.type_sismu==true">
-                                    <p><b>Fecha de Corte :</b> {{loan_refinancing.date_cut_refinancing ? loan_refinancing.date_cut_refinancing : 'Sin registar'}}</p>
+                                    <p><b>Fecha de Corte :</b>
+                                    <span v-if="loan_refinancing.date_cut_refinancing">
+                                      {{loan_refinancing.date_cut_refinancing | date}}</span>
+                                    <span v-else>Sin registar</span></p>
                                   </v-col>
                                   <v-col cols="12" md="4"  v-show="collection_edit_sismu "  class="py-0">
                                     <v-text-field
