@@ -18,11 +18,11 @@ class Voucher extends Model
     function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        if (!$this->code) {
+        /*if (!$this->code) {
             $latest_vouchers = DB::table('vouchers')->orderBy('created_at', 'desc')->limit(1)->first();
             if (!$latest_vouchers) $latest_vouchers = (object)['id' => 0];
             $this->code = implode(['TRANS', str_pad($latest_vouchers->id + 1, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
-        }
+        }*/
     }
 
     public function payable()

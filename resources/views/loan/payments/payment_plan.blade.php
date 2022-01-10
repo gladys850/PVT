@@ -164,7 +164,7 @@
                     <td class="data-row py-2">{{ Util::money_format($quota->total_amount) }}</td>
                     <td class="data-row py-2">{{ Util::money_format($quota->balance) }}</td>
                 </tr>
-                @php ($sum_estimated_quota += $quota->payment)
+                @php ($sum_estimated_quota += $quota->total_amount)
                 @php ($sum_days_amr += $quota->days)
                 @php ($sum_capital += $quota->capital)
                 @php ($sum_interest += $quota->interest)
