@@ -80,6 +80,7 @@
             <span v-else>Seguimiento de tramites</span>
           </v-tooltip>
           <v-data-table
+            :key="refreshKardexTable"
             dense
             :headers="headers"
             :items="loans"
@@ -162,13 +163,14 @@
                 </v-tooltip>
 
                 <v-tooltip bottom v-if="permissionSimpleSelected.includes('release-loan-user')">
-                  <template v-slot:activator="{ on }" v-if="item.user_loan != null">
+                  <template v-slot:activator="{ on }" >
                     <v-btn
+                      v-show="item.user_loan != null && item.state_loan == 'En Proceso'"
                       icon
                       small
                       v-on="on"
                       color="error"
-                      @click.stop="freeLoan(item.id, item.code)"
+                      @click.stop="freeLoan(item.id_loan, item.code_loan)"
                     >
                       <v-icon>mdi-lock-open-variant</v-icon>
                     </v-btn>
@@ -266,7 +268,8 @@ export default {
       loading: false,
       loading_table: false,
       trashed_loan: false,
-      show_filter:true
+      show_filter:true,
+      refreshKardexTable: 0,
     };
   },
   computed: {
@@ -296,7 +299,12 @@ export default {
       handler(val) {
         this.options.page=1
       }
-    }
+    },
+    refreshKardexTable: function(newVal, oldVal){
+      if(newVal!= oldVal){
+        this.search_loans()
+      }
+    },
   },
   mounted() {
     this.search_loans()
@@ -434,22 +442,23 @@ export default {
       }
     },
 
-    async freeLoan(id, code){
+    async freeLoan(id_loan, code_loan){
       try {
-          //this.loading = true;
-            let res = await axios.patch(`loan/${id}`, {
+          this.loading_table = true
+            let res = await axios.patch(`loan/${id_loan}`, {
               user_id: null,
               validated: false
             });
-            console.log(res)
-            //this.sheet = false;
-            this.bus.$emit('emitRefreshLoans');
-            this.toastr.success("El trámite "+ code +" fue liberado" )
+            this.refreshKardexTable++
+            this.toastr.success("El trámite "+ code_loan +" fue liberado" )
       } catch (e) {
         console.log(e)
         this.toastr.error("Ocurrió un error en la liberación del trámite...")
+        this.loading_table = false
       }
+      this.loading_table = false
     },
+
     _show_filter(){
        this.show_filter=!this.show_filter
     }

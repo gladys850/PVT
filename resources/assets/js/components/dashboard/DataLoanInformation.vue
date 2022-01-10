@@ -517,7 +517,7 @@ export default {
   methods: {
     routeSismu(id) {
       window.open(
-        "http://sismu.muserpol.gob.bo/musepol/akardex.aspx?" + id,
+        "http://172.16.1.17/web/akardex.aspx?" + id,
         "_blank"
       );
     },

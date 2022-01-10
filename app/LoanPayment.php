@@ -51,12 +51,12 @@ class LoanPayment extends Model
     function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        if (!$this->code) {
-            //$latest_payments = DB::table('loan_payments')->orderBy('created_at', 'desc')->limit(1)->first();
+        /*if (!$this->code) {
             $latest_payments = DB::table('loan_payments')->orderBy('id', 'desc')->latest()->first();
             if (!$latest_payments) $latest_payments = (object)['id' => 0];
             $this->code = implode(['PAY', str_pad($latest_payments->id + 1, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
-        }
+        }*/
+        //$this->code = implode(['PAY', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
     }
 
     public function loan()

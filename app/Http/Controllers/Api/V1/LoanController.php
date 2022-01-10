@@ -323,21 +323,7 @@ class LoanController extends Controller
             {
                 Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'registró el préstamo de REPROGRAMACIÓN '));
             }else{
-               /* $loan->code = implode(['PTMO', str_pad($loan->id, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
-                $loan->save();
-                Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'registró el préstammmmo'.$loan->code));*/
-
-               $option = $loan;
-                $loan_a = Loan::withoutEvents(function () use ($option) {
-                    $loan = Loan::whereId($option->id)->first();
-                    $loan->code = implode(['PTMO', str_pad($loan->id, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
-                    $loan->save();
-                    return  $loan;
-                });
-                (object)$loan = $loan_a;
-               // return $loan_a;
                 Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'registró el préstamo'));
-                //return $loan_a;
             }
         }//fin aqui
 
@@ -657,23 +643,25 @@ class LoanController extends Controller
                 }
             }
         } else {
-            $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]));
-        }
-
-        //heredar el codigo del prestamo padre
-        /*if($loan->parent_loan_id)
-        {
-            if(substr($loan->parent_loan->code, -3) != substr($loan->parent_reason,0,3))
-                $loan->code = Loan::find($loan->parent_loan_id)->code." - ".substr($loan->parent_reason,0,3);
+            if($request->has('remake_loan_id') && $request->remake_loan_id != null)
+            {
+                $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]));
+            }
             else
-                $loan->code = $loan->parent_loan->code;
-        }*/
-
+            {
+                $correlative = Util::Correlative('loan');
+                $code = implode(['PTMO', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
+                $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]));
+                $loan->code = $code;
+            }
+        }
         //rehacer obtener cod
         if($request->has('remake_loan_id')&& $request->remake_loan_id != null)
         {
             $remake_loan = Loan::find($request->remake_loan_id);
             $loan->code = $remake_loan->code;
+            $remake_loan->code = "PTMO-xxxx";
+            $remake_loan->save();
         }if($request->has('indebtedness_calculated')){
             $loan->indebtedness_calculated_previous = $request->indebtedness_calculated;
         }
@@ -1039,31 +1027,31 @@ class LoanController extends Controller
         $modality_type = $procedure_modality->procedure_type->name;
         switch($modality_type){
             case 'Préstamo Anticipo':
-				$view_type = 'advance';
-            	break;
+                $view_type = 'advance';
+                break;
             case 'Préstamo a Corto Plazo':
-				$view_type = 'short';
-            	break;
+                $view_type = 'short';
+                break;
             case 'Refinanciamiento Préstamo a Corto Plazo':
-				$view_type = 'short';
-            	break;
+                $view_type = 'short';
+                break;
             case 'Préstamo a Largo Plazo':
-				$view_type = 'long';
-            	break;
+                $view_type = 'long';
+                break;
             case 'Refinanciamiento Préstamo a Largo Plazo':
-				$view_type = 'long';
-            	break;
+                $view_type = 'long';
+                break;
             case 'Préstamo Hipotecario':
-				$view_type = 'hypothecary';
-            	break;
+                $view_type = 'hypothecary';
+                break;
             case 'Refinanciamiento Préstamo Hipotecario':
-				$view_type = 'hypothecary';
-            	break;
+                $view_type = 'hypothecary';
+                break;
         }
         $information_loan= $this->get_information_loan($loan);
         if($loan->parent_loan_id != null && $loan->parent_reason == "REPROGRAMACIÓN" || $loan->parent_loan_id ==null && $loan->parent_reason == "REPROGRAMACIÓN")
         $view_type = 'reprogramming';
-		$view = view()->make('loan.contracts.' . $view_type)->with($data)->render();
+        $view = view()->make('loan.contracts.' . $view_type)->with($data)->render();
         if ($standalone) return Util::pdf_to_base64contract([$view], $file_name,$information_loan,$loan,'legal', $request->copies ?? 1);
         return $view;
     }
@@ -1453,6 +1441,13 @@ class LoanController extends Controller
             }
             //$payment->user_id = $request->user_id;
             //$payment->validated = true;
+
+            //obtencion de codigo de pago
+            $correlative = 0;
+            $correlative = Util::correlative('payment');
+            $payment->code = implode(['PAY', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
+            //fin obtencion de codigo;
+
             $loan_payment = $loan->payments()->create($payment->toArray());
             $loan = Loan::find($loan->id);
             $loan->verify_state_loan();
