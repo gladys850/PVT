@@ -326,7 +326,7 @@ export default {
               if (respuesta != null) {
                 formData.append(criterio, this.report_inputs[criterio]);
               } else {
-                console.log(validation)
+                console.log("Faltan criterios");
               }
           });
           this.loading_button = true
