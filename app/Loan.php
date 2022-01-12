@@ -1414,4 +1414,21 @@ class Loan extends Model
         }
       return $this;
      }
+
+    public function regular_payments_date($date)
+    {
+        $date = Carbon::parse($date)->endOfDay();
+        $loan_payments = LoanPayment::where('loan_id',$this->id)->where('estimated_date','<=',$date)->where('state_id', LoanPaymentState::whereName('Pagado')->first()->id)->get();
+        $quota_number = 1;
+        $sw = true;
+        foreach($loan_payments as $payments){
+            if($payments->estimated_quota < LoanPlanPayment::where('loan_id',$this->id)->where('quota_number',$quota_number)->first()->total_amount)
+            {
+                $sw = false;
+                break;
+            }
+            $quota_number++;
+        }
+        return $sw;
+    }
 }

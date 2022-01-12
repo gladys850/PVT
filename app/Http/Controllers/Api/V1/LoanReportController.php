@@ -64,18 +64,18 @@ class LoanReportController extends Controller
         $date_ini = $request->initial_date.' 00:00:00';
         $date_fin = $request->final_date.' 23:59:59';
 
-        $list_loan = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->whereBetween('disbursement_date', [$date_ini, $date_fin])->get();
+        $list_loan = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->whereBetween('disbursement_date', [$date_ini, $date_fin])->orWhere('state_id', LoanState::where('name', 'Liquidado')->first()->id)->whereBetween('disbursement_date', [$date_ini, $date_fin])->get();
     }else{
         if ($final_date != '') {
             $date_fin = $request->final_date.' 23:59:59';
-            $list_loan = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->where('disbursement_date', '<=', $date_fin)->get();
+            $list_loan = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->where('disbursement_date', '<=', $date_fin)->orWhere('state_id', LoanState::where('name', 'Liquidado')->first()->id)->where('disbursement_date', '<=', $date_fin)->get();
 
         }else{
             if ($initial_date != '') {
                 $date_ini = $request->initial_date.' 00:00:00';
-                $list_loan = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->where('disbursement_date', '>=', $date_ini)->get();
+                $list_loan = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->where('disbursement_date', '>=', $date_ini)->orWhere('state_id', LoanState::where('name', 'Liquidado')->first()->id)->where('disbursement_date', '>=', $date_ini)->get();
             }else{
-                $list_loan = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->get();
+                $list_loan = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->orWhere('state_id', LoanState::where('name', 'Liquidado')->first()->id)->get();
             }
         } 
     }
@@ -368,6 +368,7 @@ class LoanReportController extends Controller
             }
             $loan->separation="*";
             $loans_mora->push($loan);
+            continue;
           }
          //return $loan->guarantors[1];
 
@@ -385,8 +386,10 @@ class LoanReportController extends Controller
             $loan->separation="*"; 
     
             $loans_mora_total->push($loan);
+            continue;
           }
-          if($loan->last_payment_validated && $loan->last_payment_validated->interest_accumulated > 0){
+          //if($loan->last_payment_validated && $loan->last_payment_validated->interest_accumulated > 0){
+        if($loan->last_payment_validated && !$loan->regular_payments_date(request('date'))){
             if(count($loan->guarantors)>0){
                 $loan->guarantor = $loan->guarantors;
             }
@@ -399,6 +402,7 @@ class LoanReportController extends Controller
             }
             $loan->separation="*";
             $loans_mora_parcial->push($loan);
+            continue;
           }
     }
     //return $loans_mora;
