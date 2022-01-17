@@ -466,7 +466,7 @@ class AffiliateController extends Controller
     }
 
     /**
-    * Boletas de pago
+    * Boletas de pago del affiliado
     * Devuelve el listado de las boletas de pago de un afiliado, si se envía el ID de ciudad además devuelve un booleano para identificar si la petición contiene las últimas boletas y la diferencia de meses que se utilizó para la operación
     * @urlParam affiliate required ID de afiliado. Example: 1
     * @queryParam city_id ID de la ciudad de solicitud. Example: 4

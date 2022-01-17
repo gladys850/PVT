@@ -58,17 +58,6 @@
                           <v-icon>mdi-delete</v-icon>
                         </v-btn>
                       </td>
-                      <td v-show="!editable">
-                        <v-btn
-                          v-if="props.item.latitude && props.item.longitude"
-                          text
-                          icon
-                          color="info"
-                          @click.stop="bus.$emit('openDialog', {...props.item, ...{edit: false}})"
-                        >
-                          <v-icon>mdi-google-maps</v-icon>
-                        </v-btn>
-                      </td>
                     </tr>
                   </template>
                 </v-data-table>

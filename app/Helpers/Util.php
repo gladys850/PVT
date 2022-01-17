@@ -13,6 +13,7 @@ use App\Events\LoanFlowEvent;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use App\LoanCorrelative;
 
 class Util
 {
@@ -636,5 +637,26 @@ class Util
             ];
         }
         return $data;
+    }
+
+    public static function correlative($type)
+    {
+        if(LoanCorrelative::where('year', Carbon::now()->year)->where('type', $type)->count() == 0)
+        {
+            $correlative = new LoanCorrelative();
+            $correlative->year = Carbon::now()->year;
+            $correlative->correlative = 1;
+            $correlative->type = $type;
+            $correlative->save();
+            $correlative_number = 1;
+        }
+        else
+        {
+            $correlative = LoanCorrelative::where('year', Carbon::now()->year)->where('type', $type)->first();
+            $correlative->correlative++;
+            $correlative->save();
+            $correlative_number = $correlative->correlative;
+        }
+        return $correlative_number;
     }
 }

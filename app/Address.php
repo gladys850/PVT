@@ -11,7 +11,7 @@ class Address extends Model
 
     protected $table = "addresses";
     public $guarded =  [];
-    protected $fillable = ['city_address_id', 'zone', 'street', 'number_address', 'latitude', 'longitude','description'];
+    protected $fillable = ['city_address_id', 'zone', 'street', 'number_address','description'];
 
     protected $attributes = array(
         'city_address_id' => null,
@@ -29,16 +29,6 @@ class Address extends Model
             $number = 'Nº ' . $this->number_address;
         }
         return Util::trim_spaces(implode(' ', [$this->description]));
-    }
-
-    public function getLatitudeAttribute($value)
-    {
-        return floatval($value);
-    }
-
-    public function getLongitudeAttribute($value)
-    {
-        return floatval($value);
     }
 
     public function affiliate()
