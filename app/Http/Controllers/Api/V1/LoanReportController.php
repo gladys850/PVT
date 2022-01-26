@@ -1829,7 +1829,7 @@ class LoanReportController extends Controller
         $loans = Loan::whereStateId(LoanState::whereName('En Proceso')->first()->id)->where('request_date', '<=', $request->date)->orderBy('role_id')->get();
         $loans_array = collect([]);
         $date = "";
-        if($request->type)
+        if($request->type == "xls")
             $loan_sheets = array(
                 array("Nro de Prestamo", "Procedencia", "Fecha de Solicitud", "Solicitante", "Estado de Flujo", "Fecha de Derivacion", "Usuario", "Monto Solicitado", "Monto Desembolsado")
             );
@@ -2144,42 +2144,42 @@ class LoanReportController extends Controller
    */
   public function loan_application_status(request $request, $standalone = true)
   {
-       if($request->initial_date == null)
-           $initial_date = Carbon::parse('1900-01-01');
-       else
-           $initial_date = $request->initial_date;
-       if($request->final_date == null)
-           $final_date = Carbon::now();
-       else
-           $final_date = $request->final_date;
-       $initial_date = Carbon::parse($initial_date)->startOfDay();
-       $final_date = Carbon::parse($final_date)->endOfDay();
+    if($request->initial_date == null)
+        $initial_date = Carbon::parse('1900-01-01');
+    else
+        $initial_date = $request->initial_date;
+    if($request->final_date == null)
+        $final_date = Carbon::now();
+    else
+        $final_date = $request->final_date;
+    $initial_date = Carbon::parse($initial_date)->startOfDay();
+    $final_date = Carbon::parse($final_date)->endOfDay();
 
-       $loans = Loan::where('request_date', '>=', $initial_date)
-               ->where('request_date', '<=', $final_date)
-               ->where('deleted_at', null)
-               ->orderBy('role_id')->get();
-       $loans_collect = collect([]);
-       $query = "SELECT role_id, count(*)
-               from loans l
-               where l.request_date >= '$initial_date'
-               and l.request_date <= '$final_date'
-               and l.deleted_at is null 
-               group by role_id
-               order by role_id";
-       $roles = DB::select($query);
-       foreach($loans as $loan)
-       {
-           $ubication = $loan->role->display_name;
-           $query_derivation = "SELECT *
-                               from records r 
-                               where r.recordable_type = 'loans'
-                               and r.record_type_id = 3
-                               and r.recordable_id = $loan->id
-                               and r.action like '%$ubication'
-                               order by r.created_at";
-           $derivation = DB::select($query_derivation);
-           $loans_collect->push([
+    $loans = Loan::where('request_date', '>=', $initial_date)
+            ->where('request_date', '<=', $final_date)
+            ->where('deleted_at', null)
+            ->orderBy('role_id')->get();
+    $loans_collect = collect([]);
+    $query = "SELECT role_id, count(*)
+            from loans l
+            where l.request_date >= '$initial_date'
+            and l.request_date <= '$final_date'
+            and l.deleted_at is null 
+            group by role_id
+            order by role_id";
+    $roles = DB::select($query);
+    foreach($loans as $loan)
+    {
+        $ubication = $loan->role->display_name;
+        $query_derivation = "SELECT *
+                            from records r 
+                            where r.recordable_type = 'loans'
+                            and r.record_type_id = 3
+                            and r.recordable_id = $loan->id
+                            and r.action like '%$ubication'
+                            order by r.created_at";
+        $derivation = DB::select($query_derivation);
+        $loans_collect->push([
                'code' => $loan->code,
                'request_date' => $loan->request_date,
                'modality' => $loan->modality->procedure_type->name,
@@ -2194,29 +2194,62 @@ class LoanReportController extends Controller
                'request_amount' => $loan->amount_approved,
                'ref' => $loan->parent_reason == "REFINANCIAMIENTO" ? "S" : "N",
                'disbursed_amount' => $loan->refinancing_balance == 0 ? $loan->amount_approved : $loan->refinancing_balance
-           ]);
-       }
+        ]);
+    }
       
-      $data = [
-       'header' => [
-           'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
-           'unity' => 'UNIDAD DE JEFATURA DE PRESTAMOS',
-           'table' => [
-               ['Fecha', Carbon::now()->format('d-m-Y')],
-               ['Hora', Carbon::now()->format('H:m:s')],
-               ['Usuario', Auth::user()->username]
-           ]
-       ],
-       'title' => 'ESTADOS DE SOLICITUDES DE PRESTAMOS',
-       'initial_date' => $request->initial_date,
-       'final_date' => $request->final_date,
-       'loans' => $loans_collect,
-       'roles' => $roles,
-       'file_title' => 'Estado de Solicitud de Prestamos',
-   ];
-   $file_name = 'Ingresos Depositados en Tesoreria.pdf';
-   $view = view()->make('loan.reports.loan_state_request_report')->with($data)->render();
-   if ($standalone) return Util::pdf_to_base64([$view], $file_name, 'Depositos en Tesoreria' ,'letter', $request->copies ?? 1, false);
-   return $view;
+    if($request->type == "pdf")
+    {
+        $data = [
+            'header' => [
+                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+                'unity' => 'UNIDAD DE JEFATURA DE PRESTAMOS',
+                'table' => [
+                    ['Fecha', Carbon::now()->format('d-m-Y')],
+                    ['Hora', Carbon::now()->format('H:m:s')],
+                    ['Usuario', Auth::user()->username]
+                ]
+            ],
+            'title' => 'ESTADOS DE SOLICITUDES DE PRESTAMOS',
+            'initial_date' => $request->initial_date,
+            'final_date' => $request->final_date,
+            'loans' => $loans_collect,
+            'roles' => $roles,
+            'file_title' => 'Estado de Solicitud de Prestamos',
+        ];
+        $file_name = 'Ingresos Depositados en Tesoreria.pdf';
+        $view = view()->make('loan.reports.loan_state_request_report')->with($data)->render();
+        if ($standalone) return Util::pdf_to_base64([$view], $file_name, 'Depositos en Tesoreria' ,'letter', $request->copies ?? 1, false);
+        return $view;
+    }
+    elseif($request->type == "xls")
+    {
+        $loan_sheets = array(
+                array("Nro","Nro de Tramite", "Modalidad", "Sub Modalidad", "Sector", "Nombre Completo", "C. I.", "Usuario", "Area", "Procedencia", "Fecha de Derivación", "Monto Solicitado", "Refinanciado", "Monto Desembolsado")
+        );
+        $c = 1;
+        foreach($loans as $loan)
+        {
+            array_push($loan_sheets, array(
+                $c,
+                $loan->code,
+                $loan->modality->procedure_type->name,
+                $loan->modality->name,
+                $loan->borrower->first()->state->affiliate_state_type->name,
+                $loan->borrower->first()->full_name,
+                $loan->borrower->first()->identity_card,
+                $loan->user ? $loan->user->username : '',
+                $loan->role->display_name,
+                $loan->city->name,
+                sizeof($derivation) == 0 ? '' : Carbon::parse($derivation[0]->created_at)->format('d-m-Y H:m:s'),
+                $loan->amount_approved,
+                $loan->parent_reason == "REFINANCIAMIENTO" ? "S" : "N",
+                $loan->refinancing_balance == 0 ? $loan->amount_approved : $loan->refinancing_balance
+            ));
+        }
+        $file_name = $request->date;
+        $extension = '.xls';
+        $export = new SheetExportPayment($loan_sheets, "Estado de Solicitudes de Prestamo");
+        return Excel::download($export, $file_name.$extension);
+    }
   }
 }
