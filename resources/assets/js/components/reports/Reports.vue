@@ -233,24 +233,24 @@ export default {
         type: "xls",
         permissions: 'show-report-collections'
       },
-      /* el reporte se encuentra en la importación, asi que si se requiere descomentar las lineas
       {
         id: 12,
-        name: "Rep. Solicitud de descuentos a Comando / Senasir",
-        tab: 0,
-        criterios: ["origin","date"],
-        service: "/report_request_institution",
-        label: "Periódo (Seleccione el último dia del mes)",
-        type: "xls",
-      },*/
-      {
-        id: 13,
-        name: "Rep. Estado de solicitud de Préstamos",
+        name: "Rep. Estado de solicitud de Préstamos (PDF)",
         tab: 2,
         criterios: ["date"],
         service: "/request_state_report",
         label: "Hasta fecha",
         type: "pdf",
+        permissions: 'show-report-others'
+      },
+      {
+        id: 13,
+        name: "Rep. Estado de solicitud de Préstamos (XLS)",
+        tab: 2,
+        criterios: ["date"],
+        service: "/request_state_report",
+        label: "Hasta fecha",
+        type: "xls",
         permissions: 'show-report-others'
       },
       {
@@ -273,11 +273,20 @@ export default {
       },
       {
         id: 16,
-        name: "Rep. Solicitudes de Préstamos",
+        name: "Rep. Solicitudes de Préstamos (PDF)",
         tab: 2,
         criterios: ["initial_date","final_date"],
         service: "/loan_application_status",
         type: "pdf",
+        permissions: 'show-report-others'
+      },
+      {
+        id: 16,
+        name: "Rep. Solicitudes de Préstamos (XLS)",
+        tab: 2,
+        criterios: ["initial_date","final_date"],
+        service: "/loan_application_status",
+        type: "xls",
         permissions: 'show-report-others'
       },
     ],
@@ -316,9 +325,8 @@ export default {
     },
 
     async downloadReport() {
-
-        if (this.report_selected) {
-          if(this.report_selected.type == 'xls'){
+      if (this.report_selected) {
+        if(this.report_selected.type == 'xls'){
             const formData = new FormData();
             this.report_selected.criterios.forEach((criterio) => {
               let respuesta = this.report_inputs[criterio];
@@ -340,7 +348,8 @@ export default {
               initial_date: this.report_inputs.initial_date,
               final_date: this.report_inputs.final_date,
               date: this.report_inputs.date,
-              origin: this.report_inputs.origin
+              origin: this.report_inputs.origin,
+              type:'xls'
             },
           })
             .then((response) => {
@@ -363,35 +372,35 @@ export default {
               this.toast.error("Favor seleccione los criterios de búsqueda.")
             });
           this.loading_button = false;
-          } else{
-            try {
-              this.loading_button = true
-              let res = await axios.get(`${this.report_selected.service}`, {
-                params: {
-                  initial_date: this.report_inputs.initial_date,
-                  final_date: this.report_inputs.final_date,
-                  date: this.report_inputs.date,
-                  origin: this.report_inputs.origin
-                },
-              });
-              printJS({
-                printable: res.data.content,
-                type: res.data.type,
-                file_name: res.data.file_name,
-                base64: true,
-              });
-              this.loading_button = false
-            } catch (e) {
-              this.loading_button = false
-              this.toastr.error("Ocurrió un error en la impresión, seleecione los criterios de búsqueda.");
-              console.log(e);
-            }
+        } else{
+          try {
+            this.loading_button = true
+            let res = await axios.get(`${this.report_selected.service}`, {
+              params: {
+                initial_date: this.report_inputs.initial_date,
+                final_date: this.report_inputs.final_date,
+                date: this.report_inputs.date,
+                origin: this.report_inputs.origin,
+                type:'pdf'
+              },
+            });
+            printJS({
+              printable: res.data.content,
+              type: res.data.type,
+              file_name: res.data.file_name,
+              base64: true,
+            });
+            this.loading_button = false
+          } catch (e) {
+            this.loading_button = false
+            this.toastr.error("Ocurrió un error en la impresión, seleecione los criterios de búsqueda.");
+            console.log(e);
           }
-
-        } else {
-          this.toastr.error("Seleccione un reporte.")
-          this.loading_button = false
         }
+      } else {
+        this.toastr.error("Seleccione un reporte.")
+        this.loading_button = false
+      }
     },
   },
 
