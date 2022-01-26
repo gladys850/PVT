@@ -1829,6 +1829,10 @@ class LoanReportController extends Controller
         $loans = Loan::whereStateId(LoanState::whereName('En Proceso')->first()->id)->where('request_date', '<=', $request->date)->orderBy('role_id')->get();
         $loans_array = collect([]);
         $date = "";
+        if($request->type)
+            $loan_sheets = array(
+                array("Nro de Prestamo", "Procedencia", "Fecha de Solicitud", "Solicitante", "Estado de Flujo", "Fecha de Derivacion", "Usuario", "Monto Solicitado", "Monto Desembolsado")
+            );
         foreach($loans as $loan)
         {
             foreach($loan->records as $record){
@@ -1840,36 +1844,58 @@ class LoanReportController extends Controller
             }
             $loans_array->push([
                 "code" => $loan->code,
-                "request_date" => Carbon::parse($loan->request_date)->format('d/m/Y H:i:s'),
+                "request_date" => Carbon::parse($loan->request_date)->format('d/m/Y'),
                 "lenders" => $loan->lenders,
                 "role" => $loan->role->display_name,
                 "update_date" => Carbon::parse($date)->format('d/m/Y H:i:s'),
                 "user" => $loan->user ? $loan->user->username : "",
                 "amount" => $loan->amount_approved,
                 "amount_dirbursement" => $loan->refinancing_balance == 0? $loan->amount_approved:$loan->refinancing_balance,
+                "procedence" => $loan->city->name,
             ]);
-            //$loans_array->push($data);
-        }/*foreach ($loans_array as $loan_array)
-            return $loan_array->loan_code;*/
-            
-        $data = [
-            'header' => [
-                'direction' => 'DIRECCIÓN DE ASUNTOS ADMINISTRATIVOS',
-                'unity' => 'UNIDAD DE SISTEMAS',
-                'table' => [
-                    ['Fecha', Carbon::now()->format('d-m-Y')],
-                    ['Hora', Carbon::now()->format('H:m:s')],
-                    ['Usuario', Auth::user()->username]
-                ]
-            ],
-            'title' => 'Estado de Solicitudes de Prestamos',
-            'loans' => $loans_array,
-            'file_title' => 'Estado de Solicitudes de Prestamos',
-        ];
-        $file_name = 'Solicitudes de Prestamos.pdf';
-        $view = view()->make('loan.reports.request_state_report')->with($data)->render();
-        if ($standalone) return Util::pdf_to_base64([$view], $file_name,'Reporte Estado de Solicitudes de Prestamos','letter', $request->copies ?? 1);
-        return $view;
+        }
+        if($request->type == "xls")
+        {
+            foreach($loans_array as $loan)
+            {
+                array_push($loan_sheets, array(
+                    $loan['code'],
+                    $loan['procedence'],
+                    $loan['request_date'],
+                    $loan['lenders'][0]->fullname,
+                    $loan['role'],
+                    $loan['update_date'],
+                    $loan['user'],
+                    $loan['amount'],
+                    $loan['amount_dirbursement'],
+                ));
+            }
+            $file_name = $request->date;
+            $extension = '.xls';
+            $export = new SheetExportPayment($loan_sheets, "Estado de Solicitudes de Prestamo");
+            return Excel::download($export, $file_name.$extension);
+        }
+        elseif($request->type == "pdf")
+        {
+            $data = [
+                'header' => [
+                    'direction' => 'DIRECCIÓN DE ASUNTOS ADMINISTRATIVOS',
+                    'unity' => 'UNIDAD DE SISTEMAS',
+                    'table' => [
+                        ['Fecha', Carbon::now()->format('d-m-Y')],
+                        ['Hora', Carbon::now()->format('H:m:s')],
+                        ['Usuario', Auth::user()->username]
+                    ]
+                ],
+                'title' => 'Estado de Solicitudes de Prestamos',
+                'loans' => $loans_array,
+                'file_title' => 'Estado de Solicitudes de Prestamos',
+            ];
+            $file_name = 'Solicitudes de Prestamos.pdf';
+            $view = view()->make('loan.reports.request_state_report')->with($data)->render();
+            if ($standalone) return Util::pdf_to_base64([$view], $file_name,'Reporte Estado de Solicitudes de Prestamos','letter', $request->copies ?? 1, false);
+            return $view;
+        }
     }
   /** @group Reportes de Prestamos
    * Listar prestamos generando reportes
