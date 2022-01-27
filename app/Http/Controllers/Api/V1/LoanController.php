@@ -766,7 +766,6 @@ class LoanController extends Controller
                     foreach ($loan_guarantee_register_ids as $loan_guarantee_register_id){
                         $loan_guarantee_register = LoanGuaranteeRegister::find($loan_guarantee_register_id);
                         $loan_guarantee_register->loan_id=$loan->id;
-                        $loan_guarantee_register->guarantable_id = $loan->id;
                         $loan_guarantee_register->update();
                     }
                     $a++;
