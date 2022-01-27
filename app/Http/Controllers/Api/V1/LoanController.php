@@ -776,11 +776,11 @@ class LoanController extends Controller
         if (Auth::user()->can(['update-loan', 'create-loan']) && ($request->has('personal_references') || $request->has('cosigners'))) {
             $persons = [];
             if($request->personal_references){
-                foreach ($request->personal_references as $personal_reference) {
-                    $persons[$personal_reference] = [
+                //foreach ($request->personal_references as $personal_reference) {
+                    $persons[$request->personal_references[0]] = [
                         'cosigner' => false
                     ];
-                }
+                //}
             }
             if($request->cosigners){
                 foreach ($request->cosigners as $cosigner) {
