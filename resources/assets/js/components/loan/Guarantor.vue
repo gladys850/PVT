@@ -617,7 +617,7 @@
     contributions: [],
     contributionable_ids: [],
     affiliate_contribution: {},
-    loan_contribution_guarantee_register_ids: [],
+    loan_guarantee_register_ids: [],
     guarantor: {},
     valid_contrib: false
 
@@ -959,7 +959,7 @@
       try {
 
         this.guarantor = {}
-        this.guarantor.loan_contribution_guarantee_register_ids = []
+        this.guarantor.loan_guarantee_register_ids = []
 
         //this.saveAdjustment()
 
@@ -970,7 +970,7 @@
             role_id: this.$store.getters.rolePermissionSelected.id,
             guarantees: this.selectedGuaranteedLoans
           })
-          this.guarantor.loan_contribution_guarantee_register_ids = res.data.loan_contribution_guarantee_register_ids
+          this.guarantor.loan_guarantee_register_ids = res.data.loan_guarantee_register_ids
         }
         //Inico ajuste
       this.loan_contributions_adjust_ids = []
