@@ -42,12 +42,12 @@
               <v-col cols="12" md="12" align="start" class="subtitle-1">
                 <h4 align="center" v-if="affiliate.dead && affiliate.dead_spouse == false">
                   Datos del Afiliado
-                </h4>  
+                </h4>
                 <b>C.I.:  </b> {{affiliate.identity_card_ext}}
                 <br>
                 <b>Categoría:</b> <span v-if="affiliate.category != null">{{affiliate.category.name}}</span>
                 <br />
-                <b>Estado:</b>  {{this.state_name_status}}
+                <b>Estado:</b> <span :class="{'warning--text':this.state_name_status=='Disponibilidad'? true:false}">{{this.state_name_status}}</span>
                 <br />
                 <b>Grado:</b> {{this.degree_name}}
                 <br/>
@@ -112,7 +112,7 @@
                             color="warning"
                             bottom
                             right
-                            v-on="on" 
+                            v-on="on"
                             :to="{ name: 'tracingAdd', params: { id: item.id} }"
                           >
                             <v-icon>mdi-eye</v-icon>
