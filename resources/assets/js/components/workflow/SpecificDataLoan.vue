@@ -1119,6 +1119,7 @@
                                       <v-tooltip top v-if="permissionSimpleSelected.includes('update-reference-cosigner')">
                                         <template v-slot:activator="{ on }">
                                           <v-btn
+                                            v-if="loan.payment_type.name=='Depósito Bancario'"
                                             fab
                                             dark
                                             x-small
