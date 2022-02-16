@@ -1421,13 +1421,13 @@ class LoanReportController extends Controller
       $order = request('sortDesc') ?? '';
       if ($order != '') {
           if ($order) {
-              $order_loan = 'Asc';
+              $order_loan = 'asc';
           }
           if (!$order) {
-              $order_loan = 'Desc';
+              $order_loan = 'desc';
           }
       } else {
-          $order_loan = 'Desc';
+          $order_loan = 'desc';
       }
 
       if ($request->has('trashed_loan')) {
@@ -1612,16 +1612,32 @@ class LoanReportController extends Controller
                  array_push($conditions, array('view_loan_borrower.state_loan', '<>', "Anulado"));
               }
               if ($excel==true) {
-                  $list_loan = DB::table('view_loan_borrower')
-                      ->where($conditions)
-                      ->select('*')
-                      ->orderBy('code_loan', $order_loan)
-                      ->get();
+                  if($trashed_loan)
+                  {
+                    $list_loan = DB::table('view_loan_borrower')
+                    ->join('observables', 'view_loan_borrower.id_loan', '=', 'observables.observable_id')
+                    ->where('observables.date', '=', DB::raw("(select max(date) from observables where observable_id=view_loan_borrower.id_loan and observable_type='loans')"))
+                    ->where('observables.observable_type', '=', 'loans')
+                    ->where($conditions)
+                    ->select('*')
+                    ->orderBy('code_loan', $order_loan)
+                    ->get();
+                  }
+                  else
+                  {
+                    $list_loan = DB::table('view_loan_borrower')
+                        ->join('observables', 'view_loan_borrower.id_loan', '=', 'observables.observable_id')
+                        ->where($conditions)
+                        ->where('observables.observable_type', 'loans')
+                        ->select('*')
+                        ->orderBy('code_loan', $order_loan)
+                        ->get();
+                  }
 
                   $File="ListadoPrestamos";
                   $data=array(
                       array("DPTO","ÁREA","USUARIO","ID PRESTAMO", "COD. PRESTAMO", "ID AFILIADO","CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","CI PRESTATARIO", "MATRÍCULA PRESTATARIO", "NOMBRE COMPLETO PRESTATARIO","SUB MODALIDAD",
-                      "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD",'FECHA DE DESEMBOLSO','TIPO SOLICITUD AFILIADO/ESPOSA' )
+                      "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD",'FECHA DE DESEMBOLSO','TIPO SOLICITUD AFILIADO/ESPOSA','OBSERVACION' )
              );
                   foreach ($list_loan as $row){
                  array_push($data, array(
@@ -1648,17 +1664,29 @@ class LoanReportController extends Controller
                      $row->pension_entity_affiliate,
                      Carbon::parse($row->request_date_loan)->format('d/m/Y'),
                      $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y'):'',
-                     $row->type_affiliate_spouse_loan
+                     $row->type_affiliate_spouse_loan,
+                     $row->message
                  ));
              }
                   $export = new ArchivoPrimarioExport($data);
                   return Excel::download($export, $File.'.xls');
               } else {
+                  if($trashed_loan){
+                      $list_loan = DB::table('view_loan_borrower')
+                      ->join('observables', 'view_loan_borrower.id_loan', '=', 'observables.observable_id')
+                      ->where('observables.date', '=', DB::raw("(select max(date) from observables where observable_id=view_loan_borrower.id_loan and observable_type='loans')"))
+                      ->where('observables.observable_type', '=', 'loans')
+                      ->where($conditions)
+                      ->select('*')
+                      ->orderBy('code_loan', $order_loan)
+                      ->paginate($pagination_rows);
+                  }else{
                       $list_loan = DB::table('view_loan_borrower')
                       ->where($conditions)
                       ->select('*')
                       ->orderBy('code_loan', $order_loan)
                       ->paginate($pagination_rows);
+                  }
                   return $list_loan;
               }
           }
