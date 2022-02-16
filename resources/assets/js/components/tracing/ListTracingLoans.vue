@@ -254,6 +254,7 @@ export default {
         { text: 'Plazo', value: 'loan_term',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '2%',sortable: false},
         { text: 'Cuota',value:'quota_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
         { text: 'Estado',value:'state_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
+        { text: 'Observacion',value:'message',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
         { text: 'Acción',value:'actions',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'], sortable: false,width: '15%'},
       ],
       loans: [],
