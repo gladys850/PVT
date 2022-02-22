@@ -70,11 +70,13 @@
           <span  v-if="!affiliate.dead  && !affiliate.dead_spouse">
               **Se tiene el registro datos del cónyuge. Verifique el estado del afiliado/a
           </span>
-          <span  v-if="(cleanSpace(affiliate.death_certificate_number) != null ||
-                    cleanSpace(affiliate.date_death) != null  ||
-                    cleanSpace(affiliate.reason_death) != null) && affiliate.affiliate_state.name != 'Fallecido' ">
-              *** Se tiene registrado datos de fallecimiento del afiliado, cambie el estado del afiliado a Fallecido.
-          </span>
+        </div>
+        <div class="red--text pa-4" v-if="!affiliate.dead">
+        <span  v-if="((cleanSpace(affiliate.death_certificate_number) != null ||
+                cleanSpace(affiliate.date_death) != null  ||
+                cleanSpace(affiliate.reason_death) != null))">
+          **** Se tiene registrado datos de fallecimiento del afiliado, cambie el estado del afiliado a Fallecido.
+        </span>
         </div>
       </v-col>
       <v-col cols="12" md="9" class="text-center ma-0 pa-2 pt-0">
