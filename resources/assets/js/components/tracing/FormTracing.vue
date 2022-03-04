@@ -225,10 +225,10 @@
                                       </v-col>
                                       <v-col cols="12" md="6" v-show="loan.payment_type.name=='Depósito Bancario'" class="py-0">
                                         <br>
-                                        <p><b>ENTIDAD FINANCIERA:</b>{{' '+cuenta}}</p>
+                                        <p><b>ENTIDAD FINANCIERA:</b>{{' '+loan.payment_type.name}}</p>
                                       </v-col>
                                       <v-col cols="12" md="6" v-show="loan.payment_type.name=='Depósito Bancario'" class="py-0">
-                                        <p><b>NUMERO DE CUENTA:</b>{{' '+loan.lenders[0].account_number}}</p>
+                                        <p><b>NUMERO DE CUENTA:</b>{{' '+loan.number_payment_type}}</p>
                                       </v-col>
                                       <v-col cols="12" md="6" v-show="loan.payment_type.name=='Depósito Bancario'" class="py-0">
                                         <p><b>CUENTA SIGEP:</b> {{' '+loan.lenders[0].sigep_status}}</p>

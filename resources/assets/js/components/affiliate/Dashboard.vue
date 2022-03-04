@@ -70,11 +70,13 @@
           <span  v-if="!affiliate.dead  && !affiliate.dead_spouse">
               **Se tiene el registro datos del cónyuge. Verifique el estado del afiliado/a
           </span>
-          <span  v-if="(cleanSpace(affiliate.death_certificate_number) != null ||
-                    cleanSpace(affiliate.date_death) != null  ||
-                    cleanSpace(affiliate.reason_death) != null) && affiliate.affiliate_state.name != 'Fallecido' ">
-              *** Se tiene registrado datos de fallecimiento del afiliado, cambie el estado del afiliado a Fallecido.
-          </span>
+        </div>
+        <div class="red--text pa-4" v-if="affiliate.affiliate_state_id != 4">
+        <span  v-if="((cleanSpace(affiliate.death_certificate_number) != null ||
+                cleanSpace(affiliate.date_death) != null  ||
+                cleanSpace(affiliate.reason_death) != null))">
+          **** Se tiene registrado datos de fallecimiento del afiliado, cambie el estado del afiliado a Fallecido.
+        </span>
         </div>
       </v-col>
       <v-col cols="12" md="9" class="text-center ma-0 pa-2 pt-0">
@@ -446,6 +448,9 @@ export default {
 
     async validateRefinancingLoan(a_id, l_id){
       try {
+        let res = await axios.post(`loan/${a_id}/validate_affiliate`)
+        this.validate_affiliate = res.data.validate
+        if(this.validate_affiliate == true){
           let res = await axios.post(`loan/${l_id}/validate_re_loan`,{
             type_procedure: true
           })
@@ -471,12 +476,18 @@ export default {
           }else{
             this.toastr.error("El afiliado no puede tener más de "+ this.global_parameters.max_loans_process +" trámite en proceso. Actualmente ya tiene "+ this.loan_affiliate.process_loans+ " préstamos en proceso.")
           }
+        }else{
+          this.toastr.error(this.validate_affiliate)
+        }
       } catch (e) {
         console.log(e)
       }
     },
     async validateReprogrammingLoan(a_id, l_id){
       try {
+        let res = await axios.post(`loan/${a_id}/validate_affiliate`)
+        this.validate_affiliate = res.data.validate
+        if(this.validate_affiliate == true){
           let res = await axios.post(`loan/${l_id}/validate_re_loan`,{
             type_procedure: false
           })
@@ -498,6 +509,9 @@ export default {
           }else{
             this.toastr.error("El afiliado no puede tener más de "+ this.global_parameters.max_loans_process +" trámite en proceso. Actualmente ya tiene "+ this.loan_affiliate.process_loans+ " préstamos en proceso.")
           }
+        }else{
+          this.toastr.error(this.validate_affiliate)
+        }
       } catch (e) {
         console.log(e)
       }
