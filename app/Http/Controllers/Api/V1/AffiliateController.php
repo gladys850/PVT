@@ -1478,82 +1478,95 @@ class AffiliateController extends Controller
         foreach (ProcedureModality::where('name', 'like', '%AFP')->get() as $procedure) {
             array_push($id_afp, $procedure->id);
         }
-        switch($request->procedure_modality_id){
-            case (in_array($request->procedure_modality_id, $id_activo)):
-                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
-                    $guarantor = true;
-                else
-                {
-                    if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
-                        $message = "Afiliado no pertenece al servicio activo";
+        if($affiliate->category_id == null)
+        {
+            $guarantor = false;
+            $message = "El afiliado no tiene registrada su categoria";
+        }
+        elseif($affiliate->category->percentage > 0)
+        {
+            switch($request->procedure_modality_id){
+                case (in_array($request->procedure_modality_id, $id_activo)):
+                    if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                        $guarantor = true;
                     else
                     {
-                        if($affiliate->affiliate_state->name != "Servicio")
-                        $message = "Afiliado se encuentra en comisión o disponibilidad";
-                    }
-                }
-                if($affiliate->category == null)
-                    $affiliate->category_name = null;
-                else
-                    $affiliate->category_name = $affiliate->category->name;
-                break;
-            case (in_array($request->procedure_modality_id, $id_senasir)):
-                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
-                    $guarantor = true;
-                else
-                {
-                    if($affiliate->pension_entity != null)
-                    {
-                        if(strpos($affiliate->pension_entity->name, "AFP") === 0)
-                            $message = "Afiliado AFP no puede garantizar prestamos";
+                        if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
+                            $message = "Afiliado no pertenece al servicio activo";
                         else
-                            $guarantor = true;
+                        {
+                            if($affiliate->affiliate_state->name != "Servicio")
+                            $message = "Afiliado se encuentra en comisión o disponibilidad";
+                        }
                     }
-                    else
-                    {
-                        $message = "El afiliado es del sector pasivo y no tiene registrado su ente gestor";
-                    }
-                }
-                if($affiliate->category == null)
-                    $affiliate->category_name = null;
-                else
-                    $affiliate->category_name = $affiliate->category->name;
-                break;
-            case (in_array($request->procedure_modality_id, $id_afp)):
-                if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
-                {
                     if($affiliate->category == null)
-                        $message = "El afiliado no tiene registrado su categoria";
+                        $affiliate->category_name = null;
+                    else
+                        $affiliate->category_name = $affiliate->category->name;
+                    break;
+                case (in_array($request->procedure_modality_id, $id_senasir)):
+                    if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                        $guarantor = true;
                     else
                     {
-                        if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
-                            $guarantor = true;
+                        if($affiliate->pension_entity != null)
+                        {
+                            if(strpos($affiliate->pension_entity->name, "AFP") === 0)
+                                $message = "Afiliado AFP no puede garantizar prestamos";
+                            else
+                                $guarantor = true;
+                        }
                         else
-                            $message = "El afiliado no se encuentra en la categoria necesaria";
+                        {
+                            $message = "El afiliado es del sector pasivo y no tiene registrado su ente gestor";
+                        }
                     }
-                }
-                else
-                {
-                    if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
-                        $message = "Afiliado pasivo no puede garantizar a un afp";
+                    if($affiliate->category == null)
+                        $affiliate->category_name = null;
+                    else
+                        $affiliate->category_name = $affiliate->category->name;
+                    break;
+                case (in_array($request->procedure_modality_id, $id_afp)):
+                    if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    {
+                        if($affiliate->category == null)
+                            $message = "El afiliado no tiene registrado su categoria";
+                        else
+                        {
+                            if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
+                                $guarantor = true;
+                            else
+                                $message = "El afiliado no se encuentra en la categoria necesaria";
+                        }
+                    }
                     else
                     {
-                        if($affiliate->affiliate_state->name != "Servicio")
-                        $message = "Afiliado se encuentra en comision o disponibilidad";
+                        if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
+                            $message = "Afiliado pasivo no puede garantizar a un afp";
+                        else
+                        {
+                            if($affiliate->affiliate_state->name != "Servicio")
+                            $message = "Afiliado se encuentra en comision o disponibilidad";
+                        }
                     }
-                }
-                if($affiliate->category == null)
-                    $affiliate->category_name = null;
-                else
-                    $affiliate->category_name = $affiliate->category->name;
-                break;
-            default:
-                $message = "no corresponde con la modalidad";
-                if($affiliate->category == null)
-                    $affiliate->category_name = null;
-                else
-                    $affiliate->category_name = $affiliate->category->name;
-                break;
+                    if($affiliate->category == null)
+                        $affiliate->category_name = null;
+                    else
+                        $affiliate->category_name = $affiliate->category->name;
+                    break;
+                default:
+                    $message = "no corresponde con la modalidad";
+                    if($affiliate->category == null)
+                        $affiliate->category_name = null;
+                    else
+                        $affiliate->category_name = $affiliate->category->name;
+                    break;
+            }
+        }
+        else
+        {
+            $guarantor = false;
+            $message = "El afiliado se encuentra con categoria 0%";
         }
         if($affiliate->spouse != null && $affiliate->spouse->dead == false)
         {
@@ -1605,13 +1618,22 @@ class AffiliateController extends Controller
             $information = $information." ciudad de nacimiento,";
         if($affiliate->address == null)
             $information = $information."direccion";
+        $max_guarantees = 0;
+        if($affiliate->affiliate_state != null)
+        {
+            if($affiliate->affiliate_state->affiliate_state_type->name == "Activo")
+                $max_guarantees = LoanGlobalParameter::find(1)->max_guarantor_active;
+            elseif($affiliate->affiliate_state->affiliate_state_type->name == "Pasivo")
+                $max_guarantees = LoanGlobalParameter::find(1)->max_guarantor_passive;
+        }
         return $data = array(
             "guarantor"=>$guarantor,
             "message"=>$message,
             "information"=>$affiliate->verify_information($affiliate),
             "information_missing"=>$information,
             "affiliate"=>$affiliate,
-            "guarantees"=>$data
+            "guarantees"=>$data,
+            "max_guarantees"=>$max_guarantees,
             );
     }
 }

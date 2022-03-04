@@ -660,8 +660,13 @@ class LoanController extends Controller
         {
             $remake_loan = Loan::find($request->remake_loan_id);
             $loan->code = $remake_loan->code;
-            $remake_loan->code = "PTMO-xxxx";
-            $remake_loan->save();
+            $options=[$remake_loan->id];
+            $remake_loan = Loan::withoutEvents(function() use($options){
+                $remake_loan = Loan::find($options[0]);
+                $remake_loan->code = "PTMO-xxxx";
+                $remake_loan->save();
+                return $remake_loan;
+            });
         }if($request->has('indebtedness_calculated')){
             $loan->indebtedness_calculated_previous = $request->indebtedness_calculated;
         }
