@@ -126,8 +126,8 @@
               <h3 class="success--text text-center" v-show="affiliate_guarantor.guarantor"> PUEDE SER GARANTE
                 <h6 class="orange--text" v-show="affiliate_guarantor.information_missing != ''">Información faltante: {{affiliate_guarantor.information_missing}}</h6>
               </h3>
-           <!--selectedGuaranteedLoans<pre>{{selectedGuaranteedLoans}}</pre>
-           contribution<pre>{{contribution}}</pre>
+         <!--selectedGuaranteedLoans<pre>{{selectedGuaranteedLoans}}</pre>
+            contribution<pre>{{contribution}}</pre>
             guarantor_detail<pre>{{guarantor_detail}}</pre>
             loan_detail.guarantors <pre>{{loan_detail.guarantors}}</pre>-->
            </v-col>
@@ -220,7 +220,7 @@
               cols="12" md="6"
               class="text-uppercase py-0 font-weight-light caption"
             >
-              GARANTIZANDOS: {{affiliate_guarantor.guarantees ? affiliate_guarantor.guarantees.length : 0}}
+              GARANTIZADOS: {{affiliate_guarantor.guarantees ? affiliate_guarantor.guarantees.length : 0}}
             </v-col>
             <v-col cols="12" md="12" class="font-weight-black caption py-2">
               <v-progress-linear></v-progress-linear>
@@ -617,7 +617,7 @@
     contributions: [],
     contributionable_ids: [],
     affiliate_contribution: {},
-    loan_contribution_guarantee_register_ids: [],
+    loan_guarantee_register_ids: [],
     guarantor: {},
     valid_contrib: false
 
@@ -897,8 +897,13 @@
         }
         if(continuar){
           //Evaluar al garante
-          this.valid_contrib = true
-          this.evaluateGuarantor()
+          if(this.selectedGuaranteedLoans.length < this.affiliate_guarantor.max_guarantees){
+            this.valid_contrib = true
+            this.evaluateGuarantor()
+          }else{
+            this.valid_contrib = false
+            this.toastr.error('La seleccion de garantias permitidas debe ser menor : '+this.affiliate_guarantor.max_guarantees+' garantias')
+          }
         }else{
           this.valid_contrib = false
           this.toastr.error('No se puede evaluar el garante')
@@ -959,7 +964,7 @@
       try {
 
         this.guarantor = {}
-        this.guarantor.loan_contribution_guarantee_register_ids = []
+        this.guarantor.loan_guarantee_register_ids = []
 
         //this.saveAdjustment()
 
@@ -970,7 +975,7 @@
             role_id: this.$store.getters.rolePermissionSelected.id,
             guarantees: this.selectedGuaranteedLoans
           })
-          this.guarantor.loan_contribution_guarantee_register_ids = res.data.loan_contribution_guarantee_register_ids
+          this.guarantor.loan_guarantee_register_ids = res.data.loan_guarantee_register_ids
         }
         //Inico ajuste
       this.loan_contributions_adjust_ids = []

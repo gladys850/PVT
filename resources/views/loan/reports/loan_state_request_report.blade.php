@@ -21,19 +21,19 @@
     <div class="darker text-s">{{ $loans[$c]['role'] }}</div>
         <table style="font-size:12px;" class="table-info w-100 text-center uppercase my-10">
             <tr class="bg-grey-darker text-s text-white">
-                <td style="font-size:80%;">Nro</td>
-                <td style="font-size:80%;">Nro de Tramite</td>
-                <td style="font-size:80%;">Fecha de Solicitud</td>
-                <td style="font-size:80%;">Modalidad</td>
-                <td style="font-size:80%;">Sub Modalidad</td>
-                <td style="font-size:80%;">Nombre Completo</td>
-                <td style="font-size:80%;">C. I.</td>
-                <td style="font-size:80%;">Usuario</td>
-                <td style="font-size:80%;">Regional</td>
-                <td style="font-size:80%;">Fecha de Derivación</td>
-                <td style="font-size:80%;">Monto Solicitado</td>
-                <td style="font-size:80%;">Ref.</td>
-                <td style="font-size:80%;">Liquido Desembolsado</td>
+                <td style="font-size:80%;font-weight: bold;">Nro</td>
+                <td style="font-size:80%;font-weight: bold;">Nro de Tramite</td>
+                <td style="font-size:80%;font-weight: bold;">Fecha de Solicitud</td>
+                <td style="font-size:80%;font-weight: bold;">Modalidad</td>
+                <td style="font-size:80%;font-weight: bold;">Sub Modalidad</td>
+                <td style="font-size:80%;font-weight: bold;">Nombre Completo</td>
+                <td style="font-size:80%;font-weight: bold;">C. I.</td>
+                <td style="font-size:80%;font-weight: bold;">Usuario</td>
+                <td style="font-size:80%;font-weight: bold;">Regional</td>
+                <td style="font-size:80%;font-weight: bold;">Fecha de Derivación</td>
+                <td style="font-size:80%;font-weight: bold;">Monto Solicitado</td>
+                <td style="font-size:80%;font-weight: bold;">Ref.</td>
+                <td style="font-size:80%;font-weight: bold;">Liquido Desembolsado</td>
             </tr>
             @for ($j = 0 ; $j < $count ; $j++)
                 <tr>
@@ -57,9 +57,9 @@
             @endfor
                 <tr class="bg-grey-darker text-s text-white">
                     <td colspan="10"></td>
-                    <td>{{ Util::money_format($total_amount) }}</td>
+                    <td style="font-weight: bold;">{{ Util::money_format($total_amount) }}</td>
                     <td></td>
-                    <td>{{ Util::money_format($total_amount2) }}</td>
+                    <td style="font-weight: bold;">{{ Util::money_format($total_amount2) }}</td>
                 </tr>
                 @php ( $total_amount = 0 )
                 @php ( $total_amount2 = 0 )
