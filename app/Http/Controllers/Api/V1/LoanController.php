@@ -771,7 +771,6 @@ class LoanController extends Controller
                     foreach ($loan_guarantee_register_ids as $loan_guarantee_register_id){
                         $loan_guarantee_register = LoanGuaranteeRegister::find($loan_guarantee_register_id);
                         $loan_guarantee_register->loan_id=$loan->id;
-                        $loan_guarantee_register->guarantable_id = $loan->id;
                         $loan_guarantee_register->update();
                     }
                     $a++;
@@ -782,11 +781,11 @@ class LoanController extends Controller
         if (Auth::user()->can(['update-loan', 'create-loan']) && ($request->has('personal_references') || $request->has('cosigners'))) {
             $persons = [];
             if($request->personal_references){
-                foreach ($request->personal_references as $personal_reference) {
-                    $persons[$personal_reference] = [
+                //foreach ($request->personal_references as $personal_reference) {
+                    $persons[$request->personal_references[0]] = [
                         'cosigner' => false
                     ];
-                }
+                //}
             }
             if($request->cosigners){
                 foreach ($request->cosigners as $cosigner) {
@@ -2349,4 +2348,39 @@ class LoanController extends Controller
          return false;
      }
  }
+
+  /**
+    * Actualizar cuenta bancaria del prestamo
+    * Actualiza los datos de la cuenta bancaria en el prestamo y el afiliado
+    * @bodyParam loan_id integer required ID del préstamo. Example: 2
+    * @bodyParam number_payment_type integer required numero de cuenta bancaria. Example: 123456
+    * @bodyParam financial_entity_id integer  id de la entidad bancaria. Example: 5
+    * @authenticated
+    * @responseFile responses/loan/update_loan_number_payment_type.200.json
+    */   
+    public function update_number_payment_type(request $request)
+    {
+        DB::beginTransaction();
+        try{
+            $request->validate([
+            'loan_id'=>'required|integer|exists:loans,id',
+            'number_payment_type'=>'required|integer',
+            'financial_entity_id'=>'required|integer|exists:financial_entities,id',
+            ]);
+            $loan = Loan::find($request->loan_id);
+            if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+                $loan->number_payment_type = $request->number_payment_type;
+                $loan->financial_entity_id = $request->financial_entity_id;
+            $loan->save();
+            $affiliate = $loan->affiliate;
+            $affiliate->account_number = $request->number_payment_type;
+            $affiliate->financial_entity_id = $request->financial_entity_id;
+            $affiliate->update();
+            DB::commit();
+            return $loan;
+        }catch (\Exception $e){
+            DB::rollback();
+            return response()->json(['error'=>'No se pudo actualizar cuenta'],409);
+        }
+    }
 }
