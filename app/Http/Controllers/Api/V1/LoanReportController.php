@@ -1626,9 +1626,7 @@ class LoanReportController extends Controller
                   else
                   {
                     $list_loan = DB::table('view_loan_borrower')
-                        ->join('observables', 'view_loan_borrower.id_loan', '=', 'observables.observable_id')
                         ->where($conditions)
-                        ->where('observables.observable_type', 'loans')
                         ->select('*')
                         ->orderBy('code_loan', $order_loan)
                         ->get();
@@ -1665,7 +1663,7 @@ class LoanReportController extends Controller
                      Carbon::parse($row->request_date_loan)->format('d/m/Y'),
                      $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y'):'',
                      $row->type_affiliate_spouse_loan,
-                     $row->message
+                     $trashed_loan ? $row->message : ''
                  ));
              }
                   $export = new ArchivoPrimarioExport($data);
