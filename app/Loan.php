@@ -415,7 +415,6 @@ class Loan extends Model
         $partial_amount = 0;
         $interest = $this->interest;
         $amount = $estimated_quota;
-        
 
         // Calcular intereses
 
@@ -494,24 +493,19 @@ class Loan extends Model
             $quota->capital_payment = $quota->balance;
         }
         else{
-            if($this->regular_payment() && $this->payments->count()+1 == $this->loan_term){
+            /*if($this->regular_payment() && $this->payments->count()+1 == $this->loan_term){
                 $quota->capital_payment = Util::round2($this->balance);
             }
-            else{
+            else{*/
                 if($amount >= $this->balance){
                     $quota->capital_payment = Util::round2($this->balance);
                 }
                 else
                     $quota->capital_payment = Util::round2($amount);
-            }
+            //}
         }
         //calculo de la ultima cuota, solo si fue regular en los pagos
 
-        /*if($this->verify_regular_payments() && $this->payments->count() == $this->loan_term){
-            $amount = $this->balance + $quota->estimated_days;
-            $quota->est += $quota->next_balance;
-            $quota->next_balance = 0;
-        }*/
         // Calcular monto total de la cuota
 
         if ($quota->balance == $quota->capital_payment) {
@@ -536,15 +530,6 @@ class Loan extends Model
 
 
         //validacion pago excesivo
-        
-        /*if($total_amount == 0)
-            $quota->excesive_payment = 0;
-        else
-            $quota->excesive_payment = Util::round($total_amount - $quota->estimated_quota);*/
-
-        //$total_amount = $quota->penal_accumulated + $quota->interest_accumulated + $loan->balance + $quota->interest_remaining + $quota->penal_remaining;
-
-        //
 
         return $quota;
     }
