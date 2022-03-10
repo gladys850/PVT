@@ -115,8 +115,10 @@ class LoanReportController extends Controller
                     Util::money_format($loan->balance),//SALDO ACTUAL
                     $loan->parent_reason,
                     Util::money_format($loan->amount_approved),
-                    $loan->parent_reason? Util::money_format($loan->amount_approved - $loan->refinancing_balance) : '0,00',//MONTO REFINANCIADO//MONTO REFINANCIADO
-                    $loan->parent_reason? Util::money_format($loan->refinancing_balance):Util::money_format($loan->amount_approved),// LIQUIDO DESEMBOLSADO
+                    //$loan->parent_reason? Util::money_format($loan->amount_approved - $loan->refinancing_balance) : '0,00',//MONTO REFINANCIADO//MONTO REFINANCIADO
+                    //$loan->parent_reason? Util::money_format($loan->refinancing_balance):Util::money_format($loan->amount_approved),// LIQUIDO DESEMBOLSADO
+                    Loan::whereId($loan->id)->first()->balance_parent_refi(),
+                    $loan->amount_approved - (Loan::whereId($loan->id)->first()->balance_parent_refi()),
                     $loan->loan_term,//plazo
                     $loan->state->name,//estado del prestamo
                     $loan->destiny->name
@@ -231,8 +233,10 @@ class LoanReportController extends Controller
             Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin) ? Util::money_format(Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->previous_balance-Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->capital_payment) : Util::money_format($loan->amount_approved_loan),
             Util::money_format($loan->amount_approved_loan),
 
-            $loan->parent_loan_id ? Util::money_format(Loan::whereId($loan->parent_loan_id)->first()->last_payment_validated->capital_payment) : Util::money_format(0),
-            $loan->parent_loan_id ? Util::money_format($loan->amount_approved-Loan::whereId($loan->parent_loan_id)->first()->last_payment_validated->capital_payment) : Util::money_format($loan->amount_approved_loan),
+            //$loan->parent_loan_id ? Util::money_format(Loan::whereId($loan->parent_loan_id)->first()->last_payment_validated->capital_payment) : Util::money_format(0),
+            //$loan->parent_loan_id ? Util::money_format($loan->amount_approved-Loan::whereId($loan->parent_loan_id)->first()->last_payment_validated->capital_payment) : Util::money_format($loan->amount_approved_loan),
+            Loan::whereId($loan->id_loan)->first()->balance_parent_refi(),
+            $loan->amount_approved_loan - (Loan::whereId($loan->id_loan)->first()->balance_parent_refi()),
             $loan->state_loan,
             $loan->parent_reason_loan,
             Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin) ? Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->loan_payment_date : "",
@@ -325,8 +329,10 @@ class LoanReportController extends Controller
             Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin) ? Util::money_format(Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->previous_balance-Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->capital_payment) : Util::money_format($loan->amount_approved_loan),
             Util::money_format($loan->amount_approved_loan),
 
-            $loan->parent_loan_id ? Loan::whereId($loan->parent_loan_id)->first()->last_payment_validated->capital_payment : Util::money_format(0),
-            $loan->parent_loan_id ? $loan->amount_approved-Loan::whereId($loan->parent_loan_id)->first()->last_payment_validated->capital_payment : Util::money_format($loan->amount_approved_loan),
+            //$loan->parent_loan_id ? Loan::whereId($loan->parent_loan_id)->first()->last_payment_validated->capital_payment : Util::money_format(0),
+            //$loan->parent_loan_id ? $loan->amount_approved-Loan::whereId($loan->parent_loan_id)->first()->last_payment_validated->capital_payment : Util::money_format($loan->amount_approved_loan),
+            Loan::whereId($loan->id_loan)->first()->balance_parent_refi(),
+            $loan->amount_approved_loan - (Loan::whereId($loan->id_loan)->first()->balance_parent_refi()),
             $loan->state_loan,
             $loan->parent_reason_loan,
             Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin) ? Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->loan_payment_date : "",
