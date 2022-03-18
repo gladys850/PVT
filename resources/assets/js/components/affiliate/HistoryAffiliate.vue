@@ -74,7 +74,7 @@ export default {
     },
   }),
   props: {
-    loan: {
+    affiliate: {
       type: Object,
       required: true
     },
@@ -82,21 +82,21 @@ export default {
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.getRecords(this.loan.id)
+        this.getRecords(this.affiliate.id)
       }
     },
   },
   mounted() {
-    this.getRecords(this.loan.id)
+    this.getRecords(this.affiliate.id)
   },
   methods: {
     //Metodo para obtener el record
     async getRecords(id) {
       try {
         this.loading = true
-        let res = await axios.get(`record`, {
+        let res = await axios.get(`record_affiliate_history`, {
           params: {
-            loan_id: id,
+            affiliate_id: id,
             page: this.options.page,
             per_page: this.options.itemsPerPage,
             sortBy: this.options.sortBy,
