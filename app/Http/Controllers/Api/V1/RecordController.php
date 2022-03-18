@@ -61,4 +61,35 @@ class RecordController extends Controller
         }
         return Util::search_sort(new Record(), $request, $filter);
     }
+    /**
+    * Registro de Historial de Actividad del Afiliado
+    * Devuelve el listado de actividades con los datos paginados
+    * @queryParam affiliate_id required Filtro por id de usuario. Example: 47983
+    * @queryParam user_id Filtro por id de usuario. Example: 138
+    * @queryParam search Parámetro de búsqueda. Example: captura de huellas
+    * @queryParam sortBy Vector de ordenamiento. Example: [created_at]
+    * @queryParam sortDesc Vector de orden descendente(true) o ascendente(false). Example: [false]
+    * @queryParam per_page Número de datos por página. Example: 8
+    * @queryParam page Número de página. Example: 2
+    * @authenticated
+    * @responseFile responses/record/get_record_affiliate_history.200.json
+    */
+    public function record_affiliate_history(Request $request)
+    {   
+        $this->validate($request, [
+                'affiliate_id' => 'required|integer|exists:affiliates,id'
+            ]
+        );
+
+        $filter = [];
+        if($request->has('user_id')) {
+            $filter['user_id'] = $request->user_id;
+        }
+        if($request->has('affiliate_id')){
+           $filter['recordable_id'] = $request->affiliate_id;
+           $filter['recordable_type'] = "affiliates";
+        }
+
+        return Util::search_sort(new Record(), $request, $filter);
+    }
 }
