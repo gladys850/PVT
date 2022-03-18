@@ -13,6 +13,7 @@ Route::group([
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
     Route::post('evaluate_garantor2', 'Api\V1\CalculatorController@evaluate_guarantor2');
+
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
@@ -115,6 +116,8 @@ Route::group([
         Route::get('get_list_year', 'Api\V1\LoanPaymentPeriodController@get_list_year');//listado de meses por gestion
         Route::apiResource('periods', 'Api\V1\LoanPaymentPeriodController')->only('index', 'show', 'store', 'update', 'destroy');//cambiar a cobranzas
         Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
+        Route::get('record_affiliate_history', 'Api\V1\RecordController@record_affiliate_history');
+        
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'
