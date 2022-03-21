@@ -67,6 +67,8 @@
                                     :footer-props="{ itemsPerPageOptions: [8, 15, 30] }"
                                     :loading= loading_table
                                   >
+                                   <!-- El bloque template header, agrega estilo a la cabecera, cuándo 
+                                        se realiza una busqueda, agrega el color de cabecera  a negro.  -->
                                    <!-- Cód. Préstamo -->
                                     <template v-slot:[`header.code_loan`]="{ header }">
                                       <span :class="searching.code_loan ? 'primary--text' : ''">
@@ -75,8 +77,8 @@
                                     </template>
 
                                     <!-- CI Prestatario -->
-                                    <template v-slot:[`header.identify_card_borrowerr`]="{ header, }">
-                                      <span :class="searching.identify_card_borrowerr ? 'primary--text' : ''">
+                                    <template v-slot:[`header.identity_card_borrower`]="{ header, }">
+                                      <span :class="searching.identity_card_borrower ? 'primary--text' : ''">
                                         {{ header.text }}
                                       </span>
                                     </template>
@@ -265,8 +267,7 @@
                                           ></v-text-field>
                                         </td>
                                         <td>
-                                          <v-alert-field>
-                                            <v-select
+                                          <v-select
                                               dense
                                               :items="items"
                                               item-text="name"
@@ -277,8 +278,7 @@
                                               @change="search_loans()"
                                               hide-details
                                               single-line
-                                            ></v-select>
-                                          </v-alert-field>
+                                          ></v-select>
                                         </td>
                                         <td>                              
                                           <v-text-field disabled class="filter-text"></v-text-field>
@@ -532,8 +532,7 @@ export default {
 }
 </script>
 <style scoped>
-.v-text-field
-.v-alert-field {
+.v-text-field .v-select {
   background-color: white;
   width: 200px;
   padding: 5px;
