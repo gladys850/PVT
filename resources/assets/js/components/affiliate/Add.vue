@@ -158,7 +158,7 @@
           >mdi-fingerprint
           </v-icon>
           </template>
-        <span><b>INFORMACIÓN DEL BIOMÉTRICOaa</b></span>
+        <span><b>INFORMACIÓN DEL BIOMÉTRICO</b></span>
         </v-tooltip>
         </v-tab>
 

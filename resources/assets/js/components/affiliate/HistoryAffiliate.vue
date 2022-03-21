@@ -1,44 +1,46 @@
-<template>
-
-  <v-container fluid class="pl-0 pt-0">
+<<template>
+  <div>
     <v-row>
       <v-col cols="12">
         <v-toolbar-title>HISTORIAL DE AFILIADOS</v-toolbar-title>
       </v-col>
-    </v-row>
-    <v-row justify="center" class="py-0">
-      <v-col cols="12" class="py-0">
-        <v-row justify="center" class="py-0">
-          <v-col cols="12" class="py-0">
-              <v-card flat tile>
-                <v-card-text>
-                  <v-col cols="12" class="mb-0">
-                    <v-data-table
-                      :headers="headersHist"
-                      :items="record"
-                      class="elevation-1"
-                      :options.sync="options"
-                      :server-items-length="options.totalItems"
-                      :footer-props="{ itemsPerPageOptions: [8, 15, 30, 100] }"
-                      :loading="loading"
-                    >
-                      <template v-slot:item="items">
-                        <tr>
-                          <td>{{items.item.created_at|datetime}}</td>
-                          <td>{{items.item.updated_at|datetime}}</td>
-                          <td>{{items.item.action}}</td>
-                        </tr>
-                      </template>
-                    </v-data-table>
-                  </v-col>
-                </v-card-text>
-              </v-card>
-          </v-col>
-        </v-row>
+      <v-col>
+        <v-data-table
+          :headers="headersHist"
+          :items="record"
+          class="elevation-1"
+          :options.sync="options"
+          :server-items-length="options.totalItems"
+          :footer-props="{ itemsPerPageOptions: [8, 15, 30, 100] }"
+          :loading="loading"
+        >
+          <template v-slot:item="items">
+            <tr>
+              <td>{{ items.item.created_at | datetime }}</td>
+              <td>{{ items.item.updated_at | datetime }}</td>
+              <td>{{ items.item.action }}</td>
+            </tr>
+          </template>
+        </v-data-table>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <script>
 export default {
