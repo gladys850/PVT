@@ -27,21 +27,6 @@
   </div>
 </template>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <script>
 export default {
   name: "history-flow",
@@ -84,16 +69,16 @@ export default {
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.getRecords(this.affiliate.id)
+        this.getRecordAffilate(this.affiliate.id)
       }
     },
   },
   mounted() {
-    this.getRecords(this.affiliate.id)
+    this.getRecordAffilate(this.affiliate.id)
   },
   methods: {
     //Metodo para obtener el record
-    async getRecords(id) {
+    async getRecordAffilate(id) {
       try {
         this.loading = true
         let res = await axios.get(`record_affiliate_history`, {
