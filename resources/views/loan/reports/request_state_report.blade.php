@@ -18,22 +18,24 @@
     @php ($amount_dirbursement = 0)
     @php ($total = 0)
     @php ($total_dirbursement = 0)
-    <table style="font-size:12px;" class="table-info w-100 text-center uppercase my-10">
+    <table style="font-size:15px;" class="table-info w-100 text-center uppercase my-10">
         <tr class="bg-grey-darker text-s text-white">
-            <td style="font-size:80%;">Nro Ptmo</td>
-            <td style="font-size:80%;">Fecha Sol.</td>
-            <td style="font-size:80%;">Solicitante</td>
-            <td style="font-size:80%;">Estado Flujo</td>
-            <td style="font-size:80%;">Fecha derivacion</td>
-            <td style="font-size:80%;">Usuario</td>
-            <td style="font-size:80%;">Monto Solicitado</td>
-            <td style="font-size:80%;">Monto desembolsado</td>
+            <td style="font-size:80%;font-weight: bold;">Nro Ptmo</td>
+            <td style="font-size:80%;font-weight: bold;">Procedencia</td>
+            <td style="font-size:80%;font-weight: bold;">Fecha Sol.</td>
+            <td style="font-size:80%;font-weight: bold;">Solicitante</td>
+            <td style="font-size:80%;font-weight: bold;">Estado Flujo</td>
+            <td style="font-size:80%;font-weight: bold;">Fecha derivacion</td>
+            <td style="font-size:80%;font-weight: bold;">Usuario</td>
+            <td style="font-size:80%;font-weight: bold;">Monto Solicitado</td>
+            <td style="font-size:80%;font-weight: bold;">Monto desembolsado</td>
         </tr>
         @foreach ( $loans as $loan )
             @php ($cantidad += 1)
             @if($role == $loan['role'] || $role == "")
                 <tr>
                     <td style="font-size:60%;">{{ $loan['code'] }}</td>
+                    <td style="font-size:60%;">{{ $loan['procedence'] }}</td>
                     <td style="font-size:60%;">{{ $loan['request_date'] }}</td>
                     <td style="font-size:60%;">
                     @foreach($loan['lenders'] as $lender)
@@ -52,14 +54,15 @@
                 @php ($amount_dirbursement += $loan['amount_dirbursement'])
             @else
                 <tr class="bg-grey-darker text-s text-white">
-                    <td style="font-size:60%;" colspan="2">Cantidad Por Estado de Flujo</td>
-                    <td style="font-size:60%;" colspan="1" align="right">{{ $c }}</td>
-                    <td style="font-size:60%;" colspan="2">Sub Total por Estado de Flujo</td>
-                    <td style="font-size:60%;" colspan="2" align="right">{{ Util::money_format($amount) }}</td>
-                    <td style="font-size:60%;">{{ Util::money_format($amount_dirbursement) }}</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="3">Cantidad Por Estado de Flujo</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="1" align="right">{{ $c }}</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="2">Sub Total por Estado de Flujo</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="2" align="right">{{ Util::money_format($amount) }}</td>
+                    <td style="font-size:60%;font-weight: bold;">{{ Util::money_format($amount_dirbursement) }}</td>
                 </tr>
                 <tr>
                     <td style="font-size:60%;">{{ $loan['code'] }}</td>
+                    <td style="font-size:60%;">{{ $loan['procedence'] }}</td>
                     <td style="font-size:60%;">{{ $loan['request_date'] }}</td>
                     <td style="font-size:60%;">
                     @foreach($loan['lenders'] as $lender)
@@ -81,20 +84,20 @@
 
             @endif
         @endforeach
-        <tr class="bg-grey-darker text-s text-white">
-                    <td style="font-size:60%;" colspan="2">Cantidad Por Estado de Flujo</td>
-                    <td style="font-size:60%;" colspan="1" align="right">{{ $c }}</td>
-                    <td style="font-size:60%;" colspan="2">Sub Total por Estado de Flujo</td>
-                    <td style="font-size:60%;" colspan="2" align="right">{{ Util::money_format($amount) }}</td>
-                    <td style="font-size:60%;" colspan="1" align="right">{{ Util::money_format($amount_dirbursement) }}</td>
+        <tr class="bg-grey-darker text-s text-white"">
+                    <td style="font-size:60%;font-weight: bold;" colspan="3">Cantidad Por Estado de Flujo</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="1" align="right">{{ $c }}</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="2">Sub Total por Estado de Flujo</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="2" align="right">{{ Util::money_format($amount) }}</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="1" align="right">{{ Util::money_format($amount_dirbursement) }}</td>
         </tr>
         @php ($total = $total+$amount)
         @php ($total_dirbursement = $total_dirbursement+$amount_dirbursement)
         <tr class="bg-grey-darker text-s text-white">
-                    <td style="font-size:60%;" colspan="3">*** TOTAL GENERAL ***</td>
-                    <td style="font-size:60%;" colspan="2" align="right">{{ $cantidad }}</td>
-                    <td style="font-size:60%;" colspan="2" align="right">{{ Util::money_format($total) }}</td>
-                    <td style="font-size:60%;" colspan="2" align="right">{{ Util::money_format($total_dirbursement) }}</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="4">*** TOTAL GENERAL ***</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="2" align="right">{{ $cantidad }}</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="2" align="right">{{ Util::money_format($total) }}</td>
+                    <td style="font-size:60%;font-weight: bold;" colspan="2" align="right">{{ Util::money_format($total_dirbursement) }}</td>
         </tr>
     </table>
 </div>

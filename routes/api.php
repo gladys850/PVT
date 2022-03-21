@@ -116,7 +116,8 @@ Route::group([
         Route::get('get_list_year', 'Api\V1\LoanPaymentPeriodController@get_list_year');//listado de meses por gestion
         Route::apiResource('periods', 'Api\V1\LoanPaymentPeriodController')->only('index', 'show', 'store', 'update', 'destroy');//cambiar a cobranzas
         Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
-                             
+        Route::get('record_affiliate_history', 'Api\V1\RecordController@record_affiliate_history');
+        
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'
@@ -249,6 +250,7 @@ Route::group([
             Route::patch('loan/{loan}/document/{document}', 'Api\V1\LoanController@update_document');
             Route::patch('loan/{loan}/sismu', 'Api\V1\LoanController@update_sismu');
             Route::post('switch_guarantor_lender', 'Api\V1\LoanController@switch_guarantor_lender');
+            Route::post('update_number_payment_type', 'Api\V1\LoanController@update_number_payment_type');
         });
         Route::group([
             'middleware' => 'permission:delete-loan'

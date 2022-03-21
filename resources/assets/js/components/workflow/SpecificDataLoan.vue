@@ -503,7 +503,7 @@
                                             <v-col cols="12" md="12" class="py-0">
                                               <p style="color:teal"><b>GARANTE
                                                 <v-tooltip top v-if="permissionSimpleSelected.includes('show-affiliate')">
-                                                  <template v-slot:activator="{ on }">
+                                                  <template v-if="guarantor.type == 'affiliates'" v-slot:activator="{ on }">
                                                     <v-btn
                                                       icon
                                                       dark
@@ -513,6 +513,21 @@
                                                       right
                                                       v-on="on"
                                                       :to="{name: 'affiliateAdd', params: { id: guarantor.id}}"
+                                                      target="_blank"
+                                                    >
+                                                      <v-icon>mdi-eye</v-icon>
+                                                    </v-btn>
+                                                  </template>
+                                                  <template v-else v-slot:activator="{ on }">
+                                                    <v-btn
+                                                      icon
+                                                      dark
+                                                      small
+                                                      color="warning"
+                                                      bottom
+                                                      right
+                                                      v-on="on"
+                                                      :to="{name: 'affiliateAdd', params: { id: guarantor.affiliate.id}}"
                                                       target="_blank"
                                                     >
                                                       <v-icon>mdi-eye</v-icon>
@@ -1094,15 +1109,80 @@
                                         </v-tooltip>
                                       </div>
                                     <v-row>
+                                      <v-tooltip top>
+                                        <template v-slot:activator="{ on }">
+                                          <v-btn
+                                            fab
+                                            dark
+                                            x-small
+                                            :color="'error'"
+                                            absolute
+                                            top
+                                            right
+                                            v-on="on"
+                                            @click.stop="resetForm()"
+                                            v-show="edit_number_payment_type"
+                                            style="margin-right: 60px; margin-top: 30px"
+                                          >
+                                          <v-icon>mdi-close</v-icon>
+                                          </v-btn>
+                                        </template>
+                                        <div>
+                                          <span>Cancelar</span>
+                                        </div>
+                                      </v-tooltip>
+                                      <v-tooltip top v-if="permissionSimpleSelected.includes('update-reference-cosigner')">
+                                        <template v-slot:activator="{ on }">
+                                          <v-btn
+                                            v-if="loan.payment_type.name=='Depósito Bancario'"
+                                            fab
+                                            dark
+                                            x-small
+                                            :color="edit_number_payment_type ? 'danger' : 'success'"
+                                            absolute
+                                            top
+                                            right
+                                            v-on="on"
+                                            @click.stop="update_number_payment_type()"
+                                            style="margin-right: 25px; margin-top: 30px"
+                                          >
+                                            <v-icon v-if="edit_number_payment_type">mdi-check</v-icon>
+                                            <v-icon v-else>mdi-pencil</v-icon>
+                                          </v-btn>
+                                        </template>
+                                        <div>
+                                          <span v-if="edit_number_payment_type">Guardar información bancaria</span>
+                                          <span v-else>Editar datos financieros </span>
+                                        </div>
+                                      </v-tooltip>
                                       <v-progress-linear></v-progress-linear><br>
                                       <v-col cols="12" md="4">
                                         <p><b>TIPO DE DESEMBOLSO:</b> {{loan.payment_type.name}}</p>
                                       </v-col>
-                                      <v-col cols="12" md="3" v-show="loan.payment_type.name=='Depósito Bancario'">
+                                      <v-col cols="12" md="3" v-if="loan.payment_type.name=='Depósito Bancario' && edit_number_payment_type == false">
                                         <p><b>ENTIDAD FINANCIERA:</b>{{' '+financial_account}}</p>
                                       </v-col>
-                                      <v-col cols="12" md="3" v-show="loan.payment_type.name=='Depósito Bancario'">
-                                        <p><b>NUMERO DE CUENTA:</b>{{' '+loan.lenders[0].account_number}}</p>
+                                      <v-col cols="12" md="3" v-if="loan.payment_type.name=='Depósito Bancario' && edit_number_payment_type == true">
+                                        <v-select
+                                          dense
+                                          :loading="loading"
+                                          :items="entity"
+                                          item-text="name"
+                                          item-value="id"
+                                          label="Entidad Financiera"
+                                          v-model="loan.financial_entity_id"
+                                        ></v-select>
+                                      </v-col>
+                                      <v-col cols="12" md="3" v-if="loan.payment_type.name=='Depósito Bancario' && edit_number_payment_type == false">
+                                        <p><b>NUMERO DE CUENTA:</b>{{' '+loan.number_payment_type}}</p>
+                                      </v-col>
+                                      <v-col cols="12" md="3" v-show="loan.payment_type.name=='Depósito Bancario'&& edit_number_payment_type == true">
+                                        <v-text-field
+                                          dense
+                                          label="NUMERO DE CUENTA"
+                                          v-model="loan.number_payment_type"
+                                          :outlined="true"
+                                        ></v-text-field>
                                       </v-col>
                                       <v-col cols="12" md="3" v-show="loan.payment_type.name=='Depósito Bancario'">
                                         <p><b>CUENTA SIGEP:</b> {{' '+loan.lenders[0].sigep_status}}</p>
@@ -1264,6 +1344,7 @@ export default {
       sortable: false
     }
       ],
+    edit_number_payment_type: false
   }),
   beforeMount(){
     this.getPaymentTypes()
@@ -1275,10 +1356,10 @@ export default {
       permissionSimpleSelected () {
         return this.$store.getters.permissionSimpleSelected
       },
-      //Metodo para obtener la entidad financiera
+      //FIXME Eliminar si no se usa. Metodo para obtener la entidad financiera
       financial_account() {
        for (this.i = 0; this.i< this.entity.length; this.i++) {
-        if(this.loan.lenders[0].financial_entity_id==this.entity[this.i].id)
+        if(this.loan.financial_entity_id==this.entity[this.i].id)
         {
           this.entities= this.entity[this.i].name
         }
@@ -1416,6 +1497,7 @@ export default {
       this.loan.lenders[0].pivot.bonus_calculated = this.loan.bonus_calculated_aux
       this.loan.indebtedness_calculated = this.loan.indebtedness_calculated_aux
       this.loan.estimated_quota = this.loan.estimated_quota_aux
+      this.edit_number_payment_type = false
       this.$nextTick(() => {
       this.reload = false
       })
@@ -1680,6 +1762,22 @@ export default {
             liquid_qualification_calculated_input: liquid_qualification_calculated,
           })
         this.edit_update_loan_affiliates = false
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async update_number_payment_type(){
+      try {
+        if (!this.edit_number_payment_type) {
+          this.edit_number_payment_type = true
+        }else{
+          let res = await axios.post(`update_number_payment_type`,{
+            loan_id: this.loan.id,
+            number_payment_type: this.loan.number_payment_type,
+            financial_entity_id: this.loan.financial_entity_id,
+          })
+        this.edit_number_payment_type = false
         }
       } catch (e) {
         console.log(e)
