@@ -13,7 +13,6 @@ Route::group([
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
     Route::post('evaluate_garantor2', 'Api\V1\CalculatorController@evaluate_guarantor2');
-    Route::get('list_voucher', 'Api\V1\VoucherController@loan_voucher');
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
@@ -327,9 +326,9 @@ Route::group([
         });
         // Voucher Tesoreria
         Route::group([
-            'middleware' => 'show-list-voucher'
+            'middleware' => 'permission:show-list-voucher'
         ], function () {
-            Route::get('loan_voucher', 'Api\V1\VoucherController@loan_voucher');
+            Route::get('index_voucher', 'Api\V1\VoucherController@index_voucher');
             });
 
         // Dirección
