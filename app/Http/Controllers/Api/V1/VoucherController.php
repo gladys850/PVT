@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\V1\LoanController;
 use App\Affiliate;
 use App\LoanPayment;
+use App\Exports\ArchivoPrimarioExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 /** @group Tesoreria
 * Datos de los registros de cobros
@@ -199,4 +201,169 @@ class VoucherController extends Controller
         }
         return $file_name;
     }
+
+   /** @group Tesoreria
+   * Listado de Vouchers con filtros
+   * Lista todos los vouchers con opcion a busquedas
+   * @queryParam sortDesc Vector de orden descendente(0) o ascendente(1). Example: 0
+   * @queryParam trashed_voucher Para filtrar Anulado(true)  o Pagado(false). Example: true
+   * @queryParam per_page Número de datos por página. Example: 8
+   * @queryParam page Número de página. Example: 1
+   * @queryParam excel Valor booleano para descargar  el docExcel. Example: true
+   * @queryParam code_voucher  Buscar por código de Voucher. Example: TRANS000001-2021
+   * @queryParam code_loan_payment  Buscar por registro de cobro. Example: PAY000667-2021
+   * @queryParam payment_date_voucher Buscar por fecha de pago. Example: 24/09/2021
+   * @queryParam voucher_type_loan_payment  Buscar por tipo de pago. Example: Depósito Bancario
+   * @queryParam bank_pay_number_voucher Buscar por nro de depósito bancario. Example: 82851806
+   * @queryParam total_voucher Buscar por Total Pago. Example: 100000
+   * @queryParam last_name_borrower Buscar por primer apellido del Prestatario. Example: YAVINCHA
+   * @queryParam mothers_last_name_borrower Buscar por segundo apellido del Prestatario. Example: CONDORI
+   * @queryParam first_name_borrower Buscar por primer Nombre del Prestatario. Example: JUAN
+   * @queryParam second_name_borrower Buscar por segundo Nombre del Prestatario. Example: ISRAEL
+   * @queryParam surname_husband_borrower Buscar por Apellido de casada Nombre del Prestatario. Example: De LA CRUZ
+   * @queryParam full_name_borrower Buscar por nombre completo del Prestatario. Example: JUAN ISRAEL YAVINCHA CONDORI 
+   * @queryParam identity_card_borrower  Buscar por nro de CI del Prestatario. Example: 9257936
+   * @queryParam code_loan Buscar por código de Préstamo. Example: PTMO000022-2021
+   * @authenticated
+   * 
+   * @responseFile responses/voucher/index_voucher.200.json    
+   */
+
+  public function index_voucher(Request $request)
+  {
+      // aumenta el tiempo máximo de ejecución de este script a 150 min:
+      ini_set('max_execution_time', 9000);
+      // aumentar el tamaño de memoria permitido de este script:
+      ini_set('memory_limit', '960M');
+
+      if ($request->has('excel')) {
+          $excel = $request->boolean('excel');
+      } else {
+          $excel =false;
+      }
+
+      $order = request('sortDesc') ?? '';
+      if ($order != '') {
+          if ($order) {
+              $order_loan = 'Asc';
+          }
+          if (!$order) {
+              $order_loan = 'Desc';
+          }
+      } else {
+          $order_loan = 'Desc';
+      }
+
+      if ($request->has('trashed_voucher')) {
+         $trashed_voucher = $request->boolean('trashed_voucher');
+          if (!$trashed_voucher) {
+              $trashed_voucher = false;
+          }
+          if ($trashed_voucher) {
+              $trashed_voucher = true;
+          }
+      } else {
+          $trashed_voucher = false;
+      }
+      $pagination_rows = request('per_page') ?? 10;
+      $conditions = [];
+      //filtros
+      $code_voucher = request('code_voucher') ?? '';
+      $states_loan_payment = request('states_loan_payment') ?? '';
+
+      // filtros borrower
+      $identity_card_borrower = request('identity_card_borrower') ?? '';//CI
+      $full_name_borrower = request('full_name_borrower') ?? '';//FULL NAME
+      //fin filtros borrower
+
+      $code_loan_payment = request('code_loan_payment') ?? '';
+      $payment_date_voucher = request('payment_date_voucher') ?? '';
+      $voucher_type_loan_payment= request('voucher_type_loan_payment') ?? '';   
+      $bank_pay_number_voucher = request('bank_pay_number_voucher') ?? '';
+      $total_voucher = request('total_voucher') ?? '';
+      $code_loan = request('code_loan') ?? '';//CODE LOAN
+
+              if ($code_voucher != '') {
+                  array_push($conditions, array('view_loan_amortizations.code_voucher', 'ilike', "%{$code_voucher}%"));
+              }
+              if ($states_loan_payment != '') {
+                array_push($conditions, array('view_loan_amortizations.states_loan_payment ', 'ilike', "%{$states_loan_payment}%"));
+              }
+
+              if ($identity_card_borrower != '') {
+                array_push($conditions, array('view_loan_amortizations.identity_card_borrower', 'ilike', "%{$identity_card_borrower}%"));
+              }    
+              if ($full_name_borrower != '') {
+                array_push($conditions, array('view_loan_amortizations.full_name_borrower', 'ilike', "%{$full_name_borrower}%"));
+              }
+
+            if ($code_loan_payment != '') {
+                array_push($conditions, array('view_loan_amortizations.code_loan_payment', 'ilike', "%{$code_loan_payment}%"));
+            }
+
+            if ($payment_date_voucher != '') {
+                array_push($conditions, array('view_loan_amortizations.payment_date_voucher', 'ilike', "%{$payment_date_voucher}%"));
+            }
+            if ($voucher_type_loan_payment != '') {
+                array_push($conditions, array('view_loan_amortizations.voucher_type_loan_payment', 'ilike', "%{$voucher_type_loan_payment}%"));
+            }
+            if ($bank_pay_number_voucher != '') {
+                array_push($conditions, array('view_loan_amortizations.bank_pay_number_voucher ', 'ilike', "%{$bank_pay_number_voucher}%"));
+            }
+            if ($total_voucher != '') {
+                array_push($conditions, array('view_loan_amortizations.total_voucher', 'ilike', "%{$total_voucher}%"));
+            }
+            if ($code_loan != '') {
+                array_push($conditions, array('view_loan_amortizations.code_loan', 'ilike', "%{$code_loan}%"));
+            }
+                       
+              if ($trashed_voucher) {
+                  array_push($conditions, array('view_loan_amortizations.states_loan_payment', 'like', "Anulado"));
+              }else{
+                 array_push($conditions, array('view_loan_amortizations.states_loan_payment', '=', "Pagado"));
+              }
+
+              $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','DIRECTO'));
+              
+              if ($excel==true) {
+                  $list_loan = DB::table('view_loan_amortizations')
+                      ->where($conditions)
+                      ->select('*')
+                      ->orderBy('code_voucher', $order_loan)
+                      ->get();
+
+                  $File="ListadoVouchers";
+                  $data=array(
+                      array("CODIGO","REG COBRO","FECHA PAGO", "TIPO PAGO", "NRO DEPOSITO", "TOTAL PAGO", "NOMBRE COMPLETO",
+                      "CI AFILIADO", "COD PRESTAMO" )
+                  );
+            foreach ($list_loan as $row){
+                 array_push($data, array(
+                     $row->code_voucher,
+                     $row->code_loan_payment,
+                     $row->payment_date_voucher,
+                     $row->voucher_type_loan_payment,
+                     $row->bank_pay_number_voucher,
+                     $row->total_voucher,
+                     $row->full_name_borrower,
+                     $row->identity_card_borrower,
+                     $row->code_loan
+                 ));
+            }
+                  $export = new ArchivoPrimarioExport($data);
+                  return Excel::download($export, $File.'.xls');
+              } else {
+                      $list_loan = DB::table('view_loan_amortizations')
+                      ->where($conditions)
+                      ->select('*')
+                      ->orderBy('code_voucher', $order_loan)
+                      ->paginate($pagination_rows);
+                  return $list_loan;
+              }
+          }
+
+
+
+
+
 }
