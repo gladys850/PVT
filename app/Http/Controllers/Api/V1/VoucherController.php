@@ -238,13 +238,13 @@ class VoucherController extends Controller
       $order = request('sortDesc') ?? '';
       if ($order != '') {
           if ($order) {
-              $order_loan = 'Asc';
+              $order_voucher = 'Asc';
           }
           if (!$order) {
-              $order_loan = 'Desc';
+              $order_voucher = 'Desc';
           }
       } else {
-          $order_loan = 'Desc';
+          $order_voucher = 'Desc';
       }
 
       if ($request->has('trashed_voucher')) {
@@ -322,24 +322,24 @@ class VoucherController extends Controller
                   $list_voucher = DB::table('view_loan_amortizations')
                       ->where($conditions)
                       ->select('*')
-                      ->orderBy('code_voucher', $order_loan)
+                      ->orderBy('code_voucher', $order_voucher)
                       ->get();
 
                   $File="ListadoVouchers";
                   $data=array(
-                      array("CODIGO","REG COBRO","FECHA PAGO", "TIPO PAGO", "NRO DEPOSITO", "TOTAL PAGO", "NOMBRE COMPLETO",
-                      "CI AFILIADO", "COD PRESTAMO" )
+                      array("CODIGO","CI PRESTATARIO","NOMBRE COMPLETO","REG COBRO","FECHA PAGO", "TIPO PAGO", "NRO DEPOSITO", "TOTAL PAGO", 
+                       "COD PRESTAMO" )
                   );
             foreach ($list_voucher as $row){
                  array_push($data, array(
                      $row->code_voucher,
+                     $row->identity_card_borrower,
+                     $row->full_name_borrower,
                      $row->code_loan_payment,
                      Carbon::parse($row->payment_date_voucher)->format('d/m/Y'),
                      $row->voucher_type_loan_payment,
                      $row->bank_pay_number_voucher,
                      $row->total_voucher,
-                     $row->full_name_borrower,
-                     $row->identity_card_borrower,
                      $row->code_loan
                  ));
             }
@@ -349,7 +349,7 @@ class VoucherController extends Controller
                       $list_voucher = DB::table('view_loan_amortizations')
                       ->where($conditions)
                       ->select('*')
-                      ->orderBy('code_voucher', $order_loan)
+                      ->orderBy('code_voucher', $order_voucher)
                       ->paginate($pagination_rows);
                   return $list_voucher;
               }
