@@ -448,7 +448,9 @@ export default {
 
     async validateRefinancingLoan(a_id, l_id){
       try {
-        let res = await axios.post(`loan/${a_id}/validate_affiliate`)
+        let res = await axios.post(`loan/${a_id}/validate_affiliate`,{
+          refinancing:true
+          })
         this.validate_affiliate = res.data.validate
         if(this.validate_affiliate == true){
           let res = await axios.post(`loan/${l_id}/validate_re_loan`,{
@@ -532,7 +534,9 @@ export default {
     async validateAffiliate(id, type_procedure){
       let res
       try {
-        res = await axios.post(`loan/${id}/validate_affiliate`)
+        res = await axios.post(`loan/${id}/validate_affiliate`,{
+          refinancing:false
+        })
         this.validate_affiliate = res.data.validate
         if(this.validate_affiliate == true){
           if(type_procedure == "is_new"){
