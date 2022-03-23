@@ -208,19 +208,12 @@ class VoucherController extends Controller
    * @queryParam sortDesc Vector de orden descendente(0) o ascendente(1). Example: 0
    * @queryParam trashed_voucher Para filtrar Anulado(true)  o Pagado(false). Example: true
    * @queryParam per_page Número de datos por página. Example: 8
-   * @queryParam page Número de página. Example: 1
    * @queryParam excel Valor booleano para descargar  el docExcel. Example: true
    * @queryParam code_voucher  Buscar por código de Voucher. Example: TRANS000001-2021
    * @queryParam code_loan_payment  Buscar por registro de cobro. Example: PAY000667-2021
    * @queryParam payment_date_voucher Buscar por fecha de pago. Example: 24/09/2021
    * @queryParam voucher_type_loan_payment  Buscar por tipo de pago. Example: Depósito Bancario
    * @queryParam bank_pay_number_voucher Buscar por nro de depósito bancario. Example: 82851806
-   * @queryParam total_voucher Buscar por Total Pago. Example: 100000
-   * @queryParam last_name_borrower Buscar por primer apellido del Prestatario. Example: YAVINCHA
-   * @queryParam mothers_last_name_borrower Buscar por segundo apellido del Prestatario. Example: CONDORI
-   * @queryParam first_name_borrower Buscar por primer Nombre del Prestatario. Example: JUAN
-   * @queryParam second_name_borrower Buscar por segundo Nombre del Prestatario. Example: ISRAEL
-   * @queryParam surname_husband_borrower Buscar por Apellido de casada Nombre del Prestatario. Example: De LA CRUZ
    * @queryParam full_name_borrower Buscar por nombre completo del Prestatario. Example: JUAN ISRAEL YAVINCHA CONDORI 
    * @queryParam identity_card_borrower  Buscar por nro de CI del Prestatario. Example: 9257936
    * @queryParam code_loan Buscar por código de Préstamo. Example: PTMO000022-2021
@@ -245,13 +238,13 @@ class VoucherController extends Controller
       $order = request('sortDesc') ?? '';
       if ($order != '') {
           if ($order) {
-              $order_loan = 'Asc';
+              $order_voucher = 'Asc';
           }
           if (!$order) {
-              $order_loan = 'Desc';
+              $order_voucher = 'Desc';
           }
       } else {
-          $order_loan = 'Desc';
+          $order_voucher = 'Desc';
       }
 
       if ($request->has('trashed_voucher')) {
@@ -326,39 +319,39 @@ class VoucherController extends Controller
               $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','DIRECTO'));
               
               if ($excel==true) {
-                  $list_loan = DB::table('view_loan_amortizations')
+                  $list_voucher = DB::table('view_loan_amortizations')
                       ->where($conditions)
                       ->select('*')
-                      ->orderBy('code_voucher', $order_loan)
+                      ->orderBy('code_voucher', $order_voucher)
                       ->get();
 
                   $File="ListadoVouchers";
                   $data=array(
-                      array("CODIGO","REG COBRO","FECHA PAGO", "TIPO PAGO", "NRO DEPOSITO", "TOTAL PAGO", "NOMBRE COMPLETO",
-                      "CI AFILIADO", "COD PRESTAMO" )
+                      array("CODIGO","CI PRESTATARIO","NOMBRE COMPLETO","REG COBRO","FECHA PAGO", "TIPO PAGO", "NRO DEPOSITO", "TOTAL PAGO", 
+                       "COD PRESTAMO" )
                   );
-            foreach ($list_loan as $row){
+            foreach ($list_voucher as $row){
                  array_push($data, array(
                      $row->code_voucher,
+                     $row->identity_card_borrower,
+                     $row->full_name_borrower,
                      $row->code_loan_payment,
-                     $row->payment_date_voucher,
+                     Carbon::parse($row->payment_date_voucher)->format('d/m/Y'),
                      $row->voucher_type_loan_payment,
                      $row->bank_pay_number_voucher,
                      $row->total_voucher,
-                     $row->full_name_borrower,
-                     $row->identity_card_borrower,
                      $row->code_loan
                  ));
             }
                   $export = new ArchivoPrimarioExport($data);
                   return Excel::download($export, $File.'.xls');
               } else {
-                      $list_loan = DB::table('view_loan_amortizations')
+                      $list_voucher = DB::table('view_loan_amortizations')
                       ->where($conditions)
                       ->select('*')
-                      ->orderBy('code_voucher', $order_loan)
+                      ->orderBy('code_voucher', $order_voucher)
                       ->paginate($pagination_rows);
-                  return $list_loan;
+                  return $list_voucher;
               }
           }
 
