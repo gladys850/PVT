@@ -319,7 +319,7 @@ class VoucherController extends Controller
               $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','DIRECTO'));
               
               if ($excel==true) {
-                  $list_loan = DB::table('view_loan_amortizations')
+                  $list_voucher = DB::table('view_loan_amortizations')
                       ->where($conditions)
                       ->select('*')
                       ->orderBy('code_voucher', $order_loan)
@@ -330,7 +330,7 @@ class VoucherController extends Controller
                       array("CODIGO","REG COBRO","FECHA PAGO", "TIPO PAGO", "NRO DEPOSITO", "TOTAL PAGO", "NOMBRE COMPLETO",
                       "CI AFILIADO", "COD PRESTAMO" )
                   );
-            foreach ($list_loan as $row){
+            foreach ($list_voucher as $row){
                  array_push($data, array(
                      $row->code_voucher,
                      $row->code_loan_payment,
@@ -346,12 +346,12 @@ class VoucherController extends Controller
                   $export = new ArchivoPrimarioExport($data);
                   return Excel::download($export, $File.'.xls');
               } else {
-                      $list_loan = DB::table('view_loan_amortizations')
+                      $list_voucher = DB::table('view_loan_amortizations')
                       ->where($conditions)
                       ->select('*')
                       ->orderBy('code_voucher', $order_loan)
                       ->paginate($pagination_rows);
-                  return $list_loan;
+                  return $list_voucher;
               }
           }
 
