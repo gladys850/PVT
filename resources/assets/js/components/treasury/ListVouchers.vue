@@ -8,6 +8,43 @@
               <v-toolbar-title>Tesorería</v-toolbar-title>
             </v-toolbar>
           </v-card-title>
+          <!-- Botón descargar excel -->
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn 
+                fab
+                @click="dowload_payments()"
+                color="success"
+                v-on="on"
+                x-small
+                absolute
+                right
+                style="margin-right: 40px; margin-top: -50px"
+                :loading_download= loading
+              >
+                <v-icon>mdi-file-excel</v-icon>
+              </v-btn>
+            </template>
+            <span>Descargar reporte</span>
+          </v-tooltip>
+          <!-- Limpiar filtros -->
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+                <v-btn
+                  fab
+                  @click="clearAll()"
+                  color="info"
+                  v-on="on"
+                  x-small
+                  absolute
+                  right
+                  style="margin-right:0px; margin-top: -50px"
+                >
+                  <v-icon>mdi-broom</v-icon>
+                </v-btn>
+            </template>
+            <span>Limpiar todos los filtros</span>
+          </v-tooltip>
           <v-data-table
             :headers="headers"
             :items="vouchers"
@@ -16,17 +53,47 @@
             :server-items-length="totalVouchers"
             :footer-props="{ itemsPerPageOptions: [8, 15, 30] }"
           >
-            <template v-slot:[`item.payment_date`]="{ item }">
-              {{ item.payment_date | date}}
+          <!-- Headers -->
+            <template v-slot:[`header.code_voucher`]="{ header }">
+              <span :class="searching.code_voucher? 'primary--text' : ''">{{ header.text }}</span>
             </template>
-                <template v-slot:[`item.voucher_type_name`]="{ item }">
-              {{ item.voucher_type ? item.voucher_type.name : ''}}
+
+            <template v-slot:[`header.identity_card_borrower`]="{ header }">
+              <span :class="searching.identity_card_borrower? 'primary--text' : ''">{{ header.text }}</span>
             </template>
-                <template v-slot:[`item.total`]="{ item }">
-              {{ item.total | money}}
+
+            <template v-slot:[`header.full_name_borrower`]="{ header }">
+              <span :class="searching.full_name_borrower? 'primary--text' : ''">{{ header.text }}</span>
             </template>
-                <template v-slot:[`item.payable_code`]="{ item }">
-              {{ item.payable ? item.payable.code : ''}}
+
+            <template v-slot:[`header.code_loan_payment`]="{ header }">
+              <span :class="searching.code_loan_payment? 'primary--text' : ''">{{ header.text }}</span>
+            </template>}
+
+            <template v-slot:[`header.voucher_type_loan_payment`]="{ header }">
+              <span :class="searching.voucher_type_loan_payment? 'primary--text' : ''">{{ header.text }}</span>
+            </template>
+
+            <template v-slot:[`header.bank_pay_number_voucher`]="{ header }">
+              <span :class="searching.bank_pay_number_voucher? 'primary--text' : ''">{{ header.text }}</span>
+            </template>
+
+            <template v-slot:[`header.code_loan`]="{ header }">
+              <span :class="searching.code_loan? 'primary--text' : ''">{{ header.text }}</span>
+            </template>
+          <!-- End Headers -->
+
+            <template v-slot:[`item.payment_date_voucher`]="{ item }">
+              {{ item.payment_date_voucher | date}}
+            </template>
+                <template v-slot:[`item.voucher_type_loan_payment`]="{ item }">
+              {{ item.voucher_type_loan_payment ? item.voucher_type_loan_payment : ''}}
+            </template>
+                <template v-slot:[`item.total_voucher`]="{ item }">
+              {{ item.total_voucher | money}}
+            </template>
+                <template v-slot:[`item.code_loan_payment`]="{ item }">
+              {{ item.code_loan_payment ? item.code_loan_payment : ''}}
             </template>
 
             <template v-slot:[`item.actions`]="{ item }">
@@ -37,7 +104,7 @@
                     small
                     v-on="on"
                     color="warning"
-                    :to="{ name: 'paymentAdd',  params: { hash: 'view'},  query: { loan_payment: item.payable_id}}"
+                    :to="{ name: 'paymentAdd',  params: { hash: 'view'},  query: { loan_payment: item.id_loan_payment}}"
                   >
                     <v-icon>mdi-eye</v-icon>
                   </v-btn>
@@ -52,7 +119,7 @@
                     small
                     v-on="on"
                     color="error"
-                    @click.stop="bus.$emit('openRemoveDialog', `voucher/${item.id}`)"
+                    @click.stop="bus.$emit('openRemoveDialog', `voucher/${item.id_loan}`)"
                   >
                     <v-icon>mdi-file-cancel-outline</v-icon>
                   </v-btn>
@@ -67,7 +134,7 @@
                   </v-btn>
                 </template>
                 <v-list dense class="py-0">
-                  <v-list-item v-for="doc in printDocs" :key="doc.id" @click="imprimir(doc.id, item.id)">
+                  <v-list-item v-for="doc in printDocs" :key="doc.id" @click="imprimir(doc.id, item.id_loan)">
                     <v-list-item-icon class="ma-0 py-0 pt-2">
                       <v-icon class="ma-0 py-0" small v-text="doc.icon" color="light-blue accent-4"></v-icon>
                     </v-list-item-icon>
@@ -76,6 +143,22 @@
                 </v-list>
               </v-menu>
             </template>
+
+          <!-- Filtros -->
+            <template slot="body.prepend">
+              <tr v-if="show_filter">
+                <td><v-text-field placeholder="Cod. Trans" spellcheck="false" class="filter-text" v-model="searching.code_voucher" @keydown.enter="search_voucherd()"></v-text-field></td>
+                <td><v-text-field placeholder="CI. Prestatario" spellcheck="false" class="filter-text" v-model="searching.identity_card_borrower" @keydown.enter="search_vouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="Nombre completo" spellcheck="false" class="filter-text" v-model="searching.full_name_borrower" @keydown.enter="search_vouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="Reg. Cobro" spellcheck="false" class="filter-text" v-model="searching.code_loan_payment" @keydown.enter="search_vouchers()"></v-text-field></td>
+                <td><v-text-field disabled class="filter-text"></v-text-field></td>
+                <td><v-text-field placeholder="Tipo Pago" spellcheck="false" class="filter-text" v-model="searching.voucher_type_loan_payment" @keydown.enter="search_vouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="Nro. dep Bancario" spellcheck="false" class="filter-text" v-model="searching.bank_pay_number_voucher" @keydown.enter="search_vouchers()"></v-text-field></td>
+                <td><v-text-field disabled class="filter-text"></v-text-field></td>
+                <td><v-text-field placeholder="Cod. Préstamo" spellcheck="false" class="filter-text" v-model="searching.code_loan" @keydown.enter="search_vouchers()"></v-text-field></td>                
+              </tr>
+            </template>
+
            </v-data-table>
           <RemoveItem :bus="bus" />
         </v-card>
@@ -99,50 +182,76 @@ export default {
     options: {
       page: 1,
       itemsPerPage: 8,
-      sortBy: ['code'],
+      sortBy: ['code_voucher'],
       sortDesc: [false]
     },
     vouchers: [],
     totalVouchers: 0,
+    searching: {
+        code_voucher:"",
+        code_loan_payment:"",
+        voucher_type_loan_payment:"",
+        bank_pay_number_voucher: "",
+        full_name_borrower: "",
+        identity_card_borrower: "",
+        code_loan: "",
+      },
     headers: [
      
       { 
         text: 'Código',
-        value: 'code', 
+        value: 'code_voucher', 
         class: ['normal', 'white--text'],
         width: '15%',
         sortable: false 
-      },
-      {
+      },{
+        text: 'CI Prestatario',
+        value: 'identity_card_borrower',
+        class: ['normal', 'white--text'],
+        sortable: false,
+        width: '10%'
+      },{
+        text: 'Nombre Completo Prestatario',
+        value: 'full_name_borrower',
+        class: ['normal', 'white--text'],
+        sortable: false,
+        width: '10%'
+      },{
         text: 'Registro de cobro',
-        value: 'payable_code',
+        value: 'code_loan_payment',
         class: ['normal', 'white--text'],
         width: '15%',
         sortable: false
       },{ 
         text: 'Fecha de pago',
-        value: 'payment_date',
+        value: 'payment_date_voucher',
         class: ['normal', 'white--text'],
         width: '10%',
         sortable: false 
       },{
         text: 'Tipo de pago',
-        value: 'voucher_type_name',
+        value: 'voucher_type_loan_payment',
         class: ['normal', 'white--text'],
         width: '10%',
         sortable: false
       },{
         text: 'Nro depósito bancario',
-        value: 'bank_pay_number',
+        value: 'bank_pay_number_voucher',
         class: ['normal', 'white--text'],
         width: '10%',
         sortable: false
       },{
         text: 'Total pagado',
-        value: 'total',
+        value: 'total_voucher',
         class: ['normal', 'white--text'],
         width: '10%',
         sortable: false
+      },{
+        text: 'Código Préstamo',
+        value: 'code_loan',
+        class: ['normal', 'white--text'],
+        sortable: false,
+        width: '10%'
       },{ 
         text: 'Acción',
         value: "actions",
@@ -150,12 +259,13 @@ export default {
         sortable: false,
         width: '10%',
         sortable: false
-      }    
+      },
     ],
     state: [],
     category:[],
-    printDocs: []
-
+    printDocs: [],
+    show_filter:true,
+    loading_table: false,
   }),
   computed: {
     //Metodo para obtener Permisos por rol
@@ -175,6 +285,7 @@ export default {
     this.bus.$on('removed', val => {
       this.getVouchers()
     })
+    this.search_vouchers()
     this.getVouchers()
     this.docsLoans()
   },
@@ -182,7 +293,7 @@ export default {
     async getVouchers(params) {
       try {
         this.loading = true
-        let res = await axios.get(`voucher`, {
+        let res = await axios.get(`index_voucher`, {
           params: {
             page: this.options.page,
             per_page: this.options.itemsPerPage,
@@ -220,6 +331,42 @@ export default {
         console.log(e)
       }      
     },
+    async search_vouchers() {
+      this.loading_table = true
+      try {
+        let res = await axios.get(`index_voucher`, {
+          params: {
+            code_voucher: this.searching.code_voucher,
+            identity_card_borrower: this.searching.identity_card_borrower,
+            full_name_borrower: this.searching.full_name_borrower,
+            code_loan_payment: this.searching.code_loan_payment,
+            voucher_type_loan_payment: this.searching.voucher_type_loan_payment,
+            bank_pay_number_voucher: this.searching.bank_pay_number_voucher,
+            code_loan: this.searching.code_loan,
+          },
+        });
+        this.vouchers = res.data.data
+        this.totalVouchers = res.data.totalVouchers
+        delete res.data["data"]
+        this.options.page = res.data.current_page
+        this.options.itemsPerPage = parseInt(res.data.per_page)
+        //this.options.totalItems = res.data.total
+        this.loading_table = false
+      } catch (e) {
+        console.log(e)
+        this.loading_table = false
+      }
+    },
+    clearAll() {
+      this.searching.code_voucher = "",
+      this.searching.identity_card_borrower = "",
+      this.searching.full_name_borrower = "",
+      this.searching.code_loan_payment = "",
+      this.searching.voucher_type_loan_payment = "",
+      this.searching.bank_pay_number_voucher = "",
+      this.searching.code_loan = "",
+      this.search_vouchers()
+    },
 
         docsLoans() {
       let docs = [];
@@ -230,10 +377,30 @@ export default {
       }
       this.printDocs = docs;
       console.log(this.printDocs);
+    },
+    _show_filter(){
+       this.show_filter=!this.show_filter
     }
 
 
   }
 }
 </script>
+<style scoped>
+.v-text-field {
+  background-color: white;
+  width: 200px;
+  padding: 5px;
+  margin: 0px;
+  font-size: 0.8em;
+  border-color: teal;
+}
+.filter-text{
+  font-size: 12px;
+  height: 2px;
+  margin: 0 0 40px 0;
+  padding: 0;
+  width: 100%
 
+}
+</style>
