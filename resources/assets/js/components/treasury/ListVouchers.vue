@@ -127,9 +127,9 @@
                     small
                     v-on="on"
                     color="error"
-                    @click.stop="bus.$emit('openRemoveDialog', `voucher/${item.id_loan_payment}`)"
+                    @click.stop="bus.$emit('openRemoveDialog', `voucher/${item.id_voucher}`)"
                   >
-                    <v-icon>mdi-file-cancel-outline</v-icon>
+                    <v-icon>mdi-file-cancel-outline</v-icon>{{ item.id_voucher }}
                   </v-btn>
                 </template>
                 <span>Anular voucher</span>
@@ -142,7 +142,7 @@
                   </v-btn>
                 </template>
                 <v-list dense class="py-0">
-                  <v-list-item v-for="doc in printDocs" :key="doc.id" @click="imprimir(doc.id, item.id_loan_payment)">
+                  <v-list-item v-for="doc in printDocs" :key="doc.id" @click="imprimir(doc.id, item.id_voucher)">
                     <v-list-item-icon class="ma-0 py-0 pt-2">
                       <v-icon class="ma-0 py-0" small v-text="doc.icon" color="light-blue accent-4"></v-icon>
                     </v-list-item-icon>
@@ -164,6 +164,7 @@
                 <td><v-text-field placeholder="Nro. dep Bancario" spellcheck="false" class="filter-text" v-model="searching.bank_pay_number_voucher" @keydown.enter="search_vouchers()"></v-text-field></td>
                 <td><v-text-field disabled class="filter-text"></v-text-field></td>
                 <td><v-text-field placeholder="Cod. Préstamo" spellcheck="false" class="filter-text" v-model="searching.code_loan" @keydown.enter="search_vouchers()"></v-text-field></td>                
+                <td><v-text-field disabled class="filter-text"></v-text-field></td>
               </tr>
             </template>
 
@@ -203,7 +204,7 @@ export default {
         full_name_borrower: "",
         identity_card_borrower: "",
         code_loan: "",
-      },
+    },
     headers: [
      
       { 
@@ -270,6 +271,7 @@ export default {
       },
     ],
     printDocs: [],
+    trashed_voucher: false,
     show_filter:true,
     loading_table: false,
   }),
@@ -282,7 +284,7 @@ export default {
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.getVouchers()
+        // this.getVouchers()
         this.search_vouchers()
       }
     },
@@ -290,39 +292,45 @@ export default {
   },
   mounted() {
     this.bus.$on('removed', val => {
-      this.getVouchers()
+      // this.getVouchers()
+      this.search_vouchers()
     })
     this.search_vouchers()
-    this.getVouchers()
+    // this.getVouchers()
     this.docsLoans()
   },
   methods: {
-    async getVouchers(params) {
-      this.loading_table = true
-      try {
-        this.loading = true
-        let res = await axios.get(`index_voucher`, {
-          params: {
-            page: this.options.page,
-            per_page: this.options.itemsPerPage,
-            sortBy: this.options.sortBy,
-            sortDesc: this.options.sortDesc,
-            search: this.search
-          }
-        })
-        this.vouchers = res.data.data
-        console.log(res.data)
-        this.totalVouchers = res.data.totalVouchers
-        // delete res.data['data']
-        this.options.page = res.data.current_page
-        this.options.itemsPerPage = parseInt(res.data.per_page)
-        this.options.totalItems = res.data.total
-      } catch (e) {
-        console.log(e)
-      } finally {
-        this.loading = false
-      }
-    },
+    // async getVouchers(params) {
+      
+    //   try {
+    //     this.loading_table = true
+    //     // this.loading = true
+    //     let res = await axios.get(`index_voucher`, {
+    //       params: {
+    //         page: this.options.page,
+    //         per_page: this.options.itemsPerPage,
+    //         sortBy: this.options.sortBy,
+    //         sortDesc: this.options.sortDesc,
+    //         search: this.search,
+    //       }
+    //     })
+    //     this.vouchers = res.data.data
+    //     // console.log(res.data)
+    //     this.totalVouchers = res.data.total
+    //     delete res.data['data']
+    //     this.options.page = res.data.current_page
+    //     this.options.itemsPerPage = parseInt(res.data.per_page)
+    //     this.options.totalItems = res.data.total
+
+    //     this.loading_table = false
+    //   } catch (e) {
+    //     console.log(e)
+    //     this.loading_table = false
+    //   } finally {
+    //     // this.loading = false
+    //     this.loading_table = false
+    //   }
+    // },
     async imprimir(id, item){
       try {
         let res;
@@ -351,11 +359,16 @@ export default {
             code_loan_payment: this.searching.code_loan_payment,
             voucher_type_loan_payment: this.searching.voucher_type_loan_payment,
             bank_pay_number_voucher: this.searching.bank_pay_number_voucher,
+            page: this.options.page,
+            per_page: this.options.itemsPerPage,
+            sortBy: this.options.sortBy,
+            sortDesc: this.options.sortDesc,
             code_loan: this.searching.code_loan,
+            trashed_voucher: this.trashed_voucher
           },
         });
         this.vouchers = res.data.data
-        this.totalVouchers = res.data.totalVouchers
+        this.totalVouchers = res.data.total
         delete res.data["data"]
         this.options.page = res.data.current_page
         this.options.itemsPerPage = parseInt(res.data.per_page)
@@ -382,6 +395,7 @@ export default {
           bank_pay_number_voucher: this.searching.bank_pay_number_voucher,
           code_loan: this.searching.code_loan,
           excel: true,
+          trashed_voucher: this.trashed_vocher
         },
       })
       .then((response) => {
