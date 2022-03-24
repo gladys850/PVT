@@ -23,7 +23,7 @@ class CreateViewLoanAmortizationsTable extends Migration
               (coalesce(a.first_name, '') || ' ' || coalesce(a.second_name, '') || ' ' || coalesce(a.last_name, '')|| ' ' || coalesce(a.mothers_last_name, '')|| ' ' || coalesce(a.surname_husband, '')) AS full_name_borrower,
               as2.name as state_affiliate, ast.name as state_type_affiliate, pe.name as pension_entity_affiliate, pm.name as modality_loan_payment, pm.shortened as modality_shortened_loan_payment, ls.name as state_loan, lp.paid_by as paid_by_loan_payment, pt.name as procedure_loan_payment,
               lp.capital_payment as capital_payment, lp.penal_remaining, lp.penal_accumulated, lp.penal_payment, lp.interest_remaining, lp.interest_accumulated, lp.interest_payment, lp.previous_balance, (lp.previous_balance - lp.capital_payment) as current_balance,
-              lpc.name as name_category, lpc.shortened as shortened_category, lpc.type_register as type_register_category, v.payment_date  as payment_date_voucher, v.bank_pay_number as bank_pay_number_voucher, v.total as total_voucher
+              lpc.name as name_category, lpc.shortened as shortened_category, lpc.type_register as type_register_category, v.payment_date  as payment_date_voucher, v.bank_pay_number as bank_pay_number_voucher, v.total as total_voucher, v.id as id_voucher
                 from loan_payments lp
                 join loans l on l.id = lp.loan_id
                 join loan_states ls on ls.id = l.state_id
@@ -52,7 +52,7 @@ class CreateViewLoanAmortizationsTable extends Migration
               (coalesce(s.first_name, '') || ' ' || coalesce(s.second_name, '') || ' ' || coalesce(s.last_name, '')|| ' ' || coalesce(s.mothers_last_name, '')|| ' ' || coalesce(s.surname_husband, '')) AS full_name_borrower,
               as2.name as state_affiliate, ast.name as state_type_affiliate, pe.name as pension_entity_affiliate, pm.name as modality_loan_payment, pm.shortened as modality_shortened_loan_payment, ls.name as state_loan, lp.paid_by as paid_by_loan_payment, pt.name as procedure_loan_payment,
               lp.capital_payment as capital_payment, lp.penal_remaining, lp.penal_accumulated, lp.penal_payment, lp.interest_remaining, lp.interest_accumulated, lp.interest_payment, lp.previous_balance, (lp.previous_balance - lp.capital_payment) as current_balance,
-              lpc.name as name_category, lpc.shortened as shortened_category, lpc.type_register as type_register_category, v.payment_date  as payment_date_voucher, v.bank_pay_number as bank_pay_number_voucher, v.total as total_voucher
+              lpc.name as name_category, lpc.shortened as shortened_category, lpc.type_register as type_register_category, v.payment_date  as payment_date_voucher, v.bank_pay_number as bank_pay_number_voucher, v.total as total_voucher, v.id as id_voucher
                 from loan_payments lp
                 join loans l on l.id = lp.loan_id
                 join procedure_modalities pml on pml.id = l.procedure_modality_id
