@@ -318,6 +318,9 @@ class VoucherController extends Controller
 
               $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','DIRECTO'));
               
+              array_push($conditions, array('view_loan_amortizations.code_voucher', '<>',NULL));
+              
+
               if ($excel==true) {
                   $list_voucher = DB::table('view_loan_amortizations')
                       ->where($conditions)
