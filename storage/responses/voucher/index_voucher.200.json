@@ -11,7 +11,7 @@
             "state_affiliate_loan_payment": "ACTIVO",
             "id_loan_payment": 667,
             "code_loan_payment": "PAY000667-2021",
-            "estimated_date_loan_payment": "2021-09-13",
+            "estimated_date_loan_payment": "2021-09-13", 
             "date_loan_payment": "2021-09-24 10:33:07",
             "quota_loan_payment": "10000",
             "voucher_loan_payment": "82851806",
