@@ -162,6 +162,25 @@
         </v-tooltip>
         </v-tab>
 
+        <!-- boton de historico -->
+        <v-tab
+          v-show="!isNew"
+          :href="`#tab-7`"
+        >
+        <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <v-icon
+          v-if="icons"
+          v-bind="attrs"
+          v-on="on"
+          >mdi-comment-eye-outline
+          </v-icon>
+          </template>
+        <span><b>HISTORIAL DE AFILIADOS</b></span>
+        </v-tooltip>
+        </v-tab>
+        <!-- fin boton historico -->
+        
         <v-tab-item
         :value="'tab-1'"
       >
@@ -243,6 +262,24 @@
             /></v-card-text>
           </v-card>
         </v-tab-item>
+        
+        <!-- vista de pestaña historico -->
+        <v-tab-item
+          :value="'tab-7'"
+        >
+          <v-card flat tile >
+          <v-card-text>
+           <HistoryAffiliate
+              :loan.sync="loan"
+              :observations.sync="observations"
+              :bus1="bus1"
+              :affiliate.sync="affiliate"
+              :borrower.sync="borrower" />
+
+           </v-card-text>
+          </v-card>
+        </v-tab-item>
+
 
       </v-tabs>
     </v-card-text>
@@ -259,6 +296,8 @@ import Dashboard from '@/components/affiliate/Dashboard'
 import AdditionalInformation from '@/components/affiliate/AdditionalInformation'
 import Contributions from '@/components/affiliate/Contributions'
 
+ import HistoryAffiliate from '@/components/affiliate/HistoryAffiliate'
+
 export default {
   name: "affiliate-index",
   components: {
@@ -268,7 +307,9 @@ export default {
     Fingerprint,
     Dashboard,
     AdditionalInformation,
-    Contributions
+    Contributions,
+    //historico 
+    HistoryAffiliate
   },
   data: () => ({
     addresses:[],

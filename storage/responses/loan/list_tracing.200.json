@@ -39,7 +39,22 @@
             "request_date_loan": "2021-07-07",
             "validated_loan": true,
             "type_affiliate_spouse_loan": "affiliates",
-            "guarantor_loan": false
+            "guarantor_loan": false,
+            "name_degree": "SARGENTO",
+            "delivery_contract_date": null,
+            "return_contract_date": null,
+            "regional_delivery_contract_date": null,
+            "regional_return_contract_date": null,
+            "user_id": 110,
+            "observation_type_id": 45,
+            "observable_id": 563,
+            "observable_type": "loans",
+            "message": "CAMBIO DE MODALIDAD DE NO DEBE A REFINANCIAMIENTO, PESE DE HABER CANCELADO TODAS LAS CUOTAS",
+            "date": "2021-07-07 15:00:15",
+            "enabled": false,
+            "created_at": "2021-07-07 15:00:15",
+            "updated_at": "2021-07-07 15:00:15",
+            "deleted_at": null
         }
     ],
     "first_page_url": "http://192.168.2.242/api/v1/loan_tracking?page=1",
