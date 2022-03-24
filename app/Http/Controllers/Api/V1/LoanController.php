@@ -1774,12 +1774,14 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/affiliate_evaluate.200.json
     */
-    public function validate_affiliate($affiliate_id){
-     
+    public function validate_affiliate($affiliate_id, request $request)
+    {
         $message['validate'] = false;
         $affiliate = Affiliate::findOrFail($affiliate_id);
         $loan_global_parameter = LoanGlobalParameter::latest()->first();
         $loan_disbursement = count($affiliate->disbursement_loans);
+        if($request->refinancing)
+            $loan_disbursement = $loan_disbursement - 1;
         $loan_process = count($affiliate->process_loans);
         if ($affiliate->affiliate_state){
             if($affiliate->affiliate_state->affiliate_state_type->name != "Baja" && $affiliate->affiliate_state->affiliate_state_type->name != ""){
