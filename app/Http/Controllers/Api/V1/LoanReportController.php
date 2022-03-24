@@ -1407,6 +1407,10 @@ class LoanReportController extends Controller
    * @queryParam guarantor_loan_affiliate Buscar los garantes del préstamo. Example: false
    * @queryParam pension_entity_affiliate Buscar por la La pension entidad del afiliado. Example: SENASIR
    * @queryParam disbursement_date_loan Buscar por fecha de desembolso. Example: 2021
+   * @queryParam delivery_contract_date Buscar por fecha de Entrega de Contrato. Example: 2021-06-16
+   * @queryParam return_contract_date Buscar por fecha de Devolucion de Contrato. Example: 2022-01-28
+   * @queryParam regional_delivery_contract_date Buscar por fecha de Entrega de Contrato Regional. Example: 2021-11-09
+   * @queryParam regional_return_contract_date Buscar por fecha de Devolución de Contrato Regional. Example: 2022-02-07
    * @authenticated
    * @responseFile responses/loan/list_tracing.200.json
    */
@@ -1500,6 +1504,11 @@ class LoanReportController extends Controller
       $amount_approved_loan = request('amount_approved_loan') ?? '';
 
       $validated_loan = request('validated_loan') ?? '';
+      // Filtros por Fecha de Contrato
+      $delivery_contract_date = request('delivery_contract_date') ?? '';
+      $return_contract_date = request('return_contract_date') ?? '';
+      $regional_delivery_contract_date = request('regional_delivery_contract_date') ?? '';
+      $regional_return_contract_date = request('regional_return_contract_date') ?? '';
 
               if ($id_loan != '') {
                   array_push($conditions, array('view_loan_borrower.id_loan', 'ilike', "%{$id_loan}%"));
@@ -1611,7 +1620,18 @@ class LoanReportController extends Controller
               if ($validated_loan != '') {
                   array_push($conditions, array('view_loan_borrower.validated_loan', 'ilike', "%{$validated_loan}%"));
               }
-
+              if ($delivery_contract_date != '') {
+                    array_push($conditions, array('view_loan_borrower.delivery_contract_date', 'ilike', "%{$delivery_contract_date}%"));
+              }
+              if ($return_contract_date != '') {
+                    array_push($conditions, array('view_loan_borrower.return_contract_date', 'ilike', "%{$return_contract_date}%"));
+              }
+              if ($regional_delivery_contract_date != '') {
+                    array_push($conditions, array('view_loan_borrower.regional_delivery_contract_date', 'ilike', "%{$regional_delivery_contract_date}%"));
+              }
+              if ($regional_return_contract_date != '') {
+                    array_push($conditions, array('view_loan_borrower.regional_return_contract_date', 'ilike', "%{$regional_return_contract_date}%"));
+              }
               if ($trashed_loan) {
                   array_push($conditions, array('view_loan_borrower.state_loan', 'like', "Anulado"));
               }else{
@@ -1641,7 +1661,8 @@ class LoanReportController extends Controller
                   $File="ListadoPrestamos";
                   $data=array(
                       array("DPTO","ÁREA","USUARIO","ID PRESTAMO", "COD. PRESTAMO", "ID AFILIADO","CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","CI PRESTATARIO", "MATRÍCULA PRESTATARIO", "NOMBRE COMPLETO PRESTATARIO","SUB MODALIDAD",
-                      "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD",'FECHA DE DESEMBOLSO','TIPO SOLICITUD AFILIADO/ESPOSA','OBSERVACION' )
+                      "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD",'FECHA DE DESEMBOLSO','TIPO SOLICITUD AFILIADO/ESPOSA', 'FECHA DE ENTREGA DEL CONTRATO',
+                      'FECHA DE DEVOLUCION DEL CONTRATO', 'FECHA DE ENTREGA DEL CONTRATO REGIONAL', 'FECHA DE DEVOLUCION DEL CONTRATO REGIONAL','OBSERVACION')
              );
                   foreach ($list_loan as $row){
                  array_push($data, array(
@@ -1669,7 +1690,11 @@ class LoanReportController extends Controller
                      Carbon::parse($row->request_date_loan)->format('d/m/Y'),
                      $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y'):'',
                      $row->type_affiliate_spouse_loan,
-                     $trashed_loan ? $row->message : ''
+                     $row->delivery_contract_date? Carbon::parse($row->delivery_contract_date)->format('d/m/Y'):'',
+                     $row->return_contract_date? Carbon::parse($row->return_contract_date)->format('d/m/Y'):'',
+                     $row->regional_delivery_contract_date? Carbon::parse($row->regional_delivery_contract_date)->format('d/m/Y'):'',
+                     $row->regional_return_contract_date? Carbon::parse($row->regional_return_contract_date)->format('d/m/Y'):'',
+                     $trashed_loan ? $row->message : '',
                  ));
              }
                   $export = new ArchivoPrimarioExport($data);
