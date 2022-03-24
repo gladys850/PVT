@@ -8,12 +8,13 @@
               <v-toolbar-title>Tesorería</v-toolbar-title>
             </v-toolbar>
           </v-card-title>
-          <!-- Botón descargar excel -->
+
+        <!-- Botón descargar excel -->
           <v-tooltip top>
             <template v-slot:activator="{ on }">
               <v-btn 
                 fab
-                @click="dowload_payments()"
+                @click="download_report()"
                 color="success"
                 v-on="on"
                 x-small
@@ -27,7 +28,8 @@
             </template>
             <span>Descargar reporte</span>
           </v-tooltip>
-          <!-- Limpiar filtros -->
+
+        <!-- Limpiar filtros -->
           <v-tooltip top>
             <template v-slot:activator="{ on }">
                 <v-btn
@@ -45,13 +47,14 @@
             </template>
             <span>Limpiar todos los filtros</span>
           </v-tooltip>
+
           <v-data-table
             :headers="headers"
             :items="vouchers"
-            :loading="loading"
             :options.sync="options"
             :server-items-length="totalVouchers"
             :footer-props="{ itemsPerPageOptions: [8, 15, 30] }"
+            :loading= loading_table 
           >
           <!-- Headers -->
             <template v-slot:[`header.code_voucher`]="{ header }">
@@ -83,19 +86,24 @@
             </template>
           <!-- End Headers -->
 
+          <!-- Máscaras para algunos campos -->
             <template v-slot:[`item.payment_date_voucher`]="{ item }">
               {{ item.payment_date_voucher | date}}
             </template>
-                <template v-slot:[`item.voucher_type_loan_payment`]="{ item }">
+
+            <template v-slot:[`item.voucher_type_loan_payment`]="{ item }">
               {{ item.voucher_type_loan_payment ? item.voucher_type_loan_payment : ''}}
             </template>
-                <template v-slot:[`item.total_voucher`]="{ item }">
+
+            <template v-slot:[`item.total_voucher`]="{ item }">
               {{ item.total_voucher | money}}
             </template>
-                <template v-slot:[`item.code_loan_payment`]="{ item }">
+
+            <template v-slot:[`item.code_loan_payment`]="{ item }">
               {{ item.code_loan_payment ? item.code_loan_payment : ''}}
             </template>
-
+          <!-- End Máscaras -->
+          <!-- Acciones -->
             <template v-slot:[`item.actions`]="{ item }">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -119,7 +127,7 @@
                     small
                     v-on="on"
                     color="error"
-                    @click.stop="bus.$emit('openRemoveDialog', `voucher/${item.id_loan}`)"
+                    @click.stop="bus.$emit('openRemoveDialog', `voucher/${item.id_loan_payment}`)"
                   >
                     <v-icon>mdi-file-cancel-outline</v-icon>
                   </v-btn>
@@ -134,7 +142,7 @@
                   </v-btn>
                 </template>
                 <v-list dense class="py-0">
-                  <v-list-item v-for="doc in printDocs" :key="doc.id" @click="imprimir(doc.id, item.id_loan)">
+                  <v-list-item v-for="doc in printDocs" :key="doc.id" @click="imprimir(doc.id, item.id_loan_payment)">
                     <v-list-item-icon class="ma-0 py-0 pt-2">
                       <v-icon class="ma-0 py-0" small v-text="doc.icon" color="light-blue accent-4"></v-icon>
                     </v-list-item-icon>
@@ -147,7 +155,7 @@
           <!-- Filtros -->
             <template slot="body.prepend">
               <tr v-if="show_filter">
-                <td><v-text-field placeholder="Cod. Trans" spellcheck="false" class="filter-text" v-model="searching.code_voucher" @keydown.enter="search_voucherd()"></v-text-field></td>
+                <td><v-text-field placeholder="Cod. Trans" spellcheck="false" class="filter-text" v-model="searching.code_voucher" @keydown.enter="search_vouchers()"></v-text-field></td>
                 <td><v-text-field placeholder="CI. Prestatario" spellcheck="false" class="filter-text" v-model="searching.identity_card_borrower" @keydown.enter="search_vouchers()"></v-text-field></td>
                 <td><v-text-field placeholder="Nombre completo" spellcheck="false" class="filter-text" v-model="searching.full_name_borrower" @keydown.enter="search_vouchers()"></v-text-field></td>
                 <td><v-text-field placeholder="Reg. Cobro" spellcheck="false" class="filter-text" v-model="searching.code_loan_payment" @keydown.enter="search_vouchers()"></v-text-field></td>
@@ -159,7 +167,7 @@
               </tr>
             </template>
 
-           </v-data-table>
+          </v-data-table>
           <RemoveItem :bus="bus" />
         </v-card>
       </v-form>
@@ -177,7 +185,7 @@ export default {
   },
   data: () => ({
     bus: new Vue(),
-    loading: true,
+    loading: false,
     search: '',
     options: {
       page: 1,
@@ -261,8 +269,6 @@ export default {
         sortable: false
       },
     ],
-    state: [],
-    category:[],
     printDocs: [],
     show_filter:true,
     loading_table: false,
@@ -277,8 +283,9 @@ export default {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
         this.getVouchers()
+        this.search_vouchers()
       }
-    },  
+    },
 
   },
   mounted() {
@@ -291,6 +298,7 @@ export default {
   },
   methods: {
     async getVouchers(params) {
+      this.loading_table = true
       try {
         this.loading = true
         let res = await axios.get(`index_voucher`, {
@@ -303,8 +311,9 @@ export default {
           }
         })
         this.vouchers = res.data.data
-        this.totalVouchers = res.data.total
-        delete res.data['data']
+        console.log(res.data)
+        this.totalVouchers = res.data.totalVouchers
+        // delete res.data['data']
         this.options.page = res.data.current_page
         this.options.itemsPerPage = parseInt(res.data.per_page)
         this.options.totalItems = res.data.total
@@ -318,7 +327,7 @@ export default {
       try {
         let res;
         if(id == 6){
-          res = await axios.get(`voucher/${item}/print/voucher`);
+          res = await axios.get(`voucher/${item}/print/voucher`);          
         }
         printJS({
             printable: res.data.content,
@@ -357,6 +366,38 @@ export default {
         this.loading_table = false
       }
     },
+    async download_report() {
+      this.loading = true
+      await axios({
+        url: "/index_voucher",
+        method: "GET",
+        responseType: "blob",
+        headers: { Accept: "application/vnd.ms-excel"},
+        params: {
+          code_voucher: this.searching.code_voucher,
+          identity_card_borrower: this.searching.identity_card_borrower,
+          full_name_borrower: this.searching.full_name_borrower,
+          code_loan_payment: this.searching.code_loan_payment,
+          voucher_type_loan_payment: this.searching.voucher_type_loan_payment,
+          bank_pay_number_voucher: this.searching.bank_pay_number_voucher,
+          code_loan: this.searching.code_loan,
+          excel: true,
+        },
+      })
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]))
+        const link = document.createElement("a")
+        link.href = url
+        link.setAttribute("download", "ReporteTesoreria.xls")
+        document.body.appendChild(link)
+        link.click()
+      })
+      .catch((error) => {
+        console.log(error)
+        this.loading = false
+      })
+      this.loading = false
+    },
     clearAll() {
       this.searching.code_voucher = "",
       this.searching.identity_card_borrower = "",
@@ -381,9 +422,7 @@ export default {
     _show_filter(){
        this.show_filter=!this.show_filter
     }
-
-
-  }
+  },
 }
 </script>
 <style scoped>
