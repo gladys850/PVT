@@ -311,9 +311,9 @@ class VoucherController extends Controller
             }
                        
               if ($trashed_voucher) {
-                  array_push($conditions, array('view_loan_amortizations.states_loan_payment', 'like', "Anulado"));
+                  array_push($conditions, array('view_loan_amortizations.deleted_at_voucher', '<>', NULL));
               }else{
-                 array_push($conditions, array('view_loan_amortizations.states_loan_payment', '=', "Pagado"));
+                 array_push($conditions, array('view_loan_amortizations.deleted_at_voucher', '=', NULL));
               }
 
               $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','DIRECTO'));
