@@ -155,15 +155,15 @@
           <!-- Filtros -->
             <template slot="body.prepend">
               <tr v-if="show_filter">
-                <td><v-text-field placeholder="Cod. Trans" spellcheck="false" class="filter-text" v-model="searching.code_voucher" @keydown.enter="search_vouchers()"></v-text-field></td>
-                <td><v-text-field placeholder="CI. Prestatario" spellcheck="false" class="filter-text" v-model="searching.identity_card_borrower" @keydown.enter="search_vouchers()"></v-text-field></td>
-                <td><v-text-field placeholder="Nombre completo" spellcheck="false" class="filter-text" v-model="searching.full_name_borrower" @keydown.enter="search_vouchers()"></v-text-field></td>
-                <td><v-text-field placeholder="Reg. Cobro" spellcheck="false" class="filter-text" v-model="searching.code_loan_payment" @keydown.enter="search_vouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="Cod. Trans" spellcheck="false" class="filter-text" v-model="searching.code_voucher" @keydown.enter="getVouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="CI. Prestatario" spellcheck="false" class="filter-text" v-model="searching.identity_card_borrower" @keydown.enter="getVouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="Nombre completo" spellcheck="false" class="filter-text" v-model="searching.full_name_borrower" @keydown.enter="getVouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="Reg. Cobro" spellcheck="false" class="filter-text" v-model="searching.code_loan_payment" @keydown.enter="getVouchers()"></v-text-field></td>
                 <td><v-text-field disabled class="filter-text"></v-text-field></td>
-                <td><v-text-field placeholder="Tipo Pago" spellcheck="false" class="filter-text" v-model="searching.voucher_type_loan_payment" @keydown.enter="search_vouchers()"></v-text-field></td>
-                <td><v-text-field placeholder="Nro. dep Bancario" spellcheck="false" class="filter-text" v-model="searching.bank_pay_number_voucher" @keydown.enter="search_vouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="Tipo Pago" spellcheck="false" class="filter-text" v-model="searching.voucher_type_loan_payment" @keydown.enter="getVouchers()"></v-text-field></td>
+                <td><v-text-field placeholder="Nro. dep Bancario" spellcheck="false" class="filter-text" v-model="searching.bank_pay_number_voucher" @keydown.enter="getVouchers()"></v-text-field></td>
                 <td><v-text-field disabled class="filter-text"></v-text-field></td>
-                <td><v-text-field placeholder="Cod. Préstamo" spellcheck="false" class="filter-text" v-model="searching.code_loan" @keydown.enter="search_vouchers()"></v-text-field></td>                
+                <td><v-text-field placeholder="Cod. Préstamo" spellcheck="false" class="filter-text" v-model="searching.code_loan" @keydown.enter="getVouchers()"></v-text-field></td>                
                 <td><v-text-field disabled class="filter-text"></v-text-field></td>
               </tr>
             </template>
@@ -284,16 +284,16 @@ export default {
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        this.search_vouchers()
+        this.getVouchers()
       }
     },
 
   },
   mounted() {
     this.bus.$on('removed', val => {
-      this.search_vouchers()
+      this.getVouchers()
     })
-    this.search_vouchers()
+    this.getVouchers()
     this.docsLoans()
   },
   methods: {
@@ -314,7 +314,7 @@ export default {
         console.log(e)
       }      
     },
-    async search_vouchers() {
+    async getVouchers() {
       this.loading_table = true
       try {
         let res = await axios.get(`index_voucher`, {
@@ -386,7 +386,7 @@ export default {
       this.searching.voucher_type_loan_payment = "",
       this.searching.bank_pay_number_voucher = "",
       this.searching.code_loan = "",
-      this.search_vouchers()
+      this.getVouchers()
     },
 
         docsLoans() {
