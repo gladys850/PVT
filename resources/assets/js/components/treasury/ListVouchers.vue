@@ -129,7 +129,7 @@
                     color="error"
                     @click.stop="bus.$emit('openRemoveDialog', `voucher/${item.id_voucher}`)"
                   >
-                    <v-icon>mdi-file-cancel-outline</v-icon>{{ item.id_voucher }}
+                    <v-icon>mdi-file-cancel-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>Anular voucher</span>
@@ -284,7 +284,6 @@ export default {
   watch: {
     options: function(newVal, oldVal) {
       if (newVal.page != oldVal.page || newVal.itemsPerPage != oldVal.itemsPerPage || newVal.sortBy != oldVal.sortBy || newVal.sortDesc != oldVal.sortDesc) {
-        // this.getVouchers()
         this.search_vouchers()
       }
     },
@@ -292,45 +291,12 @@ export default {
   },
   mounted() {
     this.bus.$on('removed', val => {
-      // this.getVouchers()
       this.search_vouchers()
     })
     this.search_vouchers()
-    // this.getVouchers()
     this.docsLoans()
   },
   methods: {
-    // async getVouchers(params) {
-      
-    //   try {
-    //     this.loading_table = true
-    //     // this.loading = true
-    //     let res = await axios.get(`index_voucher`, {
-    //       params: {
-    //         page: this.options.page,
-    //         per_page: this.options.itemsPerPage,
-    //         sortBy: this.options.sortBy,
-    //         sortDesc: this.options.sortDesc,
-    //         search: this.search,
-    //       }
-    //     })
-    //     this.vouchers = res.data.data
-    //     // console.log(res.data)
-    //     this.totalVouchers = res.data.total
-    //     delete res.data['data']
-    //     this.options.page = res.data.current_page
-    //     this.options.itemsPerPage = parseInt(res.data.per_page)
-    //     this.options.totalItems = res.data.total
-
-    //     this.loading_table = false
-    //   } catch (e) {
-    //     console.log(e)
-    //     this.loading_table = false
-    //   } finally {
-    //     // this.loading = false
-    //     this.loading_table = false
-    //   }
-    // },
     async imprimir(id, item){
       try {
         let res;
@@ -372,7 +338,7 @@ export default {
         delete res.data["data"]
         this.options.page = res.data.current_page
         this.options.itemsPerPage = parseInt(res.data.per_page)
-        //this.options.totalItems = res.data.total
+        this.options.totalItems = res.data.total
         this.loading_table = false
       } catch (e) {
         console.log(e)
