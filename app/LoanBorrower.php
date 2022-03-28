@@ -11,6 +11,11 @@ class LoanBorrower extends Model
 
     protected $fillable = [
         'loan_id',
+        'degree_id',
+        'unity_id',
+        'category_id',
+        'type_affiliate',
+        'unit_police_description',
         'affiliate_state_id',
         'identity_card',
         'city_identity_card_id',
@@ -21,6 +26,7 @@ class LoanBorrower extends Model
         'second_name',
         'surname_husband',
         'gender',
+        'civil_status',
         'phone_number',
         'cell_phone_number',
         'address_id',
