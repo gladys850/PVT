@@ -17,14 +17,14 @@ class CreateLoanBorrowersTable extends Migration
             $table->id();
             $table->unsignedBigInteger('loan_id');
             $table->foreign('loan_id')->references('id')->on('loans');
-            $table->unsignedBigInteger('degree_id');
+            $table->unsignedBigInteger('degree_id')->nullable();
             $table->foreign('degree_id')->references('id')->on('degrees');
-            $table->unsignedBigInteger('unity_id');
+            $table->unsignedBigInteger('unity_id')->nullable();
             $table->foreign('unity_id')->references('id')->on('units');
-            $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories');
-            $table->string('type_affiliate');
-            $table->string('unit_police_description');
+            $table->string('type_affiliate')->nullable();
+            $table->string('unit_police_description')->nullable();
             $table->unsignedBigInteger('affiliate_state_id');
             $table->foreign('affiliate_state_id')->references('id')->on('affiliate_states');
             $table->string('identity_card')->nullable();
@@ -37,7 +37,7 @@ class CreateLoanBorrowersTable extends Migration
             $table->string('second_name')->nullable();
             $table->string('surname_husband')->nullable();
             $table->enum('gender', ['F','M']);
-            $table->string('civil_status');
+            $table->string('civil_status')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('cell_phone_number')->nullable();
             $table->unsignedBigInteger('address_id');
