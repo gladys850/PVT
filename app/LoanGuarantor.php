@@ -24,7 +24,7 @@ class LoanGuarantor extends Model
         'gender',
         'phone_number',
         'cell_phone_number',
-        'address',
+        'address_id',
         'pension_entity_id',
         'payment_percentage',
         'payable_liquid_calculated',

@@ -33,7 +33,8 @@ class CreateLoanGuarantorsTable extends Migration
             $table->enum('gender', ['F','M']);
             $table->string('phone_number')->nullable();
             $table->string('cell_phone_number')->nullable();
-            $table->string('address');
+            $table->unsignedBigInteger('address_id');
+            $table->foreign('address_id')->references('id')->on('addresses');
             $table->unsignedBigInteger('pension_entity_id')->nullable();
             $table->foreign('pension_entity_id')->references('id')->on('pension_entities');
             $table->float('payment_percentage',5,2);// porcentaje de descuento
