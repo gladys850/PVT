@@ -44,4 +44,28 @@ class LoanGuarantor extends Model
         'contributionable_type',
         'type'
       ];
+
+  public function affiliate()
+  {
+    return $this->belongsTo(Affiliate::class);
+  }
+
+  public function getFullNameAttribute()
+  {
+    return rtrim($this->first_name.' '.$this->second_name.' '.$this->last_name.' '.$this->mothers_last_name.' '.$this->surname_husband);
+  }
+
+  public function getIdentityCardExtAttribute()
+  {
+    $data = $this->identity_card;
+    if ($this->city_identity_card && $this->city_identity_card != 'NINGUNO'){
+        $data .= ' ' . $this->city_identity_card->first_shortened;
+    } 
+    return rtrim($data);
+  }
+
+  public function affiliate_state()
+  {
+    return $this->belongsTo(AffiliateState::class);
+  }
 }
