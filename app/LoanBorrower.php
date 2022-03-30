@@ -82,6 +82,37 @@ class LoanBorrower extends Model
 
     public function affiliate()
     {
-      return $this->hasOneTrough(Affiliate::class, Loan::class, 'loan_id', 'affiliate_id', 'id', 'loan_id');
+      return Loan::find($this->loan_id)->affiliate;
+    }
+
+    public function Address()
+    {
+        return $this->hasOne(Address::class, 'id', 'address_id');
+    }
+
+    public function getFullUnitAttribute()
+    {
+        $data = "";
+        if ($this->unit) $data .= ' ' . $this->unit->district.' - '.$this->unit->name.' ('.$this->unit->shortened.')';
+        return $data;
+    }
+
+    public function unit()
+    {
+      return $this->belongsTo(Unit::class, 'unity_id', 'id');
+    }
+
+    public function getCategoryAttribute()
+    {
+      $category = null;
+      if($this->category_id){
+        $category =  Category::whereId($this->category_id)->first();
+      }
+      return $category;
+    }
+
+    public function pension_entity()
+    {
+      return $this->belongsTo(PensionEntity::class, 'pension_entity_id', 'id');
     }
 }
