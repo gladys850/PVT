@@ -270,12 +270,7 @@
           <v-card flat tile >
           <v-card-text>
            <HistoryAffiliate
-              :loan.sync="loan"
-              :observations.sync="observations"
-              :bus1="bus1"
-              :affiliate.sync="affiliate"
-              :borrower.sync="borrower" />
-
+              :affiliate.sync="affiliate"/>
            </v-card-text>
           </v-card>
         </v-tab-item>
