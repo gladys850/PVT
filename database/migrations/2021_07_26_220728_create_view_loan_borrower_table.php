@@ -63,7 +63,11 @@ class CreateViewLoanBorrowerTable extends Migration
             l.validated AS validated_loan,
             la.type AS type_affiliate_spouse_loan,
             la.guarantor AS guarantor_loan,
-            d.name AS name_degree
+            d.name AS name_degree,
+            l.delivery_contract_date,
+            l.return_contract_date,
+            l.regional_delivery_contract_date,
+            l.regional_return_contract_date
         FROM loans l
             JOIN loan_affiliates la ON l.id = la.loan_id
             JOIN affiliates a ON a.id = l.affiliate_id
@@ -130,7 +134,11 @@ class CreateViewLoanBorrowerTable extends Migration
             l.validated AS validated_loan,
             la.type AS type_affiliate_spouse_loan,
             la.guarantor AS guarantor_loan,
-            d.name AS name_degree
+            d.name AS name_degree,
+            l.delivery_contract_date,
+            l.return_contract_date,
+            l.regional_delivery_contract_date,
+            l.regional_return_contract_date
         FROM loans l
             JOIN loan_affiliates la ON l.id = la.loan_id
             JOIN affiliates a ON a.id = l.affiliate_id

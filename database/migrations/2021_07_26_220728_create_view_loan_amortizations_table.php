@@ -68,7 +68,12 @@ class CreateViewLoanAmortizationsTable extends Migration
            lp.previous_balance - lp.capital_payment AS current_balance,
            lpc.name AS name_category,
            lpc.shortened AS shortened_category,
-           lpc.type_register AS type_register_category
+           lpc.type_register AS type_register_category,
+           v.payment_date  as payment_date_voucher,
+           v.bank_pay_number as bank_pay_number_voucher,
+           v.total as total_voucher,
+           v.id as id_voucher,
+           v.deleted_at as deleted_at_voucher
           FROM loan_payments lp
             JOIN loans l ON l.id = lp.loan_id
             JOIN loan_states ls ON ls.id = l.state_id
@@ -140,7 +145,12 @@ class CreateViewLoanAmortizationsTable extends Migration
            lp.previous_balance - lp.capital_payment AS current_balance,
            lpc.name AS name_category,
            lpc.shortened AS shortened_category,
-           lpc.type_register AS type_register_category
+           lpc.type_register AS type_register_category,
+           v.payment_date  as payment_date_voucher,
+           v.bank_pay_number as bank_pay_number_voucher,
+           v.total as total_voucher,
+           v.id as id_voucher,
+           v.deleted_at as deleted_at_voucher
           FROM loan_payments lp
             JOIN loans l ON l.id = lp.loan_id
             JOIN procedure_modalities pml ON pml.id = l.procedure_modality_id
