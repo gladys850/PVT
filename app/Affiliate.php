@@ -192,18 +192,6 @@ class Affiliate extends Model
         $category =  Category::whereId($this->category_id)->first();
       }
       return $category;
-     /* if(count($this->contributions)>0) {
-        $contribution = $this->contributions->last();
-        if($contribution->base_wage>0) {
-          $contribution_category = intval($contribution->seniority_bonus*100/$contribution->base_wage);
-          $categories = Category::get();
-          foreach($categories as $cat){
-            if(round($cat->percentage*100) == ($contribution_category))
-              $category = $cat;
-          }
-        }
-      }
-        unset ($this->contributions)*/
     }
 
     public function degree()
@@ -247,7 +235,6 @@ class Affiliate extends Model
 
     public function getAddressAttribute()
     {
-        //return $this->addresses()->latest()->first();
         return $this->addresses()->withPivot('validated')->whereValidated(true)->first();
     }
 
@@ -277,12 +264,12 @@ class Affiliate extends Model
 
     public function guarantees()
     {
-        return $this->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['payment_percentage'])->whereGuarantor(true)->where('type', 'affiliates')->orderBy('loans.created_at', 'desc');
+      return $this->hasMany(LoanGuarantor::class, 'affiliate_id', 'id');
     }
 
     public function loans()
     {
-        return $this->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['payment_percentage'])->whereGuarantor(false)->where('type', 'affiliates')->orderBy('loans.created_at', 'desc');
+        return $this->hasMany(Loan::class, 'affiliate_id', 'id');
     }
 
     public function active_loans()
@@ -292,7 +279,7 @@ class Affiliate extends Model
     public function current_loans()
     {
       $loan_state = LoanState::whereName('Vigente')->first();
-      return $this->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['payment_percentage'])->whereGuarantor(false)->where('type', 'affiliates')->where('state_id', $loan_state->id)->orderBy('loans.created_at', 'desc');
+      return $this->hasMany(Loan::class, 'affiliate_id', 'id')->where('state_id', $loan_state->id);
     }
     public function active_guarantees()
     {

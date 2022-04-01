@@ -57,7 +57,7 @@ use App\LoanGuarantor;
 */
 class LoanController extends Controller
 {
-    public static function append_data(Loan $loan, $with_lenders = false)
+    public static function append_data(Loan $loan)
     {
         $loan->indebtedness_calculated = $loan->indebtedness_calculated;
         $loan->liquid_qualification_calculated = $loan->liquid_qualification_calculated;
@@ -66,21 +66,21 @@ class LoanController extends Controller
         $loan->defaulted = $loan->defaulted;
         $loan->observed = $loan->observed;
         $loan->last_payment_validated = $loan->last_payment_validated;
-        if ($with_lenders) {
-            foreach($loan->lenders as $lender)
+        /*if ($with_lenders) {
+            foreach($loan->borrower as $lender)
             {
                 $lender->affiliate_state = $lender->affiliate_state;
-                $lender->spouse = $lender->spouse;
+                //$lender->spouse = $lender->spouse;
                 $lender->ballots = $loan->ballot_affiliate($lender->id);
             }
             foreach($loan->guarantors as $guarantor)
             {
                 $guarantor->affiliate_state = $guarantor->affiliate_state;
-                $guarantor->spouse = $guarantor->spouse;
+                //$guarantor->spouse = $guarantor->spouse;
             }
             $loan->lenders = $loan->lenders;
             $loan->guarantors = $loan->guarantors;
-        }
+        }*/
         $loan->personal_references = $loan->personal_references;
         $loan->cosigners = $loan->cosigners;
         $loan->data_loan = $loan->data_loan;
@@ -103,7 +103,7 @@ class LoanController extends Controller
         }
         $loan->payment_type;
         $loan->state;
-        $loan->borrower = $loan->borrower();
+        $loan->borrower = $loan->borrower;
         $loan->borrowerguarantors = $loan->borrowerguarantors;
         //$loan->procedure=$loan->modality;
         //$loan->loan_contribution = $loan->loan_contribution_adjusts;
@@ -385,7 +385,7 @@ class LoanController extends Controller
             return $query->whereName('prestamos');
         })->pluck('id')->contains($loan->role_id)) {
             $loan = self::append_data($loan, true);
-            foreach($loan->lenders as $lender){
+            foreach($loan->borrower as $lender){
                 $lender->type_initials = "T-".$lender->initials;
             }
             foreach($loan->guarantors as $guarantor){
@@ -781,7 +781,7 @@ class LoanController extends Controller
                         'civil_status' => $affiliate_lender->dead ? $affiliate_lender->spouse->civil_status : $affiliate_lender->civil_status,
                         'phone_number' => $affiliate_lender->phone_number,
                         'cell_phone_number' => $affiliate_lender->cell_phone_number,
-                        'address_id' => $affiliate_lender->address->id,
+                        'address_id' => $affiliate_lender->address_id,
                         'pension_entity_id' => $affiliate_lender->pension_entity_id,
                         'payment_percentage' => $affiliate['payment_percentage'],
                         'payable_liquid_calculated' => $affiliate['payable_liquid_calculated'],
@@ -1108,7 +1108,7 @@ class LoanController extends Controller
     public function get_information_loan(Loan $loan)
     {
         //$loan_affiliates = $loan->borrower->first_name;
-        $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$loan->borrower()->first()->full_name]);
+        $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$loan->borrower->first()->full_name]);
 
         return $file_name;
     }
@@ -1128,9 +1128,9 @@ class LoanController extends Controller
         $is_spouse = false;
         $file_title = implode('_', ['FORM','SOLICITUD','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
         //foreach ($loan->lenders as $lender) {
-        $loan->borrower()->first();
-            array_push($lenders, $loan->borrower()->first());
-            if($loan->borrower()->first()->type == 'spouses') $is_dead = true;
+        $loan->borrower->first();
+            array_push($lenders, $loan->borrower->first());
+            if($loan->borrower->first()->type == 'spouses') $is_dead = true;
         //}
         $persons = collect([]);
         $loans = collect([]);
@@ -1336,7 +1336,7 @@ class LoanController extends Controller
         foreach ($loan->guarantors as $guarantor) {
             $guarantors[] = self::verify_loan_affiliates($guarantor,$loan);
         }*/
-        $lenders = $loan->borrower();
+        $lenders = $loan->borrower;
         $guarantors = $loan->guarantors;
         $data = [
            'header' => [
@@ -1349,7 +1349,7 @@ class LoanController extends Controller
                ]
            ],
            'loan' => $loan,
-           'lenders' => $loan->borrower(),
+           'lenders' => $loan->borrower,
            'guarantors' => collect($guarantors),
            'Loan_type_title' => $loan_type_title, 
            'estimated' => $estimated,

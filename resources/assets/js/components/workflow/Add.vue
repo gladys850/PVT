@@ -558,7 +558,7 @@ export default {
   },
   methods: {
     resetForm() {
-      this.getAddress(this.affiliate.id)
+      this.getAddress(this.loan.borrower.address_id)
       this.editable = false
       this.reload = true
       this.$nextTick(() => {
@@ -587,10 +587,10 @@ export default {
         this.loan.loan_term_before= res.data.loan_term
 
         this.loan.amount_approved_aux = this.loan.amount_approved
-        this.loan.payable_liquid_calculated_aux = this.loan.lenders[0].pivot.payable_liquid_calculated
+        //this.loan.payable_liquid_calculated_aux = this.loan.borrower[0].payable_liquid_calculated
         this.loan.liquid_qualification_calculated_aux = this.loan.liquid_qualification_calculated
         this.loan.loan_term_aux = this.loan.loan_term
-        this.loan.bonus_calculated_aux = this.loan.lenders[0].pivot.bonus_calculated
+        this.loan.bonus_calculated_aux = this.loan.borrower[0].bonus_calculated
         this.loan.indebtedness_calculated_aux = this.loan.indebtedness_calculated
         this.loan.estimated_quota_aux = this.loan.estimated_quota
 
@@ -632,7 +632,7 @@ export default {
             this.loan_refinancing.amount_approved = this.loan.amount_approved
             this.loan_refinancing.refinancing_balance = this.loan.refinancing_balance
 
-        let res1 = await axios.get(`affiliate/${this.loan.lenders[0].id}`)
+        let res1 = await axios.get(`affiliate/${this.loan.affiliate_id}`)
         this.affiliate = res1.data
         if (this.loan.property_id != null) {
           this.getLoanproperty(this.loan.property_id)
