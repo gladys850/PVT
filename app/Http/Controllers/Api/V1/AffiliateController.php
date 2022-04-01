@@ -52,7 +52,7 @@ class AffiliateController extends Controller
         $affiliate->picture_saved = $affiliate->picture_saved;
         $affiliate->fingerprint_saved = $affiliate->fingerprint_saved;
         $affiliate->defaulted_lender = $affiliate->defaulted_lender;
-        $affiliate->defaulted_guarantor = $affiliate->defaulted_guarantor;
+        //$affiliate->defaulted_guarantor = $affiliate->defaulted_guarantor;
         $affiliate->cpop = $affiliate->cpop;
         if($affiliate->spouse){
             $affiliate->spouse = $affiliate->spouse;
@@ -593,20 +593,17 @@ class AffiliateController extends Controller
             'guarantor' => 'required|boolean',
             'state' => 'integer'
         ]);
-        $type = $request->boolean('guarantor') ? 'guarantors' : 'lenders';
-        $relations[$type] = [
-            'affiliate_id' => $affiliate->id
-        ];
+        $filter['affiliate_id'] = $affiliate->id;
         if ($request->has('state')) {
             $relations['state'] = [
                 'id' => $request->state
             ];
         }
-        $data = Util::search_sort(new Loan(), $request, [], $relations, ['id']);
+        $data = Util::search_sort(new Loan(), $request, $filter,[], ['id']);
         $data->getCollection()->transform(function ($loan) {
             return LoanController::append_data($loan, true);
         });
-        return $data;
+            return $data;
     }
 
     /**
