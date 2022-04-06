@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Util;
 
 class LoanGuarantor extends Model
 {
@@ -20,6 +21,7 @@ class LoanGuarantor extends Model
         'affiliate_state_id',
         'identity_card',
         'city_identity_card_id',
+        'city_birth_id',
         'registration',
         'last_name',
         'mothers_last_name',
@@ -48,6 +50,11 @@ class LoanGuarantor extends Model
   public function affiliate()
   {
     return $this->belongsTo(Affiliate::class);
+  }
+
+  public function Address()
+  {
+    return $this->hasOne(Address::class, 'id', 'address_id');
   }
 
   public function getFullNameAttribute()
@@ -205,5 +212,20 @@ class LoanGuarantor extends Model
             'ballot_adjusts'=> $ballot_adjust->sortBy('month_year')->values()->toArray(),
         ];
     return (object)$data;
+  }
+
+  public function city_birth()
+  {
+    return $this->belongsTo(City::class, 'city_birth_id', 'id');
+  }
+
+  public function city_identity_card()
+  {
+    return $this->belongsTo(City::class,'city_identity_card_id', 'id');
+  }
+
+  public function getCivilStatusGenderAttribute()
+  {
+    return Util::get_civil_status($this->civil_status, $this->gender);
   }
 }
