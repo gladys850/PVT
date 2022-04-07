@@ -32,6 +32,8 @@ class CreateLoanGuarantorsTable extends Migration
             $table->string('identity_card')->nullable();
             $table->unsignedBigInteger('city_identity_card_id')->nullable();
             $table->foreign('city_identity_card_id')->references('id')->on('cities');
+            $table->unsignedBigInteger('city_birth_id')->nullable();
+            $table->foreign('city_birth_id')->references('id')->on('cities');
             $table->string('registration')->nullable();
             $table->string('last_name')->nullable();
             $table->string('mothers_last_name')->nullable();
