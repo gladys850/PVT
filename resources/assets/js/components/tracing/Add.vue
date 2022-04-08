@@ -2,11 +2,16 @@
   <v-card flat>
     <v-card-title class="pb-0">
       <v-toolbar dense color='tertiary'>
+
         <v-toolbar-title>
           <Breadcrumbs />
         </v-toolbar-title>
+
         <v-spacer></v-spacer>
+
           <template>
+
+              <!-- B O T Ó N  1   I M P.  S O L I C I T U D -->
               <v-tooltip bottom >
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -23,6 +28,8 @@
                 </template>
                 <span>Imprimir Solicitud</span>
               </v-tooltip>
+
+              <!-- B O T Ó N  2   I M P.  C O N T R A T O -->
               <v-tooltip bottom >
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -39,6 +46,8 @@
                 </template>
                 <span>Imprimir Contrato</span>
               </v-tooltip>
+
+              <!-- B O T Ó N  3   I M P.   P L A N   D E   P A G O S -->
               <v-tooltip bottom v-if="loan.state.name == 'Vigente' || loan.state.name == 'Liquidado'">
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -55,6 +64,8 @@
                 </template>
                 <span>Imprimir Plan de pagos</span>
               </v-tooltip>
+
+              <!-- B O T Ó N  4    I M P.   K A R D E X -->
               <v-tooltip bottom v-if="loan.state.name == 'Vigente' || loan.state.name == 'Liquidado'">
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -71,6 +82,8 @@
                 </template>
                 <span>Imprimir Kardex</span>
               </v-tooltip>
+
+              <!-- B O T Ó N  5   I M P.   F O R M.  C A L I F I C A C I Ó N -->
               <v-tooltip bottom >
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -88,16 +101,26 @@
                 </template>
                 <span>Imprimir Formulario de Calificación</span>
               </v-tooltip>
+
           <v-divider vertical class="mx-4"></v-divider>
+
           <h6 class="caption">
+
           <strong>Ubicación trámite:</strong> <br />
+
           <v-icon x-small color="orange">mdi-folder-information</v-icon>{{role_name}} <br>
           <v-icon x-small color="blue" v-if="user_name != null">mdi-file-account</v-icon> {{user_name}}</h6>
-        </template>
+
+          </template>
+
       </v-toolbar>
     </v-card-title>
+
+    <!-- S E C C I Ó N   D A T O S   E S P E C I F I C O S -->
     <v-card-text>
+
       <Dashboard :affiliate.sync="affiliate" :loan.sync="loan"/>
+
       <FormTracing
           :loan.sync="loan"
           :loan_refinancing.sync="loan_refinancing"
@@ -107,7 +130,9 @@
           :observation_type.sync="observation_type"
       >
       </FormTracing>
+
     </v-card-text>
+
   </v-card>
 </template>
 <script>
@@ -143,26 +168,6 @@ export default {
       registration: null
     },
     loan: {
-      borrower:[
-        {first_name:null,
-        last_name:null,
-        city_identity_card:{},
-          pivot:{},},
-        {first_name:null,
-        last_name:null,
-        city_identity_card:{},
-          pivot:{},}
-      ],
-      lenders: [
-        {pivot:{},}
-      ],
-      guarantors: [],
-      cosigners: [],
-      personal_references: [],
-      payment_type:{},
-      intereses: {},
-      state: {},
-      user:{}
     },
     city:[],
     loan_refinancing:{},
@@ -213,9 +218,14 @@ export default {
         this.loading = true
         let res = await axios.get(`loan/${id}`)
         this.loan = res.data
+        
+        // Modificaciones
+        this.loan.payable_liquid_calculated = res.data.borrower[0].payable_liquid_calculated
+        console.log(this.loan.payable_liquid_calculated)
         this.loan.amount_approved_before= res.data.amount_approved
         this.loan.loan_term_before= res.data.loan_term
         this.loan.amount_approved_aux = this.loan.amount_approved
+        
         this.loan.payable_liquid_calculated_aux = this.loan.lenders[0].pivot.payable_liquid_calculated
         this.loan.liquid_qualification_calculated_aux = this.loan.liquid_qualification_calculated
         this.loan.loan_term_aux = this.loan.loan_term
@@ -408,4 +418,25 @@ export default {
     }
   },
 }
+
+      /*borrower:[*/
+        /*{first_name:null,*/
+        /*last_name:null,*/
+        /*city_identity_card:{},*/
+          /*pivot:{},},*/
+        /*{first_name:null,*/
+        /*last_name:null,*/
+        /*city_identity_card:{},*/
+          /*pivot:{},}*/
+      /*],*/
+      /*lenders: [*/
+        /*{pivot:{},}*/
+      /*],*/
+      /*guarantors: [],*/
+      /*cosigners: [],*/
+      /*personal_references: [],*/
+      /*payment_type:{},*/
+      /*intereses: {},*/
+      /*state: {},*/
+      /*user:{}*/
 </script>
