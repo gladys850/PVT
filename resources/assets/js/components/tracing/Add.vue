@@ -218,24 +218,23 @@ export default {
         this.loading = true
         let res = await axios.get(`loan/${id}`)
         this.loan = res.data
-        
-        // Modificaciones
-        this.loan.payable_liquid_calculated = res.data.borrower[0].payable_liquid_calculated
-        console.log(this.loan.payable_liquid_calculated)
         this.loan.amount_approved_before= res.data.amount_approved
         this.loan.loan_term_before= res.data.loan_term
+
         this.loan.amount_approved_aux = this.loan.amount_approved
-        
-        this.loan.payable_liquid_calculated_aux = this.loan.lenders[0].pivot.payable_liquid_calculated
+        //this.loan.payable_liquid_calculated_aux = this.loan.borrower[0].payable_liquid_calculated
         this.loan.liquid_qualification_calculated_aux = this.loan.liquid_qualification_calculated
         this.loan.loan_term_aux = this.loan.loan_term
-        this.loan.bonus_calculated_aux = this.loan.lenders[0].pivot.bonus_calculated
+        this.loan.bonus_calculated_aux = this.loan.borrower[0].bonus_calculated
         this.loan.indebtedness_calculated_aux = this.loan.indebtedness_calculated
         this.loan.estimated_quota_aux = this.loan.estimated_quota
+
+
         this.loan.disbursement_date=this.$moment(res.data.disbursement_date).format('YYYY-MM-DD')
         this.loan.delivery_contract_date=this.$moment(res.data.delivery_contract_date).format('YYYY-MM-DD')
         this.loan.return_contract_date=this.$moment(res.data.return_contract_date).format('YYYY-MM-DD')
-        this.loan.modality=this.loan.modality.name
+        this.loan.regional_delivery_contract_date=this.$moment(res.data.regional_delivery_contract_date).format('YYYY-MM-DD')
+        this.loan.regional_return_contract_date=this.$moment(res.data.regional_return_contract_date).format('YYYY-MM-DD')
 
         if(this.loan.parent_reason=='REFINANCIAMIENTO')
         {
@@ -247,6 +246,7 @@ export default {
             this.loan_refinancing.loan_term  = this.loan.parent_loan.loan_term
             this.loan_refinancing.balance  = this.loan.parent_loan.balance
             this.loan_refinancing.estimated_quota = this.loan.parent_loan.estimated_quota
+            this.loan_refinancing.disbursement_date = this.loan.parent_loan.disbursement_date
             this.loan_refinancing.type_sismu = false
             this.loan_refinancing.description= 'PRESTAMO DEL PVT'
           }else{
@@ -256,6 +256,7 @@ export default {
             this.loan_refinancing.balance  = this.loan.data_loan.balance
             this.loan_refinancing.type_sismu = true
             this.loan_refinancing.estimated_quota = this.loan.data_loan.estimated_quota
+            this.loan_refinancing.disbursement_date = this.loan.data_loan.disbursement_date
             this.loan_refinancing.description= 'PRESTAMO DEL SISMU'
            }
         }else{
@@ -266,16 +267,23 @@ export default {
             this.loan_refinancing.amount_approved = this.loan.amount_approved
             this.loan_refinancing.refinancing_balance = this.loan.refinancing_balance
 
-        let res1 = await axios.get(`affiliate/${this.loan.lenders[0].id}`)
+        let res1 = await axios.get(`affiliate/${this.loan.affiliate_id}`)
         this.affiliate = res1.data
         if (this.loan.property_id != null) {
           this.getLoanproperty(this.loan.property_id)
         }
-        //Saca el procedure tipe del tramite
         this.getProceduretype(this.loan.procedure_modality_id)
+        this.borrower = this.loan.borrower[0]
+        if (this.loan.borrower[0].type == "spouses") {
+          this.getSpouse(this.affiliate.id)
+        }
         this.setBreadcrumbs()
+        this.getAddress(this.affiliate.id)
+
         this.role(this.loan.role_id)
-        this.user(this.loan.user_id)
+        if(this.loan.user_id != null){
+          this.user(this.loan.user_id)
+        }
       } catch (e) {
         console.log(e)
       } finally {
@@ -319,6 +327,7 @@ export default {
         this.loading = true
         let res = await axios.get(`procedure_modality/${id}`)
         this.procedure_types = res.data
+        console.log(this.procedure_types)
       } catch (e) {
         console.log(e)
       } finally {

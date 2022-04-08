@@ -132,7 +132,8 @@
 
                                   <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
                                     <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo'">
-                                      <li v-for="guarantor in loan.borrowerguarantors" :key="guarantor.id">
+                                    
+                                      <li v-for="guarantor in loan.guarantors" :key="guarantor.id">
                                         <v-col cols="12" md="12" class="pa-0">
 
                                           <v-row class="pa-2">
@@ -155,23 +156,23 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.pivot.payment_percentage|percentage }}%</p>
+                                              <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.payment_percentage|percentage }}%</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.pivot.payable_liquid_calculated | moneyString}}</p>
+                                              <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.payable_liquid_calculated | moneyString}}</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>PROMEDIO DE BONOS:</b> {{guarantor.pivot.bonus_calculated| moneyString }}</p>
+                                              <p><b>PROMEDIO DE BONOS:</b> {{guarantor.bonus_calculated| moneyString }}</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.pivot.liquid_qualification_calculated | moneyString}}</p>
+                                              <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.pivot.indebtedness_calculated|percentage }}%</p>
+                                              <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated|percentage }}%</p>
                                             </v-col>
                                           </v-row>
 
@@ -295,10 +296,10 @@ export default {
       type: Array,
       required: true
     },
-    loan_properties: {
-      type: Object,
-      required: true
-    },
+    /*loan_properties: {*/
+      /*type: Object,*/
+      /*required: true*/
+    /*},*/
     procedure_types: {
       type: Object,
       required: true
