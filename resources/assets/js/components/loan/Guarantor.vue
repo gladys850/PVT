@@ -37,7 +37,7 @@
                       Sigep: {{garantes_detalle_loan.sigep_status}}
                     </v-col>
                       <v-col cols="12" md="3" class="py-0">
-                      Porcentaje de Pago: {{garantes_detalle_loan.pivot.payment_percentage}}
+                      Porcentaje de Pago: {{garantes_detalle_loan.payment_percentage}}
                     </v-col>
                   </v-row>
                   </li>

@@ -1016,7 +1016,7 @@ class AffiliateController extends Controller
             $ci=Affiliate::whereId($id)->first()->identity_card;
         }
         else{
-            $loans = Spouse::whereId($id)->first()->spouse_loans;
+            $loans = Spouse::whereId($id)->first()->spouse_loans();
             //$loans = Loan::where('disbursable_id', $id)->where('disbursable_type', 'spouses')->get();
             $ci=Spouse::whereId($id)->first()->identity_card;
         }
@@ -1081,7 +1081,7 @@ class AffiliateController extends Controller
         }
         else{
             $affiliate = Spouse::whereId($id)->first()->affiliate;
-            $loans_guarantees = $affiliate->spouse->spouse_guarantees;
+            $loans_guarantees = $affiliate->spouse->spouse_guarantees();
             $ci = Spouse::whereId($id)->first()->identity_card;
         }
         $loans = $affiliate->guarantees;
@@ -1213,12 +1213,15 @@ class AffiliateController extends Controller
     */
     public function search_loan(Request $request){
         // return $request;
-         $request->validate([
-             'identity_card' => 'required|string'
-         ]);
-         $message = array();
-         $ci=$request->identity_card;
-         $affiliate = Affiliate::where('identity_card', $ci)->first();
+        $request->validate([
+            'identity_card' => 'required|string'
+        ]);
+        $message = array();
+        $ci=$request->identity_card;
+        if(Affiliate::where('identity_card', $ci)->first())
+            $affiliate = Affiliate::where('identity_card', $ci)->first();
+        elseif(Spouse::where('identity_card', $ci)->first())
+            $affiliate = Spouse::where('identity_card', $ci)->first()->affiliate;
          $state_affiliate=$affiliate->affiliate_state->affiliate_state_type->name;
          $state_affiliate_sub=$affiliate->affiliate_state->name;
          $evaluate=false;
@@ -1568,7 +1571,7 @@ class AffiliateController extends Controller
         if($affiliate->spouse != null && $affiliate->spouse->dead == false)
         {
             $affiliate->spouse = $affiliate->spouse;
-            $loans = $affiliate->spouse->spouse_active_guarantees;
+            $loans = $affiliate->spouse->spouse_active_guarantees();
             $loans_sismu = $affiliate->spouse->active_guarantees_sismu();
         }
         else

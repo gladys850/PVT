@@ -66,21 +66,6 @@ class LoanController extends Controller
         $loan->defaulted = $loan->defaulted;
         $loan->observed = $loan->observed;
         $loan->last_payment_validated = $loan->last_payment_validated;
-        /*if ($with_lenders) {
-            foreach($loan->borrower as $lender)
-            {
-                $lender->affiliate_state = $lender->affiliate_state;
-                //$lender->spouse = $lender->spouse;
-                $lender->ballots = $loan->ballot_affiliate($lender->id);
-            }
-            foreach($loan->guarantors as $guarantor)
-            {
-                $guarantor->affiliate_state = $guarantor->affiliate_state;
-                //$guarantor->spouse = $guarantor->spouse;
-            }
-            $loan->lenders = $loan->lenders;
-            $loan->guarantors = $loan->guarantors;
-        }*/
         $loan->personal_references = $loan->personal_references;
         $loan->cosigners = $loan->cosigners;
         $loan->data_loan = $loan->data_loan;
@@ -821,7 +806,6 @@ class LoanController extends Controller
                     $a++;
                 }
             }
-            //if (count($affiliates) > 0) $loan->loan_affiliates()->sync($affiliates);
         }
         if (Auth::user()->can(['update-loan', 'create-loan']) && ($request->has('personal_references') || $request->has('cosigners'))) {
             $persons = [];
@@ -937,30 +921,6 @@ class LoanController extends Controller
         $needed_keys = ['city_birth', 'city_identity_card', 'city_identity_card', 'address'];
         foreach ($needed_keys as $key) {
             if (!$object->disbursable[$key]) abort(409, 'Debe actualizar los datos personales del titular y garantes');
-        }
-        return $object;
-    }
-
-    //Verifica a los afiliados del prestamo con que tipificacion fue si como afiliado o esposa 
-    public static function verify_loan_affiliates(Affiliate $affiliate, Loan $loan)
-    {
-        foreach ($loan->loan_affiliates as $loan_affiliate) {
-            if($loan_affiliate->pivot->affiliate_id == $affiliate->id){
-                if($loan_affiliate->pivot->type =="spouses"){
-                    $spouse = $loan_affiliate->spouse;
-                    $object = (object)[
-                        'type' => 'spouses',
-                        'disbursable' => $spouse,
-                        'affiliate'=>$affiliate
-                    ];
-                }else{
-                    $object = (object)[
-                        'type' => 'affiliates',
-                        'disbursable' => $affiliate,
-                        'affiliate'=>$affiliate
-                    ];
-                }
-            }
         }
         return $object;
     }
@@ -1127,41 +1087,28 @@ class LoanController extends Controller
         $loans = collect([]);
         foreach ($lenders as $lender) 
         {
-            //balance de otros prestamos
-            /*if(!$lender->affiliate()->id){
-                    foreach($lender->current_loans as $current_loans){
-                        $loans->push([
-                            'code' => $current_loans->code,
-                            'balance' => $current_loans->balance,
-                            'origin' => "PVT",
-                        ]);
-                    }
-            }
-            else{*/
-                foreach($lender->affiliate()->current_loans as $current_loans){
-                    $loans->push([
-                        'code' => $current_loans->code,
-                        'balance' => $current_loans->balance,
-                        'origin' => "PVT",
-                    ]);
-                }
-            //}
-                $loans_sismu = $this->get_balance_sismu($lender->identity_card);
-                foreach($loans_sismu as $sismu){
-                    $loans->push([
-                        'code' => $sismu->PresNumero,
-                        'balance' => $sismu->PresSaldoAct,
-                        'origin' => "SISMU"
-                    ]);
-                }
-                //
-                $persons->push([
-                    'id' => $lender->id,
-                    'full_name' => implode(' ', [$lender->title ? $lender->title : '', $lender->full_name]),
-                    'identity_card' => $lender->identity_card_ext,
-                    'position' => 'SOLICITANTE',
+            foreach($lender->affiliate()->current_loans as $current_loans){
+                $loans->push([
+                    'code' => $current_loans->code,
+                    'balance' => $current_loans->balance,
+                    'origin' => "PVT",
                 ]);
-                $lender->loans_balance = $loans;
+            }
+            $loans_sismu = $this->get_balance_sismu($lender->identity_card);
+            foreach($loans_sismu as $sismu){
+                $loans->push([
+                    'code' => $sismu->PresNumero,
+                    'balance' => $sismu->PresSaldoAct,
+                    'origin' => "SISMU"
+                ]);
+            }
+            $persons->push([
+                'id' => $lender->id,
+                'full_name' => implode(' ', [$lender->title ? $lender->title : '', $lender->full_name]),
+                'identity_card' => $lender->identity_card_ext,
+                'position' => 'SOLICITANTE',
+            ]);
+            $lender->loans_balance = $loans;
         }
         $guarantors = [];
         foreach ($loan->guarantors as $guarantor) {
@@ -1209,12 +1156,11 @@ class LoanController extends Controller
        * @responseFile responses/loan/print_form_advance.200.json
        */
        public function print_advance_form(Request $request, Loan $loan, $standalone = true){
-        $lenders = [];
+        $lenders = [];return "asd";
         $persons = collect([]);
         $file_title = implode('_', ['FORM','SOLICITUD','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
-        foreach ($loan->lenders as $lender) {
-            array_push($lenders,self::verify_loan_affiliates($lender,$loan));
-        }
+        $lenders = $loan->borrower;
+        $guarantors = $loan->guarantors;
         foreach($lenders as $lender){
             $lender =$lender->disbursable;
             $persons->push([
@@ -1320,13 +1266,6 @@ class LoanController extends Controller
         $loan_type_title = $loan->parent_reason== "REFINANCIAMIENTO" ? "REFINANCIAMIENTO":"REPROGRAMACIÓN";
     }
         $lenders = [];
-        /*foreach ($loan->lenders as $lender) {
-            $lenders[] = self::verify_loan_affiliates($lender,$loan);
-        }
-        $guarantors = [];
-        foreach ($loan->guarantors as $guarantor) {
-            $guarantors[] = self::verify_loan_affiliates($guarantor,$loan);
-        }*/
         $lenders = $loan->borrower;
         $guarantors = $loan->guarantors;
         $data = [
@@ -1883,8 +1822,10 @@ class LoanController extends Controller
             if($loan->submitted_documents) $loan->submitted_documents()->detach();
             
             if($loan->tags) $loan->tags()->detach();
-            if($loan->lenders) $loan->lenders()->detach();
-            if($loan->guarantors) $loan->guarantors()->detach();
+            //if($loan->lenders) $loan->lenders()->detach();
+            if($loan->borrower) $loan->destroy_borrower();
+            //if($loan->guarantors) $loan->guarantors()->detach();
+            if($loan->guarantors) $loan->destroy_guarantors();
             //$loan->forceDelete();
             $options=[$loan->id];
             $loan = Loan::withoutEvents(function() use($options){
