@@ -187,21 +187,6 @@ class Loan extends Model
         return $this->hasMany(LoanGuarantor::class);
     }
 
-    /*public function lenders()
-    {
-        return $this->loan_affiliates()->withPivot('payment_percentage','payable_liquid_calculated', 'bonus_calculated', 'quota_previous','quota_treat', 'indebtedness_calculated','indebtedness_calculated_previous','liquid_qualification_calculated','contributionable_ids','contributionable_type','type')->whereGuarantor(false);
-    }
-
-    public function loan_affiliates()
-    {
-        return $this->belongsToMany(Affiliate::class, 'loan_affiliates')->withPivot('payment_percentage','guarantor','payable_liquid_calculated', 'bonus_calculated', 'quota_previous','quota_treat', 'indebtedness_calculated','indebtedness_calculated_previous','liquid_qualification_calculated','contributionable_ids','contributionable_type','type');
-    }
-    
-    public function loan_affiliates_ballot()
-    {
-        return $this->belongsToMany(Affiliate::class, 'loan_affiliates')->withPivot('contributionable_ids','contributionable_type');
-    }*/
-
     public function personal_references()
     {
         return $this->loan_persons()->withPivot('cosigner')->whereCosigner(false);
@@ -1381,5 +1366,20 @@ class Loan extends Model
             $quota_number++;
         }
         return $sw;
+    }
+
+    public function destroy_borrower()
+    {
+        return $this->borrower->first()->forceDelete();
+    }
+
+    public function destroy_guarantors()
+    {
+        foreach($this->guarantors as $guarantor)
+            $guarantor->forceDelete();
+        if($this->guarantors->count() == 0)
+            return true;
+        else
+            return false;
     }
 }
