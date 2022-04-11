@@ -1309,8 +1309,7 @@ class Loan extends Model
         return $data;
     }
     public function getGuarantors(){
-        $loans_guarantors = DB::table('view_loan_borrower_guarantors')
-        ->where('guarantor_loan',true)
+        $loans_guarantors = DB::table('view_loan_guarantors')
         ->where('id_loan',$this->id)
         ->select('*')
         ->get();
@@ -1318,8 +1317,7 @@ class Loan extends Model
     }
 
     public function getBorrowers(){
-        $loans_borrowers = DB::table('view_loan_borrower_guarantors')
-        ->where('guarantor_loan',false)
+        $loans_borrowers = DB::table('view_loan_borrower')
         ->where('id_loan',$this->id)
         ->select('*')
         ->get();
