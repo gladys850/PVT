@@ -211,7 +211,7 @@ export default {
   methods: { setBreadcrumbs() { let breadcrumbs = [
         {
           text: "Seguimiento",
-          to: { name: "listTracing" }
+          to: { name: "ListTracingLoans" }
         }
       ]
       breadcrumbs.push({
@@ -270,7 +270,7 @@ export default {
           this.getSpouse(this.affiliate.id)
         }
         this.setBreadcrumbs()
-        this.getAddress(this.affiliate.id)
+        //this.getAddress(this.affiliate.id)
 
         this.role(this.loan.role_id)
         if(this.loan.user_id != null){
@@ -347,7 +347,7 @@ export default {
         this.observations = res.data
 
         for (this.i = 0; this.i < this.observations.length; this.i++) {
-           console.log("ww"+this.observations[this.i].user_id)
+           //console.log(this.observations[this.i].user_id)
           let res1 = await axios.get(`user/${this.observations[this.i].user_id}`
           )
           this.observations[this.i].user_name = res1.data.username
