@@ -168,6 +168,17 @@ export default {
       registration: null
     },
     loan: {
+      state: {},
+      borrower:[
+        {
+          city_identity_card: {}
+        }
+      ],
+      modality:{},
+      payment_type: {},
+      personal_references:[],
+      cosigners:[],
+      guarantors:[]
     },
     city:[],
     loan_refinancing:{},
@@ -197,9 +208,7 @@ export default {
       return this.$store.getters.permissionSimpleSelected
     },
   },
-  methods: {
-    setBreadcrumbs() {
-      let breadcrumbs = [
+  methods: { setBreadcrumbs() { let breadcrumbs = [
         {
           text: "Seguimiento",
           to: { name: "listTracing" }
@@ -217,23 +226,7 @@ export default {
         this.loading = true
         let res = await axios.get(`loan/${id}`)
         this.loan = res.data
-        this.loan.amount_approved_before= res.data.amount_approved
-        this.loan.loan_term_before= res.data.loan_term
-
-        this.loan.amount_approved_aux = this.loan.amount_approved
-        //this.loan.payable_liquid_calculated_aux = this.loan.borrower[0].payable_liquid_calculated
-        this.loan.liquid_qualification_calculated_aux = this.loan.liquid_qualification_calculated
-        this.loan.loan_term_aux = this.loan.loan_term
-        this.loan.bonus_calculated_aux = this.loan.borrower[0].bonus_calculated
-        this.loan.indebtedness_calculated_aux = this.loan.indebtedness_calculated
-        this.loan.estimated_quota_aux = this.loan.estimated_quota
-
-
-        this.loan.disbursement_date=this.$moment(res.data.disbursement_date).format('YYYY-MM-DD')
-        this.loan.delivery_contract_date=this.$moment(res.data.delivery_contract_date).format('YYYY-MM-DD')
-        this.loan.return_contract_date=this.$moment(res.data.return_contract_date).format('YYYY-MM-DD')
-        this.loan.regional_delivery_contract_date=this.$moment(res.data.regional_delivery_contract_date).format('YYYY-MM-DD')
-        this.loan.regional_return_contract_date=this.$moment(res.data.regional_return_contract_date).format('YYYY-MM-DD')
+        this.loan.state.name = res.data.state.name
 
         if(this.loan.parent_reason=='REFINANCIAMIENTO')
         {
@@ -326,8 +319,7 @@ export default {
         this.loading = true
         let res = await axios.get(`procedure_modality/${id}`)
         this.procedure_types = res.data
-        console.log(this.procedure_types)
-      } catch (e) {
+        /*console.log(this.procedure_types)*/ } catch (e) {
         console.log(e)
       } finally {
         this.loading = false
