@@ -74,6 +74,7 @@ class LoanController extends Controller
         $loan->observations = $loan->observations->last();
         $loan->modality=$loan->modality->procedure_type;
         $loan->tags = $loan->tags;
+        $loan->affiliate = $loan->affiliate;
         if($loan->parent_loan){
             $loan->parent_loan->balance = $loan->parent_loan->balance;
             $loan->parent_loan->estimated_quota = $loan->parent_loan->estimated_quota;
@@ -369,9 +370,9 @@ class LoanController extends Controller
         if (Auth::user()->can('show-all-loan') || Auth::user()->can('show-loan') || Auth::user()->can('show-payment-loan') || Auth::user()->roles()->whereHas('module', function($query) {
             return $query->whereName('prestamos');
         })->pluck('id')->contains($loan->role_id)) {
-            $loan = self::append_data($loan, true);
-            foreach($loan->borrower as $lender){
-                $lender->type_initials = "T-".$lender->initials;
+            $loan = self::append_data($loan);$loan->borrower = $loan->borrower;
+            foreach($loan->borrower as $borrower){
+                $borrower->type_initials = "T-".$borrower->initials;
             }
             foreach($loan->guarantors as $guarantor){
                 $guarantor->type_initials = "G-".$guarantor->initials;
