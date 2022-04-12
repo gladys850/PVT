@@ -915,7 +915,7 @@ class Loan extends Model
         //return ($balance - $this->payments->where('state_id', LoanPaymentState::where('name', 'Pagado')->first()->id)->sum('capital_payment'));
     }
     //muestra boletas de afiliado
-    public function ballot_affiliate($affiliate_id){
+    public function ballot_affiliate(){
             $affiliate = $this->borrower->first();
             $contributions = $affiliate->contributionable_ids;
             $contributions_type = $affiliate->contributionable_type;
@@ -1283,20 +1283,11 @@ class Loan extends Model
         $data = collect([]);
         foreach($this->guarantors as $guarantor){
             $titular_guarantor = new Affiliate();
-            if($guarantor->type == "affiliates"){
-                $titular_guarantor = $guarantor;
-                $titular_guarantor->city_identity_card = $guarantor->city_identity_card;
-                $titular_guarantor->type_initials = "G-".$guarantor->initials;
-                $titular_guarantor->ballots = $this->ballot_affiliate($guarantor->id);
-            }
-            if($guarantor->type == "spouses"){
-                $titular_guarantor = $guarantor->spouse;
-                $titular_guarantor->city_identity_card = $guarantor->spouse->city_identity_card;
-                $titular_guarantor->type_initials = "G-".$guarantor->spouse->initials;
-                //$titular_guarantor->pivot = $guarantor->pivot;
-                $titular_guarantor->ballots = $this->ballot_affiliate($guarantor->spouse->affiliate_id);
-                $titular_guarantor->cell_phone_number = $guarantor->cell_phone_number;
-            }
+            $titular_guarantor = $guarantor;
+            $titular_guarantor->city_identity_card = $guarantor->city_identity_card;
+            $titular_guarantor->type_initials = "G-".$guarantor->initials;
+            $titular_guarantor->ballots = $guarantor->ballots();
+            $titular_guarantor->cell_phone_number = $guarantor->cell_phone_number;
             $titular_guarantor->account_number = $guarantor->account_number;
             $titular_guarantor->financial_entity = $guarantor->financial_entity;
             $titular_guarantor->type = $guarantor->type;

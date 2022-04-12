@@ -125,14 +125,6 @@ class LoanPaymentController extends Controller
                 'user_id' => $request->user_id
             ];
         }
-        /*else{ // considerar para devoluciones
-            if($request->validated){
-                $filters['validated'] = $request->boolean('validated');
-                $relations['users'] = [
-                    'user_id' => null
-                ];
-            }
-        }*/
         $data = Util::search_sort(new LoanPayment(), $request, $filters, $relations);
         $data->getCollection()->transform(function ($loanPayment) {
             return self::append_data($loanPayment, true);
@@ -553,7 +545,7 @@ class LoanPaymentController extends Controller
         $is_dead = false;
         $quota_treat = 0;
         foreach ($loan->lenders as $lender) {
-            $lenders[] = LoanController::verify_loan_affiliates($lender,$loan)->disbursable;
+            $lenders[] = $loan->borrower;
             if($lender->dead) $is_dead = true;
         }
         $global_parameter=LoanGlobalParameter::latest()->first();
@@ -607,13 +599,12 @@ class LoanPaymentController extends Controller
     {
         $lend='';
         foreach ($loan->lenders as $lender) {
-            $lenders[] = LoanController::verify_loan_affiliates($lender,$loan)->disbursable;
+            $lenders[] = $loan->borrower;
         }
         foreach ($lenders as $lender) {
             $lend=$lend.'*'.' ' . $lender->full_name;
         }
 
-        $loan_affiliates= $loan->loan_affiliates[0]->first_name;
         $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$lend]); 
 
         return $file_name;
