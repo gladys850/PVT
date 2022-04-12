@@ -570,10 +570,10 @@ export default {
       type: Array,
       required: true
     },
-    /*loan_properties: {*/
-      /*type: Object,*/
-      /*required: true*/
-    /*},*/
+    loan_properties: {
+      type: Object,
+      required: true
+    },
     procedure_types: {
       type: Object,
       required: true

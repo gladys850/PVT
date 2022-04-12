@@ -179,7 +179,6 @@ export default {
     tab: "tab-1",
     role_name: null,
     user_name: null,
-    id_street: 0,
     loading_print_solicitude:false,
     loading_print_contract:false,
     loading_print_plan:false,
@@ -428,24 +427,4 @@ export default {
   },
 }
 
-      /*borrower:[*/
-        /*{first_name:null,*/
-        /*last_name:null,*/
-        /*city_identity_card:{},*/
-          /*pivot:{},},*/
-        /*{first_name:null,*/
-        /*last_name:null,*/
-        /*city_identity_card:{},*/
-          /*pivot:{},}*/
-      /*],*/
-      /*lenders: [*/
-        /*{pivot:{},}*/
-      /*],*/
-      /*guarantors: [],*/
-      /*cosigners: [],*/
-      /*personal_references: [],*/
-      /*payment_type:{},*/
-      /*intereses: {},*/
-      /*state: {},*/
-      /*user:{}*/
 </script>
