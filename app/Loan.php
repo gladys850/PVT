@@ -14,6 +14,7 @@ use Carbon;
 use Util;
 use App\Affiliate;
 use App\LoanBorrower;
+use App\LoanGuarantor;
 
 class Loan extends Model
 {
@@ -184,7 +185,8 @@ class Loan extends Model
 
     public function guarantors()
     {
-        return $this->hasMany(LoanGuarantor::class);
+        //return $this->hasMany(LoanGuarantor::class);
+        return $this->belongsToMany(Affiliate:: class, 'loan_guarantors');
     }
 
     public function personal_references()
@@ -1282,22 +1284,22 @@ class Loan extends Model
     public function getBorrowerGuarantorsAttribute(){
         $data = collect([]);
         foreach($this->guarantors as $guarantor){
-            $titular_guarantor = new Affiliate();
-            $titular_guarantor = $guarantor;
-            $titular_guarantor->city_identity_card = $guarantor->city_identity_card;
-            $titular_guarantor->type_initials = "G-".$guarantor->initials;
-            $titular_guarantor->ballots = $guarantor->ballots();
-            $titular_guarantor->cell_phone_number = $guarantor->cell_phone_number;
-            $titular_guarantor->account_number = $guarantor->account_number;
-            $titular_guarantor->financial_entity = $guarantor->financial_entity;
-            $titular_guarantor->type = $guarantor->type;
-            $titular_guarantor->quota = $guarantor->quota_treat;
-            $titular_guarantor->percentage_quota = $guarantor->percentage_quota;
-            $titular_guarantor->state = $guarantor->affiliate_state;
-            $titular_guarantor->address = $guarantor->address;
+            $titular_guarantor = LoanGuarantor::where('loan_id', $this->id)->where('affiliate_id', $guarantor->id)->first();
+            $titular_guarantor->city_identity_card = $titular_guarantor->city_identity_card;
+            $titular_guarantor->type_initials = "G-".$titular_guarantor->initials;
+            $titular_guarantor->ballots = $titular_guarantor->ballots();
+            $titular_guarantor->cell_phone_number = $titular_guarantor->cell_phone_number;
+            $titular_guarantor->account_number = $titular_guarantor->account_number;
+            $titular_guarantor->financial_entity = $titular_guarantor->financial_entity;
+            $titular_guarantor->type = $titular_guarantor->type;
+            $titular_guarantor->quota = $titular_guarantor->quota_treat;
+            $titular_guarantor->percentage_quota = $titular_guarantor->percentage_quota;
+            $titular_guarantor->state = $titular_guarantor->affiliate_state;
+            $titular_guarantor->address = $titular_guarantor->address;
             $data->push($titular_guarantor);
         }
         return $data;
+        //return $this->hasMany(LoanGuarantor::class);
     }
     public function getGuarantors(){
         $loans_guarantors = DB::table('view_loan_guarantors')

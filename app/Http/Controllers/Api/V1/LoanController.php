@@ -371,7 +371,11 @@ class LoanController extends Controller
             return $query->whereName('prestamos');
         })->pluck('id')->contains($loan->role_id)) {
             $loan = self::append_data($loan);$loan->borrower = $loan->borrower;
-            foreach($loan->borrower as $borrower){
+            //foreach($loan->affiliate as $affiliate){
+                $loan->affiliate->type_initials = "T-".$loan->affiliate->initials;
+            //}
+            foreach($loan->borrower as $borrower)
+            {
                 $borrower->type_initials = "T-".$borrower->initials;
             }
             foreach($loan->guarantors as $guarantor){

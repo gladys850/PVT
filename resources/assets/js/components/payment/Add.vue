@@ -32,7 +32,7 @@
                 <span>Ir a Kardex</span>
                 </v-tooltip>
               </span>
-              {{"TITULAR: "+$options.filters.fullName(this.loan.lenders[0], true)}}
+              {{"TITULAR: "+$options.filters.fullName(this.loan.affiliate, true)}}
             </v-col>
             <v-col  cols="3" v-show="!show">
               {{"PRESTAMO: "+this.loan.code}}
@@ -46,7 +46,7 @@
             <v-col  cols="4" v-show="show" class='mb-0 pb-0'>
                 <span>
               </span>
-             {{"TITULAR: "+$options.filters.fullName(this.loan.lenders[0], true)}}
+             {{"TITULAR: "+$options.filters.fullName(this.loan.affiliate, true)}}
             </v-col>
               <v-col  cols="4" v-show="show" class='mb-0 pb-0'>
               {{"CODIGO DEL PAGO: "+' '+this.loan_payment.code}}
@@ -83,7 +83,7 @@ export default {
   },
   data: () => ({
     loan:{
-      lenders:[{}]
+      affiliate:[{}]
     },
     loan_payment:{},
     }),

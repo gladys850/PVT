@@ -545,9 +545,9 @@ export default {
      else{
       this.guarantor_show= false
       this.borrower_show=true
-        for (let i = 0; i<  this.guarantor.lenders.length; i++) {
-          this.data_payment.affiliate_id_paid_by=this.guarantor.lenders[0].id
-          this.code_initials=this.guarantor.lenders[0].type_initials
+        for (let i = 0; i<  this.guarantor.borrower.length; i++) {
+          this.data_payment.affiliate_id_paid_by=this.guarantor.borrower[0].id
+          this.code_initials=this.guarantor.affiliate.type_initials
         }
       }
     },
@@ -557,12 +557,12 @@ export default {
       if(this.data_payment.affiliate_id=='G')
       {
         for (let i = 0; i<  this.guarantor.borrowerguarantors.length; i++) {
-        if(this.guarantor.borrowerguarantors[i].id==this.radios)
-        {
-          this.data_payment.affiliate_id_paid_by=this.guarantor.borrowerguarantors[i].id
-          this.code_initials = this.guarantor.borrowerguarantors[i].type_initials
+          if(this.guarantor.borrowerguarantors[i].id==this.radios)
+          {
+            this.data_payment.affiliate_id_paid_by=this.guarantor.borrowerguarantors[i].id
+            this.code_initials = this.guarantor.borrowerguarantors[i].type_initials
+          }
         }
-      }
       }else{
         this.data_payment.voucher=this.data_payment.voucher
       }
@@ -573,7 +573,7 @@ export default {
         this.loading = true
         let res = await axios.get(`loan_payment/${id}`)
         this.loan_payment = res.data
-        this.guarantor.lenders=[this.loan_payment.affiliate]
+        //this.guarantor.lenders=[this.loan_payment.lenders]
 
         this.guarantor.borrower_detail=this.loan_payment.borrower
         this.guarantor.code=this.loan_payment.loan.code
@@ -813,7 +813,7 @@ export default {
                 id:"T"
               })
               this.data_payment.affiliate_id="T"
-              this.code_initials=this.guarantor.lenders[0].type_initials
+              this.code_initials=this.guarantor.affiliate.type_initials
         }
       } catch (e) {
         console.log(e)
