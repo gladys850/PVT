@@ -228,4 +228,8 @@ class LoanGuarantor extends Model
   {
     return Util::get_civil_status($this->civil_status, $this->gender);
   }
+
+  public function getInitialsAttribute(){
+    return (substr($this->first_name, 0, 1).substr($this->second_name, 0, 1).substr($this->last_name, 0, 1).substr($this->mothers_last_name, 0, 1).substr($this->surname_husband, 0, 1));
+  }
 }
