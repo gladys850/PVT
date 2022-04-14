@@ -5,10 +5,12 @@
       <center style="color:teal">CREACION DE LA AMORTIZACION</center>
     </v-toolbar-title>
     <v-card color="grey lighten-1">
+
       <AddAmortization
         :data_payment.sync="data_payment"
         :payment.sync="payment"
         @isCalculate="isCalculate"/>
+
         <v-container class="py-0">
           <v-row>
             <v-spacer></v-spacer> <v-spacer></v-spacer>

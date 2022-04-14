@@ -64,7 +64,10 @@
               CUOTA ESTIMADA MENSUAL : {{this.loan.estimated_quota | money}}
             </v-col>
           </v-row>
+
+           <!-- F O R M  N U E V O  R E G I S T R O   C O B R O -->
           <Steps/>
+
         </div>
       </v-container>
     </template>
