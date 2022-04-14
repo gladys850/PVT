@@ -545,10 +545,10 @@ export default {
      else{
       this.guarantor_show= false
       this.borrower_show=true
-        for (let i = 0; i<  this.guarantor.borrower.length; i++) {
+        for (let i = 0; i<  this.guarantor.borrowerguarantors.length; i++) {
           this.data_payment.affiliate_id_paid_by=this.guarantor.borrower[0].id
           this.code_initials=this.guarantor.affiliate.type_initials
-        }
+        } 
       }
     },
     //Metodo que genera el codigo del garante

@@ -3,6 +3,7 @@
     <v-toolbar-title class="pb-2 ma-0 pa-0">KARDEX</v-toolbar-title>
     <template v-if="loan.disbursement_date != 'Fecha invalida'">
 
+      <!-- B O T Ó N   N U E V O   R E G I S T R O   C O B R O -->
       <v-tooltip top v-if="permissionSimpleSelected.includes('create-payment-loan')">
         <template v-slot:activator="{ on }">
           <v-btn
