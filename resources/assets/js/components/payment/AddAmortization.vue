@@ -596,6 +596,7 @@ export default {
         this.guarantor_show= true
         this.borrower_show=false
       }
+
       else{
         this.guarantor_show= false
         this.borrower_show=true
