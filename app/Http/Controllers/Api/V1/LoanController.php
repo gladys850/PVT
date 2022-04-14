@@ -1817,32 +1817,38 @@ class LoanController extends Controller
     //Destruir todo el préstamo
     public function destroyAll(Loan $loan)
     {
-       if($loan->payments){
-            if($loan->data_loan) $loan->data_loan->forceDelete();
+        DB::beginTransaction();
+        try{
+            if($loan->payments){
+                    if($loan->data_loan) $loan->data_loan->forceDelete();
 
-            if($loan->loan_contribution_adjusts) $loan->loan_contribution_adjusts()->forceDelete();
+                    if($loan->loan_contribution_adjusts) $loan->loan_contribution_adjusts()->forceDelete();
 
-            if($loan->loan_persons) $loan->loan_persons()->detach();
-            
-            if($loan->submitted_documents) $loan->submitted_documents()->detach();
-            
-            if($loan->tags) $loan->tags()->detach();
-            //if($loan->lenders) $loan->lenders()->detach();
-            if($loan->borrower) $loan->destroy_borrower();
-            //if($loan->guarantors) $loan->guarantors()->detach();
-            if($loan->guarantors) $loan->destroy_guarantors();
-            //$loan->forceDelete();
-            $options=[$loan->id];
-            $loan = Loan::withoutEvents(function() use($options){
-                $loan = Loan::findOrFail($options[0])->forceDelete();
-                return $loan;
-            }
-        );
-
-       }else{
-        abort(403, 'No se puede reahacer el préstamo existen registros de cobros');
-       } 
-    return $loan;
+                    if($loan->loan_persons) $loan->loan_persons()->detach();
+                    
+                    if($loan->submitted_documents) $loan->submitted_documents()->detach();
+                    
+                    if($loan->tags) $loan->tags()->detach();
+                    //if($loan->lenders) $loan->lenders()->detach();
+                    if($loan->borrower) $loan->destroy_borrower();
+                    //if($loan->guarantors) $loan->guarantors()->detach();
+                    if($loan->guarantors) $loan->destroy_guarantors();
+                    //$loan->forceDelete();
+                    $options=[$loan->id];
+                    $loan = Loan::withoutEvents(function() use($options){
+                        $loan = Loan::findOrFail($options[0])->forceDelete();
+                        return $loan;
+                    }
+                );
+                DB::commit();
+            }else{
+                abort(403, 'No se puede reahacer el préstamo existen registros de cobros');
+            } 
+            return $loan;
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $e;
+        }
     }
 
     //actualizar el record de todo el prestamo anterior al actual
