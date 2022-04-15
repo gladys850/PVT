@@ -447,7 +447,7 @@ export default {
       required: true
     }
   },
-    components: {
+  components: {
     AddPayment
   },
 
@@ -477,7 +477,7 @@ export default {
     type_affiliate:[],
     type_category:[],
     code_initials:null,
-     loan_payment:{},
+    loan_payment:{},
     payment_types:[
       {
         value:1,
@@ -599,10 +599,10 @@ export default {
       else{
         this.guarantor_show= false
         this.borrower_show=true
-          for (let i = 0; i<  this.guarantor.borrowerguarantors.length; i++) {
+          /* for (let i = 0; i<  this.guarantor.borrowerguarantors.length; i++) {
             this.data_payment.affiliate_id_paid_by=this.guarantor.borrower[0].id
             this.code_initials=this.guarantor.affiliate.type_initials
-          } 
+          } */ 
       }
     },
     //Metodo que genera el codigo del garante

@@ -1,9 +1,11 @@
 <template>
   <div>
     <v-progress-linear></v-progress-linear>
+
     <v-toolbar-title>
       <center style="color:teal">CREACION DE LA AMORTIZACION</center>
     </v-toolbar-title>
+
     <v-card color="grey lighten-1">
 
       <AddAmortization
@@ -19,6 +21,7 @@
                 @click="atras()"  v-show="!isNew">
                 Volver a la bandeja
               </v-btn>
+              
               <v-btn
                 color="primary"
                 :loading="status_click"
@@ -29,6 +32,7 @@
             </v-col>
           </v-row>
         </v-container>
+
     </v-card>
   </div>
 </template>
