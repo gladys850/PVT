@@ -11,7 +11,7 @@
                     <fieldset class="pa-2">
 
                       <center>
-                       <v-toolbar-title>{{guarantor.modality.name}}</v-toolbar-title>
+                       <v-toolbar-title>{{loan.modality.name}}</v-toolbar-title>
                       </center>
 
                       <v-progress-linear></v-progress-linear>
@@ -21,27 +21,27 @@
 
                           <v-col cols="3" class="ma-0 py-2">
                             <label><b>Nro Prestamos:</b></label>
-                             {{guarantor.code}}
+                             {{loan.code}}
                           </v-col>
 
                           <v-col cols="3" class="ma-0 py-2" v-show="isNew">
                             <label><b>Fecha de Desembolso:</b></label>
-                            {{guarantor.disbursement_date | date}}
+                            {{loan.disbursement_date | date}}
                           </v-col>
 
                           <v-col cols="3" class="ma-0 py-2" v-show="!isNew">
                             <label><b>Fecha de Desembolso:</b></label>
-                            {{guarantor.disbursement_date }}
+                            {{loan.disbursement_date }}
                           </v-col>
 
                           <v-col cols="3" class="ma-0 py-2">
                             <label><b>Monto Desembolsado:</b></label>
-                            {{ guarantor.amount_approved | moneyString}}
+                            {{ loan.amount_approved | moneyString}}
                           </v-col>
 
                           <v-col cols="3" class="ma-0 py-2">
                             <label><b>Plazo :</b></label>
-                              {{ guarantor.loan_term +' Meses'}}
+                              {{ loan.loan_term +' Meses'}}
                           </v-col>
 
                           <v-col cols="12" md="12" class="py-0" v-show="isNew">
@@ -49,7 +49,7 @@
                           </v-col>
 
                           <ul style="list-style: none" class="py-0" >
-                            <li v-for="borrower in guarantor.borrower" :key="borrower.id">
+                            <li v-for="borrower in loan.borrower" :key="borrower.id">
                               <v-col cols="12" md="12" class="pa-0">
                                 <v-row class="pa-0">
                                    <v-col cols="12" md="4" class="py-0">
@@ -78,7 +78,7 @@
 
                           <v-col cols="12" md="12" class="py-0" v-show="!isNew">
                             <ul style="list-style: none" class="py-0" >
-                            <li v-for="borrower_detail in guarantor.borrower_detail" :key="borrower_detail.id">
+                            <li v-for="borrower_detail in loan.borrower_detail" :key="borrower_detail.id">
                               <v-col cols="12" md="12" class="pa-0">
                                 <v-row class="pa-0">
                                    <v-col cols="12" md="7" class="py-0">
@@ -106,32 +106,32 @@
 
                           <v-col cols="3" class="ma-0 py-2"  v-show="isNew" v-if="last_payment">
                             <label><b style="color:teal" >Saldo Capital:</b></label>
-                            <b style="color:teal">{{guarantor.balance | moneyString}}</b>
+                            <b style="color:teal">{{loan.balance | moneyString}}</b>
                           </v-col>
 
                           <v-col cols="3" class="ma-0 py-2" v-show="isNew" v-if="last_payment">
                             <label><b style="color:teal">Número de Cuota:</b></label>
-                            <b style="color:teal">{{(guarantor.last_payment_validated.quota_number+1)  }}</b>
+                            <b style="color:teal">{{(loan.last_payment_validated.quota_number+1)  }}</b>
                           </v-col>
 
                           <v-col cols="3" class="ma-0 py-2" v-show="isNew" v-if="last_payment">
                             <label><b style="color:teal">Fecha del ultimo Pago:</b></label>
-                            <b style="color:teal">{{guarantor.last_payment_validated.estimated_date | date }}</b>
+                            <b style="color:teal">{{loan.last_payment_validated.estimated_date | date }}</b>
                           </v-col>
                           
                           <v-col cols="3" class="ma-0 py-2" v-show="isNew" v-if="last_payment">
                             <label><b style="color:teal" >Total Pagado:</b></label>
-                            <b style="color:teal">{{guarantor.last_payment_validated.estimated_quota | moneyString}}</b>
+                            <b style="color:teal">{{loan.last_payment_validated.estimated_quota | moneyString}}</b>
                           </v-col>
 
                           <v-col cols="6" class="ma-0 py-2" v-show="isNew" v-if="last_payment">
                             <label><b>Intereses Corrientes Pendientes:</b></label>
-                            {{guarantor.last_payment_validated.interest_accumulated}}
+                            {{loan.last_payment_validated.interest_accumulated}}
                           </v-col>
 
                           <v-col cols="6" class="ma-0 py-2" v-show="isNew" v-if="last_payment">
                             <label><b>Interes Penales Pendientes:</b></label>
-                            {{guarantor.last_payment_validated.penal_accumulated}}
+                            {{loan.last_payment_validated.penal_accumulated}}
                           </v-col>
 
                           <v-progress-linear></v-progress-linear>
@@ -213,8 +213,8 @@
 
                           <v-col cols="3" class="ma-0 pb-0" v-show="guarantor_show">
                               <ul style="list-style: none" class="pa-0" >
-                                 <li v-for="guarantor in guarantor.borrowerguarantors" :key="guarantor.id" class="mb-4">
-                                   {{$options.filters.fullName(guarantor, true)}}
+                                 <li v-for="loan in loan.borrowerguarantors" :key="loan.id" class="mb-4">
+                                   {{$options.filters.fullName(loan, true)}}
                                    <br>
                                  </li>
                               </ul>
@@ -222,12 +222,12 @@
 
                           <v-col cols="1" class="my-0 pb-0" v-show="guarantor_show">
                             <ul style="list-style: none" class="pa-0 my-0" >
-                               <li v-for="guarantor in guarantor.borrowerguarantors" :key="guarantor.id" class="my-0">
+                               <li v-for="loan in loan.borrowerguarantors" :key="loan.id" class="my-0">
                                   <v-radio-group  v-model="radios" class="py-0 my-0">
                                     <v-radio
                                       color="info"
                                        :click="generateGuarantorCode()"
-                                      :value="guarantor.id"
+                                      :value="loan.id"
                                       class="py-0  my-0"
                                     ></v-radio>
                                   </v-radio-group>
@@ -418,6 +418,7 @@
                               v-show="payment_detail.show_detail_payment"
                               :payment_detail.sync="payment_detail"/>
                           </v-expand-transition>
+
                         </v-row>
                       </template>
                     </fieldset>
@@ -464,12 +465,12 @@ export default {
         current:null
       }
     },
-    loan: {},
+    // loan: {},
     radios:[],
     type_procedure: [],
-    guarantor:{
+    loan:{
       affiliate:{},
-      lenders:[],
+      //  lenders:[],
       borrower_detail:[],
       last_payment_validated:{},
       modality:{},
@@ -608,9 +609,9 @@ export default {
       else{
         this.guarantor_show= false
         this.borrower_show=true
-          for (let i = 0; i<  this.guarantor.borrower.length; i++) {
-            this.data_payment.affiliate_id_paid_by=this.guarantor.borrower[i].id
-            this.code_initials=this.guarantor.affiliate.type_initials
+          for (let i = 0; i<  this.loan.borrower.length; i++) {
+            this.data_payment.affiliate_id_paid_by=this.loan.borrower[i].id
+            this.code_initials=this.loan.affiliate.type_initials
           } 
       }
     },
@@ -619,11 +620,11 @@ export default {
     {
       if(this.data_payment.affiliate_id=='G')
       {
-        for (let i = 0; i<  this.guarantor.borrowerguarantors.length; i++) {
-          if(this.guarantor.borrowerguarantors[i].id==this.radios)
+        for (let i = 0; i<  this.loan.borrowerguarantors.length; i++) {
+          if(this.loan.borrowerguarantors[i].id==this.radios)
           {
-            this.data_payment.affiliate_id_paid_by=this.guarantor.borrowerguarantors[i].id
-            this.code_initials = this.guarantor.borrowerguarantors[i].type_initials
+            this.data_payment.affiliate_id_paid_by=this.loan.borrowerguarantors[i].id
+            this.code_initials = this.loan.borrowerguarantors[i].type_initials
           }
         }
       }else{
@@ -636,18 +637,18 @@ export default {
         this.loading = true
         let res = await axios.get(`loan_payment/${id}`)
         this.loan_payment = res.data
-        //this.guarantor.lenders=[this.loan_payment.lenders]
+        //this.loan.lenders=[this.loan_payment.lenders]
 
-        this.guarantor.borrower_detail=this.loan_payment.borrower
-        this.guarantor.code=this.loan_payment.loan.code
-        this.guarantor.disbursement_date=this.$moment(this.loan_payment.loan.disbursement_date).format("DD-MM-YYYY")
-        this.guarantor.amount_approved=this.loan_payment.loan.amount_approved
-        this.guarantor.loan_term=this.loan_payment.loan.loan_term
-        this.guarantor.estimated_quota=0
-        this.guarantor.balance=0
-        this.guarantor.last_payment_validated.previous_payment_date=0
-        this.guarantor.last_payment_validated.estimated_date=0
-        this.guarantor.modality.name = res.data.modality.name
+        this.loan.borrower_detail=this.loan_payment.borrower
+        this.loan.code=this.loan_payment.loan.code
+        this.loan.disbursement_date=this.$moment(this.loan_payment.loan.disbursement_date).format("DD-MM-YYYY")
+        this.loan.amount_approved=this.loan_payment.loan.amount_approved
+        this.loan.loan_term=this.loan_payment.loan.loan_term
+        this.loan.estimated_quota=0
+        this.loan.balance=0
+        this.loan.last_payment_validated.previous_payment_date=0
+        this.loan.last_payment_validated.estimated_date=0
+        this.loan.modality.name = res.data.modality.name
 
         this.data_payment.code=this.loan_payment.code
         this.data_payment.payment_date= this.loan_payment.estimated_date
@@ -849,16 +850,16 @@ export default {
       try {
         this.loading = true
         let res = await axios.get(`loan/${id}`)
-        this.guarantor=res.data
-        if(this.guarantor.last_payment_validated==null)
+        this.loan=res.data
+        if(this.loan.last_payment_validated==null)
         {
-          this.guarantor.last_payment_validated={}
+          this.loan.last_payment_validated={}
           this.last_payment=false
         }
         else{
           this.last_payment=true
         }
-        if(this.guarantor.guarantors.length > 0)
+        if(this.loan.guarantors.length > 0)
         {
             this.type_affiliate.push(
               {
@@ -876,7 +877,7 @@ export default {
                 id:"T"
               })
               this.data_payment.affiliate_id="T"
-              this.code_initials=this.guarantor.affiliate.type_initials
+              this.code_initials=this.loan.affiliate.type_initials
         }
       } catch (e) {
         console.log(e)
