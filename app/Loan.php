@@ -33,12 +33,9 @@ class Loan extends Model
     public $guarded = ['id'];
     public $fillable = [
         'code',
-        //'disbursable_id',
-       // 'disbursable_type',
         'procedure_modality_id',
         'disbursement_date',
         'disbursement_time',
-        //'num_budget_certification',
         'num_accounting_voucher',
         'parent_loan_id',
         'parent_reason',
@@ -1124,29 +1121,29 @@ class Loan extends Model
                 $new_indebtedness_calculated = Util::round2(($quota_estimated/$this->liquid_qualification_calculated)*100);
                 $validate = false;
                 if($new_indebtedness_calculated <= $procedure_modality->loan_modality_parameter->debt_index){                      
-                    if((count($this->guarantors)>0) || (count($this->lenders) > 1)){
+                    if((count($this->guarantors)>0) || (count($this->borrower) > 1)){
                         if($new_indebtedness_calculated <= Util::round2($this->indebtedness_calculated_previous)){ 
-                            foreach ($this->lenders  as $lender) {    
-                                $quota_estimated_lender = $quota_estimated/count($this->lenders);
-                                $new_indebtedness_lender = Util::round2($quota_estimated_lender/(float)$lender->pivot->liquid_qualification_calculated*100);                    
-                                if($new_indebtedness_lender <= (float)$lender->pivot->indebtedness_calculated_previous){
+                            foreach ($this->borrower  as $lender) {    
+                                $quota_estimated_lender = $quota_estimated/count($this->borrower);
+                                $new_indebtedness_lender = Util::round2($quota_estimated_lender/(float)$lender->liquid_qualification_calculated*100);
+                                if($new_indebtedness_lender <= (float)$lender->indebtedness_calculated_previous){
                                     $validate = true;               
                                 }else {
                                     $validate = false;
                                 }
                             }                       
                             if(count($this->guarantors) > 0){   
-                                foreach ($this->guarantors  as $guarantor) {    
-                                    $affiliate = Affiliate::find($guarantor->pivot->affiliate_id);
-                                    $active_guarantees = $affiliate->active_guarantees();$sum_quota = 0;
+                                foreach ($this->guarantors  as $guarantor) {
+                                    $loan_guarantor = LoanGuarantor::where('loan_id',$guarantor->pivot->loan_id)->where('affiliate_id',$guarantor->pivot->affiliate_id)->first();
+                                    $active_guarantees = $guarantor->active_guarantees();$sum_quota = 0;
                                     foreach($active_guarantees as $res)
-                                        $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
-                                        $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
+                                        $sum_quota += ($res->estimated_quota * $res->payment_percentage)/100; // descuento en caso de tener garantias activas
+                                        $active_guarantees_sismu = $guarantor->active_guarantees_sismu();
                                     foreach($active_guarantees_sismu as $res)
                                         $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
                                         $quota_estimated_guarantor = $quota_estimated/count($this->guarantors);
-                                        $new_indebtedness_calculated_guarantor = Util::round2((($quota_estimated_guarantor + $sum_quota - $guarantor->pivot->quota_treat)/$guarantor->pivot->liquid_qualification_calculated) * 100);
-                                    if($new_indebtedness_calculated_guarantor <= (float)$guarantor->pivot->indebtedness_calculated_previous){
+                                        $new_indebtedness_calculated_guarantor = Util::round2((($quota_estimated_guarantor + $sum_quota - $loan_guarantor->quota_treat)/$loan_guarantor->liquid_qualification_calculated) * 100);
+                                    if($new_indebtedness_calculated_guarantor <= (float)$loan_guarantor->indebtedness_calculated_previous){
                                         $validate = true;                                                                            
                                     }else {
                                         $validate = false; 
@@ -1163,8 +1160,8 @@ class Loan extends Model
                         $message['message'] = 'El índice de endeudamiento no debe ser superior a '.$this->indebtedness_calculated_previous.'%, evaluación realizada en la creación del tramite';                        
                         } 
                     }else{ 
-                        if(count($this->lenders) == 1){
-                            foreach ($this->lenders  as $lender) {     
+                        if(count($this->borrower) == 1){
+                            foreach ($this->borrower  as $lender) {     
                                 $validate = true;                       
                             }    
                             return $validate;                      

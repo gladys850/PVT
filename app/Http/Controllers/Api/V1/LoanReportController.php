@@ -1404,7 +1404,6 @@ class LoanReportController extends Controller
    * @queryParam state_affiliate Buscar por estado del affiliado. Example: Servicio
    * @queryParam quota_loan Buscar por la quota del prestamo. Example: 1500
    * @queryParam state_loan Buscar por el estado del prestamo. Example: En proceso
-   * @queryParam guarantor_loan_affiliate Buscar los garantes del préstamo. Example: false
    * @queryParam pension_entity_affiliate Buscar por la La pension entidad del afiliado. Example: SENASIR
    * @queryParam disbursement_date_loan Buscar por fecha de desembolso. Example: 2021
    * @queryParam delivery_contract_date Buscar por fecha de Entrega de Contrato. Example: 2021-06-16
