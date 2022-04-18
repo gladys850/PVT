@@ -555,7 +555,7 @@
                                                     <span>Cancelar</span>
                                                   </div>
                                                 </v-tooltip>
-                                                <v-tooltip top v-if="permissionSimpleSelected.includes('print-qualification-form')">
+                                                <v-tooltip top v-if="permissionSimpleSelected.includes('update-loan-calculations')">
                                                   <template v-slot:activator="{ on }">
                                                     <v-btn
                                                       icon
@@ -1513,8 +1513,8 @@ export default {
         liquid_qualification_calculated_lender: 0,
         liquid_calculated:[
           {
-            affiliate_id: this.loan.lenders[0].id,
-            liquid_qualification_calculated: this.loan.lenders[0].liquid_qualification_calculated
+            affiliate_id: this.loan.borrower[0].id,
+            liquid_qualification_calculated: this.loan.borrower[0].liquid_qualification_calculated
           }
         ]
     })

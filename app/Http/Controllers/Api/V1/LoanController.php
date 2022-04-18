@@ -1005,7 +1005,7 @@ class LoanController extends Controller
         $file_title = implode('_', ['CONTRATO', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
         if($loan->parent_loan_id) $parent_loan = Loan::findOrFail($loan->parent_loan_id);
         $lenders = [];
-        $guarantors = $loan->guarantors;
+        $guarantors = $loan->borrowerguarantors;
         $lenders = $loan->borrower;
         $employees = [
             ['position' => 'Director General Ejecutivo','name'=>'CNL. DESP. EDGAR JOSE CORTEZ ALBORNOZ','identity_card'=>'3351371 LP'],
@@ -1213,9 +1213,7 @@ class LoanController extends Controller
             $file_title = implode('_', ['PLAN','DE','PAGOS', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
             $lenders = [];
             $is_dead = false;
-            foreach ($loan->lenders as $lender) {
-                array_push($lenders, self::verify_loan_affiliates($lender,$loan)->disbursable);
-                //$lenders[] = self::verify_spouse_disbursable($lender)->disbursable;
+            foreach ($loan->borrower as $lender) {
                 if($lender->dead) $is_dead = true;
             }
             $data = [
@@ -1232,7 +1230,7 @@ class LoanController extends Controller
                 ],
                 'title' => 'PLAN DE PAGOS',
                 'loan' => $loan,
-                'lenders' => collect($lenders),
+                'lenders' => $loan->borrower,
                 'is_dead'=> $is_dead,
                 'file_title'=>$file_title
             ];
@@ -1272,7 +1270,7 @@ class LoanController extends Controller
     }
         $lenders = [];
         $lenders = $loan->borrower;
-        $guarantors = $loan->guarantors;
+        $guarantors = $loan->borrowerguarantors;
         $data = [
            'header' => [
                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
@@ -1653,10 +1651,6 @@ class LoanController extends Controller
     {
         if($loan->disbursement_date){
             $procedure_modality = $loan->modality;
-            $lenders = [];
-            foreach ($loan->lenders as $lender) {
-                $lenders[] = self::verify_loan_affiliates($lender,$loan)->disbursable;
-            }
           $file_title = implode('_', ['KARDEX', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
             $data = [
                 'header' => [
@@ -1672,7 +1666,7 @@ class LoanController extends Controller
                 ],
                 'title' => 'KARDEX DE PAGOS',
                 'loan' => $loan,
-                'lenders' => collect($lenders),
+                'lenders' => $loan->borrower,
                 'file_title' => $file_title
             ];
             $information_loan= $this->get_information_loan($loan);
@@ -1905,6 +1899,7 @@ class LoanController extends Controller
         $prestamos = DB::connection('sqlsrv')->select($query);
         return $prestamos;
     }
+
     /** 
    * Editar Monto y Plazo del Prestamo
    * Edita monto y plazo del prestam
@@ -1915,8 +1910,10 @@ class LoanController extends Controller
    * @responseFile responses/loan/edit_amounts_loan_term.200.json
    */
 
-  public function edit_amounts_loan_term(Request $request, Loan $loan){
-    $request->validate([
+  //revisar para la nueva inclusion de inclusion y exclusion de garantias---------------------------------------------------------------------------
+   public function edit_amounts_loan_term(Request $request, Loan $loan){
+    return "ok";
+    /*$request->validate([
         'amount_approved' => 'required|numeric',
         'loan_term' => 'required|integer'
     ]);
@@ -1935,34 +1932,32 @@ class LoanController extends Controller
             $loan->indebtedness_calculated = Util::round2($new_indebtedness_calculated);
             $loan->save(); 
             $lenders_update = [];
-            foreach ($loan->lenders  as $lender) { 
-                $quota_estimated_lender = ($quota_estimated/100)*$lender->pivot->payment_percentage;
-                $new_quota_treat = Util::round2($quota_estimated_lender);
-                $new_indebtedness_lender = Util::round2($quota_estimated_lender/(float)$lender->pivot->liquid_qualification_calculated * 100);
-                $affiliate_id = $lender->pivot->affiliate_id;
-                $loan_id = $loan->id;
-                $lenders_update = "update loan_affiliates set quota_treat = $new_quota_treat, indebtedness_calculated = $new_indebtedness_lender 
-                                  where affiliate_id = $affiliate_id and loan_id = $loan_id";
-                $update_loan_affiliate = DB::select($lenders_update);
+            foreach ($loan->borrower  as $lender) {
+                $loan_borrower = LoanBorrower::where('loan_id',$lender->loan_id)->first();
+                $quota_estimated_lender = ($quota_estimated/100)*$loan_borrower->payment_percentage;
+                $loan_borrower->quota_treat = Util::round2($quota_estimated_lender);
+                $loan_borrower->indebtedness_calculated = Util::round2($quota_estimated_lender/(float)$lender->liquid_qualification_calculated * 100);
+                $loan_borrower->save();
             }
             $guarantor_update = [];
             if(count($loan->guarantors)>0){  
                 foreach ($loan->guarantors  as $guarantor) {
+                    $loan_guarantor = LoanGuarantor::where('loan_id',);
                     $affiliate=Affiliate::find($guarantor->pivot->affiliate_id);
                     $active_guarantees = $affiliate->active_guarantees();$sum_quota = 0;
                     foreach($active_guarantees as $res)
                         $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas se incluye esta la que se esta editando
                         $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
                     foreach($active_guarantees_sismu as $res)
-                        $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
+                        $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu
                         $quota_estimated_guarantor = Util::round2(($quota_estimated/100)*$guarantor->pivot->payment_percentage);          
                         $new_indebtedness_calculated_guarantor = Util::round2($sum_quota/$guarantor->pivot->liquid_qualification_calculated * 100); 
                         $affiliate_id_guarantor = $guarantor->pivot->affiliate_id;
-                        $guarantor_update = "update loan_affiliates set quota_treat = $quota_estimated_guarantor, indebtedness_calculated = $new_indebtedness_calculated_guarantor 
+                        /*$guarantor_update = "update loan_affiliates set quota_treat = $quota_estimated_guarantor, indebtedness_calculated = $new_indebtedness_calculated_guarantor 
                                              where affiliate_id = $affiliate_id_guarantor and loan_id = $loan_id";
                         $update_loan_affiliate_guarantor = DB::select($guarantor_update);
                 } 
-            } 
+            }
         DB::commit();
         return self::append_data($loan, true); 
     } catch (\Exception $e) {
@@ -1976,7 +1971,7 @@ class LoanController extends Controller
         return $message;
         }
     }
-    return $validate;
+    return $validate;*/
 }
     /** 
    * Actualizar monto de desembolso por refinanciamiento del prestamo

@@ -262,19 +262,15 @@
             </tr>
             <tr class="w-100">
                 <td class="w-50 text-left px-10">NOMBRES</td>
-                <td class="w-50 text-left px-10">{{ $guarantor->disbursable->full_name }}</td> 
+                <td class="w-50 text-left px-10">{{ $guarantor->full_name }}</td> 
             </tr>
             <tr class="w-100">
                 <td class="w-50 text-left px-10">LÍQUIDO PARA CALIFICACIÓN</td>
-                <td class="w-50 text-left px-10">{{ Util::money_format($guarantor->affiliate_loan->liquid_qualification_calculated) }}</td> 
+                <td class="w-50 text-left px-10">{{ Util::money_format($guarantor->liquid_qualification_calculated) }}</td> 
             </tr>
-            <!--<tr class="w-100">
-                <td class="w-50 text-left px-10">ÍNDICE DE ENDEUDAMIENTO</td>
-                <td class="w-50 text-left px-10">{{ Util::money_format($guarantor->affiliate->pivot->indebtedness_calculated) }} %</td> 
-            </tr>-->
             <tr class="w-100">
                 <td class="w-50 text-left px-10">PORCENTAJE DE PAGO</td>
-                <td class="w-50 text-left px-10">{{ $guarantor->affiliate_loan->payment_percentage }} %</td> 
+                <td class="w-50 text-left px-10">{{ $guarantor->payment_percentage }} %</td> 
             </tr>
         </table>
         @endforeach
