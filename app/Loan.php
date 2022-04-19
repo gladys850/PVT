@@ -1251,7 +1251,9 @@ class Loan extends Model
                     }
                 }
                 else
-                    $suggested_amount = $this->guarantors->first()->pivot->quota_treat;
+                {
+                    $suggested_amount = $this->BorrowerGuarantors->first()->quota_treat;
+                }
         }
         return  round($suggested_amount,2);
     }

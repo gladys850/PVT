@@ -1392,15 +1392,19 @@ class LoanController extends Controller
             }
             $payment->procedure_modality_id = $request->input('procedure_modality_id');
             $payment->voucher = $request->input('voucher', null);
-            //$payment->amortization_type_id = $request->input('amortization_type_id');
-            $payment->affiliate_id = $request->input('affiliate_id');
-
             $affiliate_id=$request->input('affiliate_id');
-            $affiliate=Affiliate::find($affiliate_id);
-            $affiliate_state=$affiliate->affiliate_state->affiliate_state_type->name;
+            if($request->input('paid_by') == 'T'){
+                $affiliate = LoanBorrower::find($affiliate_id);
+                $payment->affiliate_id = $affiliate->affiliate()->id;
+            }
+            else
+            {
+                $affiliate = LoanGuarantor::find($affiliate_id);
+                $payment->affiliate_id = $affiliate->affiliate_id;
+            }
+            $affiliate_state = $affiliate->affiliate_state->affiliate_state_type->name;
             $payment->state_affiliate = strtoupper($affiliate_state);
-
-            $payment->initial_affiliate = LoanController::verify_loan_affiliates($affiliate,$loan)->disbursable->initials;//iniciales
+            $payment->initial_affiliate = $affiliate->initials;
 
             $payment->categorie_id = $request->input('categorie_id');
             $payment->loan_payment_date = Carbon::now();
@@ -1411,8 +1415,6 @@ class LoanController extends Controller
             }else{
                 $payment->user_id = auth()->id();
             }
-            //$payment->user_id = $request->user_id;
-            //$payment->validated = true;
 
             //obtencion de codigo de pago
             $correlative = 0;
@@ -1749,12 +1751,8 @@ class LoanController extends Controller
         $loan_process = count($affiliate->process_loans);
         if ($affiliate->affiliate_state){
             if($affiliate->affiliate_state->affiliate_state_type->name != "Baja" && $affiliate->affiliate_state->affiliate_state_type->name != ""){
-            
-               // if((count($affiliate->spouses) === 0 && $affiliate->affiliate_state->name != 'Fallecido') || (count($affiliate->spouses) !== 0 && $affiliate->affiliate_state->name  == 'Fallecido')) {   
                     if((!$affiliate->dead) || ($affiliate->dead && (($affiliate->spouse ? ($affiliate->spouse->dead ? false: true) : false) == true))){
-                   /* if($affiliate->identity_card != null && $affiliate->city_identity_card_id != null){*/
                         if($affiliate->civil_status != null){
-                            //if($affiliate->financial_entity_id != null && $affiliate->account_number != null && $affiliate->sigep_status != null){
                                 if($affiliate->birth_date != null && $affiliate->city_birth_id != null){
                                     if($affiliate->affiliate_state->affiliate_state_type->name != 'Pasivo'){
                                         if($loan_process < $loan_global_parameter->max_loans_process ){
@@ -1782,18 +1780,10 @@ class LoanController extends Controller
                                 }else{
                                     $message['validate'] = 'El afiliado no tiene registrado su fecha de nacimiento ó ciudad de nacimiento.';
                                 }
-                            /*}
-                           else{
-                            $message['validate'] = 'El afiliado no tiene registrado la entidad financiera';
-                            }*/ 
                         }
                         else{
                         $message['validate'] = 'El afiliado no tiene registrado su estado civil.';
                         }
-                    /* }
-                    else{
-                        $message['validate'] = 'El afiliado no tiene registrado su CI ó ciudad de expedición del CI.';
-                    }     */ 
                 }
                 else{ 
                     $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar fallecido ó no tener registrado a un(a) conyugue.';
