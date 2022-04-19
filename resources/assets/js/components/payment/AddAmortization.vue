@@ -611,7 +611,8 @@ export default {
         this.borrower_show=true
           for (let i = 0; i<  this.loan.borrower.length; i++) {
             this.data_payment.affiliate_id_paid_by=this.loan.borrower[i].id
-            this.code_initials=this.loan.affiliate.type_initials
+            this.code_initials = "T-" + this.loan.borrower[i].initials
+            this.code_initials= this.code_initials
           } 
       }
     },
