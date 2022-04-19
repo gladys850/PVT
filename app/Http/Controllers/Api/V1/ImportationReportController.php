@@ -296,7 +296,7 @@ class ImportationReportController extends Controller
         );
         foreach ($current_loans as $loan) {
             $loan = Loan::find($loan->id);
-            foreach ($loan->lenders as $lender) {
+            foreach ($loan->borrower as $lender) {
                 array_push($data, array(
                         $loan->code,
                         Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
