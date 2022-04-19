@@ -186,16 +186,8 @@ class VoucherController extends Controller
         $file_name='';
         if($voucher->payable_type == 'loan_payments'){
             $loan = LoanPayment::findOrFail($voucher->payable_id)->loan;
-            $lend='';
-            foreach ($loan->lenders as $lender) {
-                $lenders[] = LoanController::verify_loan_affiliates($lender,$loan)->disbursable;
-            }
-            foreach ($lenders as $lender) {
-                $lend=$lend.'*'.' ' . $lender->full_name;
-            }
-
-            $loan_affiliates= $loan->loan_affiliates[0]->first_name;
-            $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$lend]);
+            
+            $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$loan->borrower->first()->full_name]);
         }
         return $file_name;
     }
