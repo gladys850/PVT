@@ -2,69 +2,85 @@
   <v-card flat>
     <v-card-title >
       <v-toolbar  dense color="tertiary" style="z-index: 1;">
+
         <v-toolbar-title>
           <Breadcrumbs/>
         </v-toolbar-title>
+
         <v-spacer></v-spacer>
+
       </v-toolbar>
     </v-card-title>
+
     <template>
       <v-container>
         <div>
           <v-row>
+
             <v-col cols="5" v-show="!show">
               <span>
                 <v-tooltip left >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    icon
-                    dark
-                    small
-                    color="success"
-                    bottom
-                    right
-                    v-on="on"
-                    :to="{ name: 'flowAdd', params: { id: $route.query.loan_id ? $route.query.loan_id : loan_payment.loan_id }, query:{ redirectTab: 7 } }"
-                  >
-                  <v-icon>mdi-arrow-left-bold-outline</v-icon>
-                  </v-btn>
-                </template>
-                <span>Ir a Kardex</span>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      dark
+                      small
+                      color="success"
+                      bottom
+                      right
+                      v-on="on"
+                      :to="{ name: 'flowAdd', params: { id: $route.query.loan_id ? $route.query.loan_id : loan_payment.loan_id }, query:{ redirectTab: 7 } }"
+                    >
+                    <v-icon>mdi-arrow-left-bold-outline</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>Ir a Kardex</span>
                 </v-tooltip>
               </span>
               {{"TITULAR: "+$options.filters.fullName(this.loan.affiliate, true)}}
             </v-col>
+
             <v-col  cols="3" v-show="!show">
               {{"PRESTAMO: "+this.loan.code}}
             </v-col>
+
             <v-col  cols="2" v-show="!show">
               MONTO: {{this.loan.amount_approved | money}}
             </v-col>
-             <v-col  cols="2" v-show="!show">
+
+            <v-col  cols="2" v-show="!show">
               CUOTA: {{this.loan.estimated_quota | money}}
             </v-col>
+
             <v-col  cols="4" v-show="show" class='mb-0 pb-0'>
-                <span>
-              </span>
-             {{"TITULAR: "+$options.filters.fullName(this.loan.affiliate, true)}}
+              {{"TITULAR: "+$options.filters.fullName(this.loan.affiliate, true)}}
             </v-col>
-              <v-col  cols="4" v-show="show" class='mb-0 pb-0'>
+
+            <v-col  cols="4" v-show="show" class='mb-0 pb-0'>
               {{"CODIGO DEL PAGO: "+' '+this.loan_payment.code}}
             </v-col>
+
             <v-col  cols="4" v-show="show" class='mb-0 pb-0'>
               {{"PRESTAMO: "+this.loan.code}}
             </v-col>
+
             <v-col  cols="4" v-show="show" class='py-1'>
               NÚMERO DE CUOTA: {{this.loan_payment.quota_number }}
             </v-col>
+
             <v-col  cols="4" v-show="show" class='py-1'>
               MONTO: {{this.loan.amount_approved | money}}
             </v-col>
+
             <v-col  cols="4" v-show="show" class='py-1'>
               CUOTA ESTIMADA MENSUAL : {{this.loan.estimated_quota | money}}
             </v-col>
+
           </v-row>
+
+           <!-- F O R M  N U E V O  R E G I S T R O   C O B R O -->
           <Steps/>
+
         </div>
       </v-container>
     </template>
