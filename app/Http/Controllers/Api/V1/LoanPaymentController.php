@@ -541,13 +541,8 @@ class LoanPaymentController extends Controller
         $loan = $loan_payment->loan;
         $affiliate = $loan_payment->affiliate;
         $procedure_modality = $loan->modality;
-        $lenders = []; 
         $is_dead = false;
         $quota_treat = 0;
-        foreach ($loan->lenders as $lender) {
-            $lenders[] = $loan->borrower;
-            if($lender->dead) $is_dead = true;
-        }
         $global_parameter=LoanGlobalParameter::latest()->first();
         $max_current=$global_parameter->grace_period+$global_parameter->days_current_interest;
         $num_quota=$loan_payment->quota_number;
@@ -581,7 +576,7 @@ class LoanPaymentController extends Controller
             ],
             'title' => 'AMORTIZACIÓN DE CUOTA',
             'loan' => $loan,
-            'lenders' => collect($lenders),
+            'lenders' => $loan->borrower,
             'loan_payment' => $loan_payment,
             'signers' => $persons,
             'is_dead'=> $is_dead,
@@ -597,16 +592,7 @@ class LoanPaymentController extends Controller
 
     public function get_information_loan(Loan $loan)
     {
-        $lend='';
-        foreach ($loan->lenders as $lender) {
-            $lenders[] = $loan->borrower;
-        }
-        foreach ($lenders as $lender) {
-            $lend=$lend.'*'.' ' . $lender->full_name;
-        }
-
-        $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$lend]); 
-
+        $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$loan->borrower->first()->fullname]); 
         return $file_name;
     }
 
