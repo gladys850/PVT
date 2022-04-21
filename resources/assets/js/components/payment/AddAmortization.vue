@@ -45,9 +45,6 @@
                           </v-col>
 
                           <v-col cols="12" md="12" class="py-0" v-show="isNew">
-                            <p style="color:teal"><b>PRESTATARIO.-</b></p>
-                          </v-col>
-
                           <ul style="list-style: none" class="py-0" >
                             <li v-for="borrower in loan.borrower" :key="borrower.id">
                               <v-col cols="12" md="12" class="pa-0">
@@ -71,12 +68,10 @@
                               </v-col>
                             </li>
                           </ul>
-
-                          <v-col cols="12" md="12" class="py-0" v-show="!isNew">
-                            <p style="color:teal"><b>PRESTATARIO.-</b></p>
                           </v-col>
 
                           <v-col cols="12" md="12" class="py-0" v-show="!isNew">
+                            <p style="color:teal"><b>PRESTATARIO.-</b></p>
                             <ul style="list-style: none" class="py-0" >
                             <li v-for="borrower_detail in loan.borrower_detail" :key="borrower_detail.id">
                               <v-col cols="12" md="12" class="pa-0">
