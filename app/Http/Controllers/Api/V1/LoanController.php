@@ -2386,6 +2386,14 @@ class LoanController extends Controller
         }
     }
 
+    /**
+    * Impresion acta de sesión de comité
+    * Imprime el acta de sesión de comite de el prestamo
+    * @urlParam loan required ID del prestamo. Example: 5012
+    * @bodyParam number_session integer required numero de la sesión. Example: 100
+    * @authenticated
+    * @responseFile responses/loan/print_form_advance.200.json
+    */
     public function committee_session(Request $request, Loan $loan, $standalone = true)
     {
         $file_title = implode('_', ['FORM','COMITE','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
@@ -2431,6 +2439,7 @@ class LoanController extends Controller
             'loan' => $loan,
             'borrower' => $loan->borrower->first(),
             'session' => $number,
+            'code' => $request->number_session,
             'file_title' => $file_title,
             'is_refinancing' => $is_refinancing,
             'previous_loan_amount_requested' => $previous_loan_amount_requested,
