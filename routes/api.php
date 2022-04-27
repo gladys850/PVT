@@ -116,6 +116,8 @@ Route::group([
         Route::apiResource('periods', 'Api\V1\LoanPaymentPeriodController')->only('index', 'show', 'store', 'update', 'destroy');//cambiar a cobranzas
         Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
         Route::post('committee_session/{loan}', 'Api\V1\LoanController@committee_session');
+        Route::get('record_affiliate_history', 'Api\V1\RecordController@record_affiliate_history');
+        
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'
@@ -323,6 +325,13 @@ Route::group([
             Route::apiResource('voucher', 'Api\V1\VoucherController')->only('destroy');
             Route::patch('voucher/{voucher_id}/delete','Api\V1\VoucherController@delete_voucher_payment');              
         });
+        // Voucher Tesoreria
+        Route::group([
+            'middleware' => 'permission:show-list-voucher'
+        ], function () {
+            Route::get('index_voucher', 'Api\V1\VoucherController@index_voucher');
+            });
+
         // Dirección
         Route::group([
             'middleware' => 'permission:create-address'
