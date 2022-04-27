@@ -18,6 +18,17 @@
             <font style="text-transform: uppercase;">MUSERPOL</font>
         </div>
     </div>
+    <table style="font-size:14px;" class="my-5">
+            <tr>
+                <td class="w-25">
+                </td>
+                <td class="w-50">
+                </td>
+                <td class="font-semibold w-25">
+                    <div class="font-semibold leading-tight rounded-full text-center text-xxxs">A.C.P./DESI/N°0{{ $code }}/2022 </div>
+                </td>
+            </tr>
+        </table>
     <br>
     <div class="block text-justify  text-xs">
         <div>
@@ -63,14 +74,24 @@
                 </tr>
                 @foreach ($employees as  $key => $employee)
                     <tr class="w-10">
-                        <td class="font-semibold leading-tight text-center m-b-10 text-xxs border-b">
+                        <td class="font-semibold leading-tight text-center m-b-10 text-xxs border-b height: 100px">
                         {{ $employee['name'] }}
                         </td>
                         <td class="border-b">
-                        @include('partials.signature_box', [
-                            'full_name' => $employee['name'],
-                            'position' => $employee['position'],
-                        ])
+                            <div class='text-center m-t-50'>
+                                <div>
+                                    <hr style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;" width="250px">
+                                </div>
+                                <div>
+                                    {{ $employee['name'] }}
+                                </div>
+                                <div class="font-bold">
+                                    {{ $employee['position'] }}
+                                </div>
+                                <div>
+                                    MUSERPOL
+                                </div>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
