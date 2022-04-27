@@ -209,7 +209,7 @@
               </v-tooltip>
               <!--FORMULARIO PARA CALIFICACION-->
             </v-card-title>
-            <v-card-title v-if="permissionSimpleSelected.includes('print-qualification-form')">
+            <v-card-title class="pa-0" v-if="permissionSimpleSelected.includes('print-qualification-form')">
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -220,7 +220,7 @@
                     right
                     absolute
                     v-on="on"
-                    style="margin-right: -9px;margin-top: 78px;"
+                    style="margin-right: -9px;margin-top: 48px;"
                     @click="printQualificationForm($route.params.id)"
                   >
                     <v-icon>mdi-printer-check</v-icon>
@@ -261,7 +261,16 @@
                       </v-row>
                     </v-container>
                   </v-card-text>
-                  <v-card-actions>
+                  <v-card-actions
+                    class="margin: 15px"
+                  >
+                    <v-btn
+                      color="primary"
+                      text
+                      @click="dialog_minutes = false"
+                    >
+                      Cancelar
+                    </v-btn>
                     <v-spacer></v-spacer>
                     <v-btn v-if="number_session != '' && !isNaN(number_session)"
                       color="primary"
@@ -289,7 +298,7 @@
                       class="pa-0"
                       v-bind="attrs"
                       style="margin-right: 36px; margin-top: 48px; "
-                      @click="dialog_minutes = true"
+                      @click="dialog_minutes = true; number_session = ''"
                    >
                     <v-icon>mdi-printer-check</v-icon>
                   </v-btn>
@@ -533,6 +542,8 @@ export default {
       type: null,
       disbursable: null
     },
+    dialog_minutes: false,
+    number_session: '',
     dialog:false,
     bonos: [0, 0, 0, 0],
     payable_liquid: [0, 0, 0],
@@ -849,6 +860,23 @@ export default {
         let res = await axios.get(`loan/${item}/print/qualification`)
         console.log("plan " + item)
         printJS({
+          printable: res.data.content,
+          type: res.data.type,
+          file_name: res.data.file_name,
+          base64: true
+        })
+      } catch (e) {
+        this.toastr.error("Ocurrió un error en la impresión.")
+        console.log(e)
+      }
+    },
+    async printComitteeMinute(id_loan) {
+      try {
+        this.dialog_minutes = false
+        let res = await axios.post(`committee_session/${id_loan}`, {
+            number_session: this.number_session
+        })
+         printJS({
           printable: res.data.content,
           type: res.data.type,
           file_name: res.data.file_name,
