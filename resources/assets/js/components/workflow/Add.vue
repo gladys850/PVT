@@ -236,20 +236,15 @@
                 v-model="dialog_minutes"
                   width="500"
                >
-                <v-card-title class="blue-grey darken-2">
-                  <span style="color:white" ><b>INTRODUZCA EL NÚMERO DE SESIÓN</b></span>
-                </v-card-title>
-              
                 <v-card>
+                  <v-card-title>
+                    <span class="text-h5">Introduzca el Número de Sesión</span>
+                  </v-card-title>
+
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        <v-col
-                          cols="12"
-                          sm="6"
-                          md="6"
-                          class="pa-0"
-                        >
+                        <v-col cols="12" sm="12" md="12">
                           <ValidationProvider v-slot="{ errors }" name="numero sesion" rules="numeric|min:1" mode="aggressive">
                             <v-text-field
                               label="Número de sesión"
@@ -257,29 +252,21 @@
                               v-model="number_session"
                             ></v-text-field> 
                           </ValidationProvider>
-                        </v-col> 
+                        </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
-                  <v-card-actions
-                    class="margin: 15px"
-                  >
-                    <v-btn
-                      color="primary"
-                      text
-                      @click="dialog_minutes = false"
-                    >
-                      Cancelar
-                    </v-btn>
+
+                  <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn v-if="number_session != '' && !isNaN(number_session)"
-                      color="primary"
-                      text
-                      @click="printComitteeMinute($route.params.id)"
-                    >
-                      Imprimir
+                    <v-btn color="error" text @click="dialog_minutes = false">
+                      CANCELAR
+                    </v-btn>
+                    <v-btn color="success" text @click="printComitteeMinute($route.params.id)">
+                      IMPRIMIR
                     </v-btn>
                   </v-card-actions>
+ 
                 </v-card>
               </v-dialog>
 
