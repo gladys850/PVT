@@ -262,7 +262,7 @@
                     <v-btn color="error" text @click="dialog_minutes = false">
                       CANCELAR
                     </v-btn>
-                    <v-btn color="success" text @click="printComitteeMinute($route.params.id)">
+                    <v-btn v-if="number_session != '' && !isNaN(number_session)" color="success" text @click="printComitteeMinute($route.params.id)">
                       IMPRIMIR
                     </v-btn>
                   </v-card-actions>
