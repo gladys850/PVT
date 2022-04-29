@@ -283,7 +283,12 @@ class Affiliate extends Model
     }
     public function active_guarantees()
     {
-        return $this->verify_balance($this->guarantees);
+      $guarantees = LoanGuarantor::whereAffiliateId($this->id)->get();
+      $data_loan = [];
+      foreach($guarantees as $guarantee){
+          array_push($data_loan, $guarantee->loan);
+      }
+      return $this->verify_balance($data_loan);
     }
     //
     public function affiliate_fullName()
@@ -473,7 +478,7 @@ class Affiliate extends Model
    }
 
    public function active_guarantees_sismu(){
-    $query = "SELECT trim(p2.PadNombres) as PadNombres, trim(p2.PadPaterno) as PadPaterno, trim(p2.PadMaterno) as PadMaterno, trim(p2.PadApellidoCasada) as PadApellidoCasada, Prestamos.IdPrestamo, Prestamos.PresNumero, Prestamos.IdPadron, Prestamos.PresCuotaMensual, Prestamos.PresEstPtmo, Prestamos.PresMeses, Prestamos.PresFechaDesembolso, Prestamos.PresFechaPrestamo, Prestamos.PresSaldoAct, Prestamos.PresMntDesembolso
+    $query = "SELECT Prestamos.IdPrestamo as IdPrestamo, trim(p2.PadNombres) as PadNombres, trim(p2.PadPaterno) as PadPaterno, trim(p2.PadMaterno) as PadMaterno, trim(p2.PadApellidoCasada) as PadApellidoCasada, Prestamos.IdPrestamo, Prestamos.PresNumero, Prestamos.IdPadron, Prestamos.PresCuotaMensual, Prestamos.PresEstPtmo, Prestamos.PresMeses, Prestamos.PresFechaDesembolso, Prestamos.PresFechaPrestamo, Prestamos.PresSaldoAct, Prestamos.PresMntDesembolso
     FROM Padron
     join PrestamosLevel1 on PrestamosLevel1.IdPadronGar = Padron.IdPadron
     join Prestamos on PrestamosLevel1.IdPrestamo = prestamos.IdPrestamo

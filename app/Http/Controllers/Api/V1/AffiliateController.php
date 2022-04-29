@@ -1663,8 +1663,8 @@ class AffiliateController extends Controller
                 $loans_pvt = array(
                     "id" => $loan->id,
                     "code" => $loan->code,
-                    "lender" => $loan->lenders->first()->full_name,
-                    "quota" => $loan->guarantors->where('id',$affiliate->id)->first()->pivot->quota_treat,
+                    "lender" => $loan->borrower->first()->full_name,
+                    "quota" => $loan->borrowerguarantors->where('affiliate_id',$affiliate->id)->first()->quota_treat,
                     "quota_loan" => $loan->estimated_quota,
                     "state" => $loan->state->name,
                     "type" => "PVT",
