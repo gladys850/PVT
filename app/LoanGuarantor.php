@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Util;
 
 class LoanGuarantor extends Model
@@ -47,9 +48,10 @@ class LoanGuarantor extends Model
         'type'
       ];
 
-  public function affiliate()
+  public function Affiliate()
   {
-    return $this->belongsTo(Affiliate::class);
+    $affiliate = $this->belongsTo(Affiliate::class);
+    return $affiliate;  
   }
 
   public function Address()
@@ -236,5 +238,85 @@ class LoanGuarantor extends Model
   public function loan()
   {
     return $this->belongsTo(Loan::class, 'loan_id', 'id');
+  }
+
+  public function active_guarantees()
+  {
+    // garantias activas en general
+    $loan_guarantees_pvt = $this->affiliate->active_guarantees();
+    $loan_guarantees_sismu = $this->affiliate->active_guarantees_sismu();
+    $data_loan = [];
+    $loan_mixed = [];
+    //garantias con las que fue evaluado en el prestamo
+    $query = "SELECT * from loan_guarantee_registers where loan_id = $this->loan_id and affiliate_id = $this->affiliate_id";
+    $loan_guarantee_registers = DB::select($query);
+    foreach($loan_guarantees_pvt as $loan_guarantee_pvt)
+    {
+      if($loan_guarantee_pvt->id != $this->loan_id)
+      {
+        $loan = [
+          'id' => $loan_guarantee_pvt->id,
+          'code' => $loan_guarantee_pvt->code,
+          'name' => $loan_guarantee_pvt->borrower->first()->full_name,
+          'type' => 'PVT',
+          'state' => $loan_guarantee_pvt->state->name,
+          'evaluate' => false
+        ];
+        array_push($data_loan, $loan);
+      }
+    }
+    foreach($loan_guarantees_sismu as $loan_guarantee_sismu)
+    {
+        $loan = [
+          'id' => $loan_guarantee_sismu->IdPrestamo,
+          'code' => $loan_guarantee_sismu->PresNumero,
+          'name' => $loan_guarantee_sismu->PadNombres.' '.$loan_guarantee_sismu->PadPaterno.' '.$loan_guarantee_sismu->PadMaterno.' '.$loan_guarantee_sismu->PadApellidoCasada,
+          'type' => 'SISMU',
+          'state' => 'Vigente',
+          'evaluate' => false
+        ];
+        array_push($data_loan, $loan);
+    }
+    foreach($loan_guarantee_registers as $loan_guarantee_register)
+    {
+      $sw = false;
+      foreach($data_loan as $loan)
+      {
+        if($loan_guarantee_register->loan_id == $loan['id'] && $loan['type'] == $loan_guarantee_register->database_name)
+        {
+          $loan['evaluate'] = true;
+          $sw = true;
+        }
+      }
+      if($sw == false)
+      {
+        if($loan_guarantee_register->database_name == 'PVT')
+        {
+          $name = Loan::find($loan_guarantee_register->loan_id)->borrower->first()->full_name;
+          $state = Loan::find($loan_guarantee_register->loan_id)->state->name;
+        }
+        elseif($loan_guarantee_register->database_name == 'SISMU')
+        {
+          $query = "SELECT p2.PadNombres, p2.PadPaterno, p2.PadMaterno, p2.PadApellidoCasada, ep.PresEstDsc as state
+          from Prestamos p
+          join Padron p2 on p.IdPadron = p2.IdPadron
+          join EstadoPrestamo ep on ep.PresEstPtmo = p.PresEstPtmo
+          where p.IdPrestamo = $loan_guarantee_register->guarantable_id";
+          $loan_sismu = DB::select($query);
+          $name = $loan_sismu->PadNombres.' '.$loan_sismu->PadPaterno.' '.$loan_sismu->PadMaterno.' '.$loan_sismu->PadApellidoCasada;
+          $state = $loan_sismu->state;
+        }
+        $loan = [
+          'id' => $loan_guarantee_register->guarantable_id,
+          'code' => $loan_guarantee_register->loan_code_guarantee,
+          'name' => $name,
+          'type' => $loan_guarantee_register->database_name,
+          'state' => $state,
+          'evaluate' => true
+        ];
+        array_push($data_loan, $loan);
+      }
+    }
+    return $data_loan;
   }
 }
