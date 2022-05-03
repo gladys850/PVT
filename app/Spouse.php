@@ -89,29 +89,46 @@ class Spouse extends Model
         return $this->belongsTo(City::class, 'city_birth_id', 'id');
     }
     
+    public function loans(){
+        return Loan::whereIn('id', function($query){
+            $query->select('loan_id')->from('loan_borrowers')->where('affiliate_id',$this->affiliate_id)->where('type','spouses');
+        })->whereIn('state_id',[1,3])->orderBy('loans.created_at', 'desc')->get();
+    }
+
     public function active_loans()
     {
-        return $this->affiliate->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['type'])->where('type', 'spouses')->whereGuarantor(false)->whereIn('state_id', [1,3])->count();
+        return Loan::whereIn('id', function($query){
+            $query->select('loan_id')->from('loan_borrowers')->where('affiliate_id',$this->affiliate_id)->where('type','spouses');
+        })->count();
     }
-    public function loans(){
-        return $this->affiliate->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['type'])->where('type', 'spouses')->whereGuarantor(false)->whereIn('state_id', [1,3])->orderBy('loans.created_at', 'desc');
+
+    public function spouse_loans()
+    {
+        return Loan::whereIn('id', function($query){
+            $query->select('loan_id')->from('loan_borrowers')->where('affiliate_id',$this->affiliate_id)->where('type','spouses');
+        })->orderBy('loans.created_at', 'desc')->get();
     }
-    public function spouse_loans(){
-        return $this->affiliate->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['type'])->where('type', 'spouses')->whereGuarantor(false)->orderBy('loans.created_at', 'desc');
+
+    public function spouse_guarantees()
+    {
+        return Loan::whereIn('id', function($query){
+            $query->select('loan_id')->from('loan_guarantors')->where('affiliate_id',$this->affiliate_id)->where('type','spouses');
+        })->orderBy('loans.created_at', 'desc')->get();
     }
-    public function spouse_guarantees(){
-        return $this->affiliate->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['type'])->where('type', 'spouses')->whereGuarantor(true)->orderBy('loans.created_at', 'desc');
+
+    public function spouse_active_guarantees()
+    {
+        return Loan::whereIn('id', function($query){
+            $query->select('loan_id')->from('loan_guarantors')->where('affiliate_id',$this->affiliate_id)->where('type','spouses');
+        })->whereIn('state_id',[1,3])->count();
     }
-    public function spouse_active_guarantees(){
-        return $this->affiliate->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['type'])->where('type', 'spouses')->whereGuarantor(true)->orderBy('loans.created_at', 'desc');
-    }
+
     public function current_loans()
     {
-      $loan_state = LoanState::whereName('Vigente')->first();
-      return $this->affiliate->belongsToMany(Loan::class, 'loan_affiliates')->withPivot(['payment_percentage'])->whereGuarantor(false)->where('state_id', $loan_state->id)->orderBy('loans.created_at', 'desc');
-    }
-    public function guarantees(){
-        return $this->affiliate();
+        $loan_state = LoanState::whereName('Vigente')->first();
+        return Loan::whereIn('id', function($query){
+            $query->select('loan_id')->from('loan_guarantors')->where('affiliate_id',$this->affiliate_id)->where('type','spouses');
+        })->where('state_id',$loan_state->id)->orderBy('loans.created_at', 'desc')->get();;
     }
 
     public function active_guarantees_sismu(){

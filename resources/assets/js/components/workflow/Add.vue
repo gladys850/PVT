@@ -2,10 +2,16 @@
   <v-card flat>
     <v-card-title>
       <v-toolbar dense style="z-index: 1" color='tertiary'>
+
         <v-toolbar-title>
           <Breadcrumbs />
         </v-toolbar-title>
+
         <v-spacer></v-spacer>
+
+          <!-- Este botón se muestra cuando un trámite de prestamos 
+          se valida, ya sea por parte de plataforma, califación, revisión jefatura etc.
+          Este botón esta en workflow (Bandeja de entrada de los modulos)-->
           <v-tooltip top>
             <template v-slot:activator="{ on }">
               <v-btn
@@ -23,6 +29,8 @@
             </template>
             <span>Validar trámite</span>
           </v-tooltip>
+          
+          <!-- Se muestra conjuntamente con el botón de validar -->
           <v-tooltip top>
             <template v-slot:activator="{ on }">
               <v-btn
@@ -40,6 +48,8 @@
             </template>
             <span>Devolver trámite</span>
           </v-tooltip>
+
+          <!-- Botón que se muestra solo en revisión jefatura -->
           <v-tooltip top>
             <template v-slot:activator="{ on }">
               <v-btn
@@ -60,8 +70,11 @@
             </template>
             <span>Anular trámite</span>
           </v-tooltip>
+
       </v-toolbar>
     </v-card-title>
+
+    <!-- Aquí empieza el menú de tabs (menú negro) -->
     <v-card-text>
       <v-tabs
         v-model="tab"
@@ -72,6 +85,8 @@
         :icons-and-text="icons"
       >
         <v-tabs-slider></v-tabs-slider>
+
+        <!-- T A  B   -  1 -->
         <v-tab v-if="!editable" :href="`#tab-1`">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -82,6 +97,8 @@
             </span>
           </v-tooltip>
         </v-tab>
+
+        <!-- T A B  -   2 -->
         <v-tab :href="`#tab-2`" v-if="this.$store.getters.rolePermissionSelected.display_name != 'Cobranzas'">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -92,6 +109,8 @@
             </span>
           </v-tooltip>
         </v-tab>
+
+        <!-- T A B   -  3 -->
         <v-tab :href="`#tab-3`">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -102,6 +121,8 @@
             </span>
           </v-tooltip>
         </v-tab>
+
+        <!-- T A B   -   4 -->
         <v-tab :href="`#tab-4`">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -112,6 +133,8 @@
             </span>
           </v-tooltip>
         </v-tab>
+
+        <!-- T A B   -  5 -->
         <v-tab :href="`#tab-5`" v-if="borrower.type == 'spouses'">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -122,6 +145,8 @@
             </span>
           </v-tooltip>
         </v-tab>
+
+        <!-- T A B   -  6 -->
         <v-tab :href="`#tab-6`">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -132,6 +157,8 @@
             </span>
           </v-tooltip>
         </v-tab>
+
+        <!-- T A B   -  7 -->
         <v-tab :href="`#tab-7`">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -142,6 +169,8 @@
             </span>
           </v-tooltip>
         </v-tab>
+
+        <!-- T A B   -  8 -->
         <v-tab :href="`#tab-8`">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -152,6 +181,8 @@
             </span>
           </v-tooltip>
         </v-tab>
+
+        <!--  I T E M   T A B  -  1 -->
         <v-tab-item :value="'tab-1'">
           <v-card flat tile>
             <v-card-text>
@@ -163,6 +194,8 @@
             </v-card-text>
           </v-card>
         </v-tab-item>
+
+        <!-- I T E M   T A B   - 2 -->
         <v-tab-item :value="'tab-2'">
           <v-card flat tile>
             <v-card-title  class="pa-0" v-if="permissionSimpleSelected.includes('print-payment-plan')">
@@ -207,8 +240,8 @@
                   <span>Generar plan de pagos</span>
                 </div>
               </v-tooltip>
-              <!--FORMULARIO PARA CALIFICACION-->
             </v-card-title>
+
             <v-card-title class="pa-0" v-if="permissionSimpleSelected.includes('print-qualification-form')">
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
@@ -309,6 +342,8 @@
             </v-card-text>
           </v-card>
         </v-tab-item>
+
+        <!-- I T E M  T A B  -  3 -->
         <v-tab-item :value="'tab-3'">
           <v-card flat tile>
             <v-card-text class="pl-12">
@@ -322,6 +357,8 @@
             </v-card-text>
           </v-card>
         </v-tab-item>
+
+        <!-- I T E M  T A B   -  4 -->
         <v-tab-item :value="'tab-4'">
           <v-card flat tile>
             <v-card-text class="pl-0 py-0">
@@ -334,6 +371,8 @@
             </v-card-text>
           </v-card>
         </v-tab-item>
+
+        <!-- I T E M  T A B   -  5-->
         <v-tab-item :value="'tab-5'">
           <v-card flat tile>
             <v-card-text class="py-0 pl-0">
@@ -347,6 +386,8 @@
             </v-card-text>
           </v-card>
         </v-tab-item>
+
+        <!-- I T E M  T A B   -  6 -->
         <v-tab-item :value="'tab-6'">
           <v-card flat tile>
             <v-card-text class="py-0 pl-0">
@@ -361,16 +402,20 @@
             </v-card-text>
           </v-card>
         </v-tab-item>
+
+        <!-- I T E M   T A B  - 7-->
         <v-tab-item :value="'tab-7'">
           <v-card flat tile>
             <v-card-text class="pa-0 pl-3 pr-10 py-0">
+
+              <!-- C O M P O N E N T E -->
               <Kardex
               :loan.sync="loan"
               :bus="bus"
               :affiliate.sync="affiliate"
               :borrower.sync="borrower" />
+
             </v-card-text>
-                <!--CAMBIO DE GARANTE A PRESTATARIO-->
             <v-tooltip top v-if="permissionSimpleSelected.includes('create-payment-loan') && (loan.guarantors.length>0 && loan.guarantor_amortizing)">
               <template v-slot:activator="{ on }">
                 <v-btn
@@ -423,6 +468,7 @@
           </v-card>
         </v-tab-item>
 
+        <!-- I T E M  T A B   8-->
         <v-tab-item :value="'tab-8'">
           <v-card flat tile>
             <v-card-text class="pa-0 pl-3 pr-0 py-0">
@@ -435,9 +481,11 @@
             </v-card-text>
           </v-card>
         </v-tab-item>
+
       </v-tabs>
     </v-card-text>
-      <v-dialog
+
+    <v-dialog
       v-model="dialog"
       max-width="500"
     >
@@ -627,7 +675,7 @@ export default {
   },
   methods: {
     resetForm() {
-      this.getAddress(this.affiliate.id)
+      this.getAddress(this.loan.borrower.address_id)
       this.editable = false
       this.reload = true
       this.$nextTick(() => {
@@ -656,10 +704,10 @@ export default {
         this.loan.loan_term_before= res.data.loan_term
 
         this.loan.amount_approved_aux = this.loan.amount_approved
-        this.loan.payable_liquid_calculated_aux = this.loan.lenders[0].pivot.payable_liquid_calculated
+        //this.loan.payable_liquid_calculated_aux = this.loan.borrower[0].payable_liquid_calculated
         this.loan.liquid_qualification_calculated_aux = this.loan.liquid_qualification_calculated
         this.loan.loan_term_aux = this.loan.loan_term
-        this.loan.bonus_calculated_aux = this.loan.lenders[0].pivot.bonus_calculated
+        this.loan.bonus_calculated_aux = this.loan.borrower[0].bonus_calculated
         this.loan.indebtedness_calculated_aux = this.loan.indebtedness_calculated
         this.loan.estimated_quota_aux = this.loan.estimated_quota
 
@@ -701,7 +749,7 @@ export default {
             this.loan_refinancing.amount_approved = this.loan.amount_approved
             this.loan_refinancing.refinancing_balance = this.loan.refinancing_balance
 
-        let res1 = await axios.get(`affiliate/${this.loan.lenders[0].id}`)
+        let res1 = await axios.get(`affiliate/${this.loan.affiliate_id}`)
         this.affiliate = res1.data
         if (this.loan.property_id != null) {
           this.getLoanproperty(this.loan.property_id)
