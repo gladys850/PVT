@@ -2274,4 +2274,69 @@ class LoanController extends Controller
             return response()->json(['error'=>'No se pudo actualizar cuenta'],409);
         }
     }
+
+    /**
+    * Impresion acta de sesión de comité
+    * Imprime el acta de sesión de comite de el prestamo
+    * @urlParam loan required ID del prestamo. Example: 5012
+    * @bodyParam number_session integer required numero de la sesión. Example: 100
+    * @authenticated
+    * @responseFile responses/loan/print_form_advance.200.json
+    */
+    public function committee_session(Request $request, Loan $loan, $standalone = true)
+    {
+        $file_title = implode('_', ['FORM','COMITE','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
+        $nf = new \NumberFormatter('es_Es', \NumberFormatter::SPELLOUT); // ::ORDINAL
+        $is_refinancing = false;
+        $previous_loan_amount_requested = 0;
+        $previous_loan_balance = 0;
+
+        /* Numero ordinal en masculino
+        $nf->setTextAttribute(\NumberFormatter::DEFAULT_RULESET, "%spellout-ordinal-masculine");
+        return $nf->format(341). ' ';*/
+
+        // Numero ordinal en femenino
+        $nf->setTextAttribute(\NumberFormatter::DEFAULT_RULESET, "%spellout-ordinal-feminine");
+        $number = $nf->format($request->number_session). ' ';
+        $procedure_modality = $loan->modality;
+        if(strpos($procedure_modality->name, 'Refinanciamiento') !== false )
+            $is_refinancing = true;
+        if($loan->data_loan){
+            $previous_loan_amount_requested = $loan->data_loan->amount_approved;
+            $previous_loan_balance = $loan->data_loan->balance;
+        }
+        elseif($loan->parent_loan)
+        {
+            $previous_loan_amount_requested = $loan->parent_loan->amount_approved;
+            $previous_loan_balance = $loan->parent_loan->verify_balance();
+        }
+
+        $employees = [
+            ['position' => 'Directora de Estrategias Sociales e Inversion','name'=>'Lic. DAEN Gabriela Jackeline Bustillos Landaeta Msc.'],
+            ['position' => 'Jefe Unidad Inversion de Préstamos','name'=>'Lic. William Ceferino Pimentel Martinez'],
+            ['position' => 'Profesional Legal de Préstamos','name'=>'Abog. Elizabeth Sabina Villca Juchani'],
+            ['position' => 'Responsable de Registro, Control y Recuperacion de Préstamos','name'=>'Ing. Nelvis Irene Alarcón Pizarroso'],
+            ['position' => 'Profesional de Calificación de Préstamos','name'=>'Lic. Tamy Ugarte Maldonado'],
+        ];
+        $data = [
+            'header' => [
+                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+                'unity' => 'UNIDAD DE INVERSIÓN EN PRÉSTAMOS',
+                'table' => []
+            ],
+            'employees' => $employees,
+            'loan' => $loan,
+            'borrower' => $loan->borrower->first(),
+            'session' => $number,
+            'code' => $request->number_session,
+            'file_title' => $file_title,
+            'is_refinancing' => $is_refinancing,
+            'previous_loan_amount_requested' => $previous_loan_amount_requested,
+            'previous_loan_balance' => $previous_loan_balance,
+        ];
+        $file_name = implode('_', ['committee_session', $loan->code]) . '.pdf';
+        $view = view()->make('loan.forms.committee_session')->with($data)->render();
+        if ($standalone) return Util::pdf_to_base64([$view], $file_name, $loan,'letter', $request->copies ?? 1);
+        return $view;
+    }
 }
