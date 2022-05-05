@@ -25,15 +25,17 @@
                 <td class="w-50">
                 </td>
                 <td class="font-semibold w-25">
-                    <div class="font-semibold leading-tight rounded-full text-center text-xxxs">A.C.P./DESI/N°0{{ $code }}/2022 </div>
+                    <div class="font-semibold leading-tight rounded-full text-center text-xxxs">A.C.P./D.E.S.I./N°0{{ $code }}/2022 </div>
                 </td>
             </tr>
         </table>
     <br>
     <div class="block text-justify  text-xs">
         <div>
-        <b>ANTECEDENTES.- </b>Que de acuerdo al decreto supremo 1446 de fecha 19 de diciembre de 2012, se crea la Mutual de Servicios al Policia (MUSERPOL), Habiendose aprobado el Reglamento de Préstamos mediante Resolucion de Directorio N° 07/2019 del 21 de marzo del 2019 y que segun Resolución Administrativa n° 011/2022 de fecha 01 de febrero de 2022, se designo al comité de préstamos, conformado por la Directora de Estrategias Sociales e Inversiones, el jefe de la unidad de Inversion y Prestamos, la profesional Legal de Préstamos, la Responsable de Registro y control y Recuperacion de Préstamos y la profesional de Calificacion de Préstamos.
-        Por todo lo expuesto, la Direccion de Estrategias Sociales e Inversiones, procedio a la instalacion de la <b><span class="uppercase">{{ $session }} SESSION DEL COMITÉ DE APROBACIÓN DE PRÉSTAMOS</span></b>, llevado a cabo en fecha {{ Carbon::now()->isoFormat('LL') }}, en oficinas de la MUSERPOL Av. 6 de Agosto entre Rosendo Gutierrez y Belisario Salinas N° 2354, bajo el siguiente orden del día:
+        <b>ANTECEDENTES.- </b>Que de acuerdo al Decreto Supremo 1446 de fecha 19 de diciembre de 2012, se crea la Mutual de Servicios al Policia (MUSERPOL), habiendose aprobado el Reglamento de Préstamos mediante Resolucion de Directorio N° 07/2019 del 21 de marzo del 2019 y que según Resolución Administrativa N° 011/2022 de fecha 01 de febrero de 2022, se designo al comité de préstamos, conformado por la Directora de Estrategias Sociales e Inversiones, el Jefe de la Unidad de Inversion y Prestamos, la profesional Legal de Préstamos, la Responsable de Registro y Control y Recuperacion de Préstamos y la Profesional de Calificación de Préstamos.
+        </div>
+        <div>
+        Por todo lo expuesto, la Direccion de Estrategias Sociales e Inversiones, procedio a la instalacion de la <b><span class="uppercase">{{ $session }} SESION DEL COMITÉ DE APROBACIÓN DE PRÉSTAMOS</span></b>, llevado a cabo en fecha {{ Carbon::now()->isoFormat('LL') }}, en oficinas de la MUSERPOL Av. 6 de Agosto entre Rosendo Gutierrez y Belisario Salinas N° 2354, bajo el siguiente orden del día:
         </div>
         <br>
         <div class="text-center">
@@ -41,11 +43,19 @@
         </div>
         <br>
         <div>
-            <b>"CONSIDERACION DE LA SOLICITUD DE PRÉSTAMO {{ $borrower->gender == 'M' ? 'DEL' : 'DE LA' }} {{ $borrower->gender == 'M' ? 'SEÑOR.' : 'SEÑORA' }} {{ $loan->borrower->first()->full_name }}"</b>
+            <b>"CONSIDERACIÓN DE LA SOLICITUD DE PRÉSTAMO {{ $borrower->gender == 'M' ? 'DEL' : 'DE LA' }} {{ $borrower->gender == 'M' ? 'SEÑOR.' : 'SEÑORA' }} 
+                @if($borrower->type == 'affiliates')
+                    {{ $borrower->title }}
+                @endif
+                {{ $loan->borrower->first()->full_name }}"</b>
         </div>
         <div>
-            En atención a solicitud de préstamo realizado por {{ $borrower->gender == 'M' ? 'EL' : 'La' }} {{ $borrower->gender == 'M' ? 'Sr.' : 'Sra' }} {{ $loan->borrower->first()->full_name }} en fecha {{ Carbon::parse($loan->request_date)->isoFormat('LL') }} del año en curso, se se asigno mediante el sistema el {{ $loan->code }} al presente tramite y se califico la suma de Bs. {{ Util::money_format($loan->amount_requested) }} (<span class="uppercase">{{ Util::money_format($loan->amount_requested, true) }} Bolivianos)</span> de acuerdo al Reglamento de Préstamos vigente. A objeto del mismo el Comite de la Direccion de Estrategias Sociales e Inversiones determino que: verificado los documentos presentados
-            para la solicitud de préstamo. considerando la capacidad de pago evaluado el caso se concluyo en la <b>APROBACIÓN DEL PRÉSTAMO</b> por la suma de 
+            En atención a solicitud de préstamo realizado por {{ $borrower->gender == 'M' ? 'El' : 'La' }} {{ $borrower->gender == 'M' ? 'Sr.' : 'Sra.' }} 
+            @if($borrower->type == 'affiliates')
+                {{ $borrower->title }}
+            @endif
+            {{ $loan->borrower->first()->full_name }} en fecha {{ Carbon::parse($loan->request_date)->isoFormat('DD MMMM') }} del año en curso, se asignó mediante el sistema el {{ $loan->code }} al presente tramite y se califico la suma de Bs. {{ Util::money_format($loan->amount_requested) }} (<span class="uppercase">{{ Util::money_format($loan->amount_requested, true) }} Bolivianos)</span> de acuerdo al Reglamento de Préstamos vigente. A objeto del mismo el Comite de la Direccion de Estrategias Sociales e Inversiones determino que: verificado los documentos presentados
+            para la solicitud de préstamo, considerando la capacidad de pago evaluado el caso se concluyo en la <b>APROBACIÓN DEL PRÉSTAMO</b> por la suma de 
             @if($is_refinancing)
                 <b>Bs. {{ Util::money_format($loan->amount_approved - $previous_loan_balance) }}</b> (<span class="uppercase">{{ Util::money_format($loan->amount_approved - $previous_loan_balance, true) }} Bolivianos</span>)
             @else

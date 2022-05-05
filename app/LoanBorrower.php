@@ -281,4 +281,9 @@ class LoanBorrower extends Model
   {
     return $this->belongsTo(City::class, 'city_birth_id', 'id');
   }
+
+  public function degree()
+  {
+    return $this->belongsTo(Degree::class);
+  }
 }
