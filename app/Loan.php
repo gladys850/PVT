@@ -1295,7 +1295,7 @@ class Loan extends Model
             $titular_guarantor->percentage_quota = $titular_guarantor->percentage_quota;
             $titular_guarantor->state = $titular_guarantor->affiliate_state;
             $titular_guarantor->address = $titular_guarantor->address;
-            $titular_guarantor->active_guarantees = $titular_guarantor->active_guarantees();
+            //$titular_guarantor->active_guarantees = $titular_guarantor->active_guarantees();
             $data->push($titular_guarantor);
         }
         return $data;

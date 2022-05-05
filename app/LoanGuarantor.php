@@ -4,12 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Util;
 
 class LoanGuarantor extends Model
 {
     use Traits\EloquentGetTableNameTrait;
     use Traits\RelationshipsTrait;
+    use SoftDeletes;
 
     protected $fillable = [
         'loan_id',
