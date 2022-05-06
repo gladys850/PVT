@@ -294,7 +294,7 @@
     <br>
     <div style="font-size:10px;" class="block  text-justify ">
         <div>
-            La presente solicitud se constituye en una <span class="font-bold">DECLARACIÓN JURADA</span>, consignándose los datos proporcionados por los interesados como fidedignos; por lo que, autorizan de manera expresa a la <span class="font-bold">MUSERPOL</span> acceder a la validación y/o contrastación de su información personal mediante el Comando General de la Policía Boliviana, Servicio General de Identificación Personal – <span class="font-bold">SEGIP</span>, Servicio de Registro Cívico – <span class="font-bold">SERECI</span>, Servicio Nacional de Sistema de Reparto - <span class="font-bold">SENASIR</span> y otras instituciones públicas o privadas.
+        La presente solicitud se constituye en una <b>DECLARACION JURADA</b>, consignándose los datos proporcionados por los interesados como fidedignos; por lo que, autorizan de manera expresa a la <b>MUSERPOL</b> acceder a la validación y/o contrastación de su información personal mediante el Comando General de la Policía Boliviana, Servicio General de Identificación Personal – SEGIP, Servicio de Registro Cívico – SERECI, Servicio Nacional de Sistema de Reparto – SENASIR, Autoridad de Fiscalizacion y Control de Pensiones y Seguros - APS y otras instituciones públicas o privadas.
         </div>
         <div>
             En caso de identificarse cualquier falsedad, distorsión u omisión en la documentación presentada; el interesado reconoce y asume que se procederá con la anulación del trámite y otras acciones establecidas en el reglamento de préstamos.
@@ -344,7 +344,7 @@
         <br>
         <br>
         <div style="font-size:10px;" class="block  text-justify ">
-        El suscrito Asistente Administrativo, Representante Departamental y/o personal de Atención al afiliado de la MUSERPOL, certifica la verificación y validación de la documentación presentada, dando FÉ que la misma fue firmada en forma voluntaria con puño y letra de{{ $plural ? ' los' : 'l' }} interesado{{ $plural ? 's' : '' }}
+        El suscrito Asistente Administrativo, Representante Departamental y/o personal de Atención al afiliado de la MUSERPOL, certifica la verificación y validación de la documentación presentada, dando FÉ que la misma fue firmada en forma voluntaria con puño y letra de{{ $plural ? ' los' : 'l' }} interesado{{ $plural ? 's' : '' }}.
         </div>
 </body>
 </html>
