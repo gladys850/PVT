@@ -247,7 +247,7 @@ class LoanGuarantor extends Model
     // garantias activas en general
     $loan_guarantees_pvt = $this->affiliate->active_guarantees();
     $loan_guarantees_sismu = $this->affiliate->active_guarantees_sismu();
-    $data_loan = [];
+    $data_loan = collect();
     $loan_mixed = [];
     //garantias con las que fue evaluado en el prestamo
     $query = "SELECT * from loan_guarantee_registers where loan_id = $this->loan_id and affiliate_id = $this->affiliate_id";
@@ -256,37 +256,37 @@ class LoanGuarantor extends Model
     {
       if($loan_guarantee_pvt->id != $this->loan_id)
       {
-        $loan = [
+        $data_loan->push([
           'id' => $loan_guarantee_pvt->id,
           'code' => $loan_guarantee_pvt->code,
           'name' => $loan_guarantee_pvt->borrower->first()->full_name,
           'type' => 'PVT',
           'state' => $loan_guarantee_pvt->state->name,
           'evaluate' => false
-        ];
-        array_push($data_loan, $loan);
+        ]);
       }
     }
     foreach($loan_guarantees_sismu as $loan_guarantee_sismu)
     {
-        $loan = [
+        $data_loan->push([
           'id' => $loan_guarantee_sismu->IdPrestamo,
           'code' => $loan_guarantee_sismu->PresNumero,
           'name' => $loan_guarantee_sismu->PadNombres.' '.$loan_guarantee_sismu->PadPaterno.' '.$loan_guarantee_sismu->PadMaterno.' '.$loan_guarantee_sismu->PadApellidoCasada,
           'type' => 'SISMU',
           'state' => 'Vigente',
           'evaluate' => false
-        ];
-        array_push($data_loan, $loan);
+        ]);
     }
+    $loan_guarantees = collect();
     foreach($loan_guarantee_registers as $loan_guarantee_register)
     {
       $sw = false;
-      foreach($data_loan as $loan)
+      foreach($data_loan as $key => $loan)
       {
-        if($loan_guarantee_register->loan_id == $loan['id'] && $loan['type'] == $loan_guarantee_register->database_name)
+        if($loan_guarantee_register->guarantable_id == $loan['id'] && $loan['type'] == $loan_guarantee_register->database_name)
         {
           $loan['evaluate'] = true;
+          $loan_guarantees->push($loan);
           $sw = true;
         }
       }
@@ -294,19 +294,22 @@ class LoanGuarantor extends Model
       {
         if($loan_guarantee_register->database_name == 'PVT')
         {
-          $name = Loan::find($loan_guarantee_register->loan_id)->borrower->first()->full_name;
-          $state = Loan::find($loan_guarantee_register->loan_id)->state->name;
+          $name = Loan::find($loan_guarantee_register->guarantable_id)->borrower->first()->full_name;
+          $state = Loan::find($loan_guarantee_register->guarantable_id)->state->name;
         }
         elseif($loan_guarantee_register->database_name == 'SISMU')
         {
-          $query = "SELECT p2.PadNombres, p2.PadPaterno, p2.PadMaterno, p2.PadApellidoCasada, ep.PresEstDsc as state
+          $query = "SELECT trim(p2.PadNombres) as nombres, trim(p2.PadPaterno) as paterno, trim(p2.PadMaterno) as materno, trim(p2.PadApellidoCasada) as apecasada, ep.PresEstDsc as state
           from Prestamos p
           join Padron p2 on p.IdPadron = p2.IdPadron
           join EstadoPrestamo ep on ep.PresEstPtmo = p.PresEstPtmo
           where p.IdPrestamo = $loan_guarantee_register->guarantable_id";
-          $loan_sismu = DB::select($query);
-          $name = $loan_sismu->PadNombres.' '.$loan_sismu->PadPaterno.' '.$loan_sismu->PadMaterno.' '.$loan_sismu->PadApellidoCasada;
-          $state = $loan_sismu->state;
+          $loan_sismu = DB::connection('sqlsrv')->select($query);
+          foreach($loan_sismu as $sismu)
+          {
+            $name = $sismu->nombres.' '.$sismu->paterno.' '.$sismu->materno.' '.$sismu->apecasada;
+            $state = $sismu->state;
+          }
         }
         $loan = [
           'id' => $loan_guarantee_register->guarantable_id,
@@ -316,9 +319,9 @@ class LoanGuarantor extends Model
           'state' => $state,
           'evaluate' => true
         ];
-        array_push($data_loan, $loan);
+        $loan_guarantees->push($loan);
       }
     }
-    return $data_loan;
+    return $loan_guarantees;
   }
 }
