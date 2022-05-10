@@ -250,7 +250,7 @@ class LoanGuarantor extends Model
     $data_loan = collect();
     $loan_mixed = [];
     //garantias con las que fue evaluado en el prestamo
-    $query = "SELECT * from loan_guarantee_registers where loan_id = $this->loan_id and affiliate_id = $this->affiliate_id";
+    $query = "SELECT * from loan_guarantee_registers where loan_id = '$this->loan_id' and affiliate_id = $this->affiliate_id";
     $loan_guarantee_registers = DB::select($query);
     foreach($loan_guarantees_pvt as $loan_guarantee_pvt)
     {
