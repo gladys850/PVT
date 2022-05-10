@@ -38,7 +38,7 @@ class CreateFunctionDateCutRefinancing extends Migration
                                                     from loan_payment_states lps 
                                                     where lps.name = 'Pendiente por confirmar' limit 1 offset 0)
                                     and lp.loan_id = parent_loan
-                                    order by lp.quota_number, lp.created_at desc
+                                    order by lp.quota_number desc, lp.created_at desc
                                     limit 1 offset 0);
                     if (parent_loan is not null and date_query is not null)
                     then
