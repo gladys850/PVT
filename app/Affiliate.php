@@ -287,8 +287,9 @@ class Affiliate extends Model
       $data_loan = [];
       foreach($guarantees as $guarantee){
         $loan = Loan::find($guarantee->loan_id);
-        if( $loan && $loan->deleted_at <> null)
-          array_push($data_loan, Loan::find($guarantee->loan_id));
+        if($loan){
+          array_push($data_loan, $loan);
+        }
       }
       return $this->verify_balance($data_loan);
     }

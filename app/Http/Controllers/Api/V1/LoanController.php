@@ -2339,4 +2339,15 @@ class LoanController extends Controller
         if ($standalone) return Util::pdf_to_base64([$view], $file_name, $loan,'letter', $request->copies ?? 1);
         return $view;
     }
+
+    //verifica si el usuario puede realizar acciones sobre el prestamo con su rol
+    public function can_user_loan_action(Loan $loan){
+        $user = Auth::user();
+        $user_roles = Auth::user()->roles->pluck('id')->toArray();
+        if (in_array($loan->role_id, $user_roles)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
