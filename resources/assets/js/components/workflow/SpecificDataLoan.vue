@@ -527,7 +527,7 @@
                                                       bottom
                                                       right
                                                       v-on="on"
-                                                      :to="{name: 'affiliateAdd', params: { id: guarantor.affiliate.id}}"
+                                                      :to="{name: 'affiliateAdd', params: { id: guarantor.affiliate_id}}"
                                                       target="_blank"
                                                     >
                                                       <v-icon>mdi-eye</v-icon>
