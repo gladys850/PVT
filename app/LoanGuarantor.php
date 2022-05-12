@@ -294,32 +294,49 @@ class LoanGuarantor extends Model
       {
         if($loan_guarantee_register->database_name == 'PVT')
         {
-          $name = Loan::find($loan_guarantee_register->guarantable_id)->borrower->first()->full_name;
-          $state = Loan::find($loan_guarantee_register->guarantable_id)->state->name;
+          if(Loan::find($loan_guarantee_register->guarantable_id))
+          {
+            $name = Loan::find($loan_guarantee_register->guarantable_id)->borrower->first()->full_name;
+            $state = Loan::find($loan_guarantee_register->guarantable_id)->state->name;
+            $loan = [
+              'id' => $loan_guarantee_register->guarantable_id,
+              'code' => $loan_guarantee_register->loan_code_guarantee,
+              'name' => $name,
+              'type' => $loan_guarantee_register->database_name,
+              'state' => $state,
+              'evaluate' => true
+            ];
+            $loan_guarantees->push($loan);
+          }
         }
         elseif($loan_guarantee_register->database_name == 'SISMU')
         {
-          $query = "SELECT trim(p2.PadNombres) as nombres, trim(p2.PadPaterno) as paterno, trim(p2.PadMaterno) as materno, trim(p2.PadApellidoCasada) as apecasada, ep.PresEstDsc as state
-          from Prestamos p
-          join Padron p2 on p.IdPadron = p2.IdPadron
-          join EstadoPrestamo ep on ep.PresEstPtmo = p.PresEstPtmo
-          where p.IdPrestamo = $loan_guarantee_register->guarantable_id";
-          $loan_sismu = DB::connection('sqlsrv')->select($query);
-          foreach($loan_sismu as $sismu)
+          $count = "SELECT count(*) as cant from  Prestamos p where p.IdPrestamo = $loan_guarantee_register->guarantable_id";
+          $loan_sismu = DB::connection('sqlsrv')->select($count);
+          if($loan_sismu[0]->cant > 0)
           {
-            $name = $sismu->nombres.' '.$sismu->paterno.' '.$sismu->materno.' '.$sismu->apecasada;
-            $state = $sismu->state;
+            $query = "SELECT trim(p2.PadNombres) as nombres, trim(p2.PadPaterno) as paterno, trim(p2.PadMaterno) as materno, trim(p2.PadApellidoCasada) as apecasada, ep.PresEstDsc as state
+            from Prestamos p
+            join Padron p2 on p.IdPadron = p2.IdPadron
+            join EstadoPrestamo ep on ep.PresEstPtmo = p.PresEstPtmo
+            where p.IdPrestamo = $loan_guarantee_register->guarantable_id";
+            $loan_sismu = DB::connection('sqlsrv')->select($query);
+            foreach($loan_sismu as $sismu)
+            {
+              $name = $sismu->nombres.' '.$sismu->paterno.' '.$sismu->materno.' '.$sismu->apecasada;
+              $state = $sismu->state;
+            }
+            $loan = [
+              'id' => $loan_guarantee_register->guarantable_id,
+              'code' => $loan_guarantee_register->loan_code_guarantee,
+              'name' => $name,
+              'type' => $loan_guarantee_register->database_name,
+              'state' => $state,
+              'evaluate' => true
+            ];
+            $loan_guarantees->push($loan);
           }
         }
-        $loan = [
-          'id' => $loan_guarantee_register->guarantable_id,
-          'code' => $loan_guarantee_register->loan_code_guarantee,
-          'name' => $name,
-          'type' => $loan_guarantee_register->database_name,
-          'state' => $state,
-          'evaluate' => true
-        ];
-        $loan_guarantees->push($loan);
       }
     }
     return $loan_guarantees;
