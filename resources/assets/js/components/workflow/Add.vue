@@ -413,7 +413,8 @@
               :loan.sync="loan"
               :bus="bus"
               :affiliate.sync="affiliate"
-              :borrower.sync="borrower" />
+              :borrower.sync="borrower"
+              :spouse.sync="spouse" />
 
             </v-card-text>
             <v-tooltip top v-if="permissionSimpleSelected.includes('create-payment-loan') && (loan.guarantors.length>0 && loan.guarantor_amortizing)">
