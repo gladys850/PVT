@@ -99,7 +99,7 @@
           <v-col md="4" class="ma-0 pa-0">
             <strong>Prestatario: </strong> {{ borrower.type == 'spouses' ? $options.filters.fullName(spouse, true) : $options.filters.fullName(affiliate, true)  }}<br />
             <strong>CI: </strong> {{ borrower.type == 'spouses' ? spouse.identity_card : affiliate.identity_card  }}<br />
-            <strong>Matrícula: </strong> {{ borrower.type == 'spouse' ?  spouse.registration : affiliate.registration }}<br />
+            <strong>Matrícula: </strong> {{ borrower.type == 'spouses' ?  spouse.registration : affiliate.registration }}<br />
             <strong>Cuotas: </strong> {{ payments.length ? payments.length : ""}}<br />
           </v-col>
           <v-col md="4" class="ma-0 pa-0">
