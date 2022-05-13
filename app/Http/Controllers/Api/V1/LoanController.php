@@ -75,6 +75,8 @@ class LoanController extends Controller
         $loan->modality=$loan->modality->procedure_type;
         $loan->tags = $loan->tags;
         $loan->affiliate = $loan->affiliate;
+        if($loan->borrower->first()->type == 'spouses')
+            $loan->affiliate->spouse = $loan->affiliate->spouse;
         if($loan->parent_loan){
             $loan->parent_loan->balance = $loan->parent_loan->balance;
             $loan->parent_loan->estimated_quota = $loan->parent_loan->estimated_quota;
@@ -91,8 +93,6 @@ class LoanController extends Controller
         $loan->state;
         $loan->borrower = $loan->borrower;
         $loan->borrowerguarantors = $loan->borrowerguarantors;
-        //$loan->procedure=$loan->modality;
-        //$loan->loan_contribution = $loan->loan_contribution_adjusts;
         return $loan;
     }
 
@@ -370,10 +370,9 @@ class LoanController extends Controller
         if (Auth::user()->can('show-all-loan') || Auth::user()->can('show-loan') || Auth::user()->can('show-payment-loan') || Auth::user()->roles()->whereHas('module', function($query) {
             return $query->whereName('prestamos');
         })->pluck('id')->contains($loan->role_id)) {
-            $loan = self::append_data($loan);$loan->borrower = $loan->borrower;
-            //foreach($loan->affiliate as $affiliate){
-                $loan->affiliate->type_initials = "T-".$loan->affiliate->initials;
-            //}
+            $loan = self::append_data($loan);
+            $loan->borrower = $loan->borrower;
+            $loan->affiliate->type_initials = "T-".$loan->affiliate->initials;
             foreach($loan->borrower as $borrower)
             {
                 $borrower->type_initials = "T-".$borrower->initials;
@@ -1161,7 +1160,7 @@ class LoanController extends Controller
        * @responseFile responses/loan/print_form_advance.200.json
        */
        public function print_advance_form(Request $request, Loan $loan, $standalone = true){
-        $lenders = [];return "asd";
+        $lenders = [];
         $persons = collect([]);
         $file_title = implode('_', ['FORM','SOLICITUD','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
         $lenders = $loan->borrower;
@@ -1211,11 +1210,9 @@ class LoanController extends Controller
         if($loan->disbursement_date){
             $procedure_modality = $loan->modality;
             $file_title = implode('_', ['PLAN','DE','PAGOS', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
-            $lenders = [];
             $is_dead = false;
-            foreach ($loan->borrower as $lender) {
-                if($lender->dead) $is_dead = true;
-            }
+            if($loan->borrower->first()->type == 'spouses')
+                $is_dead = true;
             $data = [
                 'header' => [
                     'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
@@ -1230,7 +1227,8 @@ class LoanController extends Controller
                 ],
                 'title' => 'PLAN DE PAGOS',
                 'loan' => $loan,
-                'lenders' => $loan->borrower,
+                //'lenders' => $loan->borrower,
+                'lender' => $is_dead ? $loan->affiliate->spouse : $loan->affiliate,
                 'is_dead'=> $is_dead,
                 'file_title'=>$file_title
             ];
@@ -1653,6 +1651,9 @@ class LoanController extends Controller
     {
         if($loan->disbursement_date){
             $procedure_modality = $loan->modality;
+        $is_dead = false;
+        if($loan->borrower->first()->type == 'spouses')
+            $is_dead = true;
           $file_title = implode('_', ['KARDEX', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
             $data = [
                 'header' => [
@@ -1668,8 +1669,9 @@ class LoanController extends Controller
                 ],
                 'title' => 'KARDEX DE PAGOS',
                 'loan' => $loan,
-                'lenders' => $loan->borrower,
-                'file_title' => $file_title
+                'lender' => $is_dead ? $loan->affiliate->spouse : $loan->affiliate,
+                'file_title' => $file_title,
+                'is_dead' => $is_dead
             ];
             $information_loan= $this->get_information_loan($loan);
             $file_name = implode('_', ['kardex', $procedure_modality->shortened, $loan->code]) . '.pdf';
