@@ -97,9 +97,9 @@
       <v-card class="ma-0 pa-0 pb-2">
         <v-row class="ma-0 pa-0">
           <v-col md="4" class="ma-0 pa-0">
-            <strong>Prestatario: </strong> {{ borrower.type == 'affiliate' ? $options.filters.fullName(affiliate, true) : $options.filters.fullName(borrower, true)}}<br />
-            <strong>CI: </strong> {{ borrower.type == 'affiliate' ? affiliate.identity_card : borrower.identity_card }}<br />
-            <strong>Matrícula: </strong> {{ borrower.type == 'affiliate' ? affiliate.registration : borrower.registration }}<br />
+            <strong>Prestatario: </strong> {{ borrower.type == 'spouses' ? $options.filters.fullName(spouse, true) : $options.filters.fullName(affiliate, true)  }}<br />
+            <strong>CI: </strong> {{ borrower.type == 'spouses' ? spouse.identity_card : affiliate.identity_card  }}<br />
+            <strong>Matrícula: </strong> {{ borrower.type == 'spouses' ?  spouse.registration : affiliate.registration }}<br />
             <strong>Cuotas: </strong> {{ payments.length ? payments.length : ""}}<br />
           </v-col>
           <v-col md="4" class="ma-0 pa-0">
@@ -303,6 +303,10 @@ export default {
       required: true,
     },
     loan: {
+      type: Object,
+      required: true,
+    },
+    spouse: {
       type: Object,
       required: true,
     },
