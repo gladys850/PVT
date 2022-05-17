@@ -120,7 +120,7 @@ class Spouse extends Model
     {
         return Loan::whereIn('id', function($query){
             $query->select('loan_id')->from('loan_guarantors')->where('affiliate_id',$this->affiliate_id)->where('type','spouses');
-        })->whereIn('state_id',[1,3])->count();
+        })->whereIn('state_id',[1,3])->get();
     }
 
     public function current_loans()

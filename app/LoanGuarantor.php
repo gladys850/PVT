@@ -294,10 +294,12 @@ class LoanGuarantor extends Model
       {
         if($loan_guarantee_register->database_name == 'PVT')
         {
-          if(Loan::find($loan_guarantee_register->guarantable_id))
+          //if(Loan::find($loan_guarantee_register->guarantable_id))
+          if(Loan::where('code', $loan_guarantee_register->loan_code_guarantee)->first())
           {
-            $name = Loan::find($loan_guarantee_register->guarantable_id)->borrower->first()->full_name;
-            $state = Loan::find($loan_guarantee_register->guarantable_id)->state->name;
+            $guarantee = Loan::where('code', $loan_guarantee_register->loan_code_guarantee)->first();
+            $name = $guarantee->borrower->first()->full_name;
+            $state = $guarantee->state->name;
             $loan = [
               'id' => $loan_guarantee_register->guarantable_id,
               'code' => $loan_guarantee_register->loan_code_guarantee,

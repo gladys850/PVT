@@ -1481,8 +1481,10 @@ class AffiliateController extends Controller
             $affiliate = Affiliate::where('identity_card', $request->identity_card)->first();
             $spouse = null;
             $double_perception = false;
-            if(!$affiliate->dead)
+            if(!$affiliate->dead || $affiliate->dead && $affiliate->spouse == null)
                 $type = 'affiliate';
+            elseif($affiliate->spouse)
+                $type = 'spouse';
         }
         if(Spouse::where('identity_card', $request->identity_card)->first())
         {
@@ -1496,8 +1498,11 @@ class AffiliateController extends Controller
             else
             {
                 $affiliate = $spouse->affiliate;
+                $type = 'affiliate';
                 if(!$spouse->dead)
                     $type = 'spouse';
+                else
+                    $type = 'affiliate';
             }
         }
         if($affiliate && $affiliate->spouse)
@@ -1627,10 +1632,10 @@ class AffiliateController extends Controller
                     break;
             }
         }
-        else
+        elseif($affiliate->category == null)
         {
             $guarantor = false;
-            $message = "El afiliado se encuentra con categoria 0%";
+            $message = "El afiliado se encuentra con categoria 0% o no tiene registrada su categoria";
         }
         if($affiliate->spouse != null && $affiliate->spouse->dead == false)
         {
@@ -1658,7 +1663,7 @@ class AffiliateController extends Controller
                     "type" => "PVT",
                 );
                 array_push($data, $loans_pvt);
-        }
+            }
         }
         foreach($loans_sismu as $loan)
         {
@@ -1689,6 +1694,11 @@ class AffiliateController extends Controller
                 $max_guarantees = LoanGlobalParameter::find(1)->max_guarantor_active;
             elseif($affiliate->affiliate_state->affiliate_state_type->name == "Pasivo")
                 $max_guarantees = LoanGlobalParameter::find(1)->max_guarantor_passive;
+        }
+        if($affiliate->affiliate_state->name != 'Servicio' && in_array($request->procedure_modality_id, $id_activo))
+        {
+            $guarantor = false;
+            $message = "no corresponde con la modalidad";
         }
         return $data = array(
             "guarantor"=>$guarantor,
