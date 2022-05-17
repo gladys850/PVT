@@ -88,7 +88,7 @@
                         {{ $employee['name'] }}
                         </td>
                         <td class="border-b">
-                            <div class='text-center m-t-75 text-xs'>
+                            <div class='text-center text-xs' style="margin-top: 65px;">
                                 <div>
                                     {{ $employee['name'] }}
                                 </div>
