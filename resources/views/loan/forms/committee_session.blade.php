@@ -75,23 +75,20 @@
     </div>
     <br>
     <br>
-    <div class="align-top">
-        <div class="block text-xxxs">
+    <div>
+        <div class="block text-xxs">
             <table>
                 <tr class="font-semibold leading-tight text-center m-b-10 text-sm">
                     <td class="border-b" >Miembros del Comité</td>
                     <td class="border-b">FIRMA</td>
                 </tr>
                 @foreach ($employees as  $key => $employee)
-                    <tr class="w-10">
-                        <td class="font-semibold leading-tight text-center m-b-10 text-xxs border-b height: 100px">
+                    <tr>
+                        <td class="font-semibold leading-tight text-center m-b-10 text-xxs border-b height: 100px" style="padding-top: 45px;">
                         {{ $employee['name'] }}
                         </td>
                         <td class="border-b">
-                            <div class='text-center m-t-50'>
-                                <div>
-                                    <hr style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;" width="250px">
-                                </div>
+                            <div class='text-center m-t-75 text-xs'>
                                 <div>
                                     {{ $employee['name'] }}
                                 </div>
