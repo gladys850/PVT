@@ -35,7 +35,7 @@
         <b>ANTECEDENTES.- </b>Que de acuerdo al Decreto Supremo 1446 de fecha 19 de diciembre de 2012, se crea la Mutual de Servicios al Policia (MUSERPOL), habiéndose aprobado el Reglamento de Préstamos mediante Resolucion de Directorio N° 07/2019 del 21 de marzo del 2019 y que según Resolución Administrativa N° 011/2022 de fecha 01 de febrero de 2022, se designó al comité de préstamos, conformado por la Directora de Estrategias Sociales e Inversiones, el Jefe de la Unidad de Inversión y Prestamos, la Profesional Legal de Préstamos, la Responsable de Registro y Control y Recuperación de Préstamos y la Profesional de Calificación de Préstamos.
         </div>
         <div>
-        Por todo lo expuesto, la Direccion de Estrategias Sociales e Inversiones, procedio a la instalacion de la <b><span class="uppercase">{{ $session }} SESSION DEL COMITÉ DE APROBACIÓN DE PRÉSTAMOS</span></b>, llevado a cabo en fecha {{ Carbon::now()->isoFormat('LL') }}, en oficinas de la MUSERPOL Av. 6 de Agosto entre Rosendo Gutierrez y Belisario Salinas N° 2354, bajo el siguiente orden del día:
+        Por todo lo expuesto, la Direccion de Estrategias Sociales e Inversiones, procedio a la instalacion de la <b><span class="uppercase">{{ $session }} SESIÓN DEL COMITÉ DE APROBACIÓN DE PRÉSTAMOS</span></b>, llevado a cabo en fecha {{ Carbon::now()->isoFormat('LL') }}, en oficinas de la MUSERPOL Av. 6 de Agosto entre Rosendo Gutierrez y Belisario Salinas N° 2354, bajo el siguiente orden del día:
         </div>
         <br>
         <div class="text-center">
