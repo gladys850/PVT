@@ -182,7 +182,7 @@
                     <td class="w-8 text-right">{{ Util::money_format($parent_loan_payment->interest_remaining) }}</td>{{-- Interes acumulados --}}
                     <td class="w-8 text-right">{{ Util::money_format($parent_loan_payment->penal_remaining) }}</td>{{-- Penal verificar --}}
                     <td class="w-8 text-right">{{ Util::money_format($parent_loan_payment->estimated_quota) }}</td> {{-- total pagado--}}
-                    <td class="w-8 text-right">{{ Util::money_format($res_saldo_capital) }}</td>
+                    <td class="w-9 text-right">{{ Util::money_format($parent_loan_payment->previous_balance - $parent_loan_payment->capital_payment) }}</td>
                     <td class="w-8 text-right">{{ $parent_loan_payment->voucher }}</td>
                     <td class="w-8 text-right">{{ $parent_loan_payment->voucher_treasury ? $parent_loan_payment->voucher_treasury->code : '' }}</td>
                     <td class="w-8 text-right">{{ $parent_loan_payment->state->name }}</td>
