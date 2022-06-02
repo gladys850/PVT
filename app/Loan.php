@@ -872,8 +872,9 @@ class Loan extends Model
         $balance_parent = 0;
        if($this->data_loan){
         $balance_parent=$this->data_loan->balance;
-       }else{
-           if($this->parent_loan->state->name != 'Liquidado')
+       }
+       elseif($this->parent_loan){
+           if($this->parent_loan->state->name != "Liquidado")
            {
                 if($this->parent_loan && $this->parent_loan->payment_pending_confirmation() != null){
                     $balance_parent = $this->parent_loan->payment_pending_confirmation()->estimated_quota;
