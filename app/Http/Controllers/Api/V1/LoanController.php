@@ -287,6 +287,7 @@ class LoanController extends Controller
         ]);
         if (!$request->role_id) abort(403, 'Debe crear un flujo de trabajo');
         // Guardar préstamo
+        if(count(Affiliate::find($request->lenders[0]['affiliate_id'])->process_loans) >= LoanGlobalParameter::first()->max_loans_process && $request->remake_loan_id == null) abort(403, 'El afiliado ya tiene un préstamo en proceso');
         $saved = $this->save_loan($request);
         // Relacionar afiliados y garantes
         $loan = $saved->loan;
