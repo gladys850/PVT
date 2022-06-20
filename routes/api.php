@@ -208,6 +208,7 @@ Route::group([
         ], function () {
             Route::apiResource('loan', 'Api\V1\LoanController')->only('index');
             Route::apiResource('loan', 'Api\V1\LoanController')->only('show');
+            Route::post('loan_advance/{loan}', 'Api\V1\LoanController@destroy_advance');
             Route::get('loan/{loan}/disbursable', 'Api\V1\LoanController@get_disbursable');
             Route::get('affiliate/{affiliate}/loan','Api\V1\AffiliateController@get_loans');
             Route::get('loan/{loan}/document','Api\V1\LoanController@get_documents');
