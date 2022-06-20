@@ -595,6 +595,32 @@ class LoanController extends Controller
         return $loan;
     }
 
+    /**
+    * Anular préstamo anticipo
+    * @urlParam loan required ID del préstamo. Example: 1
+    * @authenticated
+    * @responseFile responses/loan/destroy.200.json
+    */
+    public function destroy_advance(Loan $loan)
+    {
+        try {
+            DB::beginTransaction();
+            if (!$this->can_user_loan_action($loan)  && $loan->modality->procedure_type->second_name != 'Anticipo') 
+                abort(409, "El tramite no esta disponible para su rol o no es un prestamo de tipo anticipo");
+            $state = LoanState::whereName('Anulado')->first();
+            $loan->state()->associate($state);
+            $loan->save();
+            $loan->delete();
+            if($loan->data_loan)
+            $loan->data_loan->delete();
+            DB::commit();
+            return $loan;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
     private function save_loan(Request $request, $loan = null)
     {
         $loan_copy = $loan;
