@@ -543,6 +543,7 @@ class Affiliate extends Model
    }
 
    public function getInitialsAttribute(){
-     return (substr($this->first_name, 0, 1).substr($this->second_name, 0, 1).substr($this->last_name, 0, 1).substr($this->mothers_last_name, 0, 1).substr($this->surname_husband, 0, 1));
+     //return (substr($this->first_name, 0, 1).substr($this->second_name, 0, 1).substr($this->last_name, 0, 1).substr($this->mothers_last_name, 0, 1).substr($this->surname_husband, 0, 1));
+       return (mb_substr($this->first_name, 0, 1).mb_substr($this->second_name, 0, 1).mb_substr($this->last_name, 0, 1).mb_substr($this->mothers_last_name, 0, 1).mb_substr($this->surname_husband, 0, 1));
    }
 }

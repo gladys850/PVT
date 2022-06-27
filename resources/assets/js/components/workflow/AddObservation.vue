@@ -8,6 +8,7 @@
         <v-toolbar-title v-show="!observation.edit && observation.accion=='devolver'">Devolver trámite</v-toolbar-title>
         <v-toolbar-title v-show="!observation.edit && observation.accion=='anular'">Anular trámite</v-toolbar-title>
         <v-toolbar-title v-show="!observation.edit && observation.accion=='validar'">Validar trámite</v-toolbar-title>
+        <v-toolbar-title v-show="!observation.edit && observation.accion=='anular_anticipo'">Anular Anticipo</v-toolbar-title>
         <v-toolbar-title v-show="observation.edit">Editar Observacion</v-toolbar-title>
         <v-spacer></v-spacer>
       </v-toolbar>
@@ -171,8 +172,13 @@ export default {
                 user_id: this.user_id_previous
                 })
                  this.toastr.success("Se devolvio el tramite correctamente.")
-              }else{
+              }else if(this.observation.accion=='anular'){
                 let res2 = await axios.delete(`loan/${id}`)
+                let code = res2.data.code
+                this.toastr.success("El trámite " + code + " fue anulado correctamente.")
+              }
+              else if(this.observation.accion=='anular_anticipo'){
+                let res2 = await axios.post(`loan_advance/${id}`)
                 let code = res2.data.code
                 this.toastr.success("El trámite " + code + " fue anulado correctamente.")
               }

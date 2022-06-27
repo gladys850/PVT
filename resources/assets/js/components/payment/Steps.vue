@@ -133,7 +133,8 @@ export default {
         this.status_click=true;
             let res1 = await axios.patch(`loan_payment/${this.$route.query.loan_payment}`,{
               description:this.data_payment.glosa,
-              voucher:this.data_payment.voucher
+              voucher:this.data_payment.voucher,
+              validated:this.data_payment.validated
           })
           this.toastr.success('Se edito correctamente')
             this.$router.push('/loanPayment')

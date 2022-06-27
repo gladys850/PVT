@@ -60,6 +60,28 @@
             </template>
             <span>Anular trámite</span>
           </v-tooltip>
+          <div v-if="loan.modality.procedure_type.second_name == 'Anticipo'">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                top
+                v-if="permissionSimpleSelected.includes('delete-loan-advance')"
+                v-on="on"
+                icon
+                outlined
+                small
+                color="warning"
+                class="darken-2 ml-4"
+                @click="
+                  bus.$emit('openDialog', { edit: false, accion: 'anular_anticipo' })
+                "
+              >
+                <v-icon>mdi-file-cancel</v-icon>
+              </v-btn>
+            </template>
+            <span>Anular trámite de anticipo</span>
+          </v-tooltip>
+          </div>
       </v-toolbar>
     </v-card-title>
     <v-card-text>
@@ -165,7 +187,7 @@
         </v-tab-item>
         <v-tab-item :value="'tab-2'">
           <v-card flat tile>
-            <v-card-title v-if="permissionSimpleSelected.includes('print-payment-plan')">
+            <v-card-title  class="pa-0" v-if="permissionSimpleSelected.includes('print-payment-plan')">
                <v-tooltip top >
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -197,7 +219,7 @@
                     right
                     absolute
                     v-on="on"
-                    style="margin-right: -9px; margin-top: 38px;"
+                    style="margin-right: -9px; margin-top: 48px;"
                     @click="imprimir($route.params.id)"
                   >
                     <v-icon>mdi-printer</v-icon>
@@ -209,7 +231,7 @@
               </v-tooltip>
               <!--FORMULARIO PARA CALIFICACION-->
             </v-card-title>
-            <v-card-title v-if="permissionSimpleSelected.includes('print-qualification-form')">
+            <v-card-title class="pa-0" v-if="permissionSimpleSelected.includes('print-qualification-form')">
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -220,7 +242,7 @@
                     right
                     absolute
                     v-on="on"
-                    style="margin-right: -9px;margin-top: 78px;"
+                    style="margin-right: -9px;margin-top: 48px;"
                     @click="printQualificationForm($route.params.id)"
                   >
                     <v-icon>mdi-printer-check</v-icon>
@@ -231,6 +253,73 @@
                 </div>
               </v-tooltip>
             </v-card-title>
+
+              <v-dialog
+                v-model="dialog_minutes"
+                  width="500"
+               >
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">Introduzca el Número de Sesión</span>
+                  </v-card-title>
+
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col cols="12" sm="12" md="12">
+                          <ValidationProvider v-slot="{ errors }" name="numero sesion" rules="numeric|min:1" mode="aggressive">
+                            <v-text-field
+                              label="Número de sesión"
+                              :error-messages="errors"
+                              v-model="number_session"
+                            ></v-text-field> 
+                          </ValidationProvider>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="error" text @click="dialog_minutes = false">
+                      CANCELAR
+                    </v-btn>
+                    <v-btn v-if="number_session != '' && !isNaN(number_session)" color="success" text @click="printComitteeMinute($route.params.id)">
+                      IMPRIMIR
+                    </v-btn>
+                  </v-card-actions>
+ 
+                </v-card>
+              </v-dialog>
+
+            <v-card-title class="pa-0" v-if="permissionSimpleSelected.includes('print-comittee-minute')"> 
+              <v-tooltip top class="pa-0">
+         
+                <template v-slot:activator="{ on, attrs }">
+                   <v-btn
+                      fab
+                      x-small
+                      color="success"
+                      top
+                      right
+                      absolute
+                      v-on="on"
+                      class="pa-0"
+                      v-bind="attrs"
+                      style="margin-right: 36px; margin-top: 48px; "
+                      @click="dialog_minutes = true; number_session = ''"
+                   >
+                    <v-icon>mdi-printer-check</v-icon>
+                  </v-btn>
+
+                </template>
+                <div>
+                  <span>Imprimir Acta de Sesión</span>
+                </div>
+
+              </v-tooltip>
+            </v-card-title>
+
             <v-card-text class="pa-0">
               <SpecificDataLoan
                 :loan.sync="loan"
@@ -462,6 +551,8 @@ export default {
       type: null,
       disbursable: null
     },
+    dialog_minutes: false,
+    number_session: '',
     dialog:false,
     bonos: [0, 0, 0, 0],
     payable_liquid: [0, 0, 0],
@@ -778,6 +869,23 @@ export default {
         let res = await axios.get(`loan/${item}/print/qualification`)
         console.log("plan " + item)
         printJS({
+          printable: res.data.content,
+          type: res.data.type,
+          file_name: res.data.file_name,
+          base64: true
+        })
+      } catch (e) {
+        this.toastr.error("Ocurrió un error en la impresión.")
+        console.log(e)
+      }
+    },
+    async printComitteeMinute(id_loan) {
+      try {
+        this.dialog_minutes = false
+        let res = await axios.post(`committee_session/${id_loan}`, {
+            number_session: this.number_session
+        })
+         printJS({
           printable: res.data.content,
           type: res.data.type,
           file_name: res.data.file_name,

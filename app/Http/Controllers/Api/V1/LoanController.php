@@ -287,6 +287,7 @@ class LoanController extends Controller
         ]);
         if (!$request->role_id) abort(403, 'Debe crear un flujo de trabajo');
         // Guardar préstamo
+        if(count(Affiliate::find($request->lenders[0]['affiliate_id'])->process_loans) >= LoanGlobalParameter::first()->max_loans_process && $request->remake_loan_id == null) abort(403, 'El afiliado ya tiene un préstamo en proceso');
         $saved = $this->save_loan($request);
         // Relacionar afiliados y garantes
         $loan = $saved->loan;
@@ -592,6 +593,32 @@ class LoanController extends Controller
         if($loan->data_loan)
         $loan->data_loan->delete();
         return $loan;
+    }
+
+    /**
+    * Anular préstamo anticipo
+    * @urlParam loan required ID del préstamo. Example: 1
+    * @authenticated
+    * @responseFile responses/loan/destroy.200.json
+    */
+    public function destroy_advance(Loan $loan)
+    {
+        try {
+            DB::beginTransaction();
+            if (!$this->can_user_loan_action($loan)  && $loan->modality->procedure_type->second_name != 'Anticipo') 
+                abort(409, "El tramite no esta disponible para su rol o no es un prestamo de tipo anticipo");
+            $state = LoanState::whereName('Anulado')->first();
+            $loan->state()->associate($state);
+            $loan->save();
+            $loan->delete();
+            if($loan->data_loan)
+            $loan->data_loan->delete();
+            DB::commit();
+            return $loan;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
     private function save_loan(Request $request, $loan = null)
@@ -2384,5 +2411,70 @@ class LoanController extends Controller
             DB::rollback();
             return response()->json(['error'=>'No se pudo actualizar cuenta'],409);
         }
+    }
+
+    /**
+    * Impresion acta de sesión de comité
+    * Imprime el acta de sesión de comite de el prestamo
+    * @urlParam loan required ID del prestamo. Example: 5012
+    * @bodyParam number_session integer required numero de la sesión. Example: 100
+    * @authenticated
+    * @responseFile responses/loan/print_form_advance.200.json
+    */
+    public function committee_session(Request $request, Loan $loan, $standalone = true)
+    {
+        $file_title = implode('_', ['FORM','COMITE','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
+        $nf = new \NumberFormatter('es_Es', \NumberFormatter::SPELLOUT); // ::ORDINAL
+        $is_refinancing = false;
+        $previous_loan_amount_requested = 0;
+        $previous_loan_balance = 0;
+
+        /* Numero ordinal en masculino
+        $nf->setTextAttribute(\NumberFormatter::DEFAULT_RULESET, "%spellout-ordinal-masculine");
+        return $nf->format(341). ' ';*/
+
+        // Numero ordinal en femenino
+        $nf->setTextAttribute(\NumberFormatter::DEFAULT_RULESET, "%spellout-ordinal-feminine");
+        $number = $nf->format($request->number_session). ' ';
+        $procedure_modality = $loan->modality;
+        if(strpos($procedure_modality->name, 'Refinanciamiento') !== false )
+            $is_refinancing = true;
+        if($loan->data_loan){
+            $previous_loan_amount_requested = $loan->data_loan->amount_approved;
+            $previous_loan_balance = $loan->data_loan->balance;
+        }
+        elseif($loan->parent_loan)
+        {
+            $previous_loan_amount_requested = $loan->parent_loan->amount_approved;
+            $previous_loan_balance = $loan->parent_loan->verify_balance();
+        }
+
+        $employees = [
+            ['position' => 'Directora de Estrategias Sociales e Inversiones','name'=>'Lic. DAEN Gabriela Jackeline Bustillos Landaeta Msc.'],
+            ['position' => 'Jefe Unidad Inversión de Préstamos','name'=>'Lic. William Ceferino Pimentel Martinez'],
+            ['position' => 'Profesional Legal de Préstamos','name'=>'Abog. Elizabeth Sabina Villca Juchani'],
+            ['position' => 'Responsable de Registro, Control y Recuperación de Préstamos','name'=>'Ing. Nelvis Irene Alarcón Pizarroso'],
+            ['position' => 'Profesional de Calificación de Préstamos','name'=>'Lic. Tamy Ugarte Maldonado'],
+        ];
+        $data = [
+            'header' => [
+                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+                'unity' => 'UNIDAD DE INVERSIÓN EN PRÉSTAMOS',
+                'table' => []
+            ],
+            'employees' => $employees,
+            'loan' => $loan,
+            'borrower' => $loan->borrower->first(),
+            'session' => $number,
+            'code' => $request->number_session,
+            'file_title' => $file_title,
+            'is_refinancing' => $is_refinancing,
+            'previous_loan_amount_requested' => $previous_loan_amount_requested,
+            'previous_loan_balance' => $previous_loan_balance,
+        ];
+        $file_name = implode('_', ['committee_session', $loan->code]) . '.pdf';
+        $view = view()->make('loan.forms.committee_session')->with($data)->render();
+        if ($standalone) return Util::pdf_to_base64([$view], $file_name, $loan,'letter', $request->copies ?? 1);
+        return $view;
     }
 }

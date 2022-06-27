@@ -1635,7 +1635,7 @@ class LoanReportController extends Controller
             $File="ListadoPrestamos";
 
             $headFile=array("DPTO","ÁREA","USUARIO","ID PRESTAMO", "COD. PRESTAMO", "ID AFILIADO","CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","CI PRESTATARIO", "MATRÍCULA PRESTATARIO", "NOMBRE COMPLETO PRESTATARIO","SUB MODALIDAD",
-            "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD","FECHA DE DESEMBOLSO","TIPO SOLICITUD AFILIADO/ESPOSA", "FECHA DE ENTREGA DEL CONTRATO",
+            "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD","FECHA DE DESEMBOLSO","FECHA CORTE PRESTAMO REFINANCIADO","TIPO SOLICITUD AFILIADO/ESPOSA", "FECHA DE ENTREGA DEL CONTRATO",
             "FECHA DE DEVOLUCION DEL CONTRATO", "FECHA DE ENTREGA DEL CONTRATO REGIONAL", "FECHA DE DEVOLUCION DEL CONTRATO REGIONAL");
             if($trashed_loan){array_push($headFile,"FECHA DE ANULACIÓN","OBSERVACIÓN DE ANULADOS");}
             $data=array($headFile);
@@ -1665,6 +1665,7 @@ class LoanReportController extends Controller
                     $row->pension_entity_affiliate,
                     Carbon::parse($row->request_date_loan)->format('d/m/Y'),
                     $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y'):'',
+                    $row->date_cut_refinancing ? Carbon::parse($row->date_cut_refinancing)->format('d/m/Y') : '',
                     $row->type_affiliate_spouse_loan,
                     $row->delivery_contract_date? Carbon::parse($row->delivery_contract_date)->format('d/m/Y'):'',
                     $row->return_contract_date? Carbon::parse($row->return_contract_date)->format('d/m/Y'):'',

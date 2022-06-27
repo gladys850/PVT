@@ -265,7 +265,7 @@
                                     <p><b>Fecha de Corte :</b> {{loan_refinancing.date_cut_refinancing |date }}</p>
                                   </v-col>
                                   <v-col cols="12" md="4" class="py-0">
-                                    <p><b>Saldo de Prestamo a Refinanciar:</b> {{loan_refinancing.balance | money}}</p>
+                                    <p><b>Saldo de Prestamo a Refinanciar:</b> {{loan_refinancing.balance_parent_loan_refinancing | money}}</p>
                                   </v-col>
                                   <v-col cols="12" md="4" class="py-0" >
                                     <p class="success--text"><b>Monto Solicitado del Prestamo Nuevo:</b> {{loan_refinancing.amount_approved | money}}</p>
