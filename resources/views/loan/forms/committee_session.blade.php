@@ -62,36 +62,33 @@
                 <b>Bs. {{ Util::money_format($loan->amount_approved) }}</b> (<span class="uppercase">{{ Util::money_format($loan->amount_approved, true) }} Bolivianos)</span>,
             @endif
             @if ($is_refinancing)
-                para lo cual el prestatario reconoce de manera expresa el saldo anterior de la deuda correspondiente al préstamo contraido con anterioridad, que asciende a la suma de 
+                para lo cual el prestatario reconoce de manera expresa el saldo anterior de la deuda correspondiente al préstamo contraído con anterioridad, que asciende a la suma de 
                 Bs. {{ Util::money_format($previous_loan_balance) }} (<span class="uppercase">{{ Util::money_format($previous_loan_balance, true) }} Bolivianos)</span>,
-                montos que hacen un total efectivo de Bs. {{ Util::money_format($loan->amount_approved) }}, que representa la nueva obligacion contraida sujeta a cumplimiento,
+                montos que hacen un total efectivo de Bs. {{ Util::money_format($loan->amount_approved) }}, que representa la nueva obligación contraída sujeta a cumplimiento,
             @endif
             el cual deberá amortizar en un plazo de {{ $loan->loan_term}} meses con una cuota mensual de Bs. {{ Util::money_format($loan->estimated_quota) }} (<span class="uppercase">{{ Util::money_format($loan->estimated_quota, true) }} Bolivianos)</span>.
         </div>
         <br>
         <div>
-            Con lo que concluó la sesion, firmando al pie del presente documento las siguientes personas:
+            Con lo que concluyó la sesión, firmando al pie del presente documento las siguientes personas:
         </div>
     </div>
     <br>
     <br>
-    <div class="align-top">
-        <div class="block text-xxxs">
+    <div>
+        <div class="block text-xxs">
             <table>
                 <tr class="font-semibold leading-tight text-center m-b-10 text-sm">
                     <td class="border-b" >Miembros del Comité</td>
                     <td class="border-b">FIRMA</td>
                 </tr>
                 @foreach ($employees as  $key => $employee)
-                    <tr class="w-10">
-                        <td class="font-semibold leading-tight text-center m-b-10 text-xxs border-b height: 100px">
+                    <tr>
+                        <td class="font-semibold leading-tight text-center m-b-10 text-xxs border-b height: 100px" style="padding-top: 45px;">
                         {{ $employee['name'] }}
                         </td>
                         <td class="border-b">
-                            <div class='text-center m-t-50'>
-                                <div>
-                                    <hr style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;" width="250px">
-                                </div>
+                            <div class='text-center text-xs' style="margin-top: 65px;">
                                 <div>
                                     {{ $employee['name'] }}
                                 </div>

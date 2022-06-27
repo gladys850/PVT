@@ -275,6 +275,7 @@ class LoanController extends Controller
         ]);
         if (!$request->role_id) abort(403, 'Debe crear un flujo de trabajo');
         // Guardar préstamo
+        if(count(Affiliate::find($request->lenders[0]['affiliate_id'])->process_loans) >= LoanGlobalParameter::first()->max_loans_process && $request->remake_loan_id == null) abort(403, 'El afiliado ya tiene un préstamo en proceso');
         $saved = $this->save_loan($request);
         // Relacionar afiliados y garantes
         $loan = $saved->loan;
@@ -583,6 +584,32 @@ class LoanController extends Controller
         if($loan->data_loan)
         $loan->data_loan->delete();
         return $loan;
+    }
+
+    /**
+    * Anular préstamo anticipo
+    * @urlParam loan required ID del préstamo. Example: 1
+    * @authenticated
+    * @responseFile responses/loan/destroy.200.json
+    */
+    public function destroy_advance(Loan $loan)
+    {
+        try {
+            DB::beginTransaction();
+            if (!$this->can_user_loan_action($loan)  && $loan->modality->procedure_type->second_name != 'Anticipo') 
+                abort(409, "El tramite no esta disponible para su rol o no es un prestamo de tipo anticipo");
+            $state = LoanState::whereName('Anulado')->first();
+            $loan->state()->associate($state);
+            $loan->save();
+            $loan->delete();
+            if($loan->data_loan)
+            $loan->data_loan->delete();
+            DB::commit();
+            return $loan;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
     private function save_loan(Request $request, $loan = null)
@@ -2314,10 +2341,10 @@ class LoanController extends Controller
         }
 
         $employees = [
-            ['position' => 'Directora de Estrategias Sociales e Inversion','name'=>'Lic. DAEN Gabriela Jackeline Bustillos Landaeta Msc.'],
-            ['position' => 'Jefe Unidad Inversion de Préstamos','name'=>'Lic. William Ceferino Pimentel Martinez'],
+            ['position' => 'Directora de Estrategias Sociales e Inversiones','name'=>'Lic. DAEN Gabriela Jackeline Bustillos Landaeta Msc.'],
+            ['position' => 'Jefe Unidad Inversión de Préstamos','name'=>'Lic. William Ceferino Pimentel Martinez'],
             ['position' => 'Profesional Legal de Préstamos','name'=>'Abog. Elizabeth Sabina Villca Juchani'],
-            ['position' => 'Responsable de Registro, Control y Recuperacion de Préstamos','name'=>'Ing. Nelvis Irene Alarcón Pizarroso'],
+            ['position' => 'Responsable de Registro, Control y Recuperación de Préstamos','name'=>'Ing. Nelvis Irene Alarcón Pizarroso'],
             ['position' => 'Profesional de Calificación de Préstamos','name'=>'Lic. Tamy Ugarte Maldonado'],
         ];
         $data = [
