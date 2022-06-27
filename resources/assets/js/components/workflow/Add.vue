@@ -70,7 +70,28 @@
             </template>
             <span>Anular trámite</span>
           </v-tooltip>
-
+          <div v-if="loan.modality.procedure_type.second_name == 'Anticipo'">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn
+                top
+                v-if="permissionSimpleSelected.includes('delete-loan-advance')"
+                v-on="on"
+                icon
+                outlined
+                small
+                color="warning"
+                class="darken-2 ml-4"
+                @click="
+                  bus.$emit('openDialog', { edit: false, accion: 'anular_anticipo' })
+                "
+              >
+                <v-icon>mdi-file-cancel</v-icon>
+              </v-btn>
+            </template>
+            <span>Anular trámite de anticipo</span>
+          </v-tooltip>
+          </div>
       </v-toolbar>
     </v-card-title>
 

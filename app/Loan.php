@@ -857,10 +857,17 @@ class Loan extends Model
         $balance_parent = 0;
        if($this->data_loan){
         $balance_parent=$this->data_loan->balance;
-       }else{
-           if($this->parent_loan && $this->parent_loan->payment_pending_confirmation() != null){
-            $balance_parent = $this->parent_loan->payment_pending_confirmation()->estimated_quota;
-           }
+       }
+       elseif($this->parent_loan){
+           if($this->parent_loan->state->name != "Liquidado")
+           {
+                if($this->parent_loan && $this->parent_loan->payment_pending_confirmation() != null){
+                    $balance_parent = $this->parent_loan->payment_pending_confirmation()->estimated_quota;
+                }
+            }
+            else{
+                $balance_parent = $this->parent_loan->last_payment_validated->estimated_quota;
+            }
        }
        return  $balance_parent;
 
@@ -869,11 +876,16 @@ class Loan extends Model
      public function date_cut_refinancing(){
          $date_cut_refinancing= null;
        if($this->data_loan){
-         $date_cut_refinancing=$this->data_loan->date_cut_refinancing;
+         $date_cut_refinancing = $this->data_loan->date_cut_refinancing;
        }else{
+        if($this->parent_loan->state->name != 'Liquidado')
+        {
            if($this->parent_loan && $this->parent_loan->payment_pending_confirmation() != null){
             $date_cut_refinancing = $this->parent_loan->payment_pending_confirmation()->estimated_date;
            }
+        }
+        else
+            $date_cut_refinancing = $this->parent_loan->last_payment_validated->estimated_date;
        }
        return  $date_cut_refinancing;
     }

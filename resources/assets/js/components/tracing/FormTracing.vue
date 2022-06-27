@@ -299,11 +299,8 @@
                                     <br>
                                     <p><b>ENTIDAD FINANCIERA:</b>{{' '+loan.payment_type.name}}</p>
                                   </v-col>
-
-                                  <v-col cols="12" md="6" v-show="loan.payment_type.name=='Depósito Bancario'" class="py-0">
-                                    <!-- <p><b>NUMERO DE CUENTA:</b>{{' '+loan.number_payment_type}}</p>-->
-                                    <p><b>NUMERO DE CUENTA:</b>{{' '+loan.borrower[0].account_number}}</p>
-                                    
+                                  <v-col cols="12" md="4" class="py-0">
+                                    <p><b>Saldo de Prestamo a Refinanciar:</b> {{loan_refinancing.balance_parent_loan_refinancing | money}}</p>
                                   </v-col>
 
                                   <v-col cols="12" md="6" v-show="loan.payment_type.name=='Depósito Bancario'" class="py-0">
