@@ -630,6 +630,7 @@
                                           </v-row>
                                         </v-col>
                                         <BallotsAdjust :ballots="guarantor.ballots"/>
+                                        <GuaranteesTable :borrowerguarantors="guarantor.active_guarantees"/>
                                       </li>
                                       <br>
                                       <p v-if="loan.guarantors.length==0" style="color:teal"><b> NO TIENE GARANTES </b></p>
@@ -1255,10 +1256,12 @@
 </template>
 <script>
 import BallotsAdjust from "@/components/workflow/BallotsAdjust"
+import GuaranteesTable from "@/components/workflow/GuaranteesTable"
 export default {
   name: "specific-data-loan",
   components:{
-    BallotsAdjust
+    BallotsAdjust,
+    GuaranteesTable
   },
   props: {
     loan_refinancing: {

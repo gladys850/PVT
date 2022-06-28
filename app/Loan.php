@@ -1385,4 +1385,15 @@ class Loan extends Model
         else
             return false;
     }
+
+    public function destroy_guarantee_registers()
+    {
+        foreach($this->loan_guarantee_registers as $guarantee_register)
+            $guarantee_register->forceDelete();
+    }
+
+    public function loan_guarantee_registers()
+    {
+        return $this->hasMany(LoanGuaranteeRegister::class);
+    }
 }
