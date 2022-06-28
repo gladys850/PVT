@@ -130,8 +130,8 @@ class ImportationReportController extends Controller
                     Util::money_format($row->capital_payment),//capital .. pagado
                     Util::money_format($row->interest_payment), //interes corriente
                     Util::money_format($row->penal_payment),// interes penal
-                    Util::money_format($row->interest_accumulated),//interes corriente pendiente
-                    Util::money_format($row->penal_accumulated),//interes penal pendiente
+                    Util::money_format($row->interest_remaining),//interes corriente pendiente
+                    Util::money_format($row->penal_remaining),//interes penal pendiente
                     Util::money_format($row->quota_loan_payment),//total pagado
                     Util::money_format($row->previous_balance),// saldo anterior
                     Util::money_format($row->previous_balance - $row->capital_payment),//saldo actual
