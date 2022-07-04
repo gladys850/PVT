@@ -1378,11 +1378,22 @@ class Loan extends Model
 
     public function destroy_guarantors()
     {
-        foreach($this->guarantors as $guarantor)
+        foreach($this->BorrowerGuarantors as $guarantor)
             $guarantor->forceDelete();
         if($this->guarantors->count() == 0)
             return true;
         else
             return false;
+    }
+
+    public function destroy_guarantee_registers()
+    {
+        foreach($this->loan_guarantee_registers as $guarantee_register)
+            $guarantee_register->forceDelete();
+    }
+
+    public function loan_guarantee_registers()
+    {
+        return $this->hasMany(LoanGuaranteeRegister::class);
     }
 }
