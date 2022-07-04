@@ -26,7 +26,7 @@
                                 <v-simple-checkbox
                                     disabled
                                     color="red"
-                                    value=item.evaluate
+                                    :value=item.evaluate
                                 >
                                 </v-simple-checkbox>
                             </td>
