@@ -1378,7 +1378,7 @@ class Loan extends Model
 
     public function destroy_guarantors()
     {
-        foreach($this->guarantors as $guarantor)
+        foreach($this->BorrowerGuarantors as $guarantor)
             $guarantor->forceDelete();
         if($this->guarantors->count() == 0)
             return true;

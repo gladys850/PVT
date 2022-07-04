@@ -1830,8 +1830,8 @@ class LoanController extends Controller
     //Destruir todo el préstamo
     public function destroyAll(Loan $loan)
     {
-        DB::beginTransaction();
-        try{
+        /*DB::beginTransaction();
+        try{*/
             if($loan->payments){
                     if($loan->data_loan) $loan->data_loan->forceDelete();
 
@@ -1853,15 +1853,15 @@ class LoanController extends Controller
                         return $loan;
                     }
                 );
-                DB::commit();
+                //DB::commit();
             }else{
                 abort(403, 'No se puede reahacer el préstamo existen registros de cobros');
             } 
             return $loan;
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             DB::rollback();
             return $e;
-        }
+        }*/
     }
 
     //actualizar el record de todo el prestamo anterior al actual
