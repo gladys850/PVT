@@ -414,7 +414,6 @@
                 <span>Cambio de amortización a titular</span>
               </div>
             </v-tooltip>
-
             <v-dialog
               v-model="dialog_guarantor_lender"
               max-width="500"
@@ -422,6 +421,55 @@
               <v-card>
                 <v-card-title>
                   Esta seguro de cambiar la amortizacion al titular?
+                </v-card-title>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="red darken-1"
+                    text
+                    @click="dialog_guarantor_lender = false"
+                  >
+                    Cancelar
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click.stop="changeGuarantorLender()"
+                  >
+                    Aceptar
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+                <!--CAMBIO DE PRESTATARIO A GARANTE-->
+            <v-tooltip top v-if="permissionSimpleSelected.includes('create-payment-loan') && (loan.guarantors.length>0 && !loan.guarantor_amortizing)">
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  fab
+                  dark
+                  x-small
+                  :color="'green'"
+                  top
+                  left
+                  absolute
+                  v-on="on"
+                  style="margin-left: 300px; margin-top: 20px"
+                  @click="dialog_guarantor_lender=true"
+                >
+                  <v-icon>mdi-account-switch</v-icon>
+                </v-btn>
+              </template>
+              <div>
+                <span>Cambio de amortización a garantes</span>
+              </div>
+            </v-tooltip>
+            <v-dialog
+              v-model="dialog_guarantor_lender"
+              max-width="500"
+            >
+              <v-card>
+                <v-card-title>
+                  Esta seguro de cambiar la amortizacion a garantes?
                 </v-card-title>
                 <v-card-actions>
                   <v-spacer></v-spacer>
