@@ -304,6 +304,55 @@ class LoanGuarantor extends Model
           }
       }
     }
+    foreach($loan_guarantees_pvt as $guarantee_pvt)
+    {
+      if($this->loan_id != $guarantee_pvt->id)
+      {
+        $loan = [
+          'id' => $guarantee_pvt->id,
+          'code' => $guarantee_pvt->code,
+          'name' => $guarantee_pvt->borrower->first()->full_name,
+          'type' => "PVT",
+          'state' => $guarantee_pvt->state->name,
+          'evaluate' => false
+        ];
+        $sw = false;
+        foreach($loan_guarantees as $loan_guarantee)
+        {
+          if($loan_guarantee['id'] == $loan['id'])
+          {
+            $sw = true;
+          }
+        }
+        if(!$sw)
+        {
+          $loan_guarantees->push($loan);
+        }
+      }
+    }
+    foreach($loan_guarantees_sismu as $guarantee_sismu)
+    {
+      $loan = [
+        'id' => intval($guarantee_sismu->IdPrestamo),
+        'code' => $guarantee_sismu->PresNumero,
+        'name' => $guarantee_sismu->PadNombres." ".$guarantee_sismu->PadPaterno." ".$guarantee_sismu->PadMaterno,
+        'type' => "SISMU",
+        'state' => "VIGENTE",
+        'evaluate' => false
+      ];
+      $sw = false;
+      foreach($loan_guarantees as $loan_guarantee)
+      {
+        if($loan_guarantee['id'] == $loan['id'])
+        {
+          $sw = true;
+        }
+      }
+      if(!$sw)
+      {
+        $loan_guarantees->push($loan);
+      }
+    }
     return $loan_guarantees;
   }
 }
