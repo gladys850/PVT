@@ -2147,12 +2147,20 @@ class LoanController extends Controller
             $option = Loan::whereId($request->loan_id)->first();
             $loan = Loan::withoutEvents(function () use ($option, $request){
                 $loan = Loan::whereId($option->id)->first();
-                $loan->guarantor_amortizing = false;
-                $loan->update();
-                $loan->role_id = $request->role_id;
-                Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'cambio cobro de garante a titular: '.$loan->code));
+                if($loan->guarantor_amortizing == true){
+                    $loan->guarantor_amortizing = false;
+                    $loan->update();
+                    //$loan->role_id = $request->role_id;
+                    Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'cambio cobro de garante a titular: '.$loan->code));
+                    $message = ['message' => 'Cambio de cobro de garante a titular exitoso'];
+                }else{
+                    $loan->guarantor_amortizing = true;
+                    $loan->update();
+                    //$loan->role_id = $request->role_id;
+                    Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'cambio cobro de titular a garantes: '.$loan->code));
+                    $message = ['message' => 'Cambio de cobro de titular a garante exitoso'];
+                }
             });
-            $message['validate'] = 'Se cambio el cobro a '.$option->lenders->first()->full_name;
         }
         else{
             $message['validate'] = 'prestamo y / o rol inexistente';
