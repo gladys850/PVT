@@ -356,7 +356,7 @@ class LoanReportController extends Controller
     // aumentar el tamaño de memoria permitido de este script:
     ini_set('memory_limit', '960M');
     
-    $final_date = request('date') ? Carbon::parse(request('date'))->endOfDay()->format('d-m-Y') : Carbon::now()->endOfDay()->format('d-m-Y');
+    $final_date = request('date') ? Carbon::parse(request('date'))->endOfDay() : Carbon::now()->endOfDay();
     $state = LoanState::whereName('Vigente')->first();
 
     $loans=Loan::where('state_id',$state->id)->orderBy('code')->where('disbursement_date', '<', Carbon::parse($final_date))->get();
@@ -365,7 +365,7 @@ class LoanReportController extends Controller
     $loans_mora = collect();
     //mora
     foreach($loans as $loan){
-        if(count($loan->payments) > 0 && $loan->last_payment_validated->estimated_date < $final_date && Carbon::parse($loan->last_payment_validated->estimated_date)->endOfDay()->diffInDays($final_date) > LoanGlobalParameter::first()->days_current_interest){
+        if(count($loan->payments) > 0 && Carbon::parse($loan->last_payment_validated->estimated_date) < $final_date && Carbon::parse($loan->last_payment_validated->estimated_date)->endOfDay()->diffInDays($final_date) > LoanGlobalParameter::first()->days_current_interest){
             if(count($loan->borrowerGuarantors)>0){
                 $loan->guarantor = $loan->borrowerGuarantors;
             }
@@ -392,7 +392,7 @@ class LoanReportController extends Controller
             continue;
           }
 
-        if($loan->last_payment_validated && !$loan->regular_payments_date(request('date'))){
+        if($loan->last_payment_validated && !$loan->regular_payments_date($final_date)){
             if(count($loan->borrowerGuarantors)>0){
                 $loan->guarantor = $loan->borrowerGuarantors;
             }
@@ -682,6 +682,116 @@ class LoanReportController extends Controller
         }
         $export = new MultipleSheetExportPaymentMora($data_mora_total,$data_mora_parcial,$data_mora,'MORA TOTAL','MORA PARCIAL','MORA');
         return Excel::download($export, $File.'.xls');
+  }
+
+  /** @group Reportes de Prestamos
+   * Reporte de prestamos en mora 
+   * Reporte de prestamos prestamos en mora PARCIAL TOTAL MORA con llamada a procedimientos almacenados en la base de datos
+   * @authenticated
+   * @responseFile responses/report_loans/loan_desembolsado.200.json
+   */
+
+
+  public function report_loans_mora_v2(Request $request){
+    // aumenta el tiempo máximo de ejecución de este script a 150 min:
+    ini_set('max_execution_time', 9000);
+    // aumentar el tamaño de memoria permitido de este script:
+    ini_set('memory_limit', '960M');
+    
+    $final_date = request('date') ? Carbon::parse(request('date'))->endOfDay() : Carbon::now()->endOfDay();
+
+    $datos_mora = DB::select("select loans_mora_data(?)",[$final_date]);
+    $loans_mora = json_decode($datos_mora[0]->loans_mora_data);
+
+    $File = "PrestamosMora";
+    $data_head = array("MATRICULA AFILIADO","CI AFILIADO", "EXP","NOMBRE COMPLETO AFILIADO", "***","MATRICULA","CI","EXP","NOMBRE COMPLETO","NRO DE CEL.1","NRO DE CEL.2","NRO FIJO","CIUDAD","DIRECCIÓN","PTMO","FECHA DESEMBOLSO",
+    "NRO DE CUOTAS","TASA ANUAL","FECHA DEL ÚLTIMO PAGO","TIPO DE PAGO","CUOTA MENSUAL","SALDO ACTUAL","ÉSTADO DEL AFILIADO","MODALIDAD","SUB MODALIDAD","DÍAS MORA",
+    "*","NOMBRE COMPLETO (Ref. Personal)","NRO DE TEL. FIJO (Ref. Personal)","NRO DE CEL (Ref. Personal)","DIRECCIÓN(Ref. Personal)",
+    "**","MATRICULA AFILIADO (GARANTE 1)", "CI AFILIADO (GARANTE 1)", "EXP (GARANTE 1)", "NOMBRE COMPLETO AFILIADO (GARANTE 1)", "*-->*","MATRICULA (GARANTE TITULAR 1)","CI (GARANTE TITULAR 1)","EXP (GARANTE TITULAR 1)","NOMBRE COMPLETO (GARANTE TITULAR 1)","NRO DE TEL. FIJO","NRO DE CEL1","NRO DE CEL2","ESTADO DEL AFILIADO",
+    "***","MATRICULA AFILIADO (GARANTE 2)", "CI AFILIADO (GARANTE 2)", "EXP (GARANTE 2)", "NOMBRE COMPLETO AFILIADO (GARANTE 2)", "*-->*","MATRICULA (GARANTE TITULAR 2)","CI (GARANTE TITULAR 2)","EXP (GARANTE TITULAR 2)","NOMBRE COMPLETO (GARANTE TITULAR 2)","NRO DE TEL. FIJO","NRO DE CEL1","NRO DE CEL.2","ESTADO DEL AFILIADO");
+    $data = collect();
+    // PRESTAMOS EN MORA
+    $data->mora = array($data_head);
+    // PRESTAMOS EN MORA TOTAL
+    $data->mora_total = array($data_head);
+    // PRESTAMOS EN MORA PARCIAL
+    $data->mora_parcial = array($data_head);
+    $row = 0;
+    for( $row ; $row < sizeof($loans_mora) ; $row++ ){
+        $data_body = array(
+            $loans_mora[$row]->registration_affiliate ? $loans_mora[$row]->registration_affiliate : '',
+            $loans_mora[$row]->identity_card_affiliate ? $loans_mora[$row]->identity_card_affiliate : '',
+            $loans_mora[$row]->city_exp_first_shortened_affiliate ? $loans_mora[$row]->city_exp_first_shortened_affiliate : '',
+            $loans_mora[$row]->full_name_affiliate,
+            "***",
+            $loans_mora[$row]->registration_borrower ? $loans_mora[$row]->registration_borrower : '',
+            $loans_mora[$row]->identity_card_borrower ? $loans_mora[$row]->identity_card_borrower : '',
+            $loans_mora[$row]->city_exp_first_shortened_borrower ? $loans_mora[$row]->city_exp_first_shortened_borrower : '',
+            $loans_mora[$row]->full_name_borrower,
+            isset($loans_mora[$row]->cell_phone->number[0]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->cell_phone->number[0]) : 'S/R',
+            isset($loans_mora[$row]->cell_phone->number[1]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->cell_phone->number[1]) : 'S/R',
+            isset($loans_mora[$row]->phone->number[0]) ? str_replace(array("(", ")", "-"), '',$loans_mora[$row]->phone->number[0]) : 'S/R',
+            $loans_mora[$row]->address[0]->name,
+            $loans_mora[$row]->address[0]->description,
+            $loans_mora[$row]->code,
+            Carbon::parse($loans_mora[$row]->disbursement_date)->format('d/m/Y H:i:s'),
+            $loans_mora[$row]->loan_term,
+            $loans_mora[$row]->annual_interest,
+            $loans_mora[$row]->estimated_date ? Carbon::parse($loans_mora[$row]->estimated_date)->format('d-m-Y'):'sin registro',
+            $loans_mora[$row]->shortened ? $loans_mora[$row]->shortened :'sin registro',
+            Util::money_format($loans_mora[$row]->estimated_quota),
+            Util::money_format($loans_mora[$row]->balance),
+            $loans_mora[$row]->name,
+            $loans_mora[$row]->second_name,
+            $loans_mora[$row]->sub_modality,
+            $loans_mora[$row]->days_mora,
+            "*",
+            isset($loans_mora[$row]->reference[0]->full_name) ? $loans_mora[$row]->reference[0]->full_name : 'no tiene registro',
+            isset($loans_mora[$row]->reference[0]->phone_number) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->reference[0]->phone_number) : 'S/R',
+            isset($loans_mora[$row]->reference[0]->cell_phone_number) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->reference[0]->cell_phone_number) : 'S/R',
+            isset($loans_mora[$row]->reference[0]->address) ? $loans_mora[$row]->reference[0]->address : 'S/R',
+            "**",
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->registration_affiliate : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->identity_card_affiliate : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->city_exp_first_shortened_affiliate : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->full_name_affiliate : '',
+            "*Titular-->*",
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->registration_guarantor : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->identity_card_guarantor : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->city_exp_first_shortened_guarantor : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->full_name_guarantor : '',
+            isset($loans_mora[$row]->guarantors[0]) ? ($loans_mora[$row]->guarantors[0]->phone_number ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[0]->phone_number) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[0]) ? (isset($loans_mora[$row]->guarantors[0]->cell_phone->number[0]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[0]->cell_phone->number[0]) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[0]) ? (isset($loans_mora[$row]->guarantors[0]->cell_phone->number[1]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[0]->cell_phone->number[1]) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->name : '',
+            "**",
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->registration_affiliate : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->identity_card_affiliate : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->city_exp_first_shortened_affiliate : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->full_name_affiliate : '',
+            "*Titular-->*",
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->registration_guarantor : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->identity_card_guarantor : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->city_exp_first_shortened_guarantor : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->full_name_guarantor : '',
+            isset($loans_mora[$row]->guarantors[1]) ? ($loans_mora[$row]->guarantors[1]->phone_number ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[1]->phone_number) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[1]) ? (isset($loans_mora[$row]->guarantors[1]->cell_phone->number[0]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[1]->cell_phone->number[0]) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[1]) ? (isset($loans_mora[$row]->guarantors[1]->cell_phone->number[1]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[1]->cell_phone->number[1]) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->name : '',
+        );
+        
+        switch($loans_mora[$row]->type){
+            case 'mora': array_push($data->mora, $data_body);
+                break; 
+            case 'mora_total': array_push($data->mora_total, $data_body);
+                break;
+            case 'mora_parcial': array_push($data->mora_parcial, $data_body);
+                break;
+        };
+    }
+    $export = new MultipleSheetExportPaymentMora($data->mora_total,$data->mora_parcial,$data->mora,'MORA TOTAL','MORA PARCIAL','MORA');
+    return Excel::download($export, $File.'.xls');
+
   }
 
   /** @group Reportes de Prestamos
