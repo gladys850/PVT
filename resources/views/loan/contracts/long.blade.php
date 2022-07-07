@@ -93,8 +93,6 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
     </div>
     <div>
         <b>OCTAVA.- (OBLIGACIONES DEL PRESTATARIO):</b> Conforme al artículo 30 del Reglamento de Préstamos, las partes reconocen expresamente como obligaciones del PRESTATARIO, lo siguiente:
-    </div>
-    <div>
         <ol type="a">
             <li>Proporcionar a los funcionarios de la MUSERPOL, documentos legítimos, nítidos y legibles para la correcta tramitación de los mismos.</li>
             <li>Presentar documentos idóneos de todos los involucrados en el Préstamo solicitado.</li>
@@ -333,9 +331,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         </ol>
     </div>
     <div>
-        <b>SÉPTIMA.- (OBLIGACIONES DEL PRESTATARIO):</b> Conforme al artículo 30 del Reglamento de Préstamos, las partes reconocen expresamente como obligaciones del PRESTATARIO, lo siguiente:
-    </div>
-    <div>
+        <b>SÉPTIMA.- (OBLIGACIONES DEL PRESTATARIO):</b> Conforme al artículo 30 del Reglamento de Préstamos, las partes reconocen expresamente como obligaciones del PRESTATARIO, lo siguiente:    
         <ol type="a">
             <li>Proporcionar a los funcionarios de la MUSERPOL, documentos legítimos, nítidos y legibles para la correcta tramitación de los mismos.</li>
             <li>Presentar documentos idóneos de todos los involucrados en el Préstamo solicitado.</li>
