@@ -45,16 +45,15 @@ class LoanGuaranteeRegisterController extends Controller
               $loan_guarantee_register->loan_code_guarantee = $loan_guarantee['code'];
               $loan_guarantee_register->period_date = Carbon::now()->format('Y-m-d');
               $loan_guarantee_register->database_name = $guarantee_type;
-              $loan_guarantee = LoanGuaranteeRegister::where('affiliate_id',$request->affiliate_id)
+              $loan_guarantee_exists = LoanGuaranteeRegister::where('affiliate_id',$request->affiliate_id)
                                                     ->where('guarantable_type',$loan_guarantee_register->guarantable_type)
                                                     ->where('guarantable_id',$loan_guarantee_register->guarantable_id)
                                                     ->where('loan_code_guarantee',$loan_guarantee_register->loan_code_guarantee)
                                                     ->where('period_date',$loan_guarantee_register->period_date)
                                                     ->where('database_name',$loan_guarantee_register->database_name)
-                                                    ->whereNull('loan_id')->first();                          
-              if($loan_guarantee){
-                  $loan_guarantee->update();
-                  $loan_guarantee_register_ids->push($loan_guarantee->id);
+                                                    ->whereNull('loan_id')->first();
+              if($loan_guarantee_exists){
+                $loan_guarantee_register_ids->push($loan_guarantee_exists->id);
               }else{
                  $loan_guarantee_register->save();
                  $loan_guarantee_register_ids->push($loan_guarantee_register->id);

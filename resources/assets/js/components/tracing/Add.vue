@@ -2,11 +2,16 @@
   <v-card flat>
     <v-card-title class="pb-0">
       <v-toolbar dense color='tertiary'>
+
         <v-toolbar-title>
           <Breadcrumbs />
         </v-toolbar-title>
+
         <v-spacer></v-spacer>
+
           <template>
+
+              <!-- B O T Ó N  1   I M P.  S O L I C I T U D -->
               <v-tooltip bottom >
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -23,6 +28,8 @@
                 </template>
                 <span>Imprimir Solicitud</span>
               </v-tooltip>
+
+              <!-- B O T Ó N  2   I M P.  C O N T R A T O -->
               <v-tooltip bottom >
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -39,6 +46,8 @@
                 </template>
                 <span>Imprimir Contrato</span>
               </v-tooltip>
+
+              <!-- B O T Ó N  3   I M P.   P L A N   D E   P A G O S -->
               <v-tooltip bottom v-if="loan.state.name == 'Vigente' || loan.state.name == 'Liquidado'">
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -55,6 +64,8 @@
                 </template>
                 <span>Imprimir Plan de pagos</span>
               </v-tooltip>
+
+              <!-- B O T Ó N  4    I M P.   K A R D E X -->
               <v-tooltip bottom v-if="loan.state.name == 'Vigente' || loan.state.name == 'Liquidado'">
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -71,6 +82,8 @@
                 </template>
                 <span>Imprimir Kardex</span>
               </v-tooltip>
+
+              <!-- B O T Ó N  5   I M P.   F O R M.  C A L I F I C A C I Ó N -->
               <v-tooltip bottom >
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -88,16 +101,26 @@
                 </template>
                 <span>Imprimir Formulario de Calificación</span>
               </v-tooltip>
+
           <v-divider vertical class="mx-4"></v-divider>
+
           <h6 class="caption">
+
           <strong>Ubicación trámite:</strong> <br />
+
           <v-icon x-small color="orange">mdi-folder-information</v-icon>{{role_name}} <br>
           <v-icon x-small color="blue" v-if="user_name != null">mdi-file-account</v-icon> {{user_name}}</h6>
-        </template>
+
+          </template>
+
       </v-toolbar>
     </v-card-title>
+
+    <!-- S E C C I Ó N   D A T O S   E S P E C I F I C O S -->
     <v-card-text>
+
       <Dashboard :affiliate.sync="affiliate" :loan.sync="loan"/>
+
       <FormTracing
           :loan.sync="loan"
           :loan_refinancing.sync="loan_refinancing"
@@ -107,7 +130,9 @@
           :observation_type.sync="observation_type"
       >
       </FormTracing>
+
     </v-card-text>
+
   </v-card>
 </template>
 <script>
@@ -143,26 +168,17 @@ export default {
       registration: null
     },
     loan: {
-      borrower:[
-        {first_name:null,
-        last_name:null,
-        city_identity_card:{},
-          pivot:{},},
-        {first_name:null,
-        last_name:null,
-        city_identity_card:{},
-          pivot:{},}
-      ],
-      lenders: [
-        {pivot:{},}
-      ],
-      guarantors: [],
-      cosigners: [],
-      personal_references: [],
-      payment_type:{},
-      intereses: {},
       state: {},
-      user:{}
+      borrower:[
+        {
+          city_identity_card: {}
+        }
+      ],
+      modality:{},
+      payment_type: {},
+      personal_references:[],
+      cosigners:[],
+      guarantors:[]
     },
     city:[],
     loan_refinancing:{},
@@ -174,7 +190,6 @@ export default {
     tab: "tab-1",
     role_name: null,
     user_name: null,
-    id_street: 0,
     loading_print_solicitude:false,
     loading_print_contract:false,
     loading_print_plan:false,
@@ -193,12 +208,10 @@ export default {
       return this.$store.getters.permissionSimpleSelected
     },
   },
-  methods: {
-    setBreadcrumbs() {
-      let breadcrumbs = [
+  methods: { setBreadcrumbs() { let breadcrumbs = [
         {
           text: "Seguimiento",
-          to: { name: "listTracing" }
+          to: { name: "ListTracingLoans" }
         }
       ]
       breadcrumbs.push({
@@ -213,19 +226,7 @@ export default {
         this.loading = true
         let res = await axios.get(`loan/${id}`)
         this.loan = res.data
-        this.loan.amount_approved_before= res.data.amount_approved
-        this.loan.loan_term_before= res.data.loan_term
-        this.loan.amount_approved_aux = this.loan.amount_approved
-        this.loan.payable_liquid_calculated_aux = this.loan.lenders[0].pivot.payable_liquid_calculated
-        this.loan.liquid_qualification_calculated_aux = this.loan.liquid_qualification_calculated
-        this.loan.loan_term_aux = this.loan.loan_term
-        this.loan.bonus_calculated_aux = this.loan.lenders[0].pivot.bonus_calculated
-        this.loan.indebtedness_calculated_aux = this.loan.indebtedness_calculated
-        this.loan.estimated_quota_aux = this.loan.estimated_quota
-        this.loan.disbursement_date=this.$moment(res.data.disbursement_date).format('YYYY-MM-DD')
-        this.loan.delivery_contract_date=this.$moment(res.data.delivery_contract_date).format('YYYY-MM-DD')
-        this.loan.return_contract_date=this.$moment(res.data.return_contract_date).format('YYYY-MM-DD')
-        this.loan.modality=this.loan.modality.name
+        this.loan.state.name = res.data.state.name
 
         if(this.loan.parent_reason=='REFINANCIAMIENTO')
         {
@@ -237,6 +238,7 @@ export default {
             this.loan_refinancing.loan_term  = this.loan.parent_loan.loan_term
             this.loan_refinancing.balance  = this.loan.parent_loan.balance
             this.loan_refinancing.estimated_quota = this.loan.parent_loan.estimated_quota
+            this.loan_refinancing.disbursement_date = this.loan.parent_loan.disbursement_date
             this.loan_refinancing.type_sismu = false
             this.loan_refinancing.description= 'PRESTAMO DEL PVT'
           }else{
@@ -246,6 +248,7 @@ export default {
             this.loan_refinancing.balance  = this.loan.data_loan.balance
             this.loan_refinancing.type_sismu = true
             this.loan_refinancing.estimated_quota = this.loan.data_loan.estimated_quota
+            this.loan_refinancing.disbursement_date = this.loan.data_loan.disbursement_date
             this.loan_refinancing.description= 'PRESTAMO DEL SISMU'
            }
         }else{
@@ -256,16 +259,23 @@ export default {
             this.loan_refinancing.amount_approved = this.loan.amount_approved
             this.loan_refinancing.refinancing_balance = this.loan.refinancing_balance
 
-        let res1 = await axios.get(`affiliate/${this.loan.lenders[0].id}`)
+        let res1 = await axios.get(`affiliate/${this.loan.affiliate_id}`)
         this.affiliate = res1.data
         if (this.loan.property_id != null) {
           this.getLoanproperty(this.loan.property_id)
         }
-        //Saca el procedure tipe del tramite
         this.getProceduretype(this.loan.procedure_modality_id)
+        this.borrower = this.loan.borrower[0]
+        if (this.loan.borrower[0].type == "spouses") {
+          this.getSpouse(this.affiliate.id)
+        }
         this.setBreadcrumbs()
+        //this.getAddress(this.affiliate.id)
+
         this.role(this.loan.role_id)
-        this.user(this.loan.user_id)
+        if(this.loan.user_id != null){
+          this.user(this.loan.user_id)
+        }
       } catch (e) {
         console.log(e)
       } finally {
@@ -309,7 +319,7 @@ export default {
         this.loading = true
         let res = await axios.get(`procedure_modality/${id}`)
         this.procedure_types = res.data
-      } catch (e) {
+        /*console.log(this.procedure_types)*/ } catch (e) {
         console.log(e)
       } finally {
         this.loading = false
@@ -337,7 +347,7 @@ export default {
         this.observations = res.data
 
         for (this.i = 0; this.i < this.observations.length; this.i++) {
-           console.log("ww"+this.observations[this.i].user_id)
+           //console.log(this.observations[this.i].user_id)
           let res1 = await axios.get(`user/${this.observations[this.i].user_id}`
           )
           this.observations[this.i].user_name = res1.data.username
@@ -408,4 +418,5 @@ export default {
     }
   },
 }
+
 </script>

@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\V1\CalculatorController;
 use Carbon;
 use Util;
 use App\Affiliate;
+use App\LoanBorrower;
+use App\LoanGuarantor;
 
 class Loan extends Model
 {
@@ -31,12 +33,9 @@ class Loan extends Model
     public $guarded = ['id'];
     public $fillable = [
         'code',
-        //'disbursable_id',
-       // 'disbursable_type',
         'procedure_modality_id',
         'disbursement_date',
         'disbursement_time',
-        //'num_budget_certification',
         'num_accounting_voucher',
         'parent_loan_id',
         'parent_reason',
@@ -183,22 +182,8 @@ class Loan extends Model
 
     public function guarantors()
     {
-        return $this->loan_affiliates()->withPivot('payment_percentage','payable_liquid_calculated', 'bonus_calculated', 'quota_previous','quota_treat','indebtedness_calculated','indebtedness_calculated_previous','liquid_qualification_calculated','contributionable_ids','contributionable_type','type')->whereGuarantor(true);
-    }
-
-    public function lenders()
-    {
-        return $this->loan_affiliates()->withPivot('payment_percentage','payable_liquid_calculated', 'bonus_calculated', 'quota_previous','quota_treat', 'indebtedness_calculated','indebtedness_calculated_previous','liquid_qualification_calculated','contributionable_ids','contributionable_type','type')->whereGuarantor(false);
-    }
-
-    public function loan_affiliates()
-    {
-        return $this->belongsToMany(Affiliate::class, 'loan_affiliates')->withPivot('payment_percentage','guarantor','payable_liquid_calculated', 'bonus_calculated', 'quota_previous','quota_treat', 'indebtedness_calculated','indebtedness_calculated_previous','liquid_qualification_calculated','contributionable_ids','contributionable_type','type');
-    }
-    
-    public function loan_affiliates_ballot()
-    {
-        return $this->belongsToMany(Affiliate::class, 'loan_affiliates')->withPivot('contributionable_ids','contributionable_type');
+        //return $this->hasMany(LoanGuarantor::class);
+        return $this->belongsToMany(Affiliate:: class, 'loan_guarantors');
     }
 
     public function personal_references()
@@ -941,11 +926,10 @@ class Loan extends Model
         //return ($balance - $this->payments->where('state_id', LoanPaymentState::where('name', 'Pagado')->first()->id)->sum('capital_payment'));
     }
     //muestra boletas de afiliado
-    public function ballot_affiliate($affiliate_id){
-        foreach($this->loan_affiliates as $affiliate){  
-            if( $affiliate->id == $affiliate_id){
-            $contributions = $affiliate->pivot->contributionable_ids;
-            $contributions_type = $affiliate->pivot->contributionable_type;
+    public function ballot_affiliate(){
+            $affiliate = $this->borrower->first();
+            $contributions = $affiliate->contributionable_ids;
+            $contributions_type = $affiliate->contributionable_type;
             $ballots_ids = json_decode($contributions);
             $ballots = collect();
             $adjusts = collect();
@@ -1061,8 +1045,6 @@ class Loan extends Model
                         'average_mount_adjust' => $sum_mount_adjust/$count_records,
                     ]);         
                 }       
-            }      
-        }
         $data = [
             'contribution_type' =>$contribution_type,
             'average_ballot_adjust'=> $average_ballot_adjust,
@@ -1151,29 +1133,29 @@ class Loan extends Model
                 $new_indebtedness_calculated = Util::round2(($quota_estimated/$this->liquid_qualification_calculated)*100);
                 $validate = false;
                 if($new_indebtedness_calculated <= $procedure_modality->loan_modality_parameter->debt_index){                      
-                    if((count($this->guarantors)>0) || (count($this->lenders) > 1)){
+                    if((count($this->guarantors)>0) || (count($this->borrower) > 1)){
                         if($new_indebtedness_calculated <= Util::round2($this->indebtedness_calculated_previous)){ 
-                            foreach ($this->lenders  as $lender) {    
-                                $quota_estimated_lender = $quota_estimated/count($this->lenders);
-                                $new_indebtedness_lender = Util::round2($quota_estimated_lender/(float)$lender->pivot->liquid_qualification_calculated*100);                    
-                                if($new_indebtedness_lender <= (float)$lender->pivot->indebtedness_calculated_previous){
+                            foreach ($this->borrower  as $lender) {    
+                                $quota_estimated_lender = $quota_estimated/count($this->borrower);
+                                $new_indebtedness_lender = Util::round2($quota_estimated_lender/(float)$lender->liquid_qualification_calculated*100);
+                                if($new_indebtedness_lender <= (float)$lender->indebtedness_calculated_previous){
                                     $validate = true;               
                                 }else {
                                     $validate = false;
                                 }
                             }                       
                             if(count($this->guarantors) > 0){   
-                                foreach ($this->guarantors  as $guarantor) {    
-                                    $affiliate = Affiliate::find($guarantor->pivot->affiliate_id);
-                                    $active_guarantees = $affiliate->active_guarantees();$sum_quota = 0;
+                                foreach ($this->guarantors  as $guarantor) {
+                                    $loan_guarantor = LoanGuarantor::where('loan_id',$guarantor->pivot->loan_id)->where('affiliate_id',$guarantor->pivot->affiliate_id)->first();
+                                    $active_guarantees = $guarantor->active_guarantees();$sum_quota = 0;
                                     foreach($active_guarantees as $res)
-                                        $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
-                                        $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
+                                        $sum_quota += ($res->estimated_quota * $res->payment_percentage)/100; // descuento en caso de tener garantias activas
+                                        $active_guarantees_sismu = $guarantor->active_guarantees_sismu();
                                     foreach($active_guarantees_sismu as $res)
                                         $sum_quota += $res->PresCuotaMensual / $res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu*/
                                         $quota_estimated_guarantor = $quota_estimated/count($this->guarantors);
-                                        $new_indebtedness_calculated_guarantor = Util::round2((($quota_estimated_guarantor + $sum_quota - $guarantor->pivot->quota_treat)/$guarantor->pivot->liquid_qualification_calculated) * 100);
-                                    if($new_indebtedness_calculated_guarantor <= (float)$guarantor->pivot->indebtedness_calculated_previous){
+                                        $new_indebtedness_calculated_guarantor = Util::round2((($quota_estimated_guarantor + $sum_quota - $loan_guarantor->quota_treat)/$loan_guarantor->liquid_qualification_calculated) * 100);
+                                    if($new_indebtedness_calculated_guarantor <= (float)$loan_guarantor->indebtedness_calculated_previous){
                                         $validate = true;                                                                            
                                     }else {
                                         $validate = false; 
@@ -1190,8 +1172,8 @@ class Loan extends Model
                         $message['message'] = 'El índice de endeudamiento no debe ser superior a '.$this->indebtedness_calculated_previous.'%, evaluación realizada en la creación del tramite';                        
                         } 
                     }else{ 
-                        if(count($this->lenders) == 1){
-                            foreach ($this->lenders  as $lender) {     
+                        if(count($this->borrower) == 1){
+                            foreach ($this->borrower  as $lender) {     
                                 $validate = true;                       
                             }    
                             return $validate;                      
@@ -1221,24 +1203,6 @@ class Loan extends Model
                 break;
             }
         }
-        /*$extra_amount = 0;
-        if(Carbon::parse($date)->format('d') <= LoanGlobalParameter::first()->offset_interest_day)
-            $date = Carbon::parse($date)->endOfMonth()->format('Y-m-d');
-        else{
-            $extra_days = Carbon::parse($date)->endOfMonth()->format('d') - Carbon::parse($this->disbursement_date)->format('d');
-            $date = Carbon::parse($date)->startOfMonth()->addMonth()->endOfMonth()->format('Y-m-d');
-            $extra_amount = number_format(((($this->interest->annual_interest/100)/360)*$extra_days*$this->amount_approved) , 2);
-        }
-        foreach($this->paymentsKardex as $payment)
-        {
-            if($date != Carbon::parse($payment->estimated_date)->format('Y-m-d') || $payment->estimated_quota != round(($this->estimated_quota + $extra_amount),2)){
-                $regular = false;
-                break;
-            }
-            else
-                $date = Carbon::parse($date)->startOfMonth()->addMonth()->endOfMonth()->format('Y-m-d');
-            $extra_amount = 0;
-        }*/
         return $regular;
     }
 
@@ -1299,38 +1263,31 @@ class Loan extends Model
                     }
                 }
                 else
-                    $suggested_amount = $this->guarantors->first()->pivot->quota_treat;
+                {
+                    $suggested_amount = $this->BorrowerGuarantors->first()->quota_treat;
+                }
         }
         return  round($suggested_amount,2);
     }
 
     public function getBorrowerAttribute(){
         $data = collect([]);
-        foreach($this->lenders as $lender)
-        {
-            $borrower = new Affiliate();
-            if($lender->pivot->type == 'affiliates'){
-                $borrower = $lender;
-                $borrower->city_identity_card = $lender->city_identity_card;
-                $borrower->type_initials = "T-".$lender->initials;
-            }
-            if($lender->pivot->type == 'spouses'){
-                $borrower = $lender->spouse;
-                $borrower->city_identity_card = $lender->spouse->city_identity_card;
-                $borrower->type_initials = "T-".$lender->spouse->initials;
-            }
-            $borrower->account_number = $lender->account_number;
-            $borrower->financial_entity = $lender->financial_entity;
-            $borrower->type = $lender->pivot->type;
-            $borrower->quota = $lender->pivot->quota_treat;
-            $borrower->percentage_quota = $lender->pivot->percentage_quota;
-            $borrower->state = $lender->affiliate_state;
-            $borrower->address = $lender->address;
-            if($this->affiliate_id == $lender->pivot->affiliate_id)
-                $borrower->disbursable = true;
-            else
-                $borrower->disbursable = false;
-                $data->push($borrower);
+        $borrowers = LoanBorrower::where('loan_id',$this->id)->get();
+        foreach($borrowers as $borrower){
+            $borrower_data = new LoanBorrower();
+            $borrower_data = $borrower;
+            $borrower_data->city_identity_card = $borrower->city_identity_card;
+            $borrower_data->initials = $borrower->initials;
+            $borrower_data->account_number = $borrower->loan->number_payment_type;
+            $borrower_data->financial_entity = $this->financial_entity;
+            $borrower_data->type = $borrower->type;
+            $borrower_data->quota = $borrower->quota_treat;
+            $borrower_data->percentage_quota = $borrower->payment_percentage;
+            $borrower_data->state = $borrower->affiliate_state;
+            $borrower_data->address = $borrower->address;
+            $borrower_data->ballots = $borrower->ballots;
+            $borrower_data->sigep_status = $borrower->affiliate()->sigep_status;
+            $data->push($borrower_data);
         }
         return $data;
     }
@@ -1338,35 +1295,26 @@ class Loan extends Model
     public function getBorrowerGuarantorsAttribute(){
         $data = collect([]);
         foreach($this->guarantors as $guarantor){
-            $titular_guarantor = new Affiliate();
-            if($guarantor->pivot->type == "affiliates"){
-                $titular_guarantor = $guarantor;
-                $titular_guarantor->city_identity_card = $guarantor->city_identity_card;
-                $titular_guarantor->type_initials = "G-".$guarantor->initials;
-                $titular_guarantor->ballots = $this->ballot_affiliate($guarantor->id);
-            }
-            if($guarantor->pivot->type == "spouses"){
-                $titular_guarantor = $guarantor->spouse;
-                $titular_guarantor->city_identity_card = $guarantor->spouse->city_identity_card;
-                $titular_guarantor->type_initials = "G-".$guarantor->spouse->initials;
-                $titular_guarantor->pivot = $guarantor->pivot;
-                $titular_guarantor->ballots = $this->ballot_affiliate($guarantor->spouse->affiliate_id);
-                $titular_guarantor->cell_phone_number = $guarantor->cell_phone_number;
-            }
-            $titular_guarantor->account_number = $guarantor->account_number;
-            $titular_guarantor->financial_entity = $guarantor->financial_entity;
-            $titular_guarantor->type = $guarantor->pivot->type;
-            $titular_guarantor->quota = $guarantor->pivot->quota_treat;
-            $titular_guarantor->percentage_quota = $guarantor->pivot->percentage_quota;
-            $titular_guarantor->state = $guarantor->affiliate_state;
-            $titular_guarantor->address = $guarantor->address;
+            $titular_guarantor = LoanGuarantor::where('loan_id', $this->id)->where('affiliate_id', $guarantor->id)->first();
+            $titular_guarantor->city_identity_card = $titular_guarantor->city_identity_card;
+            $titular_guarantor->type_initials = "G-".$titular_guarantor->initials;
+            $titular_guarantor->ballots = $titular_guarantor->ballots();
+            $titular_guarantor->cell_phone_number = $titular_guarantor->cell_phone_number;
+            $titular_guarantor->account_number = $titular_guarantor->account_number;
+            $titular_guarantor->financial_entity = $titular_guarantor->financial_entity;
+            $titular_guarantor->type = $titular_guarantor->type;
+            $titular_guarantor->quota = $titular_guarantor->quota_treat;
+            $titular_guarantor->percentage_quota = $titular_guarantor->percentage_quota;
+            $titular_guarantor->state = $titular_guarantor->affiliate_state;
+            $titular_guarantor->address = $titular_guarantor->address;
+            $titular_guarantor->active_guarantees = $titular_guarantor->active_guarantees();
             $data->push($titular_guarantor);
         }
         return $data;
+        //return $this->hasMany(LoanGuarantor::class);
     }
     public function getGuarantors(){
-        $loans_guarantors = DB::table('view_loan_borrower_guarantors')
-        ->where('guarantor_loan',true)
+        $loans_guarantors = DB::table('view_loan_guarantors')
         ->where('id_loan',$this->id)
         ->select('*')
         ->get();
@@ -1374,8 +1322,7 @@ class Loan extends Model
     }
 
     public function getBorrowers(){
-        $loans_borrowers = DB::table('view_loan_borrower_guarantors')
-        ->where('guarantor_loan',false)
+        $loans_borrowers = DB::table('view_loan_borrower')
         ->where('id_loan',$this->id)
         ->select('*')
         ->get();
@@ -1422,5 +1369,31 @@ class Loan extends Model
             $quota_number++;
         }
         return $sw;
+    }
+
+    public function destroy_borrower()
+    {
+        return $this->borrower->first()->forceDelete();
+    }
+
+    public function destroy_guarantors()
+    {
+        foreach($this->BorrowerGuarantors as $guarantor)
+            $guarantor->forceDelete();
+        if($this->guarantors->count() == 0)
+            return true;
+        else
+            return false;
+    }
+
+    public function destroy_guarantee_registers()
+    {
+        foreach($this->loan_guarantee_registers as $guarantee_register)
+            $guarantee_register->forceDelete();
+    }
+
+    public function loan_guarantee_registers()
+    {
+        return $this->hasMany(LoanGuaranteeRegister::class);
     }
 }

@@ -3,18 +3,22 @@
     <ValidationObserver>
       <v-form>
         <v-card flat>
+
           <v-card-title class="pa-0 pb-3">
             <v-toolbar dense color="tertiary" class="font-weight-regular">
               <v-toolbar-title>PRÉSTAMOS DESEMBOLSADOS</v-toolbar-title>
             </v-toolbar>
           </v-card-title>
+
           <template>
             <v-container fluid class="pa-0">
               <v-row justify="center" class="py-0">
                 <v-col cols="12" class="py-0">
+
                   <v-tabs dark active-class="secondary" v-model="tab">
                     <v-tab v-for="item in actions" :key="item.nameTab">{{item.nameTab}}</v-tab>
                   </v-tabs>
+
                   <v-tabs-items v-model="tab">
                     <v-tab-item v-for="item in actions" :key="item.nameTab">
                       <v-card flat tile>
@@ -23,6 +27,7 @@
                             <v-col cols="12" class="pa-0">
                               <v-layout row wrap>
                                 <v-col cols="12" md="12" class="py-2 px-1">
+                                  <!-- B O T O N   E X C E L -->
                                   <v-tooltip top>
                                     <template v-slot:activator="{ on }">
                                       <v-btn
@@ -41,6 +46,8 @@
                                     </template>
                                     <span class="caption">Descargar reporte</span>
                                   </v-tooltip>
+
+                                  <!-- B O T Ó N   L I M P I A   F I L T R O S -->
                                   <v-tooltip top>
                                     <template v-slot:activator="{ on }">
                                       <v-btn
@@ -58,6 +65,7 @@
                                     </template>
                                     <span class="caption">Limpiar todos los filtros</span>
                                   </v-tooltip>
+
                                   <v-data-table
                                     dense
                                     :headers="headers"
@@ -77,20 +85,20 @@
                                     </template>
 
                                     <!-- CI Prestatario -->
-                                    <template v-slot:[`header.identity_card_borrower`]="{ header, }">
-                                      <span :class="searching.identity_card_borrower ? 'primary--text' : ''">
+                                    <template v-slot:[`header.identity_card_affiliate`]="{ header, }">
+                                      <span :class="searching.identity_card_affiliate ? 'primary--text' : ''">
                                         {{ header.text }}
                                       </span>
                                     </template>
         
                                     <!-- Matricula prestatario -->
-                                    <template v-slot:[`header.registration_borrower`]="{ header }">
-                                      <span :class="searching.registration_borrower ? 'primary--text' : ''">{{ header.text }}</span>
+                                    <template v-slot:[`header.registration_affiliate`]="{ header }">
+                                      <span :class="searching.registration_affiliate ? 'primary--text' : ''">{{ header.text }}</span>
                                     </template>
 
                                     <!-- Nombre completo prestatario -->
-                                    <template v-slot:[`header.full_name_borrower`]="{ header }">
-                                      <span :class="searching.full_name_borrower ? 'primary--text' : ''">{{ header.text }}</span>
+                                    <template v-slot:[`header.full_name_affiliate`]="{ header }">
+                                      <span :class="searching.full_name_affiliate ? 'primary--text' : ''">{{ header.text }}</span>
                                     </template>                                  
 
                                     <!-- Corto sub modalidad -->
@@ -144,6 +152,8 @@
 
                                     <!-- Acciones -->
                                     <template v-slot:[`item.actions`]="{ item }">
+
+                                      <!-- B O T Ó N   K A R D E X -->
                                       <v-tooltip bottom>
                                         <template v-slot:activator="{ on }">
                                           <v-btn
@@ -161,6 +171,8 @@
                                         </template>
                                         <span>Kardex</span>
                                       </v-tooltip>
+
+                                      <!-- B O T Ó N   I M P R I M I R -->
                                       <v-menu
                                         offset-x
                                         close-on-content-click
@@ -214,7 +226,7 @@
                                             placeholder="Ci. Prestatario"
                                             spellcheck="false"
                                             class="filter-text"
-                                            v-model="searching.identity_card_borrower"
+                                            v-model="searching.identity_card_affiliate"
                                             @keydown.enter="search_loans()"
                                           ></v-text-field>
                                         </td>
@@ -223,7 +235,7 @@
                                             placeholder="Matricula Prestatario"
                                             spellcheck="false"
                                             class="filter-text"
-                                            v-model="searching.registration_borrower"
+                                            v-model="searching.registration_affiliate"
                                             @keydown.enter="search_loans()"
                                           ></v-text-field>
                                         </td>
@@ -232,7 +244,7 @@
                                             placeholder="Nombre Completo"
                                             spellcheck="false"
                                             class="filter-text"
-                                            v-model="searching.full_name_borrower"
+                                            v-model="searching.full_name_affiliate"
                                             @keydown.enter="search_loans()"
                                           ></v-text-field>
                                         </td>
@@ -316,18 +328,18 @@ export default {
     ],
       searching: {
         code_loan: "",
-        identity_card_borrower: "",
-        registration_borrower: "",
-        full_name_borrower:"",
+        identity_card_affiliate: "",
+        registration_affiliate: "",
+        full_name_affiliate:"",
         shortened_sub_modality_loan: "",
         state_type_affiliate: "",
         guarantor_amortizing_loan:""
       },
       headers: [
         { text: 'Cód. Préstamo', value: 'code_loan',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '15%'},
-        { text: 'CI Prestatario', value: 'identity_card_borrower',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
-        { text: 'Matrícula Prestatario', value: 'registration_borrower' ,input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
-        { text: 'Nombre Completo Prestatario',value:'full_name_borrower',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '20%'},
+        { text: 'CI Prestatario', value: 'identity_card_affiliate',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
+        { text: 'Matrícula Prestatario', value: 'registration_affiliate' ,input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
+        { text: 'Nombre Completo Prestatario',value:'full_name_affiliate',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '20%'},
         { text: 'Corto Sub modalidad',value:'shortened_sub_modality_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '10%'},
         { text: 'Fecha Desembolso',value:'disbursement_date_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
         { text: 'Monto Desembolsado',value:'amount_approved_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%'},
@@ -410,9 +422,9 @@ export default {
         let res = await axios.get(`list_loan_generate`, {
           params: {
             code_loan: this.searching.code_loan,
-            identity_card_borrower: this.searching.identity_card_borrower,
-            registration_borrower: this.searching.registration_borrower,
-            full_name_borrower: this.searching.full_name_borrower,
+            identity_card_affiliate: this.searching.identity_card_affiliate,
+            registration_affiliate: this.searching.registration_affiliate,
+            full_name_affiliate: this.searching.full_name_affiliate,
             shortened_sub_modality_loan: this.searching.shortened_sub_modality_loan,
             state_type_affiliate: this.searching.state_type_affiliate,
             state_loan: this.tab == 0 ? 'Vigente' : 'Liquidado',
@@ -445,9 +457,9 @@ export default {
         data: this.datos,
         params: {
           code_loan: this.searching.code_loan,
-          identity_card_borrower: this.searching.identity_card_borrower,
-          registration_borrower: this.searching.registration_borrower,
-          full_name_borrower: this.searching.full_name_borrower,
+          identity_card_affiliate: this.searching.identity_card_affiliate,
+          registration_affiliate: this.searching.registration_affiliate,
+          full_name_affiliate: this.searching.full_name_affiliate,
           shortened_sub_modality_loan: this.searching.shortened_sub_modality_loan,
           state_type_affiliate: this.searching.state_type_affiliate,
           state_loan: this.tab == 0 ? 'Vigente' : 'Liquidado',
@@ -472,9 +484,9 @@ export default {
 
     clearAll() {
       this.searching.code_loan = "",
-      this.searching.identity_card_borrower = "",
-      this.searching.registration_borrower = "",
-      this.searching.full_name_borrower= "",
+      this.searching.identity_card_affiliate = "",
+      this.searching.registration_affiliate = "",
+      this.searching.full_name_affiliate= "",
       this.searching.modality_loan = "",
       this.searching.shortened_sub_modality_loan = "",
       this.searching.state_type_affiliate = "",

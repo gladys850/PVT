@@ -37,6 +37,9 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\V1\CalculatorController;
 use App\Rules\LoanIntervalTerm;
+use App\Module;
+use App\LoanBorrower;
+use App\LoanState;
 
 /** @group Afiliados
 * Datos de los afiliados y métodos para obtener y establecer sus relaciones
@@ -52,7 +55,7 @@ class AffiliateController extends Controller
         $affiliate->picture_saved = $affiliate->picture_saved;
         $affiliate->fingerprint_saved = $affiliate->fingerprint_saved;
         $affiliate->defaulted_lender = $affiliate->defaulted_lender;
-        $affiliate->defaulted_guarantor = $affiliate->defaulted_guarantor;
+        //$affiliate->defaulted_guarantor = $affiliate->defaulted_guarantor;
         $affiliate->cpop = $affiliate->cpop;
         if($affiliate->spouse){
             $affiliate->spouse = $affiliate->spouse;
@@ -232,20 +235,93 @@ class AffiliateController extends Controller
     * @responseFile responses/affiliate/update.200.json
     */
     public function update(AffiliateForm $request, Affiliate $affiliate)
-    {
-        if (!Auth::user()->can('update-affiliate-primary')) {
-            $update = $request->except('first_name', 'second_name', 'last_name', 'mothers_last_name', 'surname_husband', 'identity_card');
-        } else {
-            $update = $request->all();
+    {   
+        try{
+            DB::beginTransaction();
+            if (!Auth::user()->can('update-affiliate-primary')) {
+                $update = $request->except('first_name', 'second_name', 'last_name', 'mothers_last_name', 'surname_husband', 'identity_card');
+            } else {
+                $update = $request->all();
+            }
+            $affiliate->fill($update);
+            $affiliate->save();
+            if($request->has('financial_entity_id')&& $request->financial_entity_id != null || $request->has('account_number') && $request->account_number!= null){
+                $affiliate->update([
+                    'sigep_status' => 'ACTIVO'
+                ]);
+            }
+            // verificacion si se encuentra con el rol prestamos
+            $id_prestamos = Module::where('name', 'prestamos')->first()->id;
+            if(in_array($id_prestamos, Auth::user()->modules, true))
+            {
+                foreach ($affiliate->processloans as $loan) 
+                {   
+                    $borrower = LoanBorrower::find($loan->borrower[0]->id);
+                    if ($borrower->type == 'affiliates')
+                    {
+                        $borrower->degree_id = $request['degree_id'];
+                        $borrower->unity_id = $request['unit_id'];
+                        $borrower->category_id = $request['category_id'];
+                        $borrower->type_affiliate = $request['type'];
+                        $borrower->unit_police_description = $request['unit_police_description'];
+                        $borrower->affiliate_state_id = $request['affiliate_state_id'];
+                        $borrower->identity_card = $request['identity_card'];
+                        $borrower->city_identity_card_id = $request['city_identity_card_id'];
+                        $borrower->city_birth_id = $request['city_birth_id'];
+                        $borrower->registration = $request['registration'];
+                        $borrower->last_name = $request['last_name'];
+                        $borrower->first_name = $request['first_name'];
+                        $borrower->second_name = $request['second_name'];
+                        $borrower->mothers_last_name = $request['mothers_last_name'];
+                        $borrower->surname_husband = $request['surname_husband'];
+                        $borrower->gender = $request['gender'];
+                        $borrower->civil_status = $request['civil_status'];
+                        $borrower->phone_number = $request['phone_number'];
+                        $borrower->cell_phone_number = $request['cell_phone_number'];
+                        $borrower->address_id = $affiliate->address->id;
+                        $borrower->pension_entity_id = $request['pension_entity_id'];
+                        $borrower->update();
+                    }
+                }
+                $guarantees = $affiliate->guarantees;
+                foreach($guarantees as $guarantee)
+                {
+                    if($guarantee->loan->state_id = LoanState::where('name','En Proceso')->first()->id && $guarantee->type = 'affiliate')
+                    {
+                        $guarantee->update([
+                            'degree_id' => $request['degree_id'],
+                            'unity_id' => $request['unit_id'],
+                            'category_id' => $request['category_id'],
+                            'type_affiliate' => $request['type'],
+                            'unit_police_description' => $request['unit_police_description'],
+                            'affiliate_state_id' => $request['affiliate_state_id'],
+                            'identity_card' => $request['identity_card'],
+                            'city_identity_card_id' => $request['city_identity_card_id'],
+                            'city_birth_id' => $request['city_birth_id'],
+                            'registration' => $request['registration'],
+                            'last_name' => $request['last_name'],
+                            'first_name' => $request['first_name'],
+                            'second_name' => $request['second_name'],
+                            'mothers_last_name' => $request['mothers_last_name'],
+                            'surname_husband' => $request['surname_husband'],
+                            'gender' => $request['gender'],
+                            'civil_status' => $request['civil_status'],
+                            'phone_number' => $request['phone_number'],
+                            'cell_phone_number' => $request['cell_phone_number'],
+                            'address_id' => $affiliate->address->id,
+                            'pension_entity_id' => $request['pension_entity_id'],
+                        ]);
+                    }
+                }
+            }
+            DB::commit();
+            return  $affiliate;
+
+            
+        }catch(Exception $e){
+            DB::rollback();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-        $affiliate->fill($update);
-        $affiliate->save();
-        if($request->has('financial_entity_id')&& $request->financial_entity_id != null || $request->has('account_number') && $request->account_number!= null){
-            $affiliate->update([
-                'sigep_status' => 'ACTIVO'
-            ]);
-         }
-        return  $affiliate;
     }
 
     /**
@@ -593,20 +669,17 @@ class AffiliateController extends Controller
             'guarantor' => 'required|boolean',
             'state' => 'integer'
         ]);
-        $type = $request->boolean('guarantor') ? 'guarantors' : 'lenders';
-        $relations[$type] = [
-            'affiliate_id' => $affiliate->id
-        ];
+        $filter['affiliate_id'] = $affiliate->id;
         if ($request->has('state')) {
             $relations['state'] = [
                 'id' => $request->state
             ];
         }
-        $data = Util::search_sort(new Loan(), $request, [], $relations, ['id']);
+        $data = Util::search_sort(new Loan(), $request, $filter,[], ['id']);
         $data->getCollection()->transform(function ($loan) {
             return LoanController::append_data($loan, true);
         });
-        return $data;
+            return $data;
     }
 
     /**
@@ -1019,7 +1092,7 @@ class AffiliateController extends Controller
             $ci=Affiliate::whereId($id)->first()->identity_card;
         }
         else{
-            $loans = Spouse::whereId($id)->first()->spouse_loans;
+            $loans = Spouse::whereId($id)->first()->spouse_loans();
             //$loans = Loan::where('disbursable_id', $id)->where('disbursable_type', 'spouses')->get();
             $ci=Spouse::whereId($id)->first()->identity_card;
         }
@@ -1084,7 +1157,7 @@ class AffiliateController extends Controller
         }
         else{
             $affiliate = Spouse::whereId($id)->first()->affiliate;
-            $loans_guarantees = $affiliate->spouse->spouse_guarantees;
+            $loans_guarantees = $affiliate->spouse->spouse_guarantees();
             $ci = Spouse::whereId($id)->first()->identity_card;
         }
         $loans = $affiliate->guarantees;
@@ -1215,13 +1288,15 @@ class AffiliateController extends Controller
     * @responseFile responses/affiliate/affiliate_evaluate_loans.200.json
     */
     public function search_loan(Request $request){
-        // return $request;
-         $request->validate([
-             'identity_card' => 'required|string'
-         ]);
-         $message = array();
-         $ci=$request->identity_card;
-         $affiliate = Affiliate::where('identity_card', $ci)->first();
+        $request->validate([
+            'identity_card' => 'required|string'
+        ]);
+        $message = array();
+        $ci=$request->identity_card;
+        if(Affiliate::where('identity_card', $ci)->first())
+            $affiliate = Affiliate::where('identity_card', $ci)->first();
+        elseif(Spouse::where('identity_card', $ci)->first())
+            $affiliate = Spouse::where('identity_card', $ci)->first()->affiliate;
          $state_affiliate=$affiliate->affiliate_state->affiliate_state_type->name;
          $state_affiliate_sub=$affiliate->affiliate_state->name;
          $evaluate=false;
@@ -1245,8 +1320,6 @@ class AffiliateController extends Controller
                   while ($i < count($ids_modalities)) {
                       $modality = ProcedureType::findOrFail($ids_modalities[$i]);
                      $affiliate_modality= Loan::get_modality_search($modality->name, $affiliate);
-                     //return $affiliate_modality;
-                     //return $affiliate_modality;/////
                      $amount_max=0;$liquid_calification=0;$quota_calculator=0; $interest=null;
                      if($affiliate_modality != []){
                           $modality_ballots=$affiliate_modality->loan_modality_parameter->quantity_ballots;
@@ -1275,7 +1348,6 @@ class AffiliateController extends Controller
                       
                           $quota_calculator=CalculatorController::quota_calculator($affiliate_modality,$interval_modality->maximum_term_modality,$amount_max);
                           $quota_calculator= Util::round($quota_calculator);
-                          //$modalities_all->push($affiliate_modality,$amount_max,$quota_calculator);  
                           $interest=$affiliate_modality->current_interest;
                      }
                           $data_modalities= array(
@@ -1295,11 +1367,9 @@ class AffiliateController extends Controller
                   $message['accomplished'] = 'Realizado con éxito';
                  }else{
                   $message['updated_ballots'] = 'No tiene boletas actualizadas';
-                     //abort(403, 'No tiene boletas actualizadas');
                  }
              }else{
                   $message['no_contributions'] = 'No tiene contribucione';
-                  //abort(403, 'No tiene contribuciones');
              }
          }else{
              $evaluate=false;
@@ -1309,7 +1379,6 @@ class AffiliateController extends Controller
           "evaluate"=>$evaluate,
           "affiliate" => $affiliate->affiliate_fullName(),
           "affiliate_identity_card"=>$affiliate->getIdentityCardExtAttribute(),
-          //"state_affiliate" => $affiliate->affiliate_state,
           "state_affiliate" =>$state_affiliate_concat,
           "modalities" => $modalities_all,
           "message"=>$message
@@ -1323,8 +1392,6 @@ class AffiliateController extends Controller
         $user = User::first();
         $date = Carbon::now();
         $date = $date->subMonth()->endOfMonth()->format('Ymd');
-    
-        //$loans = DB::connection('sqlsrv')->select("SELECT dbo.Prestamos.IdPrestamo, dbo.Prestamos.PresNumero, dbo.Padron.IdPadron, DATEDIFF(month, Amortizacion.AmrFecPag, '" . $date . "') as Overdue from dbo.Prestamos join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod join dbo.Amortizacion on (Prestamos.IdPrestamo = Amortizacion.IdPrestamo and Amortizacion.AmrNroPag = (select max(AmrNroPag) from Amortizacion where Amortizacion.IdPrestamo = Prestamos.IdPrestamo and Amortizacion.AMRSTS <>'X' )) where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0 and Amortizacion.AmrFecPag <  cast('" . $date . "' as datetime) and DATEDIFF(month, Amortizacion.AmrFecPag, '" . $date . "') >= 2;");
         $loans = DB::connection('sqlsrv')->select("SELECT dbo.Prestamos.IdPrestamo, dbo.Prestamos.PresNumero, dbo.Padron.IdPadron, DATEDIFF(month, Amortizacion.AmrFecPag, '" . $date . "') as Overdue from dbo.Prestamos join dbo.Padron on Prestamos.IdPadron = Padron.IdPadron join dbo.Producto on Prestamos.PrdCod = Producto.PrdCod join dbo.Amortizacion on (Prestamos.IdPrestamo = Amortizacion.IdPrestamo and Amortizacion.AmrNroPag = (select max(AmrNroPag) from Amortizacion where Amortizacion.IdPrestamo = Prestamos.IdPrestamo and Amortizacion.AMRSTS <>'X' )) where Prestamos.PresEstPtmo = 'V' and dbo.Prestamos.PresSaldoAct > 0 and Amortizacion.AmrFecPag <  cast('" . $date . "' as datetime) and dbo.Padron.PadCedulaIdentidad = '$ci';");
     
         $count = 0;
@@ -1386,15 +1453,12 @@ class AffiliateController extends Controller
               }
               $message['id'] = $id;
             }
-            //break;return $names;
           }
-          //$observation = ObservationType::find($id_overdue);
         }
-        //return sizeof($message);
         return $message;
     }
 
-        /**
+    /**
     * existencia del afiliado
     * Devuelve el id del afiliado, si es viuda devuelve el id del titular o si es alguien de doble precepción.
     * @bodyParam identity_card string required Carnet de identidad. Example:492562
@@ -1417,8 +1481,10 @@ class AffiliateController extends Controller
             $affiliate = Affiliate::where('identity_card', $request->identity_card)->first();
             $spouse = null;
             $double_perception = false;
-            if(!$affiliate->dead)
+            if(!$affiliate->dead || $affiliate->dead && $affiliate->spouse == null)
                 $type = 'affiliate';
+            elseif($affiliate->spouse)
+                $type = 'spouse';
         }
         if(Spouse::where('identity_card', $request->identity_card)->first())
         {
@@ -1432,8 +1498,11 @@ class AffiliateController extends Controller
             else
             {
                 $affiliate = $spouse->affiliate;
+                $type = 'affiliate';
                 if(!$spouse->dead)
                     $type = 'spouse';
+                else
+                    $type = 'affiliate';
             }
         }
         if($affiliate && $affiliate->spouse)
@@ -1563,15 +1632,15 @@ class AffiliateController extends Controller
                     break;
             }
         }
-        else
+        elseif($affiliate->category == null)
         {
             $guarantor = false;
-            $message = "El afiliado se encuentra con categoria 0%";
+            $message = "El afiliado se encuentra con categoria 0% o no tiene registrada su categoria";
         }
         if($affiliate->spouse != null && $affiliate->spouse->dead == false)
         {
             $affiliate->spouse = $affiliate->spouse;
-            $loans = $affiliate->spouse->spouse_active_guarantees;
+            $loans = $affiliate->spouse->spouse_active_guarantees();
             $loans_sismu = $affiliate->spouse->active_guarantees_sismu();
         }
         else
@@ -1587,14 +1656,14 @@ class AffiliateController extends Controller
                 $loans_pvt = array(
                     "id" => $loan->id,
                     "code" => $loan->code,
-                    "lender" => $loan->lenders->first()->full_name,
-                    "quota" => $loan->guarantors->where('id',$affiliate->id)->first()->pivot->quota_treat,
+                    "lender" => $loan->borrower->first()->full_name,
+                    "quota" => $loan->borrowerguarantors->where('affiliate_id',$affiliate->id)->first()->quota_treat,
                     "quota_loan" => $loan->estimated_quota,
                     "state" => $loan->state->name,
                     "type" => "PVT",
                 );
                 array_push($data, $loans_pvt);
-        }
+            }
         }
         foreach($loans_sismu as $loan)
         {
@@ -1625,6 +1694,11 @@ class AffiliateController extends Controller
                 $max_guarantees = LoanGlobalParameter::find(1)->max_guarantor_active;
             elseif($affiliate->affiliate_state->affiliate_state_type->name == "Pasivo")
                 $max_guarantees = LoanGlobalParameter::find(1)->max_guarantor_passive;
+        }
+        if($affiliate->affiliate_state->name != 'Servicio' && in_array($request->procedure_modality_id, $id_activo))
+        {
+            $guarantor = false;
+            $message = "no corresponde con la modalidad";
         }
         return $data = array(
             "guarantor"=>$guarantor,
