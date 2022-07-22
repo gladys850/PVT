@@ -102,7 +102,7 @@
                                     </v-col>
                                     <v-progress-linear></v-progress-linear>
                                     <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
-                                      <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo'">
+                                      <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo Anticipo'">
                                         <li v-for="guarantor in loan.borrowerguarantors" :key="guarantor.id">
                                           <v-col cols="12" md="12" class="pa-0">
                                             <v-row class="pa-2">
@@ -179,14 +179,6 @@
                                           </v-col>
                                         </v-row>
                                       </v-col>
-                                      <ul style="list-style: none" class="pa-0 py-0" v-if="procedure_type.name == 'Préstamo Anticipo'">
-                                      <v-col cols="12" md="12" class="py-0" >
-                                        <p style="color:teal" ><b>GARANTE</b></p>
-                                      </v-col>
-                                      <v-progress-linear></v-progress-linear>
-                                      <br>
-                                        <p> <b>NO TIENE GARANTES</b></p>
-                                      </ul>
                                     </div>
                                   </v-card-text>
                                 </v-col>
