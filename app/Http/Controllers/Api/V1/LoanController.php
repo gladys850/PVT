@@ -678,10 +678,12 @@ class LoanController extends Controller
         {
             $remake_loan = Loan::find($request->remake_loan_id);
             $loan->code = $remake_loan->code;
+            $loan->uuid = $remake_loan->uuid;
             $options=[$remake_loan->id];
             $remake_loan = Loan::withoutEvents(function() use($options){
                 $remake_loan = Loan::find($options[0]);
                 $remake_loan->code = "PTMO-xxxx";
+                $remake_loan->uuid = (string) Str::uuid();
                 $remake_loan->save();
                 return $remake_loan;
             });
@@ -1103,6 +1105,16 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/print_form.200.json
     */
+
+    // funcion para agregar uuid a todos los registros    
+    public static function add_uuid(){
+        $loans=Loan::withTrashed()->get();
+        //no toma en cuenta los deleted at
+       foreach ($loans as $loan) {
+            $loan->uuid=(string) Str::uuid();
+            $loan->save();
+       }
+    }
     public function print_form(Request $request, Loan $loan, $standalone = true)
     {
         $lenders = [];
