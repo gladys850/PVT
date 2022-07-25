@@ -1093,11 +1093,8 @@ class LoanController extends Controller
 
     public function get_information_loan(Loan $loan)
     {          
-        $proc_id= $loan->procedure_modality_id;
-        $procedure_modality_types=ProcedureModality::find($proc_id);
-        $procedure_types = ProcedureType::find($procedure_modality_types->procedure_type_id); 
-        $modules=Module::find($procedure_types->module_id);
-        $file_name =$modules->id.'/'.$loan->uuid;
+        $module_id= $loan->modality->procedure_type->module_id;
+        $file_name =$module_id.'/'.$loan->uuid;
         return $file_name;
     }
 
