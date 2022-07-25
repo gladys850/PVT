@@ -27,6 +27,7 @@ use App\Voucher;
 use App\Sismu;
 use App\Record;
 use App\ProcedureType;
+use App\Module;
 use App\Contribution;
 use App\AidContribution;
 use App\LoanContributionAdjust;
@@ -1091,9 +1092,12 @@ class LoanController extends Controller
     }
 
     public function get_information_loan(Loan $loan)
-    {
-        $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$loan->borrower->first()->full_name]);
-
+    {          
+        $proc_id= $loan->procedure_modality_id;
+        $procedure_modality_types=ProcedureModality::find($proc_id);
+        $procedure_types = ProcedureType::find($procedure_modality_types->procedure_type_id); 
+        $modules=Module::find($procedure_types->module_id);
+        $file_name =$modules->id.'/'.$loan->uuid;
         return $file_name;
     }
 

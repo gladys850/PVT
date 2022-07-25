@@ -15,7 +15,7 @@ class AddToLoanUuid extends Migration
     {
         Schema::table('loans', function (Blueprint $table) {
             //
-            $table->uuid('uuid')->unique()->nullable()->comment('Identificador Unico Universal');;
+            $table->uuid('uuid')->unique()->nullable()->comment('Identificador Unico Universal');
             
         });
     }
