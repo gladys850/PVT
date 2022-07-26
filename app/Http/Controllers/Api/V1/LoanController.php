@@ -1092,7 +1092,7 @@ class LoanController extends Controller
     }
 
     public function get_information_loan(Loan $loan)
-    {          
+    {           
         $module_id= $loan->modality->procedure_type->module_id;
         $file_name =$module_id.'/'.$loan->uuid;
         return $file_name;
