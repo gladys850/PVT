@@ -234,7 +234,6 @@
                                         </v-col>
                                       </v-row>
                                     </v-col>
-
                                     <ul style="list-style: none" class="pa-0 py-0" v-if="procedure_type.name == 'Préstamo Anticipo'">
                                       <v-col cols="12" md="12" class="py-0" >
                                         <p style="color:teal" ><b>GARANTE</b></p>
