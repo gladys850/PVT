@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    @php ($plural = count($lenders) > 1)
+    @php ($plural = false)
     @php ($n = 1)
     @include('partials.header', $header)
 
@@ -21,7 +21,6 @@
     </div>
 
     <div class="block">
-        @foreach ($lenders as $lender)
         <table class="table-info w-100 text-center uppercase my-20">
             <tr class="bg-grey-darker text-xxs text-white">
                 <td class="w-50">Solicitante</td>
@@ -30,17 +29,20 @@
                 <td class="w-20">Sector</td>
             </tr>
             <tr>
-                <td class="data-row py-5">{{ $lender->title }} {{ $lender->full_name }}</td>
+                <td class="data-row py-5">
+                @if(!$is_dead)
+                {{ $lender->title }}
+                @endif
+                {{ $lender->full_name }}</td>
                 <td class="data-row py-5">{{ $lender->identity_card_ext }}</td>
                 <td class="data-row py-5">{{ $lender->registration }}</td>
-                @if($lender->affiliate_state != null)
-                    <td class="data-row py-5">{{ $lender->affiliate_state->affiliate_state_type->name }}</td>
+                @if(!$is_dead)
+                <td class="data-row py-5">{{ $lender->affiliate_state->affiliate_state_type->name }}</td>
                 @else
-                    <td class="data-row py-5"></td>
+                <td class="data-row py-5">PASIVO</td>
                 @endif
             </tr>
         </table>
-        @endforeach
     </div>
 
     @if ($loan->guarantors()->count())

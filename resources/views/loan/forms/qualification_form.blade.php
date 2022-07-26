@@ -9,7 +9,7 @@
     @include('partials.header', $header)
 <div class="block">
         <div class="font-semibold leading-tight text-center m-b-10 text-lg">FORMULARIO DE CALIFICACIÓN Y APROBACIÓN DE PRÉSTAMO</div>
-        @php ($lender = $lenders[0]->disbursable)
+        @php ($lender = $lenders->first())
 </div>
 @php ($n = 1)
 
@@ -88,20 +88,14 @@
         @php ($sum_prom_bonus_calculated = 0)
         @php ($count_lender = 0)
         @foreach($lenders as $lender_affiliate_loan)
-            @php ($lender_affiliate = $lender_affiliate_loan->affiliate)
+            @php ($lender_affiliate = $lender_affiliate_loan->affiliate())
             @php ($count_lender = $count_lender + 1)
-            @php ($title_lender = $count_lender == 1 ? "PRESTATARIO":"CODEUDOR")       
         <tr class="bg-grey-darker text-white">
-        @if($lender_affiliate_loan->type == "spouses")
-            <td class=" text-left px-10"colspan="3"> {{$title_lender}} {{$lender_affiliate_loan->disbursable->full_name}} </td>
-            <td class="text-left px-10" colspan="4"> TITULAR {{$lender_affiliate->full_name}}</td>
-            @else
-            <td class=" text-left px-10"colspan="7"> {{$title_lender}} {{$lender_affiliate_loan->disbursable->full_name}} </td>
-        @endif
+            <td class=" text-left px-10"colspan="7"> "PRESTATARIO" {{$lender_affiliate_loan->full_name}} </td>
         </tr>
-            @php ($sum_prom_payable_liquid_calculated += $lender_affiliate->pivot->payable_liquid_calculated)
-            @php ($sum_prom_bonus_calculated += $lender_affiliate->pivot->bonus_calculated)
-        @if($lender_affiliate->pivot->contributionable_type == "contributions")
+            @php ($sum_prom_payable_liquid_calculated += $lender_affiliate_loan->payable_liquid_calculated)
+            @php ($sum_prom_bonus_calculated += $lender_affiliate_loan->bonus_calculated)
+        @if($lender_affiliate_loan->contributionable_type == "contributions")
             <tr>
                 <td class="bg-grey-darker text-white">Periodo</td>
                 <td class="bg-grey-darker text-white">Liquido</td>
@@ -140,7 +134,7 @@
            </tr>
            @endforeach
         @endif
-        @if($lender_affiliate->pivot->contributionable_type =="aid_contributions")
+        @if($lender_affiliate_loan->contributionable_type =="aid_contributions")
             <tr>
                 <td class="bg-grey-darker text-white">Periodo</td>
                 <td class="bg-grey-darker text-white">Liquido</td>
@@ -164,7 +158,7 @@
              </tr>
             @endforeach
         @endif
-        @if($lender_affiliate->pivot->contributionable_type == "loan_contribution_adjusts")
+        @if($lender_affiliate_loan->contributionable_type == "loan_contribution_adjusts")
            <tr>
                 <td class="bg-grey-darker text-white">Periodo</td>
                 <td class="bg-grey-darker text-white">Liquido</td>
@@ -268,19 +262,15 @@
             </tr>
             <tr class="w-100">
                 <td class="w-50 text-left px-10">NOMBRES</td>
-                <td class="w-50 text-left px-10">{{ $guarantor->disbursable->full_name }}</td> 
+                <td class="w-50 text-left px-10">{{ $guarantor->full_name }}</td> 
             </tr>
             <tr class="w-100">
                 <td class="w-50 text-left px-10">LÍQUIDO PARA CALIFICACIÓN</td>
-                <td class="w-50 text-left px-10">{{ Util::money_format($guarantor->affiliate->pivot->liquid_qualification_calculated) }}</td> 
+                <td class="w-50 text-left px-10">{{ Util::money_format($guarantor->liquid_qualification_calculated) }}</td> 
             </tr>
-            <!--<tr class="w-100">
-                <td class="w-50 text-left px-10">ÍNDICE DE ENDEUDAMIENTO</td>
-                <td class="w-50 text-left px-10">{{ Util::money_format($guarantor->affiliate->pivot->indebtedness_calculated) }} %</td> 
-            </tr>-->
             <tr class="w-100">
                 <td class="w-50 text-left px-10">PORCENTAJE DE PAGO</td>
-                <td class="w-50 text-left px-10">{{ $guarantor->affiliate->pivot->payment_percentage }} %</td> 
+                <td class="w-50 text-left px-10">{{ $guarantor->payment_percentage }} %</td> 
             </tr>
         </table>
         @endforeach
