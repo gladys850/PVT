@@ -1807,10 +1807,10 @@ class LoanReportController extends Controller
         );
         foreach($loans_lenders as $loan)
         {
-            foreach($loan->lenders as $lender)
+            foreach($loan->borrower as $lender)
             {
-                $loans_sismu = $lender->active_loans_sismu();
-                $guarantees_sismu = $lender->active_guarantees_sismu();
+                $loans_sismu = $lender->affiliate()->active_loans_sismu();
+                $guarantees_sismu = $lender->affiliate()->active_guarantees_sismu();
                 if($loans_sismu != null)
                 {
                     array_push($loan_sheets, array(
@@ -1834,7 +1834,7 @@ class LoanReportController extends Controller
                         Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
                         Util::money_format($loan->amount_approved),
                         Util::money_format($loan->balance),
-                        $lender->pivot->quota_treat,
+                        $lender->quota_treat,
                         "PVT",
                         "TITULAR",
                     ));
