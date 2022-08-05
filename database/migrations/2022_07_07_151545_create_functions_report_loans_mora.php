@@ -12,7 +12,46 @@ class CreateFunctionsReportLoansMora extends Migration
      * @return void
      */
     public function up()
-    {
+    {   
+        DB::statement("
+            CREATE OR REPLACE FUNCTION public.days_mora(
+                id_loan bigint,
+                rqst_date date,
+                type_mora character varying)
+                RETURNS integer
+                LANGUAGE 'plpgsql'
+                COST 100
+                VOLATILE PARALLEL UNSAFE
+            AS $$
+                DECLARE
+                days integer;
+                BEGIN
+                    IF (type_mora = 'mora') 
+                    THEN
+                        SELECT (diff_in_days((SELECT lpv.estimated_date FROM last_payment_validated(id_loan) lpv)::date, rqst_date::date) - (SELECT lgp.days_current_interest FROM loan_global_parameters lgp)) INTO days;
+                        RETURN days;
+                    END IF;
+                    
+                    IF (type_mora = 'mora_parcial')
+                    THEN
+                        IF (SELECT estimated_date from last_payment_validated(id_loan)) IS NOT NULL
+                        THEN
+                            SELECT diff_in_days((SELECT lpv.estimated_date FROM last_payment_validated(id_loan) lpv)::date, rqst_date::date) INTO days;
+                        ELSE
+                            SELECT diff_in_days((SELECT l.disbursement_date FROM loans l WHERE id = id_loan)::date, rqst_date::date) INTO days;
+                        END IF;
+                        RETURN days;
+                    END IF;
+                    
+                    IF (type_mora = 'mora_total')
+                    THEN
+                        SELECT (diff_in_days((SELECT l.disbursement_date FROM loans l WHERE l.id = id_loan)::date, rqst_date::date) - (SELECT lgp.days_current_interest FROM loan_global_parameters lgp)) INTO days;
+                        RETURN days;
+                    END IF;
+                END
+            $$;
+            ");
+
         DB::statement("
             CREATE OR REPLACE FUNCTION public.monthly_current_interest(
                 id_loan bigint)
@@ -314,7 +353,7 @@ class CreateFunctionsReportLoansMora extends Migration
                             ,li.annual_interest, (select lpv.estimated_date from last_payment_validated(l.id) lpv) ,(select pm2.shortened from last_payment_validated(l.id) lpv2, procedure_modalities pm2 where pm2.id = lpv2.procedure_modality_id)
                             ,estimated_quota(l.id),balance_loan(l.id) as balance
                             ,ast.name, pt.second_name, pm.shortened as sub_modality
-                            ,(diff_in_days((select lpv.estimated_date from last_payment_validated(l.id) lpv)::date,final_date::date) - (select lgp.days_current_interest from loan_global_parameters lgp)) as days_mora
+                            ,days_mora(l.id, final_date::date, llm.type_mora) as days_mora
                             -- PERSONA DE REFERENCIA
                             ,(select json_agg(to_json(r)) from (
                                 select concat_full_name(pr.first_name, pr.second_name, pr.last_name, pr.mothers_last_name, pr.surname_husband) as full_name, pr.phone_number, pr.cell_phone_number, pr.address
@@ -365,6 +404,8 @@ class CreateFunctionsReportLoansMora extends Migration
     public function down()
     {
         DB::statement("
+            DROP FUNCTION days_mora;");
+            DB::statement("
             DROP FUNCTION loans_mora_data;");
         DB::statement("
             DROP FUNCTION list_loans_mora;");
