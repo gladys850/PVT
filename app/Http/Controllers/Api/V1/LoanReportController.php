@@ -2078,15 +2078,15 @@ class LoanReportController extends Controller
     $id_loan = request('id_loan') ?? '';
     $code_loan = request('code_loan') ?? '';
     $id_affiliate = request('id_affiliate') ?? '';
-    $identity_card_affiliate = request('identity_card_affiliate') ?? '';
-    $registration_affiliate = request('registration_affiliate') ?? '';
+    $identity_card_borrower = request('identity_card_borrower') ?? '';
+    $registration_borrower = request('registration_borrower') ?? '';
  
     $last_name_affiliate = request('last_name_affiliate') ?? '';
     $mothers_last_name_affiliate = request('mothers_last_name_affiliate') ?? '';
     $first_name_affiliate = request('first_name_affiliate') ?? '';
     $second_name_affiliate = request('second_name_affiliate') ?? '';
     $surname_husband_affiliate = request('surname_husband_affiliate') ?? '';
-    $full_name_affiliate = request('full_name_affiliate') ?? '';
+    $full_name_borrower = request('full_name_borrower') ?? '';
  
     $sub_modality_loan = request('sub_modality_loan') ?? '';
     $modality_loan = request('modality_loan') ?? '';
@@ -2119,12 +2119,12 @@ class LoanReportController extends Controller
         array_push($conditions, array('view_loan_borrower.id_affiliate', 'ilike', "%{$id_affiliate}%"));
       }
 
-      if ($identity_card_affiliate != '') {
-        array_push($conditions, array('view_loan_borrower.identity_card_affiliate', 'ilike', "%{$identity_card_affiliate}%"));
+      if ($identity_card_borrower != '') {
+        array_push($conditions, array('view_loan_borrower.identity_card_borrower', 'ilike', "%{$identity_card_borrower}%"));
       }
 
-      if ($registration_affiliate != '') {
-        array_push($conditions, array('view_loan_borrower.registration_affiliate', 'ilike', "%{$registration_affiliate}%"));
+      if ($registration_borrower != '') {
+        array_push($conditions, array('view_loan_borrower.registration_borrower', 'ilike', "%{$registration_borrower}%"));
       }
 
       if ($last_name_affiliate != '') {
@@ -2146,8 +2146,8 @@ class LoanReportController extends Controller
       if ($surname_husband_affiliate != '') {
         array_push($conditions_or, array('view_loan_borrower.surname_husband_affiliate', 'ilike', "%{$surname_husband_affiliate}%"));
       }
-      if ($full_name_affiliate != '') {
-        array_push($conditions, array('view_loan_borrower.full_name_affiliate', 'ilike', "%{$full_name_affiliate}%"));
+      if ($full_name_borrower != '') {
+        array_push($conditions, array('view_loan_borrower.full_name_borrower', 'ilike', "%{$full_name_borrower}%"));
       }
       if ($sub_modality_loan != '') {
         array_push($conditions, array('view_loan_borrower.sub_modality_loan', 'ilike', "%{$sub_modality_loan}%"));
