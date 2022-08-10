@@ -309,7 +309,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
             if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo SENASIR' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'){
                 $quinta = 'Servicio Nacional del Sistema de Reparto SENASIR';
             }?>
-        <b>QUINTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, autoriza expresamente a MUSERPOL practicar los descuentos respectivos de las rentas que percibe en forma mensual a través del {{ $quinta }} conforme al Reglamento de Préstamos.
+        <b>QUINTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, autoriza expresamente a MUSERPOL practicar los descuentos respectivos {{$is_active? 'de los haberes':'de las rentas'}} que percibe en forma mensual a través del {{ $quinta }} conforme al Reglamento de Préstamos.
         <div>
         Si por cualquier motivo la MUSERPOL estuviera imposibilitada de realizar el descuento por el medio señalado, el PRESTATARIO se obliga a cumplir con la cuota de amortización mediante pago directo en la Oficina Central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta bancaria de la MUSERPOL y enviar la boleta de depósito original a la Oficina Central inmediatamente. <br>Caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída.
         </div>
