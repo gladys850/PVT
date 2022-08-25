@@ -773,9 +773,9 @@ class ImportationController extends Controller
             $affiliate_state=$affiliate->affiliate_state->affiliate_state_type->name;
             $payment->state_affiliate = strtoupper($affiliate_state);
 
-            if($request->paid_by = 'T')
+            if($request->paid_by == 'T')
                 $payment->initial_affiliate = $request->paid_by.'-'.LoanBorrower::where('loan_id',$loan->id)->first()->initials;
-            elseif($request->paid_by = 'G')
+            elseif($request->paid_by == 'G')
                 $payment->initial_affiliate = $request->paid_by.'-'.LoanGuarantor::where('loan_id',$loan->id)->first()->initials;
             $payment->categorie_id = $request->categorie_id;
 
