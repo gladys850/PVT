@@ -15,7 +15,7 @@ class LoanBorrower extends Model
     protected $fillable = [
         'loan_id',
         'degree_id',
-        'unity_id',
+        'unit_id',
         'category_id',
         'type_affiliate',
         'unit_police_description',
@@ -103,7 +103,7 @@ class LoanBorrower extends Model
 
     public function unit()
     {
-      return $this->belongsTo(Unit::class, 'unity_id', 'id');
+      return $this->belongsTo(Unit::class, 'unit_id', 'id');
     }
 
     public function getCategoryAttribute()
@@ -135,7 +135,7 @@ class LoanBorrower extends Model
     }
 
     public function getBallotsAttribute()
-    {        
+    {
       $contributions = $this->contributionable_ids;
       $contributions_type = $this->contributionable_type;
       $ballots_ids = json_decode($contributions);
@@ -228,13 +228,13 @@ class LoanBorrower extends Model
                         'average_payable_liquid' => $sum_payable_liquid/$count_records,
                         'average_mount_adjust' => $sum_mount_adjust/$count_records,
                         'average_dignity_rent' => $sum_dignity_rent/$count_records,
-                    ]);                     
+                    ]);
       }
       if($contributions_type == "loan_contribution_adjusts")
       {
         $contribution_type = "loan_contribution_adjusts";
-        $liquid_ids= LoanContributionAdjust::where('loan_id',$this->id)->where('type_adjust',"liquid")->get()->pluck('id');
-        $adjust_ids= LoanContributionAdjust::where('loan_id',$this->id)->where('type_adjust',"adjust")->get()->pluck('id');
+        $liquid_ids= LoanContributionAdjust::where('loan_id',$this->loan_id)->where('type_adjust',"liquid")->get()->pluck('id');
+        $adjust_ids= LoanContributionAdjust::where('loan_id',$this->loan_id)->where('type_adjust',"adjust")->get()->pluck('id');
         foreach($liquid_ids as $liquid_id)
         {
           $ballots->push(LoanContributionAdjust::find($liquid_id));

@@ -17,7 +17,7 @@ class LoanGuarantor extends Model
         'loan_id',
         'affiliate_id',
         'degree_id',
-        'unity_id',
+        'unit_id',
         'category_id',
         'type_affiliate',
         'unit_police_description',
