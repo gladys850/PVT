@@ -260,7 +260,7 @@ class AffiliateController extends Controller
                     if ($borrower->type == 'affiliates')
                     {
                         $borrower->degree_id = $request['degree_id'];
-                        $borrower->unity_id = $request['unit_id'];
+                        $borrower->unit_id = $request['unit_id'];
                         $borrower->category_id = $request['category_id'];
                         $borrower->type_affiliate = $request['type'];
                         $borrower->unit_police_description = $request['unit_police_description'];
@@ -290,7 +290,7 @@ class AffiliateController extends Controller
                     {
                         $guarantee->update([
                             'degree_id' => $request['degree_id'],
-                            'unity_id' => $request['unit_id'],
+                            'unit_id' => $request['unit_id'],
                             'category_id' => $request['category_id'],
                             'type_affiliate' => $request['type'],
                             'unit_police_description' => $request['unit_police_description'],
