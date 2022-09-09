@@ -872,9 +872,10 @@ class Loan extends Model
        elseif($this->parent_loan){
            if($this->parent_loan->state->name != "Liquidado")
            {
-                if($this->parent_loan && $this->parent_loan->payment_pending_confirmation() != null){
-                    $balance_parent = $this->parent_loan->payment_pending_confirmation()->estimated_quota;
-                }
+                if($balance_parent = LoanPayment::where('loan_id', $this->parent_loan->id)->where('categorie_id', 1)->first())
+                    $balance_parent = LoanPayment::where('loan_id', $this->parent_loan->id)->where('categorie_id', 1)->first()->estimated_quota;
+                else
+                    $balance_parent = 0;
             }
             else{
                 $balance_parent = $this->parent_loan->last_payment_validated->estimated_quota;

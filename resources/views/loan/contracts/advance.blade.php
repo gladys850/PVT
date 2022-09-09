@@ -48,11 +48,13 @@
         else{
             if($modality->name == 'Anticipo Sector Activo' || $modality->name == 'Anticipo en Disponibilidad'){
                 $quinta = 'Comando General de la Policía Boliviana';
+                $type_rent='los haberes';
             }
             if($modality->name == 'Anticipo Sector Pasivo SENASIR'){
                 $quinta = 'Servicio Nacional del Sistema de Reparto SENASIR';
+                $type_rent='las rentas';
             }?>
-        <b>QUINTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, autoriza expresamente a MUSERPOL practicar los descuentos respectivos de los haberes que percibe en forma mensual a través del {{ $quinta }} conforme al Reglamento de Préstamos.
+        <b>QUINTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, autoriza expresamente a MUSERPOL practicar los descuentos respectivos de {{$type_rent}} que percibe en forma mensual a través del {{ $quinta }} conforme al Reglamento de Préstamos.
         <div>
         Si por cualquier motivo la MUSERPOL estuviera imposibilitada de realizar el descuento por el medio señalado, el PRESTATARIO se obliga a cumplir con la cuota de amortización mediante pago directo en la Oficina Central de MUSERPOL de la ciudad de La Paz o efectuar depósito bancario en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la Oficina Central inmediatamente; sin necesidad de previo aviso; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída.
         </div>

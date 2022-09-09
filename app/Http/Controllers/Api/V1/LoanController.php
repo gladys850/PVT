@@ -2363,10 +2363,10 @@ class LoanController extends Controller
 
         $employees = [
             ['position' => 'Directora de Estrategias Sociales e Inversiones','name'=>'Lic. DAEN Gabriela Jackeline Bustillos Landaeta Msc.'],
-            ['position' => 'Jefe Unidad Inversión de Préstamos','name'=>'Lic. William Ceferino Pimentel Martinez'],
+            ['position' => 'Jefe de Unidad de Inversión en Préstamos a.i.','name'=>'Lic. Tamy Ugarte Maldonado'],
             ['position' => 'Profesional Legal de Préstamos','name'=>'Abog. Elizabeth Sabina Villca Juchani'],
             ['position' => 'Responsable de Registro, Control y Recuperación de Préstamos','name'=>'Ing. Nelvis Irene Alarcón Pizarroso'],
-            ['position' => 'Profesional de Calificación de Préstamos','name'=>'Lic. Tamy Ugarte Maldonado'],
+           // ['position' => 'Profesional de Calificación de Préstamos','name'=>'Lic. Tamy Ugarte Maldonado'],
         ];
         $data = [
             'header' => [
