@@ -15,6 +15,7 @@ use Util;
 use App\Affiliate;
 use App\LoanBorrower;
 use App\LoanGuarantor;
+use Illuminate\Support\Str;
 
 class Loan extends Model
 {
@@ -31,8 +32,16 @@ class Loan extends Model
     public $timestamps = true;
     // protected $hidden = ['pivot'];
     public $guarded = ['id'];
+   
+    public function generate($model){      
+        $model->uuid=(string) Str::uuid();       
+    return $model;
+    }
+        //funcion para agregar uuid a todos los registros 
+
     public $fillable = [
         'code',
+        'uuid',
         'procedure_modality_id',
         'disbursement_date',
         'disbursement_time',
@@ -68,7 +77,8 @@ class Loan extends Model
     ];
 
     function __construct(array $attributes = [])
-    {
+    {   
+        $this->uuid=(string) Str::uuid();
         parent::__construct($attributes);
         if (!$this->request_date) {
             $this->request_date = Carbon::now();
@@ -105,6 +115,7 @@ class Loan extends Model
     {
         return $this->hasMany(LoanPlanPayment::class)->orderBy('quota_number');
     }
+
 
     public function setProcedureModalityIdAttribute($id)
     {
