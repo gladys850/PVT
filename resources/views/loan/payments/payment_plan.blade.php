@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    @php ($plural = count($lenders) > 1)
+    @php ($plural = false)
     @php ($n = 1)
     @include('partials.header', $header)
 
@@ -79,15 +79,12 @@
     </div>
 
     <div class="block">
-        @foreach ($lenders as $lender)
+        
         <table class="table-info w-100 text-center uppercase my-20">
             <tr class="bg-grey-darker text-xxs text-white">
                 <td class="w-60">Solicitante</td>
                 <td class="w-15">CI</td>
                 <td class="w-10">Estado</td>
-                @if($plural)
-                <td class="w-15">Cuota ({{$lender->pivot->payment_percentage}}%)</td>
-                @endif
             </tr>
             <tr>
                 <td class="data-row py-5">{{ $lender->title }} {{ $lender->full_name }}</td>
@@ -97,12 +94,8 @@
                 @else
                 <td class="data-row py-5">PASIVO</td>
                 @endif
-                @if($plural)
-                <td class="data-row py-5">{{ round(($loan->estimated_quota*$lender->pivot->payment_percentage)/100,2)}}</td>
-                @endif
             </tr>
         </table>
-        @endforeach
     </div>
 
     @if ($loan->guarantors()->count())
