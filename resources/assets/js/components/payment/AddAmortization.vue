@@ -62,7 +62,7 @@
                                   </v-col>
 
                                   <v-col cols="12" md="12" class="py-0">
-                                    <p><b>DIRECCION:</b> {{borrower.address.description}}</p>
+                                    <p><b>DIRECCION:</b> {{borrower.address==null? "No cuenta con una direccion registrada" : borrower.address.description}}</p>
                                   </v-col>
                                 </v-row>
                               </v-col>
