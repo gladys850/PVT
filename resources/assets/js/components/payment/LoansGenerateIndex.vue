@@ -3,18 +3,22 @@
     <ValidationObserver>
       <v-form>
         <v-card flat>
+
           <v-card-title class="pa-0 pb-3">
             <v-toolbar dense color="tertiary" class="font-weight-regular">
               <v-toolbar-title>PRÉSTAMOS DESEMBOLSADOS</v-toolbar-title>
             </v-toolbar>
           </v-card-title>
+
           <template>
             <v-container fluid class="pa-0">
               <v-row justify="center" class="py-0">
                 <v-col cols="12" class="py-0">
+
                   <v-tabs dark active-class="secondary" v-model="tab">
                     <v-tab v-for="item in actions" :key="item.nameTab">{{item.nameTab}}</v-tab>
                   </v-tabs>
+
                   <v-tabs-items v-model="tab">
                     <v-tab-item v-for="item in actions" :key="item.nameTab">
                       <v-card flat tile>
@@ -23,6 +27,7 @@
                             <v-col cols="12" class="pa-0">
                               <v-layout row wrap>
                                 <v-col cols="12" md="12" class="py-2 px-1">
+                                  <!-- B O T O N   E X C E L -->
                                   <v-tooltip top>
                                     <template v-slot:activator="{ on }">
                                       <v-btn
@@ -41,6 +46,8 @@
                                     </template>
                                     <span class="caption">Descargar reporte</span>
                                   </v-tooltip>
+
+                                  <!-- B O T Ó N   L I M P I A   F I L T R O S -->
                                   <v-tooltip top>
                                     <template v-slot:activator="{ on }">
                                       <v-btn
@@ -58,6 +65,7 @@
                                     </template>
                                     <span class="caption">Limpiar todos los filtros</span>
                                   </v-tooltip>
+
                                   <v-data-table
                                     dense
                                     :headers="headers"
@@ -144,6 +152,8 @@
 
                                     <!-- Acciones -->
                                     <template v-slot:[`item.actions`]="{ item }">
+
+                                      <!-- B O T Ó N   K A R D E X -->
                                       <v-tooltip bottom>
                                         <template v-slot:activator="{ on }">
                                           <v-btn
@@ -161,6 +171,8 @@
                                         </template>
                                         <span>Kardex</span>
                                       </v-tooltip>
+
+                                      <!-- B O T Ó N   I M P R I M I R -->
                                       <v-menu
                                         offset-x
                                         close-on-content-click

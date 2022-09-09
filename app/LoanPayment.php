@@ -217,7 +217,8 @@ class LoanPayment extends Model
         $affiliate=Affiliate::find($affiliate_id);
         $affiliate_state=$affiliate->affiliate_state->affiliate_state_type->name;
         $payment->state_affiliate = strtoupper($affiliate_state);
-        $payment->initial_affiliate = LoanController::verify_loan_affiliates($affiliate,$loan)->disbursable->initials;//iniciales
+        //$payment->initial_affiliate = LoanController::verify_loan_affiliates($affiliate,$loan)->disbursable->initials;//iniciales
+        $payment->initial_affiliate = "asdasd";
         $payment->loan_payment_date =Carbon::now();
 
         //$payment->amortization_type_id = $payment_type->id;
