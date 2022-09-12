@@ -503,22 +503,7 @@
                                             <v-col cols="12" md="12" class="py-0">
                                               <p style="color:teal"><b>GARANTE
                                                 <v-tooltip top v-if="permissionSimpleSelected.includes('show-affiliate')">
-                                                  <template v-if="guarantor.type == 'affiliates'" v-slot:activator="{ on }">
-                                                    <v-btn
-                                                      icon
-                                                      dark
-                                                      small
-                                                      color="warning"
-                                                      bottom
-                                                      right
-                                                      v-on="on"
-                                                      :to="{name: 'affiliateAdd', params: { id: guarantor.id}}"
-                                                      target="_blank"
-                                                    >
-                                                      <v-icon>mdi-eye</v-icon>
-                                                    </v-btn>
-                                                  </template>
-                                                  <template v-else v-slot:activator="{ on }">
+                                                  <template v-slot:activator="{ on }">
                                                     <v-btn
                                                       icon
                                                       dark
