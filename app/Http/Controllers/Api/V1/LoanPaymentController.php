@@ -125,14 +125,6 @@ class LoanPaymentController extends Controller
                 'user_id' => $request->user_id
             ];
         }
-        /*else{ // considerar para devoluciones
-            if($request->validated){
-                $filters['validated'] = $request->boolean('validated');
-                $relations['users'] = [
-                    'user_id' => null
-                ];
-            }
-        }*/
         $data = Util::search_sort(new LoanPayment(), $request, $filters, $relations);
         $data->getCollection()->transform(function ($loanPayment) {
             return self::append_data($loanPayment, true);
@@ -549,13 +541,8 @@ class LoanPaymentController extends Controller
         $loan = $loan_payment->loan;
         $affiliate = $loan_payment->affiliate;
         $procedure_modality = $loan->modality;
-        $lenders = []; 
         $is_dead = false;
         $quota_treat = 0;
-        foreach ($loan->lenders as $lender) {
-            $lenders[] = LoanController::verify_loan_affiliates($lender,$loan)->disbursable;
-            if($lender->dead) $is_dead = true;
-        }
         $global_parameter=LoanGlobalParameter::latest()->first();
         $max_current=$global_parameter->grace_period+$global_parameter->days_current_interest;
         $num_quota=$loan_payment->quota_number;
@@ -589,7 +576,7 @@ class LoanPaymentController extends Controller
             ],
             'title' => 'AMORTIZACIÓN DE CUOTA',
             'loan' => $loan,
-            'lenders' => collect($lenders),
+            'lenders' => $loan->borrower,
             'loan_payment' => $loan_payment,
             'signers' => $persons,
             'is_dead'=> $is_dead,
@@ -605,17 +592,7 @@ class LoanPaymentController extends Controller
 
     public function get_information_loan(Loan $loan)
     {
-        $lend='';
-        foreach ($loan->lenders as $lender) {
-            $lenders[] = LoanController::verify_loan_affiliates($lender,$loan)->disbursable;
-        }
-        foreach ($lenders as $lender) {
-            $lend=$lend.'*'.' ' . $lender->full_name;
-        }
-
-        $loan_affiliates= $loan->loan_affiliates[0]->first_name;
-        $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$lend]); 
-
+        $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$loan->borrower->first()->fullname]); 
         return $file_name;
     }
 
