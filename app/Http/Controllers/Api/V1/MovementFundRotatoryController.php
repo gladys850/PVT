@@ -184,7 +184,7 @@ class MovementFundRotatoryController extends Controller
         $loan = Loan::findOrFail($loan_id);
         $affiliate = Affiliate::findOrFail($loan->affiliate_id);
         $persons = collect([]);
-        foreach ($lenders as $lender) {
+        foreach ($loan->borrower as $lender) {
             $persons->push([
                 'full_name' => implode(' ', [$lender->full_name]),
                 'identity_card' => $lender->identity_card_ext,
