@@ -215,13 +215,13 @@
                                    ></v-text-field>
                                   </v-col>
                                   <v-col cols="12" md="4" class="py-0" v-show="!collection_edit_sismu">
-                                    <p><b>Saldo de Préstamo a Refinanciar:</b> {{loan_refinancing.balance | money}}</p>
+                                    <p><b>Saldo de Préstamo a Refinanciar:</b> {{loan_refinancing.balance_parent_loan_refinancing | money}}</p>
                                   </v-col>
                                   <v-col cols="12" md="4" v-show="collection_edit_sismu " class="py-0" >
                                     <v-text-field
                                       dense
                                       label="Saldo de Prestamo a Refinanciar"
-                                      v-model="loan_refinancing.balance"
+                                      v-model="loan_refinancing.balance_parent_loan_refinancing"
                                      :outlined="true"
                                     ></v-text-field>
                                   </v-col>
