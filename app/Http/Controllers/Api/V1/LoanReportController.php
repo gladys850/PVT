@@ -1948,7 +1948,11 @@ class LoanReportController extends Controller
      */ 
     public function request_state_report(request $request, $standalone = true)
     {
-        $loans = Loan::whereStateId(LoanState::whereName('En Proceso')->first()->id)->where('request_date', '<=', $request->date)->orderBy('role_id')->get();
+        if(!$request->date)
+            $date = Carbon::now()->format('Y-m-d');
+        else
+            $date = $request->date;
+        $loans = Loan::whereStateId(LoanState::whereName('En Proceso')->first()->id)->where('request_date', '<=', Carbon::parse($request->date)->endOfDay())->orderBy('role_id')->get();
         $loans_array = collect([]);
         $date = "";
         if($request->type == "xls")
@@ -1967,7 +1971,7 @@ class LoanReportController extends Controller
             $loans_array->push([
                 "code" => $loan->code,
                 "request_date" => Carbon::parse($loan->request_date)->format('d/m/Y'),
-                "lenders" => $loan->lenders,
+                "lenders" => $loan->borrower,
                 "role" => $loan->role->display_name,
                 "update_date" => Carbon::parse($date)->format('d/m/Y H:i:s'),
                 "user" => $loan->user ? $loan->user->username : "",
