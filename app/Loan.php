@@ -1223,6 +1223,7 @@ class Loan extends Model
         $estimated_date = null;
        if($liquidate){
             $remaining = 0;
+            $penal = 0;
             if(!$this->last_payment_validated)
                 $days = Carbon::parse(Carbon::parse($this->disbursement_date)->endOfDay())->diffInDays(Carbon::parse($loan_payment_date)->endOfDay());
             else
@@ -1230,10 +1231,12 @@ class Loan extends Model
                 $days = Carbon::parse(Carbon::parse($this->last_payment_validated->estimated_date)->endOfDay())->diffInDays(Carbon::parse($loan_payment_date)->endOfDay());
                 $remaining = $this->last_payment_validated->interest_accumulated + $this->last_payment_validated->penal_accumulated;
             }
+            if($days >= (LoanGlobalParameter::first()->days_current_interest + LoanGlobalParameter::first()->grace_period))
+                $penal = LoanPayment::interest_by_days(($days - LoanGlobalParameter::first()->days_current_interest), $this->interest->penal_interest, $this->balance);
             $interest_by_days = LoanPayment::interest_by_days($days, $this->interest->annual_interest, $this->balance);
             if($days > LoanGlobalParameter::first()->days_current_interest + LoanGlobalParameter::first()->grace_period)
                 $penal_interest = LoanPayment::interest_by_days($days - LoanGlobalParameter::first()->days_current_interest, $this->interest->penal_interest, $this->balance);
-            $suggested_amount = $this->balance + $interest_by_days + $penal_interest + $remaining;
+            $suggested_amount = $this->balance + $interest_by_days + $penal_interest + $remaining + $penal;
             
        }
        else{
