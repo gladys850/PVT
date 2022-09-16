@@ -1432,12 +1432,14 @@ class LoanController extends Controller
             $payment->voucher = $request->input('voucher', null);
             $affiliate_id=$request->input('affiliate_id');
             if($request->input('paid_by') == 'T'){
-                $affiliate = LoanBorrower::find($affiliate_id);
+                //$affiliate = LoanBorrower::find($affiliate_id);
+                $affiliate = LoanBorrower::where('loan_id',$loan->id)->first();
                 $payment->affiliate_id = $affiliate->affiliate()->id;
             }
             else
             {
-                $affiliate = LoanGuarantor::find($affiliate_id);
+                //$affiliate = LoanGuarantor::find($affiliate_id);
+                $affiliate = LoanGuarantor::where('affiliate_id', $affiliate_id)->where('loan_id', $loan->id)->first();
                 $payment->affiliate_id = $affiliate->affiliate_id;
             }
             $affiliate_state = $affiliate->affiliate_state->affiliate_state_type->name;
