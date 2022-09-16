@@ -605,7 +605,7 @@ export default {
         this.guarantor_show= false
         this.borrower_show=true
           for (let i = 0; i<  this.loan.borrower.length; i++) {
-            this.data_payment.affiliate_id_paid_by=this.loan.borrower[i].id
+            this.data_payment.affiliate_id_paid_by=this.loan.affiliate_id
             this.code_initials = "T-" + this.loan.borrower[i].initials
           } 
       }
@@ -618,7 +618,7 @@ export default {
         for (let i = 0; i<  this.loan.borrowerguarantors.length; i++) {
           if(this.loan.borrowerguarantors[i].id==this.radios)
           {
-            this.data_payment.affiliate_id_paid_by=this.loan.borrowerguarantors[i].id
+            this.data_payment.affiliate_id_paid_by=this.loan.borrowerguarantors[i].affiliate_id
             this.code_initials = this.loan.borrowerguarantors[i].type_initials
           }
         }
@@ -817,6 +817,7 @@ export default {
           procedure_modality_id:this.data_payment.procedure_modality_id,
           categorie_id :this.data_payment.categori_id
         })
+        console.log(this.data_payment)
           this.payment_detail = res.data
           this.payment_detail.show_detail_payment=true
           this.payment_detail.now_date= new Date().toISOString().substr(0, 10),
