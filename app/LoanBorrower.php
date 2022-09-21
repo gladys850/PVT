@@ -160,10 +160,10 @@ class LoanBorrower extends Model
         {
           if(Contribution::find($is_ballot_id))
             $ballots->push(Contribution::find($is_ballot_id));
-          if(LoanContributionAdjust::where('adjustable_id', $is_ballot_id)->where('loan_id',$this->id)->first())
-            $adjusts->push(LoanContributionAdjust::where('adjustable_id', $is_ballot_id)->where('loan_id',$this->id)->first());
+          if(LoanContributionAdjust::where('adjustable_id', $is_ballot_id)->where('loan_id',$this->loan_id)->first())
+            $adjusts->push(LoanContributionAdjust::where('adjustable_id', $is_ballot_id)->where('loan_id',$this->loan_id)->first());
         }
-        $count_records = count($ballots);               
+        $count_records = count($ballots);
         foreach($ballots as $ballot)
         {
           foreach($adjusts as $adjust)
@@ -203,8 +203,8 @@ class LoanBorrower extends Model
         {
           if(AidContribution::find($is_ballot_id))
             $ballots->push(AidContribution::find($is_ballot_id));
-          if(LoanContributionAdjust::where('adjustable_id', $is_ballot_id)->where('loan_id',$this->id)->first())
-            $adjusts->push(LoanContributionAdjust::where('adjustable_id', $is_ballot_id)->where('loan_id',$this->id)->first());
+          if(LoanContributionAdjust::where('adjustable_id', $is_ballot_id)->where('loan_id',$this->loan_id)->first())
+            $adjusts->push(LoanContributionAdjust::where('adjustable_id', $is_ballot_id)->where('loan_id',$this->loan_id)->first());
         }
         $count_records = count($ballots);                
         foreach($ballots as $ballot)
