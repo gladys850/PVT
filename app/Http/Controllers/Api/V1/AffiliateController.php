@@ -285,8 +285,8 @@ class AffiliateController extends Controller
                 }
                 $guarantees = $affiliate->guarantees;
                 foreach($guarantees as $guarantee)
-                {
-                    if($guarantee->loan->state_id = LoanState::where('name','En Proceso')->first()->id && $guarantee->type = 'affiliate')
+                {//return $guarantee->loan;
+                    if($guarantee->loan != null && $guarantee->loan->state_id == LoanState::where('name','En Proceso')->first()->id && $guarantee->type == 'affiliates')
                     {
                         $guarantee->update([
                             'degree_id' => $request['degree_id'],
