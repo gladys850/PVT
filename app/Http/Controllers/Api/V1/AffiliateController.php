@@ -285,7 +285,7 @@ class AffiliateController extends Controller
                 }
                 $guarantees = $affiliate->guarantees;
                 foreach($guarantees as $guarantee)
-                {//return $guarantee->loan;
+                {
                     if($guarantee->loan != null && $guarantee->loan->state_id == LoanState::where('name','En Proceso')->first()->id && $guarantee->type == 'affiliates')
                     {
                         $guarantee->update([
