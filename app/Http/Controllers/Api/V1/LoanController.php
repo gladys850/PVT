@@ -1148,7 +1148,7 @@ class LoanController extends Controller
             }
             $persons->push([
                 'id' => $lender->id,
-                'full_name' => implode(' ', [$lender->title ? $lender->title : '', $lender->full_name]),
+                'full_name' => implode(' ', [$lender->title && $lender->type=="affiliates" ? $lender->title : '', $lender->full_name]),
                 'identity_card' => $lender->identity_card_ext,
                 'position' => 'SOLICITANTE',
             ]);
