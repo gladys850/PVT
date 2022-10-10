@@ -1651,7 +1651,7 @@ export default {
                  let res1 = await axios.patch(`loan/${this.loan.id}/sismu`, {
                  data_loan:[{
                     date_cut_refinancing: this.loan_refinancing.date_cut_refinancing,
-                    balance : this.loan_refinancing.balance
+                    balance : this.loan_refinancing.balance_parent_loan_refinancing
                   }
                  ]
                })
