@@ -6,7 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Spouse;
 use App\Http\Requests\SpouseForm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Util;
+use App\Module;
+use App\LoanBorrower;
+use App\LoanState;
+use Illuminate\Support\Facades\Auth;
 
 /** @group Cónyugues
 * Datos de los cónyugues y métodos para obtener y establecer sus relaciones
@@ -105,9 +110,62 @@ class SpouseController extends Controller
     */
     public function update(SpouseForm $request, Spouse $spouse)
     {
-        $spouse->fill($request->all());
-        $spouse->save();
-        return $spouse;
+        try{
+            DB::beginTransaction();
+            $spouse->fill($request->all());
+            $spouse->save();
+
+            //actualizar datos de prestatario y garantes
+            $id_prestamos = Module::where('name', 'prestamos')->first()->id;
+            if(in_array($id_prestamos, Auth::user()->modules, true))
+            {
+                //$loans = $this->affiliate->processloans;
+                foreach ($spouse->affiliate->processloans as $loan)
+                {
+                    $borrower = LoanBorrower::find($loan->borrower[0]->id);
+                    if ($borrower->type == 'spouses')
+                    {
+                        $borrower->identity_card = $request['identity_card'];
+                        $borrower->city_identity_card_id = $request['city_identity_card_id'];
+                        $borrower->city_birth_id = $request['city_birth_id'];
+                        $borrower->registration = $request['registration'];
+                        $borrower->last_name = $request['last_name'];
+                        $borrower->first_name = $request['first_name'];
+                        $borrower->second_name = $request['second_name'];
+                        $borrower->mothers_last_name = $request['mothers_last_name'];
+                        $borrower->surname_husband = $request['surname_husband'];
+                        $borrower->civil_status = $request['civil_status'];
+                        $borrower->address_id = $spouse->affiliate->address->id;
+                        $borrower->update();
+                    }
+                }
+                $guarantees = $spouse->affiliate->guarantees;
+                foreach($guarantees as $guarantee)
+                {
+                    if($guarantee->loan->state_id = LoanState::where('name','En Proceso')->first()->id && $guarantee->type = 'spouses')
+                    {
+                        $guarantee->update([
+                            'identity_card' => $request['identity_card'],
+                            'city_identity_card_id' => $request['city_identity_card_id'],
+                            'city_birth_id' => $request['city_birth_id'],
+                            'registration' => $request['registration'],
+                            'last_name' => $request['last_name'],
+                            'first_name' => $request['first_name'],
+                            'second_name' => $request['second_name'],
+                            'mothers_last_name' => $request['mothers_last_name'],
+                            'surname_husband' => $request['surname_husband'],
+                            'civil_status' => $request['civil_status'],
+                            'address_id' => $spouse->affiliate->address->id,
+                        ]);
+                    }
+                }
+            }
+            DB::commit();
+            return $spouse;
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**

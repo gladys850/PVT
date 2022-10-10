@@ -69,9 +69,9 @@ class CalculatorController extends Controller
                 {
                     $parent_loan = Loan::findOrFail($liq['parent_loan_id']);
                     if (!$parent_loan) abort(404);
-                    $parent_lender = $parent_loan->lenders->find($liq['affiliate_id']);
+                    $parent_lender = $parent_loan->borrower->first();
                     if(!$parent_lender) abort(403,'El afiliado no es titular del préstamo');
-                    $parent_quota = $parent_loan->next_payment()->estimated_quota *$parent_lender->pivot->payment_percentage/100;
+                        $parent_quota = $parent_loan->next_payment()->estimated_quota *$parent_lender->payment_percentage/100;
                 }else{
                     if (array_key_exists('sismu', $liq)) {
                         if($liq['sismu']){
@@ -127,7 +127,7 @@ class CalculatorController extends Controller
                     'loan_id' => $guarantees->id,
                     'code' => $guarantees->code,
                     'loan_quota' => $guarantees->estimated_quota,
-                    'quota' => ($guarantees->pivot->payment_percentage/100)*$guarantees->estimated_quota,
+                    'quota' => ($guarantees->payment_percentage/100)*$guarantees->estimated_quota,
                     'state' => $guarantees->state->name,
                     'origin' => 'PVT'
                 ]);
@@ -192,7 +192,7 @@ class CalculatorController extends Controller
                 $active_guarantees = $affiliate->active_guarantees();$sum_quota = 0;
                 foreach($active_guarantees as $res)
                 {
-                    $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
+                    $sum_quota += ($res->estimated_quota * $res->payment_percentage)/100; // descuento en caso de tener garantias activas
                 }
                 $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
                 foreach($active_guarantees_sismu as $res)
@@ -279,24 +279,6 @@ class CalculatorController extends Controller
         if($type){
             $sum_quota += LoanGlobalParameter::latest()->first()->livelihood_amount;
         }
-        /*$active_guarantees = $affiliate->active_guarantees();
-            foreach($active_guarantees as $res)
-                $sum_quota+= ($res->estimated_quota*$res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
-            $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
-            foreach($active_guarantees_sismu as $res)
-                $sum_quota+= $res->PresCuotaMensual/$res->quantity_guarantors; // descuento en caso de tener garantias activas del sismu
-        /*$active_loans = $affiliate->active_loans();
-        foreach($active_loans as $res)
-            $sum_quota+= ($res->estimated_quota*$res->pivot->payment_percentage)/100; // descuento en caso de tener prestamos activos
-        $active_loans_sismu = $affiliate->active_loans_sismu();
-        foreach($active_loans_sismu as $res)
-            $sum_quota+= $res->PresCuotaMensual; // descuento en caso de tener prestamos activas del sismu*/
-        /*$process_loans_sismu = $affiliate->process_loans_sismu();
-        foreach($process_loans_sismu as $res)
-            $sum_quota+= $res->PresCuotaMensual; // descuento en caso de tener prestamos en proceso del sismu
-        $process_guarantees_sismu = $affiliate->process_guarantees_sismu();
-        foreach($process_guarantees_sismu as $res)
-            $sum_quota+= $res->PresCuotaMensual/$res->quantity_guarantors; // descuento en caso de tener garantias en proceso del sismu*/
         $liquid_qualification_calculated = $payable_liquid_average - $total_bonuses - $sum_quota + $parent_quota;
         return $liquid_qualification_calculated;
     }
@@ -429,7 +411,7 @@ class CalculatorController extends Controller
             foreach($active_guarantees as $res)
             {
                 if($request->remake_evaluation && $res->id != $request->remake_loan_id)
-                    $sum_quota += ($res->estimated_quota * $res->pivot->payment_percentage)/100; // descuento en caso de tener garantias activas
+                    $sum_quota += ($res->estimated_quota * $res->payment_percentage)/100; // descuento en caso de tener garantias activas
             }
             $active_guarantees_sismu = $affiliate->active_guarantees_sismu();
             foreach($active_guarantees_sismu as $res)

@@ -3,6 +3,7 @@
     <v-toolbar-title class="pb-2 ma-0 pa-0">KARDEX</v-toolbar-title>
     <template v-if="loan.disbursement_date != 'Fecha invalida'">
 
+      <!-- B O T Ó N   N U E V O   R E G I S T R O   C O B R O -->
       <v-tooltip top v-if="permissionSimpleSelected.includes('create-payment-loan')">
         <template v-slot:activator="{ on }">
           <v-btn
@@ -26,6 +27,7 @@
         </div>
       </v-tooltip>
 
+      <!-- B O T Ó N  I M P R I M I R  P L A N  D E  P A G O S -->
       <v-tooltip top v-if="permissionSimpleSelected.includes('print-payment-plan')">
         <template v-slot:activator="{ on }">
           <v-btn
@@ -47,6 +49,7 @@
         </div>
       </v-tooltip>
 
+      <!-- B O T Ó N  I M P R I M I R  K A R D E X -->
       <v-tooltip top v-if="permissionSimpleSelected.includes('print-payment-kardex-loan')">
         <template v-slot:activator="{ on }">
           <v-btn
@@ -68,6 +71,7 @@
         </div>
       </v-tooltip>
 
+      <!-- B O T Ó N  I M P R I M I R  K A R D E X  D E S P L E G A D O -->
       <v-tooltip top v-if="permissionSimpleSelected.includes('print-payment-kardex-loan')">
         <template v-slot:activator="{ on }">
           <v-btn
@@ -89,12 +93,13 @@
         </div>
       </v-tooltip>
 
+      <!-- S E C C I Ó N  D A T O S  B O R R O W E R  Y  L O A N -->
       <v-card class="ma-0 pa-0 pb-2">
         <v-row class="ma-0 pa-0">
           <v-col md="4" class="ma-0 pa-0">
-            <strong>Prestatario: </strong> {{ borrower.type == 'affiliate' ? $options.filters.fullName(affiliate, true) : $options.filters.fullName(borrower, true)}}<br />
-            <strong>CI: </strong> {{ borrower.type == 'affiliate' ? affiliate.identity_card : borrower.identity_card }}<br />
-            <strong>Matrícula: </strong> {{ borrower.type == 'affiliate' ? affiliate.registration : borrower.registration }}<br />
+            <strong>Prestatario: </strong> {{ borrower.type == 'spouses' ? $options.filters.fullName(spouse, true) : $options.filters.fullName(affiliate, true)  }}<br />
+            <strong>CI: </strong> {{ borrower.type == 'spouses' ? spouse.identity_card : affiliate.identity_card  }}<br />
+            <strong>Matrícula: </strong> {{ borrower.type == 'spouses' ?  spouse.registration : affiliate.registration }}<br />
             <strong>Cuotas: </strong> {{ payments.length ? payments.length : ""}}<br />
           </v-col>
           <v-col md="4" class="ma-0 pa-0">
@@ -112,6 +117,7 @@
         </v-row>
       </v-card>
 
+      <!-- S E C C I Ó N  T A B L A  D E  P A G O S -->
       <v-data-table
         dense
         :headers="headers"
@@ -297,6 +303,10 @@ export default {
       required: true,
     },
     loan: {
+      type: Object,
+      required: true,
+    },
+    spouse: {
       type: Object,
       required: true,
     },

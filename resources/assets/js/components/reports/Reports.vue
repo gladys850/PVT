@@ -48,7 +48,6 @@
                           label="Desde fecha"
                           hint="Día/Mes/Año"
                           type="date"
-                          :max="$moment(Date.now()).format('YYYY-MM-DD')"
                           outlined
                         ></v-text-field>
                       </template>
@@ -60,7 +59,6 @@
                           hint="Día/Mes/Año"
                           type="date"
                           :min="report_inputs.initial_date"
-                          :max="$moment(Date.now()).format('YYYY-MM-DD')"
                           outlined
                         ></v-text-field>
                       </template>
@@ -318,9 +316,9 @@ export default {
 
     clearInputs() {
       this.report_selected = null
-      this.report_inputs.initial_date = null
-      this.report_inputs.final_date = null
-      this.report_inputs.date = null
+      this.report_inputs.initial_date = this.$moment(Date.now()).format('YYYY-MM-DD')
+      this.report_inputs.final_date = this.$moment(Date.now()).format('YYYY-MM-DD')
+      this.report_inputs.date = this.$moment(Date.now()).format('YYYY-MM-DD')
       this.report_inputs.origin = null
     },
 

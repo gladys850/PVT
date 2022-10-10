@@ -23,6 +23,8 @@ use App\Auth;
 use App\LoanGlobalParameter;
 use App\Http\Controllers\Api\V1\LoanController;
 use Util;
+use App\LoanBorrower;
+use App\LoanGuarantor;
 
 /** @group Importacion de datos C o S
 * Importacion de datos Comando  o Senasir
@@ -217,6 +219,10 @@ class ImportationController extends Controller
         ]);
       DB::beginTransaction();
       try{
+        // aumenta el tiempo máximo de ejecución de este script a 150 min:
+        ini_set('max_execution_time', 9000000);
+        // aumentar el tamaño de memoria permitido de este script:
+        ini_set('memory_limit', '96000M');
         $period =LoanPaymentPeriod::whereId($request->period)->first();
         $procedure_modality_id = ProcedureModality::whereShortened('DES-SENASIR')->first()->id;
         $categorie_id = LoanPaymentCategorie::whereTypeRegister('SISTEMA')->first()->id;
@@ -269,7 +275,7 @@ class ImportationController extends Controller
                     if($this->loan_guarantors($payment_agroup->affiliate_id,$period) && $amount_group > 0){//garantias del afiliado
                         $loans_lender = $this->loan_guarantors($payment_agroup->affiliate_id,$period);
                         foreach($loans_lender as $loan_lender){
-                           $loan = Loan::whereId($loan_lender->id)->first();
+                           $loan = Loan::find($loan_lender->loan_id);
                            if($amount_group > 0 && $loan->balance > 0 ){
                             //$loan = Loan::whereId($loan_lender->id)->first();
                             $payment = $loan->get_amount_payment($estimated_date,false,'G');
@@ -344,18 +350,13 @@ class ImportationController extends Controller
         $estimated_date = Carbon::create($period->year, $period->month, $date_day);
         $estimated_date = Carbon::parse($estimated_date)->format('Y-m-d');
 
-        $query = " SELECT loans.id
-                    FROM loans
-                    join loan_affiliates ON loan_affiliates.loan_id = loans.id
-                    join affiliates ON affiliates.id = loan_affiliates.affiliate_id
-                    join loan_states ON loan_states.id = loans.state_id
-                    where loan_affiliates.affiliate_id = '$id_affiliate'
-                    and  loan_affiliates.guarantor = false
-                    and  loan_states.name = 'Vigente'
-                    /*and  loans.guarantor_amortizing = false*/
-                    and  loans.disbursement_date <= '$estimated_date'
-                    order by loans.disbursement_date";
-
+        $query = "SELECT l.id
+                from loans l
+                join loan_states ls on ls.id = l.state_id
+                where l.affiliate_id = '$id_affiliate'
+                and ls.name = 'Vigente'
+                and l.disbursement_date <= '$estimated_date'
+                order by l.disbursement_date ";
         $loan_lenders = DB::select($query);
         return $loan_lenders;
     }
@@ -365,17 +366,15 @@ class ImportationController extends Controller
 
         $estimated_date = Carbon::create($period->year, $period->month, $date_day);
         $estimated_date = Carbon::parse($estimated_date)->format('Y-m-d');
-        $query = " SELECT loans.id
-                    FROM loans
-                    join loan_affiliates ON loan_affiliates.loan_id = loans.id
-                    join affiliates ON affiliates.id = loan_affiliates.affiliate_id
-                    join loan_states ON loan_states.id = loans.state_id
-                    where loan_affiliates.affiliate_id = '$id_affiliate'
-                    and  loan_affiliates.guarantor = true
-                    and  loan_states.name = 'Vigente'
-                    and  loans.guarantor_amortizing = true
-                    and  loans.disbursement_date <= '$estimated_date'
-                    order by loans.disbursement_date";
+        $query = "SELECT *
+                    from loans l 
+                    join loan_guarantors lg on lg.loan_id = l.id
+                    join loan_states ls on ls.id = l.state_id
+                    where lg.affiliate_id = '$id_affiliate'
+                    and ls.name = 'Vigente'
+                    and l.guarantor_amortizing = true
+                    and l.disbursement_date <= '$estimated_date'
+                    order by l.disbursement_date";
 
        $loan_guarantors= DB::select($query);
         return $loan_guarantors;
@@ -638,14 +637,18 @@ class ImportationController extends Controller
                 $c = 0;$sw = false;$c2 = 0;
                 foreach ($payments as $payment){
                     $amount = $payment->amount_balance;
-                    $affiliate = "select * from Affiliates where id = $payment->affiliate_id";
-                    $affiliate = DB::select($affiliate);//return $affiliate;
-                    $affiliate = $affiliate[0];
-                    $loans = "select * from loans where id in (select loan_id from loan_affiliates where affiliate_id = $affiliate->id and guarantor = false)
-                    and state_id in (select id from loan_states where name = 'Vigente')
-                    and guarantor_amortizing = false
-                    and disbursement_date <= '$estimated_date_disbursement'
-                    order by disbursement_date";
+                    //$affiliate = "select * from Affiliates where id = $payment->affiliate_id";
+                    $affiliate = Affiliate::find($payment->affiliate_id);
+                    //$affiliate = DB::select($affiliate);//return $affiliate;
+                    //$affiliate = $affiliate[0];
+                    $loans = "SELECT l.id
+                            from loans l
+                            join loan_states ls on ls.id = l.state_id
+                            where l.affiliate_id = $affiliate->id
+                            and ls.name = 'Vigente'
+                            and l.guarantor_amortizing = false
+                            and l.disbursement_date <= '$estimated_date_disbursement'
+                            order by disbursement_date ";
                     $loans = DB::select($loans);
                     foreach($loans as $loan){
                         $loan_calculate = Loan::whereId($loan->id)->first();
@@ -676,11 +679,15 @@ class ImportationController extends Controller
                             }
                         }
                     }
-                    $guarantees = "select * from loans where id in (select loan_id from loan_affiliates where affiliate_id = $affiliate->id and guarantor = true)
-                    and state_id in (select id from loan_states where name = 'Vigente')
-                    and guarantor_amortizing = true
-                    and disbursement_date <= '$estimated_date_disbursement'
-                    order by disbursement_date";
+                    $guarantees = "SELECT l.id
+                                    from loans l 
+                                    join loan_guarantors lg on lg.loan_id = l.id
+                                    join loan_states ls on ls.id = l.state_id
+                                    where lg.affiliate_id = $affiliate->id
+                                    and ls.name = 'Vigente'
+                                    and l.guarantor_amortizing = true
+                                    and disbursement_date <= '$estimated_date_disbursement'
+                                    order by disbursement_date";
                     $guarantees = DB::select($guarantees);
                     $c2 = 0;
                     foreach($guarantees as $guarantee)
@@ -688,10 +695,10 @@ class ImportationController extends Controller
                         $loan_calculate = Loan::whereId($guarantee->id)->first();
                         if($loan_calculate->balance > 0)
                         {
-                            $quota = "select quota_treat from loan_affiliates la 
-                            where loan_id = $guarantee->id
-                            and affiliate_id = $affiliate->id
-                            and guarantor = true";
+                            $quota = "SELECT lg.quota_treat 
+                                        from loan_guarantors lg
+                                        where lg.loan_id = $guarantee->id
+                                        and affiliate_id = $affiliate->id";
                             $quota = DB::select($quota)[0]->quota_treat;
                             $sw = false;
                             if( $quota <= $amount )
@@ -766,8 +773,10 @@ class ImportationController extends Controller
             $affiliate_state=$affiliate->affiliate_state->affiliate_state_type->name;
             $payment->state_affiliate = strtoupper($affiliate_state);
 
-            $payment->initial_affiliate = LoanController::verify_loan_affiliates($affiliate,$loan)->disbursable->initials;//iniciales
-
+            if($request->paid_by == 'T')
+                $payment->initial_affiliate = LoanBorrower::where('loan_id',$loan->id)->first()->initials;
+            elseif($request->paid_by == 'G')
+                $payment->initial_affiliate = LoanGuarantor::where('loan_id',$loan->id)->first()->initials;
             $payment->categorie_id = $request->categorie_id;
 
             $payment->paid_by = $request->paid_by;

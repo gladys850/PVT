@@ -183,10 +183,8 @@ class MovementFundRotatoryController extends Controller
     {   $movement_fund_rotatorie = MovementFundRotatory::whereLoanId($loan_id)->first();
         $loan = Loan::findOrFail($loan_id);
         $affiliate = Affiliate::findOrFail($loan->affiliate_id);
-        $lenders = [];
-        $lenders[] = LoanController::verify_loan_affiliates($affiliate,$loan)->disbursable;
         $persons = collect([]);
-        foreach ($lenders as $lender) {
+        foreach ($loan->borrower as $lender) {
             $persons->push([
                 'full_name' => implode(' ', [$lender->full_name]),
                 'identity_card' => $lender->identity_card_ext,
@@ -208,7 +206,7 @@ class MovementFundRotatoryController extends Controller
             'ouputs_fund_rotatorie' => $movement_fund_rotatorie,
             'loan' => $loan,
             'signers' => $persons,
-            'lenders' => collect($lenders)
+            'lenders' => $loan->borrower
         ];
      
         $file_name = implode('_', ['movement_fund_rotatory', $movement_fund_rotatorie->movement_concept_code]) . '.pdf';

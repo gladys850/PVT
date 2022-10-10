@@ -134,7 +134,9 @@ export default {
       if (oldVal != newVal) {
         if (newVal.hasOwnProperty("degree_id"))
           this.getDegree_name(newVal.degree_id);
-        if (newVal.hasOwnProperty("unit_id")) this.getUnit_name(newVal.unit_id)
+        if (newVal.hasOwnProperty("unit_id")){
+          if(newVal.unit_id != null)this.getUnit_name(newVal.unit_id)
+        }
       }
     },
     loan(newVal, oldVal) {
