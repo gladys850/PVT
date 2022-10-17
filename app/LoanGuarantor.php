@@ -355,4 +355,15 @@ class LoanGuarantor extends Model
     }
     return $loan_guarantees;
   }
+  public function getTitleAttribute()
+    {
+      $data = "";
+      if ($this->degree) $data = $this->degree->shortened;;
+      return $data;
+    }
+
+    public function degree()
+    {
+        return $this->belongsTo(Degree::class);
+    }
 }
