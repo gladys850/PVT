@@ -1155,7 +1155,7 @@ class LoanController extends Controller
             $lender->loans_balance = $loans;
         }
         $guarantors = [];
-        foreach ($loan->guarantors as $guarantor) {
+        foreach ($loan->borrowerguarantors as $guarantor) {
             $guarantor_loan = $guarantor;
             array_push($guarantors, $guarantor_loan);
             $persons->push([
