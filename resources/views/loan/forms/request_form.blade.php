@@ -188,7 +188,7 @@
                 @else 
                 @php ($pasivo_guarantor = true )
                 @endif
-                @if($guarantor->type == 'affiliates')
+                @if(!$pasivo_guarantor)
                     <td>Categoría</td>
                     @if ($inactive)
                     <td colspan="{{$pasivo_guarantor ? 2 : 1}}">Tipo de Renta</td>
