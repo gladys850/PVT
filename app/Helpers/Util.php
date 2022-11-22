@@ -666,13 +666,12 @@ class Util
         return $correlative_number;
     }
 
-    public static function delegate_shipping($sms_num, $message, $id) {
+    public static function delegate_shipping($sms_num, $message, $id, $user_id) {
     // public function delegate_shipping(Request $request) {
         
         $threshold = 10;
         $flag = false;
-        if(Util::check_balance() <= $threshold) {
-            logger("entra aca");
+        if(Util::check_balance() <= $threshold) {            
             return $flag;
         }
         $sms_server_url = env('SMS_SERVER_URL', 'http://172.16.1.34/goip/en/');
@@ -681,7 +680,7 @@ class Util
         $sms_provider = env('SMS_PROVIDER', 1);
 
         $code_num = '591' . $sms_num; 
-        $user_id = 1;
+        // $user_id = 1;
         $transmitter_id = 1;            
         $issuer_number = NotificationNumber::find($transmitter_id)->number;
         $response = Http::get($sms_server_url . "dosend.php?USERNAME=$root&PASSWORD=$password&smsprovider=$sms_provider&smsnum=$code_num&method=2&Memo=$message");
@@ -693,7 +692,7 @@ class Util
             $result = Http::timeout(60)->get($sms_server_url . "resend.php?messageid=$id&USERNAME=$root&PASSWORD=$password");
             if($result->successful()) {
                 $var = $result->getBody();
-                if(strpos($var, "ERROR") === false) {
+                if(strpos($var, "ERROR") === false || strpos($var, "logout," === false)) {
                     $flag = true;
                     $loan = new Loan();
                     $alias = $loan->getMorphClass();
@@ -736,15 +735,14 @@ class Util
             $result = Http::timeout(60)->get($sms_server_url . "resend.php?messageid=$id&USERNAME=$root&PASSWORD=$password");
             if($result->successful()) {
                 $var = $result->getBody();
-                if(strpos($var, "ERROR") === false) {
+                if(strpos($var, "ERROR") === false || strpos($var, "logout,") === false) {
                     $flag = true;
                 }
             }
         }
         
         if($flag) {
-            sleep(7);
-            logger("aca");
+            sleep(7);            
             $message = DB::connection('mysql')->table('receive')->select('msg')->where('srcnum', 330)->orderBY('id', 'desc')->first();
             $clipped_chain = substr($message->msg, strrpos($message->msg, "Bs.") + 4);
             $end_of_chain = substr($clipped_chain, strrpos($clipped_chain, "Paq"));
