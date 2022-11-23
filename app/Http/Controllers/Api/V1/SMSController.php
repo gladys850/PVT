@@ -28,7 +28,6 @@ class SMSController extends Controller
 
         $cell_phone_number = Loan::find($loan_id)->borrower->first()->cell_phone_number;
         $cell_phone_number = Util::remove_special_char($cell_phone_number);
-        $cell_phone_number = '65148120';
         if(Util::delegate_shipping($cell_phone_number, $message, $loan_id, $user_id)) {
             return response()->json([
                 'error' => false,
@@ -38,7 +37,7 @@ class SMSController extends Controller
         } else {
             return response()->json([
                 'error' => true,
-                'message' => 'Hubo un erro en el envío de SMS',
+                'message' => 'Hubo un error en el envío de SMS',
                 'data' => []
             ]);
         }
