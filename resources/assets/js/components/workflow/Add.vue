@@ -70,6 +70,7 @@
             </template>
             <span>Anular trámite</span>
           </v-tooltip>
+
           <div v-if="loan.modality.procedure_type.second_name == 'Anticipo'">
           <v-tooltip top>
             <template v-slot:activator="{ on }">
@@ -92,6 +93,52 @@
             <span>Anular trámite de anticipo</span>
           </v-tooltip>
           </div>
+          <v-tooltip top v-if="permissionSimpleSelected.includes('send-notification-contract') && (loan.guarantors.length>0)">
+              <template v-slot:activator="{ on }">
+                <v-btn
+                top
+                v-on="on"
+                icon
+                small
+                color="primary"
+                class="darken-2 ml-4"
+                  @click="dialog_notification=true"
+                >
+                  <v-icon class="x-small">mdi-message-text</v-icon>
+                </v-btn>
+              </template>
+              <div>
+                <span>Enviar noticación</span>
+              </div>
+            </v-tooltip>
+            <v-dialog
+              v-model="dialog_notification"
+              max-width="500"
+            >
+              <v-card>
+                <v-card-title>
+                  ¿Está seguro del envio de noticacion al afiliado <br> para el recojo del contrato?
+                </v-card-title>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="red darken-1"
+                    text
+                    @click="dialog_notification = false"
+                  >
+                    Cancelar
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click.stop="sendContractNotificaction()"
+                    :loading= loading_notify
+                  >
+                    Aceptar
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
       </v-toolbar>
     </v-card-title>
 
@@ -684,6 +731,8 @@ export default {
     user_name: null,
     id_street: 0,
     dialog_guarantor_lender:false,
+    dialog_notification: false,
+    loading_notify: false
   }),
   watch: {
     search: _.debounce(function() {
@@ -1143,7 +1192,30 @@ export default {
         this.toastr.error(res.data.validate)
         console.log(e)
       }
+    },
+
+    async sendContractNotificaction(){
+      try {
+        this.loading_notify= true
+        let res = await axios.post(`send_contract`,{
+            loan_id: this.$route.params.id,
+            user_id: this.$store.getters.id
+        })
+        this.loading_notify= false
+        this.dialog_notification = false
+        if(!res.data.error){
+          this.toastr.success(res.data.message)
+        }else{
+          this.toastr.error(res.data.message)
+        }
+      } catch (e) {
+        this.loading_notify= false
+        this.dialog_notification = false
+        this.toastr.error(e)
+        console.log(e)
+      }
     }
+
 
    },
   }

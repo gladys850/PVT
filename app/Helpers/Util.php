@@ -666,22 +666,38 @@ class Util
         return $correlative_number;
     }
 
-    public static function delegate_shipping($sms_num, $message, $id, $user_id) {
+    public static function delegate_shipping($sms_num, $message, $loan_id, $user_id) {
     // public function delegate_shipping(Request $request) {
-        
+
         $threshold = 10;
         $flag = false;
-        if(Util::check_balance() <= $threshold) {            
+        if(Util::check_balance() <= $threshold) {
+            $loan = new Loan();
+            $alias = $loan->getMorphClass();
+            $notification_send = new NotificationSend();
+            $transmitter_id = 1;
+            $issuer_number = NotificationNumber::find($transmitter_id)->number;
+            $notification_send->create([
+                'user_id' => $user_id,
+                'carrier_id' => NotificationCarrier::whereName('SMS')->first()->id,
+                'number_id' => NotificationNumber::whereNumber($issuer_number)->first()->id,
+                'sendable_type' => $alias,
+                'sendable_id' => $loan_id,
+                'send_date' => Carbon::now(),
+                'delivered' => false,
+                'message' => json_encode(['data' => $message]),
+                'subject' => null
+            ]);
             return $flag;
         }
-        $sms_server_url = env('SMS_SERVER_URL', 'http://172.16.1.34/goip/en/');
+        $sms_server_url = env('SMS_SERVER_URL', 'localhost');
         $root = env('SMS_SERVER_ROOT', 'root');
         $password = env('SMS_SERVER_PASSWORD', 'root');
         $sms_provider = env('SMS_PROVIDER', 1);
 
-        $code_num = '591' . $sms_num; 
+        $code_num = '591' . $sms_num;
         // $user_id = 1;
-        $transmitter_id = 1;            
+        $transmitter_id = 1;
         $issuer_number = NotificationNumber::find($transmitter_id)->number;
         $response = Http::get($sms_server_url . "dosend.php?USERNAME=$root&PASSWORD=$password&smsprovider=$sms_provider&smsnum=$code_num&method=2&Memo=$message");
 
@@ -702,7 +718,7 @@ class Util
                         'carrier_id' => NotificationCarrier::whereName('SMS')->first()->id,
                         'number_id' => NotificationNumber::whereNumber($issuer_number)->first()->id,
                         'sendable_type' => $alias,
-                        'sendable_id' => $id,
+                        'sendable_id' => $loan_id,
                         'send_date' => Carbon::now(),
                         'delivered' => true,
                         'message' => json_encode(['data' => $message]),
@@ -720,7 +736,7 @@ class Util
 
     public static function check_balance() {
 
-        $sms_server_url = env('SMS_SERVER_URL', 'http://172.16.1.34/goip/en/');
+        $sms_server_url = env('SMS_SERVER_URL', 'localhost');
         $root = env('SMS_SERVER_ROOT', 'root');
         $password = env('SMS_SERVER_PASSWORD', 'root');
         $sms_provider = env('SMS_PROVIDER', 1);
@@ -748,6 +764,7 @@ class Util
             $end_of_chain = substr($clipped_chain, strrpos($clipped_chain, "Paq"));
             $balance = substr($clipped_chain, 0, -strlen($end_of_chain));
             $balance = floatval($balance);
+
             return $balance;
         }
         return 0;
