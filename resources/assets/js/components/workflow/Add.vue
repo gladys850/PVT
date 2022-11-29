@@ -608,7 +608,7 @@
     >
       <v-card>
         <v-card-title>
-          Esta seguro de habilitar el plan de pagos?
+          ¿Está seguro de habilitar el plan de pagos?
         </v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>

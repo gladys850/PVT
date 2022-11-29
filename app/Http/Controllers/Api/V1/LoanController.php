@@ -555,7 +555,18 @@ class LoanController extends Controller
                     }
                 }
             }
-        $this->get_plan_payments($loan, $loan['disbursement_date']);
+            $this->get_plan_payments($loan, $loan['disbursement_date']);
+            $loan_id = $loan->id;
+            $cell_phone_number = $loan->borrower->first()->cell_phone_number;
+            if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
+                $cell_phone_number = Util::remove_special_char($cell_phone_number);
+                $message = "El préstamo fue desembolsado, favor de pasar por las oficinas de MUSERPOL para la entrega del plan de pagos y copia del contrato.";
+                if(Util::delegate_shipping($cell_phone_number,$message, $loan_id,Auth::user()->id)) {
+                    logger("envio correctamente");
+                } else {
+                    logger("No envío!");
+                }
+            }
         }
    /* else{
         abort(409, "El usuario no tiene los permisos para realizar el desembolso");
@@ -1275,25 +1286,6 @@ class LoanController extends Controller
             $information_loan= $this->get_information_loan($loan);
             $file_name = implode('_', ['plan', $procedure_modality->shortened, $loan->code]) . '.pdf';
             // $id = $loan->borrower->first()->id;
-            $loan_id = $loan->id;
-            logger($loan_id);
-            $cell_phone_number = $loan->borrower->first()->cell_phone_number;
-            // logger($id);
-            // logger($cell_phone_number);
-            if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
-                // $type = gettype($cell_phone_number); // es un string
-                // logger($type);
-                $cell_phone_number = Util::remove_special_char($cell_phone_number);
-                $cell_phone_number = '65148120';
-                $message = "El préstamo fue desembolsado, favor de pasar por las oficinas de MUSERPOL para la entrega del plan de pagos y copia del contrato.";
-                if(Util::delegate_shipping($cell_phone_number,$message, $loan_id )) {
-                    logger("envio correctamente");
-                } else {
-                    logger("No envío!");
-                }
-                
-            } 
-            
             $view = view()->make('loan.payments.payment_plan')->with($data)->render();
             if ($standalone) return Util::pdf_to_base64([$view], $file_name, $information_loan, 'legal', $request->copies ?? 1);
             return $view;
