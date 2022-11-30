@@ -5,8 +5,8 @@
         <!--BOTONES CUANDO SE REALICE LA EDICIÓN-->
 
         <v-row justify="center" >
-            <v-col cols="12" class="py-0 px-0">
-              <v-container fluid class="py-0 px-6  ">
+            <v-col cols="12" class="px-0">
+              <v-container fluid class="pb-0 px-6 ">
                 <v-row class="py-0">
                   <v-col cols="12" class="py-0">
                     <v-tabs dark active-class="secondary">
