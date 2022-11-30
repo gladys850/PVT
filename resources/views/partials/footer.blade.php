@@ -79,7 +79,7 @@
         @if (isset($informationqr))
             @if ($informationqr)
             <div class="title m-b-md">
-            {!!QrCode::size(40)->generate($informationqr) !!}
+            {!!QrCode::size(45)->generate($informationqr) !!}
             </div>
             @endif
         @endif
