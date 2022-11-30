@@ -270,7 +270,7 @@
                <v-tooltip top >
                 <template v-slot:activator="{ on }">
                   <v-btn
-                    v-show="loan.modality.procedure_type.second_name == 'Anticipo' && loan.disbursement_date != 'Fecha invalida' "
+                    v-show="loan.modality.procedure_type.second_name == 'Anticipo' && removeAccents(loan.disbursement_date) != 'Fecha invalida' "
                     fab
                     x-small
                     color="success"
@@ -644,6 +644,7 @@ import Dashboard from "@/components/workflow/Dashboard"
 import Kardex from "@/components/payment/Kardex"
 import AdditionalInformation from '@/components/affiliate/AdditionalInformation'
 import Spouse from "@/components/affiliate/Spouse"
+import common from "@/plugins/common";
 
 export default {
   name: "flow-index",
@@ -774,6 +775,11 @@ export default {
       }
     }
   },
+
+  created() {
+    this.removeAccents = common.removeAccents
+  },
+
   mounted() {
     // si existe el query de redireccion de tab, se setea el valor
     if(this.$route.query.redirectTab) {
@@ -972,7 +978,7 @@ export default {
     },
     async imprimir(item) {
       try {
-        if(this.loan.disbursement_date!='Fecha invalida')
+        if(this.removeAccents(this.loan.disbursement_date)!='Fecha invalida')
         {
           let res = await axios.get(`loan/${item}/print/plan`)
             printJS({
@@ -1062,13 +1068,13 @@ export default {
       //VALIDACION FECHA ENTREGA DE CONTRATO
      if(this.permissionSimpleSelected.includes('registration-delivery-return-contracts') == true)
       {
-        if((this.loan.delivery_contract_date != 'Fecha invalida')){
+        if(this.removeAccents(this.loan.delivery_contract_date) != 'Fecha invalida'){
          this.validate.valid_date_contract = true
         }else{
            this.validate.valid_date_contract = false
         }
 
-        if((this.loan.return_contract_date != 'Fecha invalida')){
+        if(this.removeAccents(this.loan.return_contract_date) != 'Fecha invalida'){
           this.validate.valid_date_contract_return = true
         }else{
           this.validate.valid_date_contract_return = false
@@ -1076,7 +1082,7 @@ export default {
 
       }else if(this.permissionSimpleSelected.includes('disbursement-loan')==true)
       {
-        if((this.loan.disbursement_date != 'Fecha invalida' ) ){
+        if(this.removeAccents(this.loan.disbursement_date) != 'Fecha invalida'){
           this.validate.valid_disbursement = true
         }else{
           this.validate.valid_disbursement = false
