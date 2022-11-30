@@ -311,7 +311,7 @@
                                         :readonly="!edit_return_date"
                                       ></v-text-field>
                                     </v-col>
-                                    <v-col cols="12" md="3" v-show="loan.delivery_contract_date != 'Fecha invalida'"  v-if="permissionSimpleSelected.includes('registration-delivery-return-contracts')">
+                                    <v-col cols="12" md="3" v-show="removeAccents(loan.delivery_contract_date) != 'Fecha invalida'"  v-if="permissionSimpleSelected.includes('registration-delivery-return-contracts')">
                                       <div >
                                       <v-tooltip top>
                                         <template v-slot:activator="{ on }">
@@ -360,7 +360,7 @@
                                   </v-col>
                                   <v-col cols="12" md="3" v-if="!permissionSimpleSelected.includes('registration-delivery-return-contracts')">
                                   </v-col>
-                                  <v-col cols="12" md="3" v-show="loan.delivery_contract_date == 'Fecha invalida' && permissionSimpleSelected.includes('registration-delivery-return-contracts')" >
+                                  <v-col cols="12" md="3" v-show="removeAccents(loan.delivery_contract_date) == 'Fecha invalida' && permissionSimpleSelected.includes('registration-delivery-return-contracts')" >
                                   </v-col>
                                    <v-col cols="12" md="3">
                                       <v-text-field
@@ -435,7 +435,7 @@
                                         :readonly="!edit_return_date_regional"
                                       ></v-text-field>
                                     </v-col>
-                                    <v-col cols="12" md="3" v-show="loan.regional_delivery_contract_date != 'Fecha invalida'" v-if="permissionSimpleSelected.includes('registration-delivery-return-contracts') && $route.query.workTray != 'tracingLoans'">
+                                    <v-col cols="12" md="3" v-show="removeAccents(loan.regional_delivery_contract_date) != 'Fecha invalida'" v-if="permissionSimpleSelected.includes('registration-delivery-return-contracts') && $route.query.workTray != 'tracingLoans'">
                                       <div >
                                       <v-tooltip top>
                                         <template v-slot:activator="{ on }">
@@ -1239,6 +1239,8 @@
 <script>
 import BallotsAdjust from "@/components/workflow/BallotsAdjust"
 import GuaranteesTable from "@/components/workflow/GuaranteesTable"
+import common from "@/plugins/common"
+
 export default {
   name: "specific-data-loan",
   components:{
@@ -1357,6 +1359,11 @@ export default {
         val || this.close()
       },
     },
+
+created(){
+  this.removeAccents = common.removeAccents
+},
+
   methods:{
     //Metodo para guardar persona de Referencia
     async savePersonReference(){
@@ -1597,7 +1604,7 @@ export default {
         if (!this.edit_disbursement) {
           this.edit_disbursement = true
          } else {
-            if(this.loan.disbursement_date=='Fecha invalida'){
+            if(this.removeAccents(this.loan.disbursement_date) =='Fecha invalida'){
               let res = await axios.patch(`loan/${this.loan.id}`, {
                num_accounting_voucher: this.loan.num_accounting_voucher
             })
