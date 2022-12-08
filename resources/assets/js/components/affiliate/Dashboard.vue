@@ -8,7 +8,18 @@
           v-if="loading_affiliate"
         ></v-progress-linear>
         <v-card color="info_card elevation-1" max-width="350" :loading="loading_affiliate">
-          <div class="pa-3" >
+                      <v-chip style="position:absolute; top:0;left:0"
+              class="ma-0"
+              color="#151515"
+              label
+              text-color="white"
+            >
+              <v-icon left class="body-2">
+                NUP:
+              </v-icon>
+              {{ affiliate.id }}
+            </v-chip>
+          <div class="pa-3 pb-4" >
             <div v-if="profilePictures.length > 0">
               <v-avatar class="mx-auto d-block elevation-3" tile size="125">
                 <v-img

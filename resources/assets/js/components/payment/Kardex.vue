@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-toolbar-title class="pb-2 ma-0 pa-0">KARDEX</v-toolbar-title>
-    <template v-if="loan.disbursement_date != 'Fecha invalida'">
+    <template v-if="removeAccents(loan.disbursement_date) != 'Fecha invalida'">
 
       <!-- B O T Ó N   N U E V O   R E G I S T R O   C O B R O -->
       <v-tooltip top v-if="permissionSimpleSelected.includes('create-payment-loan')">
@@ -288,6 +288,8 @@
 </template>
 <script>
 import RemoveItem from "@/components/shared/RemoveItem"
+import common from "@/plugins/common"
+
 export default {
   name: "Kardex-list",
   components: {
@@ -499,6 +501,10 @@ export default {
       }
     },
 
+  },
+
+  created(){
+    this.removeAccents = common.removeAccents
   },
   mounted() {
   this.bus.$on('removed', val => {

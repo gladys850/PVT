@@ -6,6 +6,17 @@
           <v-col cols="12" class="text-center py-0" style="margin-bottom:10px">
             <v-card class="py-0" color="#173B0B" dark max-width="100%" max-height="1000"
             >
+            <v-chip style="position:absolute; top:0;left:0"
+              class="ma-0"
+              color="#151515"
+              label
+              text-color="white"
+            >
+              <v-icon left class="body-2">
+                NUP:
+              </v-icon>
+              {{ affiliate.id }}
+            </v-chip>
               <v-card-text class="headline font-weight-bold">
                 <v-icon large left style="font-size: 100px;">
                   mdi-shield-account
@@ -81,7 +92,7 @@
                  mdi-bank
                 </v-icon>
                 <h5><strong><b style="color:white">MODALIDAD:</b></strong></h5>
-                <h5>{{ procedure_modality_name | uppercase }}</h5>
+                <h5>{{ loan.modality.name | uppercase }}</h5>
               </v-card-text>
             </v-card>
           </v-col>
