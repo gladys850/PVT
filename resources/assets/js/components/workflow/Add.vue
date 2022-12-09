@@ -623,6 +623,7 @@
             color="green darken-1"
             text
             @click="generatePlan($route.params.id)"
+            :loading="loading_btn_plan"
           >
             Aceptar
           </v-btn>
@@ -733,7 +734,8 @@ export default {
     id_street: 0,
     dialog_guarantor_lender:false,
     dialog_notification: false,
-    loading_notify: false
+    loading_notify: false,
+    loading_btn_plan: false
   }),
   watch: {
     search: _.debounce(function() {
@@ -998,11 +1000,13 @@ export default {
     },
      async generatePlan(item) {
       try {
+            this.loading_btn_plan = true
             let res1 = await axios.patch(`loan/${this.loan.id}`, {
             date_signal:true
           })
           this.loan.disbursement_date= this.$moment(res1.data.disbursement_date).format('YYYY-MM-DD')
            let res = await axios.get(`loan/${item}/print/plan`)
+           this.loading_btn_plan = false
           printJS({
             printable: res.data.content,
             type: res.data.type,
@@ -1011,6 +1015,7 @@ export default {
           })
           this.dialog=false
       } catch (e) {
+        this.loading_btn_plan = false
         this.toastr.error("Ocurrió un error en la impresión.")
         console.log(e)
       }
