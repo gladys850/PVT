@@ -27,6 +27,7 @@ use App\Voucher;
 use App\Sismu;
 use App\Record;
 use App\ProcedureType;
+use App\Module;
 use App\Contribution;
 use App\AidContribution;
 use App\LoanContributionAdjust;
@@ -75,6 +76,8 @@ class LoanController extends Controller
         $loan->modality=$loan->modality->procedure_type;
         $loan->tags = $loan->tags;
         $loan->affiliate = $loan->affiliate;
+        if($loan->borrower->first()->type == 'spouses')
+            $loan->affiliate->spouse = $loan->affiliate->spouse;
         if($loan->parent_loan){
             $loan->parent_loan->balance = $loan->parent_loan->balance;
             $loan->parent_loan->estimated_quota = $loan->parent_loan->estimated_quota;
@@ -91,8 +94,6 @@ class LoanController extends Controller
         $loan->state;
         $loan->borrower = $loan->borrower;
         $loan->borrowerguarantors = $loan->borrowerguarantors;
-        //$loan->procedure=$loan->modality;
-        //$loan->loan_contribution = $loan->loan_contribution_adjusts;
         return $loan;
     }
 
@@ -275,6 +276,7 @@ class LoanController extends Controller
         ]);
         if (!$request->role_id) abort(403, 'Debe crear un flujo de trabajo');
         // Guardar préstamo
+        if(count(Affiliate::find($request->lenders[0]['affiliate_id'])->process_loans) >= LoanGlobalParameter::first()->max_loans_process && $request->remake_loan_id == null) abort(403, 'El afiliado ya tiene un préstamo en proceso');
         $saved = $this->save_loan($request);
         // Relacionar afiliados y garantes
         $loan = $saved->loan;
@@ -370,10 +372,9 @@ class LoanController extends Controller
         if (Auth::user()->can('show-all-loan') || Auth::user()->can('show-loan') || Auth::user()->can('show-payment-loan') || Auth::user()->roles()->whereHas('module', function($query) {
             return $query->whereName('prestamos');
         })->pluck('id')->contains($loan->role_id)) {
-            $loan = self::append_data($loan);$loan->borrower = $loan->borrower;
-            //foreach($loan->affiliate as $affiliate){
-                $loan->affiliate->type_initials = "T-".$loan->affiliate->initials;
-            //}
+            $loan = self::append_data($loan);
+            $loan->borrower = $loan->borrower;
+            $loan->affiliate->type_initials = "T-".$loan->affiliate->initials;
             foreach($loan->borrower as $borrower)
             {
                 $borrower->type_initials = "T-".$borrower->initials;
@@ -586,6 +587,32 @@ class LoanController extends Controller
         return $loan;
     }
 
+    /**
+    * Anular préstamo anticipo
+    * @urlParam loan required ID del préstamo. Example: 1
+    * @authenticated
+    * @responseFile responses/loan/destroy.200.json
+    */
+    public function destroy_advance(Loan $loan)
+    {
+        try {
+            DB::beginTransaction();
+            if (!$this->can_user_loan_action($loan)  && $loan->modality->procedure_type->second_name != 'Anticipo') 
+                abort(409, "El tramite no esta disponible para su rol o no es un prestamo de tipo anticipo");
+            $state = LoanState::whereName('Anulado')->first();
+            $loan->state()->associate($state);
+            $loan->save();
+            $loan->delete();
+            if($loan->data_loan)
+            $loan->data_loan->delete();
+            DB::commit();
+            return $loan;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
     private function save_loan(Request $request, $loan = null)
     {
         $loan_copy = $loan;
@@ -652,10 +679,12 @@ class LoanController extends Controller
         {
             $remake_loan = Loan::find($request->remake_loan_id);
             $loan->code = $remake_loan->code;
+            $loan->uuid = $remake_loan->uuid;
             $options=[$remake_loan->id];
             $remake_loan = Loan::withoutEvents(function() use($options){
                 $remake_loan = Loan::find($options[0]);
                 $remake_loan->code = "PTMO-xxxx";
+                $remake_loan->uuid = (string) Str::uuid();
                 $remake_loan->save();
                 return $remake_loan;
             });
@@ -778,10 +807,10 @@ class LoanController extends Controller
                         'payment_percentage' => $affiliate['payment_percentage'],
                         'payable_liquid_calculated' => $affiliate['payable_liquid_calculated'],
                         'bonus_calculated' => $affiliate['bonus_calculated'],
-                        'quota_previous' => $quota_previous,
+                        'quota_previous' => $affiliate['quota_treat'],
                         'quota_treat' => $affiliate['quota_treat'],
-                        'indebtedness_calculated' => $indebtedness,
-                        'indebtedness_calculated_previous' => $indebtedness,
+                        'indebtedness_calculated' => $affiliate['indebtedness_calculated'],
+                        'indebtedness_calculated_previous' => $affiliate['indebtedness_calculated'],
                         'liquid_qualification_calculated' => $affiliate['liquid_qualification_calculated'],
                         'contributionable_type' => $affiliate['contributionable_type'],
                         'contributionable_ids' => json_encode($affiliate['contributionable_ids']),
@@ -1063,9 +1092,9 @@ class LoanController extends Controller
     }
 
     public function get_information_loan(Loan $loan)
-    {
-        $file_name =implode(' ', ['Información:',$loan->code,$loan->modality->name,$loan->borrower->first()->full_name]);
-
+    {           
+        $module_id= $loan->modality->procedure_type->module_id;
+        $file_name =$module_id.'/'.$loan->uuid;
         return $file_name;
     }
 
@@ -1077,6 +1106,16 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/print_form.200.json
     */
+
+    // funcion para agregar uuid a todos los registros    
+    public static function add_uuid(){
+        $loans=Loan::withTrashed()->get();
+        //no toma en cuenta los deleted at
+       foreach ($loans as $loan) {
+            $loan->uuid=(string) Str::uuid();
+            $loan->save();
+       }
+    }
     public function print_form(Request $request, Loan $loan, $standalone = true)
     {
         $lenders = [];
@@ -1109,19 +1148,19 @@ class LoanController extends Controller
             }
             $persons->push([
                 'id' => $lender->id,
-                'full_name' => implode(' ', [$lender->title ? $lender->title : '', $lender->full_name]),
+                'full_name' => implode(' ', [$lender->title && $lender->type=="affiliates" ? $lender->title : '', $lender->full_name]),
                 'identity_card' => $lender->identity_card_ext,
                 'position' => 'SOLICITANTE',
             ]);
             $lender->loans_balance = $loans;
         }
         $guarantors = [];
-        foreach ($loan->guarantors as $guarantor) {
+        foreach ($loan->borrowerguarantors as $guarantor) {
             $guarantor_loan = $guarantor;
             array_push($guarantors, $guarantor_loan);
             $persons->push([
                 'id' => $guarantor_loan->id,
-                'full_name' => implode(' ', [$guarantor_loan->title ? $guarantor_loan->title :'', $guarantor_loan->full_name]),
+                'full_name' => implode('', [$guarantor_loan->title && $guarantor_loan->type=="affiliates" ? $guarantor_loan->title :'', $guarantor_loan->full_name]),
                 'identity_card' => $guarantor_loan->identity_card_ext,
                 'position' => 'GARANTE'
             ]);
@@ -1161,7 +1200,7 @@ class LoanController extends Controller
        * @responseFile responses/loan/print_form_advance.200.json
        */
        public function print_advance_form(Request $request, Loan $loan, $standalone = true){
-        $lenders = [];return "asd";
+        $lenders = [];
         $persons = collect([]);
         $file_title = implode('_', ['FORM','SOLICITUD','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
         $lenders = $loan->borrower;
@@ -1211,11 +1250,9 @@ class LoanController extends Controller
         if($loan->disbursement_date){
             $procedure_modality = $loan->modality;
             $file_title = implode('_', ['PLAN','DE','PAGOS', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
-            $lenders = [];
             $is_dead = false;
-            foreach ($loan->borrower as $lender) {
-                if($lender->dead) $is_dead = true;
-            }
+            if($loan->borrower->first()->type == 'spouses')
+                $is_dead = true;
             $data = [
                 'header' => [
                     'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
@@ -1230,7 +1267,8 @@ class LoanController extends Controller
                 ],
                 'title' => 'PLAN DE PAGOS',
                 'loan' => $loan,
-                'lenders' => $loan->borrower,
+                //'lenders' => $loan->borrower,
+                'lender' => $is_dead ? $loan->affiliate->spouse : $loan->affiliate,
                 'is_dead'=> $is_dead,
                 'file_title'=>$file_title
             ];
@@ -1394,12 +1432,14 @@ class LoanController extends Controller
             $payment->voucher = $request->input('voucher', null);
             $affiliate_id=$request->input('affiliate_id');
             if($request->input('paid_by') == 'T'){
-                $affiliate = LoanBorrower::find($affiliate_id);
+                //$affiliate = LoanBorrower::find($affiliate_id);
+                $affiliate = LoanBorrower::where('loan_id',$loan->id)->first();
                 $payment->affiliate_id = $affiliate->affiliate()->id;
             }
             else
             {
-                $affiliate = LoanGuarantor::find($affiliate_id);
+                //$affiliate = LoanGuarantor::find($affiliate_id);
+                $affiliate = LoanGuarantor::where('affiliate_id', $affiliate_id)->where('loan_id', $loan->id)->first();
                 $payment->affiliate_id = $affiliate->affiliate_id;
             }
             $affiliate_state = $affiliate->affiliate_state->affiliate_state_type->name;
@@ -1653,6 +1693,9 @@ class LoanController extends Controller
     {
         if($loan->disbursement_date){
             $procedure_modality = $loan->modality;
+        $is_dead = false;
+        if($loan->borrower->first()->type == 'spouses')
+            $is_dead = true;
           $file_title = implode('_', ['KARDEX', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
             $data = [
                 'header' => [
@@ -1668,8 +1711,9 @@ class LoanController extends Controller
                 ],
                 'title' => 'KARDEX DE PAGOS',
                 'loan' => $loan,
-                'lenders' => $loan->borrower,
-                'file_title' => $file_title
+                'lender' => $is_dead ? $loan->affiliate->spouse : $loan->affiliate,
+                'file_title' => $file_title,
+                'is_dead' => $is_dead
             ];
             $information_loan= $this->get_information_loan($loan);
             $file_name = implode('_', ['kardex', $procedure_modality->shortened, $loan->code]) . '.pdf';
@@ -1801,8 +1845,8 @@ class LoanController extends Controller
     //Destruir todo el préstamo
     public function destroyAll(Loan $loan)
     {
-        DB::beginTransaction();
-        try{
+        /*DB::beginTransaction();
+        try{*/
             if($loan->payments){
                     if($loan->data_loan) $loan->data_loan->forceDelete();
 
@@ -1824,15 +1868,15 @@ class LoanController extends Controller
                         return $loan;
                     }
                 );
-                DB::commit();
+                //DB::commit();
             }else{
                 abort(403, 'No se puede reahacer el préstamo existen registros de cobros');
             } 
             return $loan;
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             DB::rollback();
             return $e;
-        }
+        }*/
     }
 
     //actualizar el record de todo el prestamo anterior al actual
@@ -2083,12 +2127,20 @@ class LoanController extends Controller
             $option = Loan::whereId($request->loan_id)->first();
             $loan = Loan::withoutEvents(function () use ($option, $request){
                 $loan = Loan::whereId($option->id)->first();
-                $loan->guarantor_amortizing = false;
-                $loan->update();
-                $loan->role_id = $request->role_id;
-                Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'cambio cobro de garante a titular: '.$loan->code));
+                if($loan->guarantor_amortizing == true){
+                    $loan->guarantor_amortizing = false;
+                    $loan->update();
+                    //$loan->role_id = $request->role_id;
+                    Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'cambio cobro de garante a titular: '.$loan->code));
+                    $message = ['message' => 'Cambio de cobro de garante a titular exitoso'];
+                }else{
+                    $loan->guarantor_amortizing = true;
+                    $loan->update();
+                    //$loan->role_id = $request->role_id;
+                    Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'cambio cobro de titular a garantes: '.$loan->code));
+                    $message = ['message' => 'Cambio de cobro de titular a garante exitoso'];
+                }
             });
-            $message['validate'] = 'Se cambio el cobro a '.$option->lenders->first()->full_name;
         }
         else{
             $message['validate'] = 'prestamo y / o rol inexistente';
@@ -2312,11 +2364,11 @@ class LoanController extends Controller
         }
 
         $employees = [
-            ['position' => 'Directora de Estrategias Sociales e Inversion','name'=>'Lic. DAEN Gabriela Jackeline Bustillos Landaeta Msc.'],
-            ['position' => 'Jefe Unidad Inversion de Préstamos','name'=>'Lic. William Ceferino Pimentel Martinez'],
+            ['position' => 'Directora de Estrategias Sociales e Inversiones','name'=>'Lic. DAEN Gabriela Jackeline Bustillos Landaeta Msc.'],
+            ['position' => 'Jefe de Unidad de Inversión en Préstamos a.i.','name'=>'Lic. Tamy Ugarte Maldonado'],
             ['position' => 'Profesional Legal de Préstamos','name'=>'Abog. Elizabeth Sabina Villca Juchani'],
-            ['position' => 'Responsable de Registro, Control y Recuperacion de Préstamos','name'=>'Ing. Nelvis Irene Alarcón Pizarroso'],
-            ['position' => 'Profesional de Calificación de Préstamos','name'=>'Lic. Tamy Ugarte Maldonado'],
+            ['position' => 'Responsable de Registro, Control y Recuperación de Préstamos','name'=>'Ing. Nelvis Irene Alarcón Pizarroso'],
+           // ['position' => 'Profesional de Calificación de Préstamos','name'=>'Lic. Tamy Ugarte Maldonado'],
         ];
         $data = [
             'header' => [
@@ -2338,5 +2390,16 @@ class LoanController extends Controller
         $view = view()->make('loan.forms.committee_session')->with($data)->render();
         if ($standalone) return Util::pdf_to_base64([$view], $file_name, $loan,'letter', $request->copies ?? 1);
         return $view;
+    }
+
+    //verifica si el usuario puede realizar acciones sobre el prestamo con su rol
+    public function can_user_loan_action(Loan $loan){
+        $user = Auth::user();
+        $user_roles = Auth::user()->roles->pluck('id')->toArray();
+        if (in_array($loan->role_id, $user_roles)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

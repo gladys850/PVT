@@ -356,7 +356,7 @@ class LoanReportController extends Controller
     // aumentar el tamaño de memoria permitido de este script:
     ini_set('memory_limit', '960M');
     
-    $final_date = request('date') ? Carbon::parse(request('date'))->endOfDay()->format('d-m-Y') : Carbon::now()->endOfDay()->format('d-m-Y');
+    $final_date = request('date') ? Carbon::parse(request('date'))->endOfDay() : Carbon::now()->endOfDay();
     $state = LoanState::whereName('Vigente')->first();
 
     $loans=Loan::where('state_id',$state->id)->orderBy('code')->where('disbursement_date', '<', Carbon::parse($final_date))->get();
@@ -365,7 +365,7 @@ class LoanReportController extends Controller
     $loans_mora = collect();
     //mora
     foreach($loans as $loan){
-        if(count($loan->payments) > 0 && $loan->last_payment_validated->estimated_date < $final_date && Carbon::parse($loan->last_payment_validated->estimated_date)->endOfDay()->diffInDays($final_date) > LoanGlobalParameter::first()->days_current_interest){
+        if(count($loan->payments) > 0 && Carbon::parse($loan->last_payment_validated->estimated_date) < $final_date && Carbon::parse($loan->last_payment_validated->estimated_date)->endOfDay()->diffInDays($final_date) > LoanGlobalParameter::first()->days_current_interest){
             if(count($loan->borrowerGuarantors)>0){
                 $loan->guarantor = $loan->borrowerGuarantors;
             }
@@ -392,7 +392,7 @@ class LoanReportController extends Controller
             continue;
           }
 
-        if($loan->last_payment_validated && !$loan->regular_payments_date(request('date'))){
+        if($loan->last_payment_validated && !$loan->regular_payments_date($final_date)){
             if(count($loan->borrowerGuarantors)>0){
                 $loan->guarantor = $loan->borrowerGuarantors;
             }
@@ -682,6 +682,116 @@ class LoanReportController extends Controller
         }
         $export = new MultipleSheetExportPaymentMora($data_mora_total,$data_mora_parcial,$data_mora,'MORA TOTAL','MORA PARCIAL','MORA');
         return Excel::download($export, $File.'.xls');
+  }
+
+  /** @group Reportes de Prestamos
+   * Reporte de prestamos en mora 
+   * Reporte de prestamos prestamos en mora PARCIAL TOTAL MORA con llamada a procedimientos almacenados en la base de datos
+   * @authenticated
+   * @responseFile responses/report_loans/loan_desembolsado.200.json
+   */
+
+
+  public function report_loans_mora_v2(Request $request){
+    // aumenta el tiempo máximo de ejecución de este script a 150 min:
+    ini_set('max_execution_time', 9000);
+    // aumentar el tamaño de memoria permitido de este script:
+    ini_set('memory_limit', '960M');
+    
+    $final_date = request('date') ? Carbon::parse(request('date'))->endOfDay() : Carbon::now()->endOfDay();
+
+    $datos_mora = DB::select("select loans_mora_data(?)",[$final_date]);
+    $loans_mora = json_decode($datos_mora[0]->loans_mora_data);
+
+    $File = "PrestamosMora";
+    $data_head = array("MATRICULA AFILIADO","CI AFILIADO", "EXP","NOMBRE COMPLETO AFILIADO", "***","MATRICULA","CI","EXP","NOMBRE COMPLETO","NRO DE CEL.1","NRO DE CEL.2","NRO FIJO","CIUDAD","DIRECCIÓN","PTMO","FECHA DESEMBOLSO",
+    "NRO DE CUOTAS","TASA ANUAL","FECHA DEL ÚLTIMO PAGO","TIPO DE PAGO","CUOTA MENSUAL","SALDO ACTUAL","ÉSTADO DEL AFILIADO","MODALIDAD","SUB MODALIDAD","DÍAS MORA",
+    "*","NOMBRE COMPLETO (Ref. Personal)","NRO DE TEL. FIJO (Ref. Personal)","NRO DE CEL (Ref. Personal)","DIRECCIÓN(Ref. Personal)",
+    "**","MATRICULA AFILIADO (GARANTE 1)", "CI AFILIADO (GARANTE 1)", "EXP (GARANTE 1)", "NOMBRE COMPLETO AFILIADO (GARANTE 1)", "*-->*","MATRICULA (GARANTE TITULAR 1)","CI (GARANTE TITULAR 1)","EXP (GARANTE TITULAR 1)","NOMBRE COMPLETO (GARANTE TITULAR 1)","NRO DE TEL. FIJO","NRO DE CEL1","NRO DE CEL2","ESTADO DEL AFILIADO",
+    "***","MATRICULA AFILIADO (GARANTE 2)", "CI AFILIADO (GARANTE 2)", "EXP (GARANTE 2)", "NOMBRE COMPLETO AFILIADO (GARANTE 2)", "*-->*","MATRICULA (GARANTE TITULAR 2)","CI (GARANTE TITULAR 2)","EXP (GARANTE TITULAR 2)","NOMBRE COMPLETO (GARANTE TITULAR 2)","NRO DE TEL. FIJO","NRO DE CEL1","NRO DE CEL.2","ESTADO DEL AFILIADO");
+    $data = collect();
+    // PRESTAMOS EN MORA
+    $data->mora = array($data_head);
+    // PRESTAMOS EN MORA TOTAL
+    $data->mora_total = array($data_head);
+    // PRESTAMOS EN MORA PARCIAL
+    $data->mora_parcial = array($data_head);
+    $row = 0;
+    for( $row ; $row < sizeof($loans_mora) ; $row++ ){
+        $data_body = array(
+            $loans_mora[$row]->registration_affiliate ? $loans_mora[$row]->registration_affiliate : '',
+            $loans_mora[$row]->identity_card_affiliate ? $loans_mora[$row]->identity_card_affiliate : '',
+            $loans_mora[$row]->city_exp_first_shortened_affiliate ? $loans_mora[$row]->city_exp_first_shortened_affiliate : '',
+            $loans_mora[$row]->full_name_affiliate,
+            "***",
+            $loans_mora[$row]->registration_borrower ? $loans_mora[$row]->registration_borrower : '',
+            $loans_mora[$row]->identity_card_borrower ? $loans_mora[$row]->identity_card_borrower : '',
+            $loans_mora[$row]->city_exp_first_shortened_borrower ? $loans_mora[$row]->city_exp_first_shortened_borrower : '',
+            $loans_mora[$row]->full_name_borrower,
+            isset($loans_mora[$row]->cell_phone->number[0]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->cell_phone->number[0]) : 'S/R',
+            isset($loans_mora[$row]->cell_phone->number[1]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->cell_phone->number[1]) : 'S/R',
+            isset($loans_mora[$row]->phone->number[0]) ? str_replace(array("(", ")", "-"), '',$loans_mora[$row]->phone->number[0]) : 'S/R',
+            $loans_mora[$row]->address[0]->name,
+            $loans_mora[$row]->address[0]->description,
+            $loans_mora[$row]->code,
+            Carbon::parse($loans_mora[$row]->disbursement_date)->format('d/m/Y H:i:s'),
+            $loans_mora[$row]->loan_term,
+            $loans_mora[$row]->annual_interest,
+            $loans_mora[$row]->estimated_date ? Carbon::parse($loans_mora[$row]->estimated_date)->format('d-m-Y'):'sin registro',
+            $loans_mora[$row]->shortened ? $loans_mora[$row]->shortened :'sin registro',
+            Util::money_format($loans_mora[$row]->estimated_quota),
+            Util::money_format($loans_mora[$row]->balance),
+            $loans_mora[$row]->name,
+            $loans_mora[$row]->second_name,
+            $loans_mora[$row]->sub_modality,
+            $loans_mora[$row]->days_mora,
+            "*",
+            isset($loans_mora[$row]->reference[0]->full_name) ? $loans_mora[$row]->reference[0]->full_name : 'no tiene registro',
+            isset($loans_mora[$row]->reference[0]->phone_number) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->reference[0]->phone_number) : 'S/R',
+            isset($loans_mora[$row]->reference[0]->cell_phone_number) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->reference[0]->cell_phone_number) : 'S/R',
+            isset($loans_mora[$row]->reference[0]->address) ? $loans_mora[$row]->reference[0]->address : 'S/R',
+            "**",
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->registration_affiliate : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->identity_card_affiliate : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->city_exp_first_shortened_affiliate : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->full_name_affiliate : '',
+            "*Titular-->*",
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->registration_guarantor : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->identity_card_guarantor : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->city_exp_first_shortened_guarantor : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->full_name_guarantor : '',
+            isset($loans_mora[$row]->guarantors[0]) ? ($loans_mora[$row]->guarantors[0]->phone_number ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[0]->phone_number) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[0]) ? (isset($loans_mora[$row]->guarantors[0]->cell_phone->number[0]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[0]->cell_phone->number[0]) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[0]) ? (isset($loans_mora[$row]->guarantors[0]->cell_phone->number[1]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[0]->cell_phone->number[1]) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[0]) ? $loans_mora[$row]->guarantors[0]->name : '',
+            "**",
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->registration_affiliate : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->identity_card_affiliate : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->city_exp_first_shortened_affiliate : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->full_name_affiliate : '',
+            "*Titular-->*",
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->registration_guarantor : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->identity_card_guarantor : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->city_exp_first_shortened_guarantor : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->full_name_guarantor : '',
+            isset($loans_mora[$row]->guarantors[1]) ? ($loans_mora[$row]->guarantors[1]->phone_number ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[1]->phone_number) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[1]) ? (isset($loans_mora[$row]->guarantors[1]->cell_phone->number[0]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[1]->cell_phone->number[0]) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[1]) ? (isset($loans_mora[$row]->guarantors[1]->cell_phone->number[1]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->guarantors[1]->cell_phone->number[1]) : 'S/R') : '',
+            isset($loans_mora[$row]->guarantors[1]) ? $loans_mora[$row]->guarantors[1]->name : '',
+        );
+        
+        switch($loans_mora[$row]->type){
+            case 'mora': array_push($data->mora, $data_body);
+                break; 
+            case 'mora_total': array_push($data->mora_total, $data_body);
+                break;
+            case 'mora_parcial': array_push($data->mora_parcial, $data_body);
+                break;
+        };
+    }
+    $export = new MultipleSheetExportPaymentMora($data->mora_total,$data->mora_parcial,$data->mora,'MORA TOTAL','MORA PARCIAL','MORA');
+    return Excel::download($export, $File.'.xls');
+
   }
 
   /** @group Reportes de Prestamos
@@ -1207,144 +1317,141 @@ class LoanReportController extends Controller
              array_push($id_comando, $procedure->id);
  
          foreach($loans as $loan){
-            // return $loan;
              if(in_array($loan->procedure_modality_id, $id_comando))
              {
-                 foreach($loan->lenders as $lender)
-                 { 
+                 foreach($loan->borrower as $lender)
+                 {
                       $loan->guarantor = $loan->guarantors;
-                     array_push($command_sheet_dafaulted, array(  
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->identity_card_affiliate,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->city_exp_first_shortened_affiliate,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->registration_affiliate,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->full_name_affiliate,
+                     array_push($command_sheet_dafaulted, array(
+                        $lender->affiliate()->identity_card,
+                        $lender->affiliate()->city_identity_card->first_shortened,
+                        $lender->affiliate()->registration,
+                        $lender->affiliate()->full_name,
                         "*Prestatario-->",
                         $loan->code,
                         Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
                         $loan->city->name,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->state_affiliate,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->state_type_affiliate,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->registration_borrower,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->identity_card_borrower,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->city_exp_first_shortened_borrower,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->first_name_borrower,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->second_name_borrower,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->last_name_borrower,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->mothers_last_name_borrower,
-                        $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->surname_husband_borrower,
+                        $lender->affiliate_state->name,
+                        $lender->affiliate_state->affiliate_state_type->name,
+                        $lender->registration,
+                        $lender->identity_card,
+                        $lender->city_identity_card->first_shortened,
+                        $lender->first_name,
+                        $lender->second_name,
+                        $lender->last_name,
+                        $lender->mothers_last_name,
+                        $lender->surname_husband,
                         Util::money_format($loan->balance),
-                        Util::money_format($lender->pivot->quota_treat),
+                        Util::money_format($lender->quota_treat),
                         Util::money_format($loan->get_amount_payment($date_calculate,false,'T')),
                         $loan->interest->annual_interest,
-                       // $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->indebtedness_borrower,
-                        
-                        $loan->guarantor_amortizing? 'Amort. Garante':'Amort. Titular',
+                        $loan->guarantor_amortizing ? 'Amort. Garante':'Amort. Titular',                        
                         "*Titular-->*",
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->identity_card_affiliate : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->city_exp_first_shortened_affiliate : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->registration_affiliate : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->full_name_affiliate : '',
-                        "*garante-->*",
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->state_affiliate : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->state_type_affiliate : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->registration_borrower : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->identity_card_borrower : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->city_exp_first_shortened_borrower : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->first_name_borrower : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->second_name_borrower : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->last_name_borrower : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->mothers_last_name_borrower : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->surname_husband_borrower : '',
-                        $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->quota_loan : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate->identity_card : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate->city_identity_card->first_shortened : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate->registration : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate->full_name : '',
+                        "*Garante-->*",
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate_state->name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate_state->affiliate_state_type->name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->registration : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->identity_card: '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->city_identity_card->first_shortened : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->first_name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->second_name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->last_name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->mothers_last_name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->surname_husband : '',
+                        $loan->guarantor_amortizing ? Util::money_format($loan->borrowerGuarantors[0]->quota_treat) : '',
                         $loan->guarantor_amortizing ? Util::money_format($loan->get_amount_payment($date_calculate,false,'G')) : '',
+
                         "*Titular-->",
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->identity_card_affiliate : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->city_exp_first_shortened_affiliate : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->registration_affiliate : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->full_name_affiliate : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate->identity_card : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate->city_identity_card->first_shortened : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate->registration : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate->full_name : '',
                         "*garante-->*",
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->state_affiliate: '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->state_type_affiliate: '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->registration_borrower : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->identity_card_borrower : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->city_exp_first_shortened_borrower : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->first_name_borrower : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->second_name_borrower : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->last_name_borrower : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->mothers_last_name_borrower : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->surname_husband_borrower : '',
-                        isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->quota_loan : '',
-                        isset($loan->guarantor[1]) ? Util::money_format($loan->get_amount_payment($date_calculate,false,'G')): '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate_state: '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate_state_type: '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->registration : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->identity_card : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->city_identity_card->first_shortened : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->first_name : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->second_name : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->last_name : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->mothers_last_name : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->surname_husband : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->quota_treat : '',
+                        isset($loan->borrowerGuarantors[1]) ? Util::money_format($loan->get_amount_payment($date_calculate,false,'G')): '',
                      ));
                  }              
              }
              if(in_array($loan->procedure_modality_id, $id_senasir))
              {
-                foreach($loan->lenders as $lender)
+                foreach($loan->borrower as $lender)
                 { 
                      $loan->guarantor = $loan->guarantors;
                     array_push($senasir_sheet_defaulted, array(  
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->identity_card_affiliate,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->city_exp_first_shortened_affiliate,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->registration_affiliate,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->full_name_affiliate,
-                       "*Prestatario-->",
-                       $loan->code,
-                       Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
-                       $loan->city->name,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->state_affiliate,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->state_type_affiliate,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->registration_borrower,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->identity_card_borrower,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->city_exp_first_shortened_borrower,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->first_name_borrower,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->second_name_borrower,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->last_name_borrower,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->mothers_last_name_borrower,
-                       $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->surname_husband_borrower,
-                       Util::money_format($loan->balance),
-                       Util::money_format($lender->pivot->quota_treat),
-                       Util::money_format($loan->get_amount_payment($date_calculate,false,'T')),
-                       $loan->interest->annual_interest,
-                      // $loan->getBorrowers()->where('id_affiliate',$loan->lenders[0]->id)->first()->indebtedness_borrower,
-                       
-                       $loan->guarantor_amortizing? 'Amort. Garante':'Amort. Titular',
-                       "*Titular-->*",
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->identity_card_affiliate : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->city_exp_first_shortened_affiliate : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->registration_affiliate : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->full_name_affiliate : '',
-                       "*garante-->*",
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->state_affiliate : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->state_type_affiliate : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->registration_borrower : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->identity_card_borrower : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->city_exp_first_shortened_borrower : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->first_name_borrower : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->second_name_borrower : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->last_name_borrower : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->mothers_last_name_borrower : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->surname_husband_borrower : '',
-                       $loan->guarantor_amortizing ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[0]->id)->first()->quota_loan : '',
-                       $loan->guarantor_amortizing ? Util::money_format($loan->get_amount_payment($date_calculate,false,'G')) : '',
-                       "*Titular-->*",
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->identity_card_affiliate : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->city_exp_first_shortened_affiliate : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->registration_affiliate : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->full_name_affiliate : '',
-                       "*garante-->*",
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->state_affiliate: '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->state_type_affiliate: '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->registration_borrower : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->identity_card_borrower : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->city_exp_first_shortened_borrower : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->first_name_borrower : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->second_name_borrower : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->last_name_borrower : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->mothers_last_name_borrower : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->surname_husband_borrower : '',
-                       isset($loan->guarantor[1]) ? $loan->getGuarantors()->where('id_affiliate',$loan->guarantor[1]->id)->first()->quota_loan : '',
-                       isset($loan->guarantor[1]) ? Util::money_format($loan->get_amount_payment($date_calculate,false,'G')): '',
+                        $lender->affiliate()->identity_card,
+                        $lender->affiliate()->city_identity_card->first_shortened,
+                        $lender->affiliate()->registration,
+                        $lender->affiliate()->full_name,
+                        "*Prestatario-->",
+                        $loan->code,
+                        Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
+                        $loan->city->name,
+                        $lender->affiliate_state->name,
+                        $lender->affiliate_state->affiliate_state_type->name,
+                        $lender->registration,
+                        $lender->identity_card,
+                        $lender->city_identity_card->first_shortened,
+                        $lender->first_name,
+                        $lender->second_name,
+                        $lender->last_name,
+                        $lender->mothers_last_name,
+                        $lender->surname_husband,
+                        Util::money_format($loan->balance),
+                        Util::money_format($lender->quota_treat),
+                        Util::money_format($loan->get_amount_payment($date_calculate,false,'T')),
+                        $loan->interest->annual_interest,
+                        $loan->guarantor_amortizing ? 'Amort. Garante':'Amort. Titular',                        
+                        "*Titular-->*",
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate->identity_card : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate->city_identity_card->first_shortened : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate->registration : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate->full_name : '',
+                        "*Garante-->*",
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate_state->name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->affiliate_state->affiliate_state_type->name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->registration : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->identity_card: '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->city_identity_card->first_shortened : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->first_name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->second_name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->last_name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->mothers_last_name : '',
+                        $loan->guarantor_amortizing ? $loan->borrowerGuarantors[0]->surname_husband : '',
+                        $loan->guarantor_amortizing ? Util::money_format($loan->borrowerGuarantors[0]->quota_treat) : '',
+                        $loan->guarantor_amortizing ? Util::money_format($loan->get_amount_payment($date_calculate,false,'G')) : '',
+
+                        "*Titular-->",
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate->identity_card : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate->city_identity_card->first_shortened : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate->registration : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate->full_name : '',
+                        "*garante-->*",
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate_state: '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->affiliate_state_type: '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->registration : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->identity_card : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->city_identity_card->first_shortened : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->first_name : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->second_name : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->last_name : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->mothers_last_name : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->surname_husband : '',
+                        isset($loan->borrowerGuarantors[1]) ? $loan->borrowerGuarantors[1]->quota_treat : '',
+                        isset($loan->borrowerGuarantors[1]) ? Util::money_format($loan->get_amount_payment($date_calculate,false,'G')): '',
                     ));
                 }                 
         }
@@ -1599,7 +1706,7 @@ class LoanReportController extends Controller
                 ->where('observables.observable_type', '=', 'loans')
                 ->where($conditions)
                 ->select('*')
-                ->orderBy('code_loan', $order_loan)
+                ->orderBy('code_loan', $order_loan)->distinct()
                 ->get();
             }else{
             $list_loan = DB::table('view_loan_borrower')
@@ -1612,7 +1719,7 @@ class LoanReportController extends Controller
             $File="ListadoPrestamos";
 
             $headFile=array("DPTO","ÁREA","USUARIO","ID PRESTAMO", "COD. PRESTAMO", "ID AFILIADO","CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","CI PRESTATARIO", "MATRÍCULA PRESTATARIO", "NOMBRE COMPLETO PRESTATARIO","SUB MODALIDAD",
-            "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD","FECHA DE DESEMBOLSO","TIPO SOLICITUD AFILIADO/ESPOSA", "FECHA DE ENTREGA DEL CONTRATO",
+            "MODALIDAD","MONTO","PLAZO","TIPO ESTADO","ESTADO AFILIADO","CUOTA","ESTADO PRÉSTAMO","ENTE GESTOR AFILIADO","FECHA DE SOLICITUD","FECHA DE DESEMBOLSO","FECHA CORTE PRESTAMO REFINANCIADO","TIPO SOLICITUD AFILIADO/ESPOSA", "FECHA DE ENTREGA DEL CONTRATO",
             "FECHA DE DEVOLUCION DEL CONTRATO", "FECHA DE ENTREGA DEL CONTRATO REGIONAL", "FECHA DE DEVOLUCION DEL CONTRATO REGIONAL");
             if($trashed_loan){array_push($headFile,"FECHA DE ANULACIÓN","OBSERVACIÓN DE ANULADOS");}
             $data=array($headFile);
@@ -1642,6 +1749,7 @@ class LoanReportController extends Controller
                     $row->pension_entity_affiliate,
                     Carbon::parse($row->request_date_loan)->format('d/m/Y'),
                     $row->disbursement_date_loan? Carbon::parse($row->disbursement_date_loan)->format('d/m/Y'):'',
+                    $row->date_cut_refinancing ? Carbon::parse($row->date_cut_refinancing)->format('d/m/Y') : '',
                     $row->type_affiliate_spouse_loan,
                     $row->delivery_contract_date? Carbon::parse($row->delivery_contract_date)->format('d/m/Y'):'',
                     $row->return_contract_date? Carbon::parse($row->return_contract_date)->format('d/m/Y'):'',
@@ -1664,7 +1772,7 @@ class LoanReportController extends Controller
                 ->where('observables.observable_type', '=', 'loans')
                 ->where($conditions)
                 ->select('*')
-                ->orderBy('code_loan', $order_loan)
+                ->orderBy('code_loan', $order_loan)->distinct()
                 ->paginate($pagination_rows);
             }else{
                 $list_loan = DB::table('view_loan_borrower')
@@ -1696,10 +1804,10 @@ class LoanReportController extends Controller
         );
         foreach($loans_lenders as $loan)
         {
-            foreach($loan->lenders as $lender)
+            foreach($loan->borrower as $lender)
             {
-                $loans_sismu = $lender->active_loans_sismu();
-                $guarantees_sismu = $lender->active_guarantees_sismu();
+                $loans_sismu = $lender->affiliate()->active_loans_sismu();
+                $guarantees_sismu = $lender->affiliate()->active_guarantees_sismu();
                 if($loans_sismu != null)
                 {
                     array_push($loan_sheets, array(
@@ -1723,7 +1831,7 @@ class LoanReportController extends Controller
                         Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
                         Util::money_format($loan->amount_approved),
                         Util::money_format($loan->balance),
-                        $lender->pivot->quota_treat,
+                        $lender->quota_treat,
                         "PVT",
                         "TITULAR",
                     ));
@@ -1786,7 +1894,7 @@ class LoanReportController extends Controller
                             Carbon::parse($loan->disbursement_date)->format('d/m/Y H:i:s'),
                             Util::money_format($loan->amount_approved),
                             Util::money_format($loan->balance),
-                            $lender->pivot->quota_treat,
+                            $lender->quota_treat,
                             "PVT",
                             "TITULAR",
                         ));
@@ -1840,7 +1948,11 @@ class LoanReportController extends Controller
      */ 
     public function request_state_report(request $request, $standalone = true)
     {
-        $loans = Loan::whereStateId(LoanState::whereName('En Proceso')->first()->id)->where('request_date', '<=', $request->date)->orderBy('role_id')->get();
+        if(!$request->date)
+            $date = Carbon::now()->format('Y-m-d');
+        else
+            $date = $request->date;
+        $loans = Loan::whereStateId(LoanState::whereName('En Proceso')->first()->id)->where('request_date', '<=', Carbon::parse($request->date)->endOfDay())->orderBy('role_id')->get();
         $loans_array = collect([]);
         $date = "";
         if($request->type == "xls")
@@ -1859,7 +1971,7 @@ class LoanReportController extends Controller
             $loans_array->push([
                 "code" => $loan->code,
                 "request_date" => Carbon::parse($loan->request_date)->format('d/m/Y'),
-                "lenders" => $loan->lenders,
+                "lenders" => $loan->borrower,
                 "role" => $loan->role->display_name,
                 "update_date" => Carbon::parse($date)->format('d/m/Y H:i:s'),
                 "user" => $loan->user ? $loan->user->username : "",
@@ -1973,11 +2085,11 @@ class LoanReportController extends Controller
     $identity_card_borrower = request('identity_card_borrower') ?? '';
     $registration_borrower = request('registration_borrower') ?? '';
  
-    $last_name_borrower = request('last_name_borrower') ?? '';
-    $mothers_last_name_borrower = request('mothers_last_name_borrower') ?? '';
-    $first_name_borrower = request('first_name_borrower') ?? '';
-    $second_name_borrower = request('second_name_borrower') ?? '';
-    $surname_husband_borrower = request('surname_husband_borrower') ?? '';
+    $last_name_affiliate = request('last_name_affiliate') ?? '';
+    $mothers_last_name_affiliate = request('mothers_last_name_affiliate') ?? '';
+    $first_name_affiliate = request('first_name_affiliate') ?? '';
+    $second_name_affiliate = request('second_name_affiliate') ?? '';
+    $surname_husband_affiliate = request('surname_husband_affiliate') ?? '';
     $full_name_borrower = request('full_name_borrower') ?? '';
  
     $sub_modality_loan = request('sub_modality_loan') ?? '';
@@ -2019,24 +2131,24 @@ class LoanReportController extends Controller
         array_push($conditions, array('view_loan_borrower.registration_borrower', 'ilike', "%{$registration_borrower}%"));
       }
 
-      if ($last_name_borrower != '') {
-        array_push($conditions, array('view_loan_borrower.last_name_borrower', 'ilike', "%{$last_name_borrower}%"));
+      if ($last_name_affiliate != '') {
+        array_push($conditions, array('view_loan_borrower.last_name_affiliate', 'ilike', "%{$last_name_affiliate}%"));
       }
 
-     if ($mothers_last_name_borrower != '') {
-        array_push($conditions, array('view_loan_borrower.mothers_last_name_borrower', 'ilike', "%{$mothers_last_name_borrower}%"));
+     if ($mothers_last_name_affiliate != '') {
+        array_push($conditions, array('view_loan_borrower.mothers_last_name_affiliate', 'ilike', "%{$mothers_last_name_affiliate}%"));
       }
 
-      if ($first_name_borrower != '') {
-        array_push($conditions, array('view_loan_borrower.first_name_borrower', 'ilike', "%{$first_name_borrower}%"));
+      if ($first_name_affiliate != '') {
+        array_push($conditions, array('view_loan_borrower.first_name_affiliate', 'ilike', "%{$first_name_affiliate}%"));
       }
 
-      if ($second_name_borrower != '') {
-        array_push($conditions, array('view_loan_borrower.second_name_borrower', 'ilike', "%{$second_name_borrower}%"));
+      if ($second_name_affiliate != '') {
+        array_push($conditions, array('view_loan_borrower.second_name_affiliate', 'ilike', "%{$second_name_affiliate}%"));
       }
 
-      if ($surname_husband_borrower != '') {
-        array_push($conditions_or, array('view_loan_borrower.surname_husband_borrower', 'ilike', "%{$surname_husband_borrower}%"));
+      if ($surname_husband_affiliate != '') {
+        array_push($conditions_or, array('view_loan_borrower.surname_husband_affiliate', 'ilike', "%{$surname_husband_affiliate}%"));
       }
       if ($full_name_borrower != '') {
         array_push($conditions, array('view_loan_borrower.full_name_borrower', 'ilike', "%{$full_name_borrower}%"));
@@ -2112,14 +2224,14 @@ class LoanReportController extends Controller
                        $row->indebtedness_borrower,
                        $row->sub_modality_loan,
                        $row->modality_loan,
-                       $row->identity_card_borrower,
-                       $row->city_exp_first_shortened_borrower,
-                       $row->registration_borrower,
-                       $row->last_name_borrower,
-                       $row->mothers_last_name_borrower,
-                       $row->surname_husband_borrower,
-                       $row->first_name_borrower,
-                       $row->second_name_borrower,
+                       $row->identity_card_affiliate,
+                       $row->city_exp_first_shortened_affiliate,
+                       $row->registration_affiliate,
+                       $row->last_name_affiliate,
+                       $row->mothers_last_name_affiliate,
+                       $row->surname_husband_affiliate,
+                       $row->first_name_affiliate,
+                       $row->second_name_affiliate,
                        $row->num_accounting_voucher_loan,
                        Util::money_format($row->amount_approved_loan),
                        $row->state_type_affiliate,

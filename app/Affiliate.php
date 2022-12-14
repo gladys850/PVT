@@ -274,7 +274,7 @@ class Affiliate extends Model
 
     public function active_loans()
     {
-        return $this->verify_balance($this->loans);
+      return $this->verify_balance($this->loans);
     }
     public function current_loans()
     {
@@ -286,7 +286,10 @@ class Affiliate extends Model
       $guarantees = LoanGuarantor::whereAffiliateId($this->id)->get();
       $data_loan = [];
       foreach($guarantees as $guarantee){
-          array_push($data_loan, $guarantee->loan);
+        $loan = Loan::find($guarantee->loan_id);
+        if($loan){
+          array_push($data_loan, $loan);
+        }
       }
       return $this->verify_balance($data_loan);
     }
@@ -298,14 +301,14 @@ class Affiliate extends Model
 
     private function verify_balance($loans)
     {
-        $active_loans = [];
-        foreach ($loans as $loan) {
-            $loan->balance = $loan->balance;
-            if ($loan->balance > 0) {
-                $loan->estimated_quota = $loan->estimated_quota;
-                array_push($active_loans, $loan);
-            }
+      $active_loans = [];
+      foreach ($loans as $loan) {
+        $loan->balance = $loan->balance;
+        if ($loan->balance > 0) {
+          $loan->estimated_quota = $loan->estimated_quota;
+          array_push($active_loans, $loan);
         }
+      }
         return $active_loans;
     }
     public function inactive_loans()

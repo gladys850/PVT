@@ -215,13 +215,13 @@
                                    ></v-text-field>
                                   </v-col>
                                   <v-col cols="12" md="4" class="py-0" v-show="!collection_edit_sismu">
-                                    <p><b>Saldo de Préstamo a Refinanciar:</b> {{loan_refinancing.balance | money}}</p>
+                                    <p><b>Saldo de Préstamo a Refinanciar:</b> {{loan_refinancing.balance_parent_loan_refinancing | money}}</p>
                                   </v-col>
                                   <v-col cols="12" md="4" v-show="collection_edit_sismu " class="py-0" >
                                     <v-text-field
                                       dense
                                       label="Saldo de Prestamo a Refinanciar"
-                                      v-model="loan_refinancing.balance"
+                                      v-model="loan_refinancing.balance_parent_loan_refinancing"
                                      :outlined="true"
                                     ></v-text-field>
                                   </v-col>
@@ -496,14 +496,14 @@
                               <v-col cols="12" md="12" class="mb-0 py-0">
                                 <v-card-text class="pa-0 mb-0">
                                   <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
-                                    <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo'">
+                                    <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo Anticipo'">
                                       <li v-for="(guarantor) in loan.borrowerguarantors" :key="guarantor.id">
                                         <v-col cols="12" md="12" class="pa-0 mb-0">
                                           <v-row class="pa-2">
                                             <v-col cols="12" md="12" class="py-0">
                                               <p style="color:teal"><b>GARANTE
                                                 <v-tooltip top v-if="permissionSimpleSelected.includes('show-affiliate')">
-                                                  <template v-if="guarantor.type == 'affiliates'" v-slot:activator="{ on }">
+                                                  <template v-slot:activator="{ on }">
                                                     <v-btn
                                                       icon
                                                       dark
@@ -512,22 +512,7 @@
                                                       bottom
                                                       right
                                                       v-on="on"
-                                                      :to="{name: 'affiliateAdd', params: { id: guarantor.id}}"
-                                                      target="_blank"
-                                                    >
-                                                      <v-icon>mdi-eye</v-icon>
-                                                    </v-btn>
-                                                  </template>
-                                                  <template v-else v-slot:activator="{ on }">
-                                                    <v-btn
-                                                      icon
-                                                      dark
-                                                      small
-                                                      color="warning"
-                                                      bottom
-                                                      right
-                                                      v-on="on"
-                                                      :to="{name: 'affiliateAdd', params: { id: guarantor.affiliate.id}}"
+                                                      :to="{name: 'affiliateAdd', params: { id: guarantor.affiliate_id}}"
                                                       target="_blank"
                                                     >
                                                       <v-icon>mdi-eye</v-icon>
@@ -630,6 +615,7 @@
                                           </v-row>
                                         </v-col>
                                         <BallotsAdjust :ballots="guarantor.ballots"/>
+                                        <GuaranteesTable :borrowerguarantors="guarantor.active_guarantees"/>
                                       </li>
                                       <br>
                                       <p v-if="loan.guarantors.length==0" style="color:teal"><b> NO TIENE GARANTES </b></p>
@@ -784,9 +770,6 @@
                                       </v-col>
                                     </v-row>
                                   </v-col>
-                                  <ul style="list-style: none" class="pa-0 py-4" v-if="procedure_type.name == 'Préstamo Anticipo'">
-                                    <p style="color:teal"> <b>NO TIENE GARANTES</b></p>
-                                  </ul>
                                 </div>
                               </v-card-text>
                             </v-col>
@@ -1255,10 +1238,12 @@
 </template>
 <script>
 import BallotsAdjust from "@/components/workflow/BallotsAdjust"
+import GuaranteesTable from "@/components/workflow/GuaranteesTable"
 export default {
   name: "specific-data-loan",
   components:{
-    BallotsAdjust
+    BallotsAdjust,
+    GuaranteesTable
   },
   props: {
     loan_refinancing: {
@@ -1666,7 +1651,7 @@ export default {
                  let res1 = await axios.patch(`loan/${this.loan.id}/sismu`, {
                  data_loan:[{
                     date_cut_refinancing: this.loan_refinancing.date_cut_refinancing,
-                    balance : this.loan_refinancing.balance
+                    balance : this.loan_refinancing.balance_parent_loan_refinancing
                   }
                  ]
                })

@@ -219,6 +219,10 @@ class ImportationController extends Controller
         ]);
       DB::beginTransaction();
       try{
+        // aumenta el tiempo máximo de ejecución de este script a 150 min:
+        ini_set('max_execution_time', 9000000);
+        // aumentar el tamaño de memoria permitido de este script:
+        ini_set('memory_limit', '96000M');
         $period =LoanPaymentPeriod::whereId($request->period)->first();
         $procedure_modality_id = ProcedureModality::whereShortened('DES-SENASIR')->first()->id;
         $categorie_id = LoanPaymentCategorie::whereTypeRegister('SISTEMA')->first()->id;
@@ -271,7 +275,7 @@ class ImportationController extends Controller
                     if($this->loan_guarantors($payment_agroup->affiliate_id,$period) && $amount_group > 0){//garantias del afiliado
                         $loans_lender = $this->loan_guarantors($payment_agroup->affiliate_id,$period);
                         foreach($loans_lender as $loan_lender){
-                           $loan = Loan::whereId($loan_lender->id)->first();
+                           $loan = Loan::find($loan_lender->loan_id);
                            if($amount_group > 0 && $loan->balance > 0 ){
                             //$loan = Loan::whereId($loan_lender->id)->first();
                             $payment = $loan->get_amount_payment($estimated_date,false,'G');
@@ -769,10 +773,10 @@ class ImportationController extends Controller
             $affiliate_state=$affiliate->affiliate_state->affiliate_state_type->name;
             $payment->state_affiliate = strtoupper($affiliate_state);
 
-            if($request->paid_by = 'T')
-                $payment->initial_affiliate = $request->paid_by.'-'.LoanBorrower::where('loan_id',$loan->id)->first()->initials;
-            elseif($request->paid_by = 'G')
-                $payment->initial_affiliate = $request->paid_by.'-'.LoanGuarantor::where('loan_id',$loan->id)->first()->initials;
+            if($request->paid_by == 'T')
+                $payment->initial_affiliate = LoanBorrower::where('loan_id',$loan->id)->first()->initials;
+            elseif($request->paid_by == 'G')
+                $payment->initial_affiliate = LoanGuarantor::where('loan_id',$loan->id)->first()->initials;
             $payment->categorie_id = $request->categorie_id;
 
             $payment->paid_by = $request->paid_by;

@@ -85,6 +85,7 @@ Route::group([
         Route::get('report_loan_vigent', 'Api\V1\LoanReportController@report_loan_vigent');
         Route::get('report_loan_state_cartera', 'Api\V1\LoanReportController@report_loan_state_cartera');
         Route::get('report_loans_mora', 'Api\V1\LoanReportController@report_loans_mora');
+        Route::get('report_loans_mora_v2', 'Api\V1\LoanReportController@report_loans_mora_v2');
         Route::get('loan_information', 'Api\V1\LoanReportController@loan_information');//reporte de nuevos prestamos desembolsados
         Route::get('loan_defaulted_guarantor', 'Api\V1\LoanReportController@loan_defaulted_guarantor');//reporte de nuevos prestamos desembolsados
         Route::get('loan_pvt_sismu_report', 'Api\V1\LoanReportController@loan_pvt_sismu_report');//reporte de prestamos PVT y sismu simultaneos
@@ -208,6 +209,7 @@ Route::group([
         ], function () {
             Route::apiResource('loan', 'Api\V1\LoanController')->only('index');
             Route::apiResource('loan', 'Api\V1\LoanController')->only('show');
+            Route::post('loan_advance/{loan}', 'Api\V1\LoanController@destroy_advance');
             Route::get('loan/{loan}/disbursable', 'Api\V1\LoanController@get_disbursable');
             Route::get('affiliate/{affiliate}/loan','Api\V1\AffiliateController@get_loans');
             Route::get('loan/{loan}/document','Api\V1\LoanController@get_documents');

@@ -66,7 +66,8 @@ class CreateViewLoanBorrowerTable extends Migration
             l.delivery_contract_date,
             l.return_contract_date,
             l.regional_delivery_contract_date,
-            l.regional_return_contract_date
+            l.regional_return_contract_date,
+            date_cut_refinancing(l.id) as date_cut_refinancing
         FROM loans l
             JOIN loan_borrowers lb ON l.id =lb.loan_id 
             JOIN affiliates a ON a.id = l.affiliate_id

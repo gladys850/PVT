@@ -19,8 +19,8 @@ class CreateLoanBorrowersTable extends Migration
             $table->foreign('loan_id')->references('id')->on('loans');
             $table->unsignedBigInteger('degree_id')->nullable();
             $table->foreign('degree_id')->references('id')->on('degrees');
-            $table->unsignedBigInteger('unity_id')->nullable();
-            $table->foreign('unity_id')->references('id')->on('units');
+            $table->unsignedBigInteger('unit_id')->nullable();
+            $table->foreign('unit_id')->references('id')->on('units');
             $table->unsignedBigInteger('category_id')->nullable();
             $table->foreign('category_id')->references('id')->on('categories');
             $table->string('type_affiliate')->nullable();

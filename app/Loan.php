@@ -15,6 +15,7 @@ use Util;
 use App\Affiliate;
 use App\LoanBorrower;
 use App\LoanGuarantor;
+use Illuminate\Support\Str;
 
 class Loan extends Model
 {
@@ -31,8 +32,16 @@ class Loan extends Model
     public $timestamps = true;
     // protected $hidden = ['pivot'];
     public $guarded = ['id'];
+   
+    public function generate($model){      
+        $model->uuid=(string) Str::uuid();       
+    return $model;
+    }
+        //funcion para agregar uuid a todos los registros 
+
     public $fillable = [
         'code',
+        'uuid',
         'procedure_modality_id',
         'disbursement_date',
         'disbursement_time',
@@ -68,7 +77,8 @@ class Loan extends Model
     ];
 
     function __construct(array $attributes = [])
-    {
+    {   
+        $this->uuid=(string) Str::uuid();
         parent::__construct($attributes);
         if (!$this->request_date) {
             $this->request_date = Carbon::now();
@@ -105,6 +115,7 @@ class Loan extends Model
     {
         return $this->hasMany(LoanPlanPayment::class)->orderBy('quota_number');
     }
+
 
     public function setProcedureModalityIdAttribute($id)
     {
@@ -857,10 +868,18 @@ class Loan extends Model
         $balance_parent = 0;
        if($this->data_loan){
         $balance_parent=$this->data_loan->balance;
-       }else{
-           if($this->parent_loan && $this->parent_loan->payment_pending_confirmation() != null){
-            $balance_parent = $this->parent_loan->payment_pending_confirmation()->estimated_quota;
-           }
+       }
+       elseif($this->parent_loan){
+           if($this->parent_loan->state->name != "Liquidado")
+           {
+                if(LoanPayment::where('loan_id', $this->parent_loan->id)->where('categorie_id', 1)->first())
+                    $balance_parent = LoanPayment::where('loan_id', $this->parent_loan->id)->where('categorie_id', 1)->first()->estimated_quota;
+                else
+                    $balance_parent = 0;
+            }
+            else{
+                $balance_parent = $this->parent_loan->last_payment_validated->estimated_quota;
+            }
        }
        return  $balance_parent;
 
@@ -869,11 +888,16 @@ class Loan extends Model
      public function date_cut_refinancing(){
          $date_cut_refinancing= null;
        if($this->data_loan){
-         $date_cut_refinancing=$this->data_loan->date_cut_refinancing;
+         $date_cut_refinancing = $this->data_loan->date_cut_refinancing;
        }else{
+        if($this->parent_loan->state->name != 'Liquidado')
+        {
            if($this->parent_loan && $this->parent_loan->payment_pending_confirmation() != null){
             $date_cut_refinancing = $this->parent_loan->payment_pending_confirmation()->estimated_date;
            }
+        }
+        else
+            $date_cut_refinancing = $this->parent_loan->last_payment_validated->estimated_date;
        }
        return  $date_cut_refinancing;
     }
@@ -1199,6 +1223,7 @@ class Loan extends Model
         $estimated_date = null;
        if($liquidate){
             $remaining = 0;
+            $penal = 0;
             if(!$this->last_payment_validated)
                 $days = Carbon::parse(Carbon::parse($this->disbursement_date)->endOfDay())->diffInDays(Carbon::parse($loan_payment_date)->endOfDay());
             else
@@ -1206,10 +1231,12 @@ class Loan extends Model
                 $days = Carbon::parse(Carbon::parse($this->last_payment_validated->estimated_date)->endOfDay())->diffInDays(Carbon::parse($loan_payment_date)->endOfDay());
                 $remaining = $this->last_payment_validated->interest_accumulated + $this->last_payment_validated->penal_accumulated;
             }
+            if($days >= (LoanGlobalParameter::first()->days_current_interest + LoanGlobalParameter::first()->grace_period))
+                $penal = LoanPayment::interest_by_days(($days - LoanGlobalParameter::first()->days_current_interest), $this->interest->penal_interest, $this->balance);
             $interest_by_days = LoanPayment::interest_by_days($days, $this->interest->annual_interest, $this->balance);
             if($days > LoanGlobalParameter::first()->days_current_interest + LoanGlobalParameter::first()->grace_period)
                 $penal_interest = LoanPayment::interest_by_days($days - LoanGlobalParameter::first()->days_current_interest, $this->interest->penal_interest, $this->balance);
-            $suggested_amount = $this->balance + $interest_by_days + $penal_interest + $remaining;
+            $suggested_amount = $this->balance + $interest_by_days + $penal_interest + $remaining + $penal;
             
        }
        else{
@@ -1366,11 +1393,22 @@ class Loan extends Model
 
     public function destroy_guarantors()
     {
-        foreach($this->guarantors as $guarantor)
+        foreach($this->BorrowerGuarantors as $guarantor)
             $guarantor->forceDelete();
         if($this->guarantors->count() == 0)
             return true;
         else
             return false;
+    }
+
+    public function destroy_guarantee_registers()
+    {
+        foreach($this->loan_guarantee_registers as $guarantee_register)
+            $guarantee_register->forceDelete();
+    }
+
+    public function loan_guarantee_registers()
+    {
+        return $this->hasMany(LoanGuaranteeRegister::class);
     }
 }
