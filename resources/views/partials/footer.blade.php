@@ -88,6 +88,5 @@
             <img src="data:image/png;base64, {{ DNS2D::getBarcodePNG(bcrypt($date . ' ' . gethostname() . ' ' . env('APP_URL')), 'PDF417') }}" alt="BARCODE!!!" style="height: 20px; width: 125px;" />
         </div>-->
     </div>
-</div>
 </body>
 </html>
