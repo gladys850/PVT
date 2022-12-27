@@ -194,7 +194,7 @@ class Loan extends Model
     public function guarantors()
     {
         //return $this->hasMany(LoanGuarantor::class);
-        return $this->belongsToMany(Affiliate:: class, 'loan_guarantors');
+        return $this->belongsToMany(Affiliate:: class, 'loan_guarantors')->orderBy('id');
     }
 
     public function personal_references()

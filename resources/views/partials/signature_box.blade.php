@@ -5,7 +5,7 @@
 </head>
 
 <body class="w-100">
-    <div class='text-center m-t-100'>
+    <div class='text-center m-t-50'>
         <div>
             <hr style="margin-top: 0; margin-bottom: 0; padding-top: 0; padding-bottom: 0;" width="250px">
         </div>
