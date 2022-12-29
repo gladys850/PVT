@@ -13,7 +13,6 @@ Route::group([
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
     Route::post('evaluate_garantor2', 'Api\V1\CalculatorController@evaluate_guarantor2');
-    Route::post('send_contract', 'Api\V1\SMSController@send_sms_for_contract');
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
@@ -80,6 +79,7 @@ Route::group([
         //Conceptos de movimientos
         Route::apiResource('movement_concept', 'Api\V1\MovementConceptController')->only('index', 'show', 'store', 'update', 'destroy');
         //REPORTS
+        Route::post('send_contract', 'Api\V1\SMSController@send_sms_for_contract');
             //loanReport
         Route::get('loan_tracking', 'Api\V1\LoanReportController@loan_tracking');//seguimiento de prestamos
         Route::get('list_loan_generate', 'Api\V1\LoanReportController@list_loan_generate');
