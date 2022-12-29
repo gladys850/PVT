@@ -24,7 +24,7 @@ class SMSController extends Controller
     public function send_sms_for_contract(Request $request) {
         $loan_id = $request->loan_id;
         $user_id = $request->user_id;
-        $message = "Favor apersonarse por las oficinas de MUSERPOL a objeto de firmar el contrato";        
+        $message = "SE SOLICITA SE APERSONE POR NUESTRAS OFICINAS DE LA MUSERPOL A OBJETO DEL RECOJO Y/O FIRMA DEL CONTRATO DE SU PRÉSTAMO.";
 
         $cell_phone_number = Loan::find($loan_id)->borrower->first()->cell_phone_number;
         $cell_phone_number = Util::remove_special_char($cell_phone_number);
