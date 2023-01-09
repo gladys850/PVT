@@ -27,6 +27,8 @@ class AddLoanProcedureIdLoanGlobalParametersTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('loan_global_parameters', function (Blueprint $table) {
+            //
+        });
     }
 }
