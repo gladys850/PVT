@@ -13,16 +13,16 @@ class AddColumnLoanProcedureId extends Migration
      */
     public function up()
     {
-        // Schema::table('loan_global_parameters', function (Blueprint $table) {
-        //     $table->unsignedInteger('min_amount_fund_rotary')->change();
-        //     $table->bigInteger('loan_procedure_id')->nullable();
-        //     $table->foreign('loan_procedure_id')->references('id')->on('loan_procedures');
-        // });
+        Schema::table('loan_global_parameters', function (Blueprint $table) {
+            $table->unsignedInteger('min_amount_fund_rotary')->change();
+            $table->bigInteger('loan_procedure_id')->nullable();
+            $table->foreign('loan_procedure_id')->references('id')->on('loan_procedures');
+        });
 
-        // Schema::table('loans', function (Blueprint $table) {
-        //     $table->bigInteger('loan_procedure_id')->nullable();
-        //     $table->foreign('loan_procedure_id')->references('id')->on('loan_procedures');
-        // });
+        Schema::table('loans', function (Blueprint $table) {
+            $table->bigInteger('loan_procedure_id')->nullable();
+            $table->foreign('loan_procedure_id')->references('id')->on('loan_procedures');
+        });
 
         Schema::table('loan_modality_parameters', function (Blueprint $table) {
             $table->bigInteger('loan_procedure_id')->nullable();
