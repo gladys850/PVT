@@ -79,6 +79,7 @@ Route::group([
         //Conceptos de movimientos
         Route::apiResource('movement_concept', 'Api\V1\MovementConceptController')->only('index', 'show', 'store', 'update', 'destroy');
         //REPORTS
+        Route::post('send_contract', 'Api\V1\SMSController@send_sms_for_contract');
             //loanReport
         Route::get('loan_tracking', 'Api\V1\LoanReportController@loan_tracking');//seguimiento de prestamos
         Route::get('list_loan_generate', 'Api\V1\LoanReportController@list_loan_generate');
