@@ -104,7 +104,8 @@
             @php ($pasivo =  $lender->affiliate_state ? $lender->affiliate_state->affiliate_state_type->name : $lender->affiliate->affiliate_state->affiliate_state_type->name )          
             <tr class="bg-grey-darker text-white">  
                 @if ($pasivo  != "Pasivo" )
-                    <td colspan="2">Unidad</td>
+                    <td>Unidad</td>
+                    <td>Fecha de Ingreso a la Institucion Policial</td>
                     <td >Categoría</td>
                 @else
                     <td colspan="1">Tipo de Renta</td>
@@ -113,7 +114,8 @@
             </tr>
             <tr>
                 @if ($pasivo  != "Pasivo")
-                    <td class="data-row py-5" colspan="2">{{ $lender->full_unit}}</td>
+                    <td class="data-row py-5">{{ $lender->full_unit}}</td>
+                    <td class="data-row py-5">{{ $lender->date_entry ? Carbon::parse($lender->date_entry)->format('d/m/y') : '' }}</td>
                     <td class="data-row py-5">{{ $lender->category ? $lender->category->name : '' }}</td>
                 @else
                     <td colspan="1" class="data-row py-5">{{ $lender->pension_entity ? $lender->pension_entity->name : $lender->affiliate->pension_entity->name}}</td>
