@@ -37,8 +37,8 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'debt_index' => 50,//2
                 'quantity_ballots' => 1,
                 'guarantors' => 0,
-                'min_guarantor_category'=>0,
-                'max_guarantor_category'=>100,
+                //'min_guarantor_category'=>0,
+                //'max_guarantor_category'=>100,
                 'personal_reference'=>false,
                 'max_lenders' => 1,
                 'minimum_amount_modality' => 1,
@@ -54,8 +54,8 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'debt_index' => 50,//3
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
-                 //'min_guarantor_category'=>0,
-                 //'max_guarantor_category'=>0,
+                'min_guarantor_category'=>0,
+                'max_guarantor_category'=>100,
                 'personal_reference'=>false,
                 'max_lenders' => 1,
                 'minimum_amount_modality' => 1,
