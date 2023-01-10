@@ -253,7 +253,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con un Solo Garante Sector Activo CPOP')->first()->id,
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con un Solo Garante Sector Activo')->first()->id,
                 'debt_index' => 50,//15
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
@@ -355,7 +355,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a largo Plazo con un Solo Garante Sector Activo CPOP')->first()->id,
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a largo Plazo con un Solo Garante Sector Activo')->first()->id,
                 'debt_index' => 50,//21
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
