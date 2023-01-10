@@ -16,8 +16,8 @@ class ProcedureModalitySeeder extends Seeder
     {
         $procedure_modalities = [
         //Creacion de Nuevas Modalidades
-        ['procedure_type_id'=>12,'name'=>'Largo Plazo con Garantía Personal Servicio Activo Comisión Ítem 0','shortened'=>'LAR-ACT-COM','is_valid'=>true ],
-        ['procedure_type_id'=>12,'name'=>'Largo Plazo con Garantía Personal Servicio en Disponibilidad de Letra','shortened'=>'LAR-DIS','is_valid'=>true ],
+        ['procedure_type_id'=>12,'name'=>'Largo Plazo con Garantía Personal Servicio Activo Comisión','shortened'=>'LAR-ACT-COM','is_valid'=>true ],
+        ['procedure_type_id'=>12,'name'=>'Largo Plazo con Garantía Personal Servicio en Disponibilidad','shortened'=>'LAR-DIS','is_valid'=>true ],
         ];
         foreach ($procedure_modalities as $procedure_modality) {
             ProcedureModality::firstOrCreate($procedure_modality);
@@ -31,7 +31,7 @@ class ProcedureModalitySeeder extends Seeder
         }
         $procedureModalityRef = ProcedureModality::where('name','Refinanciamiento de Préstamo a largo Plazo con un Solo Garante Sector Activo CPOP')->first();
         if(isset($procedureModalityRef)){
-        $procedureModalityRef->name ="Refinanciamiento de Préstamo a largo Plazo con un Solo Garante Sector Activo";
+        $procedureModalityRef->name ="Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo";
         $procedureModality->name ="REF-LAR-1G";
         $procedureModalityRef->update();
         }

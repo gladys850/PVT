@@ -270,7 +270,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal Servicio Activo Comisión Ítem 0')->first()->id,
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal Servicio Activo Comisión')->first()->id,
                 'debt_index' => 40,//16
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
@@ -287,7 +287,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal Servicio en Disponibilidad de Letra')->first()->id,
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal Servicio en Disponibilidad')->first()->id,
                 'debt_index' => 40,//17
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
@@ -355,7 +355,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a largo Plazo con un Solo Garante Sector Activo')->first()->id,
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo')->first()->id,
                 'debt_index' => 50,//21
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
