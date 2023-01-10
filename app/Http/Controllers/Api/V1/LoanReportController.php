@@ -203,7 +203,7 @@ class LoanReportController extends Controller
     array( "NRO DE PRÉSTAMO", "FECHA DE SOLICITUD", "FECHA DESEMBOLSO",
             "INDICE DE ENDEUDAMIENTO", "SECTOR", "PRODUCTO", 
             "CI AFILIADO", "EXP", "MATRICULA AFILIADO", "NOMBRE COMPLETO AFILIADO", "GRADO", "***",
-            "CI PRESTATARIIO", "EXP", "MATRICULA PRESTATARIO", "APELLIDO PATERNO PRESTATARIO", "APELLIDO MATERNO PRESTATARIO", "APE. CASADA PRESTATARIO", "1er NOMPRE PRESTATARIO", "2DO NOMBRE PRESTATARIO",
+            "CI PRESTATARIIO", "EXP", "MATRICULA PRESTATARIO", "APELLIDO PATERNO PRESTATARIO", "APELLIDO MATERNO PRESTATARIO", "APE. CASADA PRESTATARIO", "1er NOMPRE PRESTATARIO", "2DO NOMBRE PRESTATARIO", "Nro CELULAR",
             "NRO. CBTE. CONTABLE", "CAPITAL PAGADO A FECHA DE CORTE", "SALDO A LA FECHA DE CORTE", "MONTO DESEMBOLSADO",
             "MONTO REFINANCIADO", "LIQUIDO DESEMBOLSADO", "ESTADO PTMO", "AMPLIACION",
             "FECHA ULTIMO PAGO DE INTERES")
@@ -233,7 +233,7 @@ class LoanReportController extends Controller
             $loan->surname_husband_borrower,
             $loan->first_name_borrower,
             $loan->second_name_borrower,
-
+            $loan->cell_phone_number_borrower,
             $loan->num_accounting_voucher_loan,
             Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin) ? Util::money_format($loan->amount_approved_loan - (Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->previous_balance-Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->capital_payment)): Util::money_format(0),
             Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin) ? Util::money_format(Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->previous_balance-Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->capital_payment) : Util::money_format($loan->amount_approved_loan),
@@ -299,7 +299,7 @@ class LoanReportController extends Controller
                 array( "NRO DE PRÉSTAMO", "FECHA DE SOLICITUD", "FECHA DESEMBOLSO",
                 "INDICE DE ENDEUDAMIENTO", "SECTOR", "PRODUCTO", 
                 "CI AFILIADO", "EXP", "MATRICULA AFILIADO", "NOMBRE COMPLETO AFILIADO", "GRADO", "***",
-                "CI PRESTATARIIO", "EXP", "MATRICULA PRESTATARIO", "APELLIDO PATERNO PRESTATARIO", "APELLIDO MATERNO PRESTATARIO", "APE. CASADA PRESTATARIO", "1er NOMPRE PRESTATARIO", "2DO NOMBRE PRESTATARIO",
+                "CI PRESTATARIIO", "EXP", "MATRICULA PRESTATARIO", "APELLIDO PATERNO PRESTATARIO", "APELLIDO MATERNO PRESTATARIO", "APE. CASADA PRESTATARIO", "1er NOMPRE PRESTATARIO", "2DO NOMBRE PRESTATARIO", "Nro CELULAR",
                 "NRO. CBTE. CONTABLE", "CAPITAL PAGADO A FECHA DE CORTE", "SALDO A LA FECHA DE CORTE", "MONTO DESEMBOLSADO",
                 "MONTO REFINANCIADO", "LIQUIDO DESEMBOLSADO", "ESTADO PTMO", "AMPLIACION",
                 "FECHA ULTIMO PAGO DE INTERES")
@@ -329,7 +329,7 @@ class LoanReportController extends Controller
             $loan->surname_husband_borrower,
             $loan->first_name_borrower,
             $loan->second_name_borrower,
-        
+            $loan->cell_phone_number_borrower,
             $loan->num_accounting_voucher_loan,
             Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin) ? Util::money_format($loan->amount_approved_loan - (Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->previous_balance-Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->capital_payment)) : Util::money_format(0),
             Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin) ? Util::money_format(Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->previous_balance-Loan::whereId($loan->id_loan)->first()->last_payment_date($date_fin)->capital_payment) : Util::money_format($loan->amount_approved_loan),
