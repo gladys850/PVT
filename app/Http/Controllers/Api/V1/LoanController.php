@@ -520,7 +520,20 @@ class LoanController extends Controller
                     $state_id = LoanState::whereName('Vigente')->first()->id;
                     $loan['state_id'] = $state_id;
                     $loan->save();
-                    }       
+                    $this->get_plan_payments($loan, $loan['disbursement_date']);
+                    $loan_id = $loan->id;
+                    $cell_phone_number = $loan->affiliate->cell_phone_number;
+                    if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
+                        //$cell_phone_number = Util::remove_special_char($cell_phone_number);//todos los numeros
+                        $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
+                        $message = "AL HABERSE EFECTIVIZADO SU DESEMBOLSO, SE NOTIFICA PARA QUE SE APERSONE POR OFICINAS DE MUSERPOL A OBJETO DEL RECOJO DE SU CONTRATO Y PLAN DE PAGOS DE SU PRÉSTAMO.";
+                        if(Util::delegate_shipping($cell_phone_number,$message, $loan_id,Auth::user()->id)) {
+                            logger("envio correctamente");
+                        } else {
+                            logger("No envío!");
+                        }
+                    }
+                }
             }else{
                 if($request->date_signal == false){
                     if($request->has('disbursement_date') && $request->disbursement_date != NULL){
@@ -549,23 +562,23 @@ class LoanController extends Controller
                                 $loan['disbursement_date'] = $request->disbursement_date;
                                 $state_id = LoanState::whereName('Vigente')->first()->id;
                                 $loan['state_id'] = $state_id;
-                                $loan->save();      
-                            }           
+                                $loan->save();
+                                $this->get_plan_payments($loan, $loan['disbursement_date']);
+                                $loan_id = $loan->id;
+                                $cell_phone_number = $loan->affiliate->cell_phone_number;
+                                if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
+                                    //$cell_phone_number = Util::remove_special_char($cell_phone_number);//todos los numeros
+                                    $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
+                                    $message = "AL HABERSE EFECTIVIZADO SU DESEMBOLSO, SE NOTIFICA PARA QUE SE APERSONE POR OFICINAS DE MUSERPOL A OBJETO DEL RECOJO DE SU CONTRATO Y PLAN DE PAGOS DE SU PRÉSTAMO.";
+                                    if(Util::delegate_shipping($cell_phone_number,$message, $loan_id,Auth::user()->id)) {
+                                        logger("envio correctamente");
+                                    } else {
+                                        logger("No envío!");
+                                    }
+                                }
+                            }
                         }else abort(409, "El usuario no tiene los permisos necesarios para realizar el registro");
                     }
-                }
-            }
-            $this->get_plan_payments($loan, $loan['disbursement_date']);
-            $loan_id = $loan->id;
-            $cell_phone_number = $loan->affiliate->cell_phone_number;
-            if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
-                //$cell_phone_number = Util::remove_special_char($cell_phone_number);//todos los numeros
-                $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
-                $message = "AL HABERSE EFECTIVIZADO SU DESEMBOLSO, SE NOTIFICA PARA QUE SE APERSONE POR OFICINAS DE MUSERPOL A OBJETO DEL RECOJO DE SU CONTRATO Y PLAN DE PAGOS DE SU PRÉSTAMO.";
-                if(Util::delegate_shipping($cell_phone_number,$message, $loan_id,Auth::user()->id)) {
-                    logger("envio correctamente");
-                } else {
-                    logger("No envío!");
                 }
             }
         }
