@@ -26,13 +26,13 @@ class ProcedureModalitySeeder extends Seeder
         $procedureModality = ProcedureModality::where('name','Largo Plazo con un Solo Garante Sector Activo CPOP')->first();
         if(isset($procedureModality)){
         $procedureModality->name ="Largo Plazo con un Solo Garante Sector Activo";
-        $procedureModality->name ="LAR-1G";
+        $procedureModality->shortened ="LAR-1G";
         $procedureModality->update();
         }
         $procedureModalityRef = ProcedureModality::where('name','Refinanciamiento de Préstamo a largo Plazo con un Solo Garante Sector Activo CPOP')->first();
         if(isset($procedureModalityRef)){
         $procedureModalityRef->name ="Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo";
-        $procedureModality->name ="REF-LAR-1G";
+        $procedureModalityRef->shortened ="REF-LAR-1G";
         $procedureModalityRef->update();
         }
     }

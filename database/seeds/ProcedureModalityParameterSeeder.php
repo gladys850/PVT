@@ -167,6 +167,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_contract_platform' => false,
                 'print_receipt_fund_rotary' => false,
                 'print_form_qualification_platform' =>false,
+                'loan_procedure_id' => 2,
             ],[
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP')->first()->id,
                 'debt_index' => 50,//10
