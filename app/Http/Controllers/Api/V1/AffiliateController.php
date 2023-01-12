@@ -1690,7 +1690,7 @@ class AffiliateController extends Controller
         if($affiliate->address == null)
             $information = $information."direccion";
         $max_guarantees = 0;
-        $loan_procedure = LoanProcedure::where('end_production_date', '>=', Carbon::now())->first()->id;
+        $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
         if($affiliate->affiliate_state != null)
         {
             if($affiliate->affiliate_state->affiliate_state_type->name == "Activo")

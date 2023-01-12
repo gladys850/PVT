@@ -27,7 +27,7 @@ class LoanGlobalParameterController extends Controller
     */
     public function index(Request $request)
     {
-        $loan_procedure = LoanProcedure::where('end_production_date', '>=', Carbon::now())->first()->id;
+        $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
         return LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->paginate(1);
     }
 
