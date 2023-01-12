@@ -16,8 +16,8 @@ class ProcedureModalitySeeder extends Seeder
     {
         $procedure_modalities = [
         //Creacion de Nuevas Modalidades
-        ['procedure_type_id'=>12,'name'=>'Largo Plazo con Garantía Personal Servicio Activo Comisión','shortened'=>'LAR-ACT-COM','is_valid'=>true ],
-        ['procedure_type_id'=>12,'name'=>'Largo Plazo con Garantía Personal Servicio en Disponibilidad','shortened'=>'LAR-DIS','is_valid'=>true ],
+        ['procedure_type_id'=>12,'name'=>'Largo Plazo con Garantía Personal en Comisión','shortened'=>'LAR-COM','is_valid'=>true ],
+        ['procedure_type_id'=>12,'name'=>'Largo Plazo con Garantía Personal en Disponibilidad','shortened'=>'LAR-DIS','is_valid'=>true ],
         ];
         foreach ($procedure_modalities as $procedure_modality) {
             ProcedureModality::firstOrCreate($procedure_modality);
