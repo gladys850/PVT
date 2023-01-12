@@ -52,6 +52,7 @@ use App\Exports\FileWithMultipleSheetsDefaulted;
 use App\LoanPlanPayment;
 use App\LoanBorrower;
 use App\LoanGuarantor;
+use App\LoanProcedure;
 
 /** @group Préstamos
 * Datos de los trámites de préstamos y sus relaciones
@@ -697,6 +698,8 @@ class LoanController extends Controller
                 $code = implode(['PTMO', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
                 $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]));
                 $loan->code = $code;
+                $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
+                $loan->loan_procedure_id = $loan_procedure;
             }
         }
         //rehacer obtener cod
