@@ -3,6 +3,7 @@
 use Illuminate\Database\Seeder;
 
 use App\ProcedureModality;
+use App\LoanInterest;
 
 class ProcedureModalitySeeder extends Seeder
 
@@ -35,5 +36,20 @@ class ProcedureModalitySeeder extends Seeder
         $procedureModalityRef->shortened ="REF-LAR-1G";
         $procedureModalityRef->update();
         }
+        //Actualizacion de Parametros tabla LoanInterest de las nuevas modalidades
+        $loan_interests = [
+            //Creacion de parametros
+            ['procedure_modality_id'=>ProcedureModality::where('name','Largo Plazo con Garantía Personal en Comisión')->first()->id,
+             'annual_interest'=>13.20,
+             'penal_interest'=>6
+            ],[
+             'procedure_modality_id'=>ProcedureModality::where('name','Largo Plazo con Garantía Personal en Disponibilidad')->first()->id,
+             'annual_interest'=>13.20,
+             'penal_interest'=>6
+            ],
+            ];
+            foreach ($loan_interests as $loan_interest){
+                LoanInterest::firstOrCreate($loan_interest);
+            }
     }
 }
