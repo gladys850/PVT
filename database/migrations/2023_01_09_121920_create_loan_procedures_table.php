@@ -16,8 +16,8 @@ class CreateLoanProceduresTable extends Migration
         Schema::create('loan_procedures', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('description');
+            $table->boolean('is_enable')->default(false);
             $table->date('start_production_date');
-            $table->date('end_production_date')->nullable();
             $table->timestamps();
         });
     }
