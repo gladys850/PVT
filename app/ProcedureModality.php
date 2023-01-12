@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\ProcedureDocument;
 use App\LoanModalityParameter;
 use App\LoanInterest;
+use Carbon;
+use App\LoanProcedure;
 
 class ProcedureModality extends Model
 {
@@ -21,9 +23,10 @@ class ProcedureModality extends Model
         'is_valid'
     ];
 
-    public function loan_modality_parameter()
+    public function getLoanModalityParameterAttribute()
     {
-        return $this->hasOne(LoanModalityParameter::class);
+        $loan_procedure = LoanProcedure::where('end_production_date', '>=', Carbon::now())->first()->id;
+        return LoanModalityParameter::where('procedure_modality_id', $this->id)->where('loan_procedure_id', $loan_procedure)->first();
     }
 
     public function documents()

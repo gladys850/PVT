@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\ProcedureModality;
+use App\LoanProcedure;
 
 class LoanModalityParameter extends Model
 {
@@ -28,6 +29,7 @@ class LoanModalityParameter extends Model
         'print_contract_platform',
         'print_receipt_fund_rotary',
         'print_form_qualification_platform',
+        'loan_procedure_id',
     ];
 
     public function getDecimalIndexAttribute()
@@ -38,5 +40,10 @@ class LoanModalityParameter extends Model
     public function procedure_modality()
     {
         return $this->belongsTo(ProcedureModality::class);
+    }
+
+    public function loan_procedure()
+    {
+        return $this->hasOne(LoanProcedure::class, 'id', 'loan_procedure_id');
     }
 }

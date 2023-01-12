@@ -40,6 +40,7 @@ use App\Rules\LoanIntervalTerm;
 use App\Module;
 use App\LoanBorrower;
 use App\LoanState;
+use App\LoanProcedure;
 
 /** @group Afiliados
 * Datos de los afiliados y métodos para obtener y establecer sus relaciones
@@ -1530,7 +1531,7 @@ class AffiliateController extends Controller
     */
     public function validate_guarantor(request $request)
     {
-        $affiliate = Affiliate::whereId($request->affiliate_id)->first();
+        $affiliate = Affiliate::find($request->affiliate_id);
         $modality = ProcedureModality::whereId($request->procedure_modality_id)->first();
         $guarantor = false;
         $message = "OK";
@@ -1632,10 +1633,11 @@ class AffiliateController extends Controller
                     break;
             }
         }
-        elseif($affiliate->category == null)
+        else
         {
             $guarantor = false;
-            $message = "El afiliado se encuentra con categoria 0% o no tiene registrada su categoria";
+            $message = "El afiliado se encuentra con categoria 0%";
+            $affiliate->category_name = $affiliate->category->name;
         }
         if($affiliate->spouse != null && $affiliate->spouse->dead == false)
         {
@@ -1688,12 +1690,13 @@ class AffiliateController extends Controller
         if($affiliate->address == null)
             $information = $information."direccion";
         $max_guarantees = 0;
+        $loan_procedure = LoanProcedure::where('end_production_date', '>=', Carbon::now())->first()->id;
         if($affiliate->affiliate_state != null)
         {
             if($affiliate->affiliate_state->affiliate_state_type->name == "Activo")
-                $max_guarantees = LoanGlobalParameter::find(1)->max_guarantor_active;
+                $max_guarantees = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first()->max_guarantor_active;
             elseif($affiliate->affiliate_state->affiliate_state_type->name == "Pasivo")
-                $max_guarantees = LoanGlobalParameter::find(1)->max_guarantor_passive;
+                $max_guarantees = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first()->max_guarantor_passive;
         }
         if($affiliate->affiliate_state->name != 'Servicio' && in_array($request->procedure_modality_id, $id_activo))
         {

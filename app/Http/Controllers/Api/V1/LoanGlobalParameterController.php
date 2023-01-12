@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\LoanGlobalParameter;
 use Util;
+use App\LoanProcedure;
+use Carbon;
 
 /** @group Parámetros de Préstamos
 * Datos de los Parámetros para trámites de préstamos
@@ -25,7 +27,8 @@ class LoanGlobalParameterController extends Controller
     */
     public function index(Request $request)
     {
-        return Util::search_sort(new LoanGlobalParameter(), $request);   
+        $loan_procedure = LoanProcedure::where('end_production_date', '>=', Carbon::now())->first()->id;
+        return LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->paginate(1);
     }
 
     /**

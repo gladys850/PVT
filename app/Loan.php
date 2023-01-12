@@ -73,7 +73,8 @@ class Loan extends Model
         'regional_delivery_contract_date',
         'regional_return_contract_date',
         'payment_plan_compliance',
-        'affiliate_id'
+        'affiliate_id',
+        'loan_procedure_id'
     ];
 
     function __construct(array $attributes = [])
@@ -755,7 +756,7 @@ class Loan extends Model
             }
         }
         if ($modality) {
-            $modality->loan_modality_parameter;
+            $modality->loan_modality_parameter = $modality->loan_modality_parameter;
             $modality->procedure_type;
             return response()->json($modality);
         }else{
