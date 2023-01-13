@@ -35,12 +35,12 @@ class ProcedureModality extends Model
 
     public function required_documents()
     {
-        return $this->documents()->wherePivot('number', '!=', 0);
+        return $this->documents()->wherePivot('number', '!=', 0)->whereNull('deleted_at');
     }
 
     public function optional_documents()
     {
-        return $this->documents()->wherePivot('number', 0);
+        return $this->documents()->wherePivot('number', 0)->whereNull('deleted_at');
     }
 
     public function getRequirementsListAttribute()
