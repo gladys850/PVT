@@ -1353,7 +1353,8 @@ class LoanController extends Controller
            'guarantors' => collect($guarantors),
            'Loan_type_title' => $loan_type_title, 
            'estimated' => $estimated,
-           'file_title' => $file_title
+           'file_title' => $file_title,
+           'high_amount' => $loan->amount_requested < LoanGlobalParameter::where('loan_procedure_id', $loan->loan_procedure_id)->first()->max_approved_amount ? false: true
        ];
        $information_loan= $this->get_information_loan($loan);
        $file_name =implode('_', ['calificación', $procedure_modality->shortened, $loan->code]) . '.pdf'; 
