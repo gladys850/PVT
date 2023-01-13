@@ -1548,6 +1548,10 @@ class AffiliateController extends Controller
         foreach (ProcedureModality::where('name', 'like', '%AFP')->get() as $procedure) {
             array_push($id_afp, $procedure->id);
         }
+        $id_com_disp = array();
+        foreach (ProcedureModality::where('name', 'like', '%Comisión')->orWhere('name', 'like', '%Disponibilidad')->get() as $procedure) {
+            array_push($id_com_disp, $procedure->id);
+        }
         if($affiliate->category_id == null)
         {
             $guarantor = false;
@@ -1623,6 +1627,24 @@ class AffiliateController extends Controller
                         $affiliate->category_name = null;
                     else
                         $affiliate->category_name = $affiliate->category->name;
+                    break;
+                case (in_array($request->procedure_modality_id, $id_com_disp)):
+                    if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    {
+                        if($affiliate->category == null)
+                            $message = "El afiliado no tiene registrado su categoria";
+                        else
+                        {
+                            if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
+                                $guarantor = true;
+                            else
+                                $message = "El afiliado no se encuentra en la categoria necesaria";
+                        }
+                    }
+                    else
+                    {
+                        $message = "Afiliado no pertenece al sector activo";
+                    }
                     break;
                 default:
                     $message = "no corresponde con la modalidad";
