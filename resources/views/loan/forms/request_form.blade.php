@@ -75,9 +75,9 @@
         @foreach ($lenders as $lender)
         <table style="font-size:11px;" class="table-info w-100 text-center uppercase my-10">
             <tr class="bg-grey-darker text-white">
-                <td class="w-70">Solicitante</td>
-                <td class="w-15">CI</td>
-                <td class="w-15">Estado</td>
+                <td class="w-60">Solicitante</td>
+                <td class="w-20">CI</td>
+                <td class="w-20">Estado</td>
             </tr>
             <tr> 
                 <td class="data-row py-5">{{ $lender->title && $lender->type=="affiliates" ? $lender->title() : '' }} {{ $lender->full_name }}</td>
@@ -105,7 +105,7 @@
             <tr class="bg-grey-darker text-white">  
                 @if ($pasivo  != "Pasivo" )
                     <td>Unidad</td>
-                    <td>Fecha de Ingreso a la Institucion Policial</td>
+                    <td>Ingreso a la Policia</td>
                     <td >Categoría</td>
                 @else
                     <td colspan="1">Tipo de Renta</td>
@@ -115,7 +115,7 @@
             <tr>
                 @if ($pasivo  != "Pasivo")
                     <td class="data-row py-5">{{ $lender->full_unit}}</td>
-                    <td class="data-row py-5">{{ $lender->date_entry ? Carbon::parse($lender->date_entry)->format('d/m/y') : '' }}</td>
+                    <td class="data-row py-5">{{ $lender->date_entry ? Carbon::parse($lender->date_entry)->format('d/m/Y') : '' }}</td>
                     <td class="data-row py-5">{{ $lender->category ? $lender->category->name : '' }}</td>
                 @else
                     <td colspan="1" class="data-row py-5">{{ $lender->pension_entity ? $lender->pension_entity->name : $lender->affiliate->pension_entity->name}}</td>
@@ -155,9 +155,9 @@
         </div>
         <table style="font-size:11px;" class="table-info w-100 text-center uppercase my-10">
             <tr class="bg-grey-darker text-white">
-                <td class="w-70">Garante</td>
-                <td class="w-15">CI</td>
-                <td class="w-15">Estado</td>
+                <td class="w-60">Garante</td>
+                <td class="w-20">CI</td>
+                <td class="w-20">Estado</td>
             </tr>
             <tr>
                 <td class="data-row py-5">{{ $guarantor->title && $guarantor->type=="affiliates" ? $guarantor->title : '' }} {{ $guarantor->full_name }}</td>
@@ -186,7 +186,8 @@
             <tr class="bg-grey-darker text-white">
                 @php ($inactive = $guarantor->pension_entity)
                 @if ($guarantor->affiliate_state->affiliate_state_type->name != "Pasivo")
-                <td colspan="{{$inactive ? 1 : 2}}">Unidad</td>
+                <td>Unidad</td>
+                <td>Ingreso a la policia</td>
                 @else 
                 @php ($pasivo_guarantor = true )
                 @endif
@@ -198,7 +199,8 @@
                 </tr>
                 <tr>
                 @if ($guarantor->affiliate_state->affiliate_state_type->name != "Pasivo")
-                    <td class="data-row py-5" colspan="{{$inactive ? 1 : 2}}">{{ $guarantor->full_unit}}</td>
+                    <td>{{ $guarantor->full_unit}}</td>
+                    <td class="data-row py-5">{{ Carbon::parse($guarantor->affiliate->date_entry)->format('d/m/Y')}}</td>
                 @endif
                     <td class="data-row py-5">{{ $guarantor->category ? $guarantor->category->name : '' }}</td>
                     @if ($inactive)
