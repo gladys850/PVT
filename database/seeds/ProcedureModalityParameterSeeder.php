@@ -169,8 +169,25 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP')->first()->id,
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad')->first()->id,
                 'debt_index' => 50,//10
+                'quantity_ballots' => 1,
+                'guarantors' => 0,
+                //'min_guarantor_category'=>0,
+                //'max_guarantor_category'=>1,
+                'personal_reference'=>true,
+                'max_lenders' => 1,
+                'minimum_amount_modality' => 1,
+                'maximum_amount_modality' => 25000,
+                'minimum_term_modality' => 1,
+                'maximum_term_modality' => 24,
+                'print_contract_platform' => false,
+                'print_receipt_fund_rotary' => false,
+                'print_form_qualification_platform' =>false,
+                'loan_procedure_id' => 2,
+            ],[
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP')->first()->id,
+                'debt_index' => 50,//11
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
                 'min_guarantor_category'=>0,
@@ -187,7 +204,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'loan_procedure_id' => 2,
             ],[
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR')->first()->id,
-                'debt_index' => 50,//11
+                'debt_index' => 50,//12
                 'quantity_ballots' => 1,
                 'guarantors' => 0,
                 //'min_guarantor_category'=>0,
@@ -204,7 +221,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'loan_procedure_id' => 2,
             ],[
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal Sector Activo')->first()->id,
-                'debt_index' => 40,//12
+                'debt_index' => 40,//13
                 'quantity_ballots' => 1,
                 'guarantors' => 2,
                 'min_guarantor_category'=>0,
@@ -221,23 +238,6 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'loan_procedure_id' => 2,
             ],[
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal Sector Pasivo AFP')->first()->id,
-                'debt_index' => 40,//13
-                'quantity_ballots' => 1,
-                'guarantors' => 1,
-                'min_guarantor_category'=>0,
-                'max_guarantor_category'=>1,
-                'personal_reference'=>true,
-                'max_lenders' => 1,
-                'minimum_amount_modality' => 1,
-                'maximum_amount_modality' => 300000,
-                'minimum_term_modality' => 1,
-                'maximum_term_modality' => 24,
-                'print_contract_platform' => false,
-                'print_receipt_fund_rotary' => false,
-                'print_form_qualification_platform' =>false,
-                'loan_procedure_id' => 2,
-            ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal Sector Pasivo SENASIR')->first()->id,
                 'debt_index' => 40,//14
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
@@ -254,8 +254,25 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal Sector Pasivo SENASIR')->first()->id,
+                'debt_index' => 40,//15
+                'quantity_ballots' => 1,
+                'guarantors' => 1,
+                'min_guarantor_category'=>0,
+                'max_guarantor_category'=>1,
+                'personal_reference'=>true,
+                'max_lenders' => 1,
+                'minimum_amount_modality' => 1,
+                'maximum_amount_modality' => 300000,
+                'minimum_term_modality' => 1,
+                'maximum_term_modality' => 24,
+                'print_contract_platform' => false,
+                'print_receipt_fund_rotary' => false,
+                'print_form_qualification_platform' =>false,
+                'loan_procedure_id' => 2,
+            ],[
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con un Solo Garante Sector Activo')->first()->id,
-                'debt_index' => 50,//15
+                'debt_index' => 50,//16
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
                 'min_guarantor_category'=>0,
@@ -272,23 +289,6 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'loan_procedure_id' => 2,
             ],[
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal en Comisión')->first()->id,
-                'debt_index' => 40,//16
-                'quantity_ballots' => 1,
-                'guarantors' => 1,
-                'min_guarantor_category'=>0.35,
-                'max_guarantor_category'=>0.85,
-                'personal_reference'=>true,
-                'max_lenders' => 1,
-                'minimum_amount_modality' => 1,
-                'maximum_amount_modality' => 300000,
-                'minimum_term_modality' => 1,
-                'maximum_term_modality' => 60,
-                'print_contract_platform' => false,
-                'print_receipt_fund_rotary' => false,
-                'print_form_qualification_platform' =>false,
-                'loan_procedure_id' => 2,
-            ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal en Disponibilidad')->first()->id,
                 'debt_index' => 40,//17
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
@@ -305,8 +305,25 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal en Disponibilidad')->first()->id,
+                'debt_index' => 40,//18
+                'quantity_ballots' => 1,
+                'guarantors' => 1,
+                'min_guarantor_category'=>0.35,
+                'max_guarantor_category'=>0.85,
+                'personal_reference'=>true,
+                'max_lenders' => 1,
+                'minimum_amount_modality' => 1,
+                'maximum_amount_modality' => 300000,
+                'minimum_term_modality' => 1,
+                'maximum_term_modality' => 60,
+                'print_contract_platform' => false,
+                'print_receipt_fund_rotary' => false,
+                'print_form_qualification_platform' =>false,
+                'loan_procedure_id' => 2,
+            ],[
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Largo Plazo Sector Activo')->first()->id,
-                'debt_index' => 50,//18
+                'debt_index' => 50,//19
                 'quantity_ballots' => 1,
                 'guarantors' => 2,
                 'min_guarantor_category'=>0,
@@ -323,23 +340,6 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'loan_procedure_id' => 2,
             ],[
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP')->first()->id,
-                'debt_index' => 50,//19
-                'quantity_ballots' => 1,
-                'guarantors' => 1,
-                'min_guarantor_category'=>0,
-                'max_guarantor_category'=>1,
-                'personal_reference'=>true,
-                'max_lenders' => 1,
-                'minimum_amount_modality' => 1,
-                'maximum_amount_modality' => 300000,
-                'minimum_term_modality' => 1,
-                'maximum_term_modality' => 24,
-                'print_contract_platform' => false,
-                'print_receipt_fund_rotary' => false,
-                'print_form_qualification_platform' =>false,
-                'loan_procedure_id' => 2,
-            ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR')->first()->id,
                 'debt_index' => 50,//20
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
@@ -356,8 +356,25 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'print_form_qualification_platform' =>false,
                 'loan_procedure_id' => 2,
             ],[
-                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo')->first()->id,
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR')->first()->id,
                 'debt_index' => 50,//21
+                'quantity_ballots' => 1,
+                'guarantors' => 1,
+                'min_guarantor_category'=>0,
+                'max_guarantor_category'=>1,
+                'personal_reference'=>true,
+                'max_lenders' => 1,
+                'minimum_amount_modality' => 1,
+                'maximum_amount_modality' => 300000,
+                'minimum_term_modality' => 1,
+                'maximum_term_modality' => 24,
+                'print_contract_platform' => false,
+                'print_receipt_fund_rotary' => false,
+                'print_form_qualification_platform' =>false,
+                'loan_procedure_id' => 2,
+            ],[
+                'procedure_modality_id'=>$procedure_modality_all->where('name','Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo')->first()->id,
+                'debt_index' => 50,//22
                 'quantity_ballots' => 1,
                 'guarantors' => 1,
                 'min_guarantor_category'=>0,
