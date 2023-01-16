@@ -664,9 +664,14 @@ class Loan extends Model
                 }
             break;
             case 'Refinanciamiento Préstamo a Corto Plazo':
-                if($affiliate_state_type == "Activo" && $affiliate_state !== "Disponibilidad") //affiliados con estado en disponibilidad no realizaran refinanciamientos 
-                {
-                    $modality = ProcedureModality::whereShortened("REF-COR-ACT")->first();//Refinanciamiento corto plazo activo                           
+                if($affiliate_state_type == "Activo"){
+
+                    if($affiliate_state == "Servicio" || $affiliate_state == "Comisión"){
+                        $modality = ProcedureModality::whereShortened("REF-COR-ACT")->first();//Refinanciamiento corto plazo activo
+                    }
+                    if($affiliate_state == "Disponibilidad"){
+                        $modality = ProcedureModality::whereShortened("REF-COR-DIS")->first();//Refinanciamiento corto plazo activo en Disponibilidad
+                    }
                 }else{
                     if($affiliate_state_type == "Pasivo"){
                     
