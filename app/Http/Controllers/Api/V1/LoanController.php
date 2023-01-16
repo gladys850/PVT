@@ -1794,7 +1794,7 @@ class LoanController extends Controller
             $message['defaulted'] = true;
         }
         else{
-            $message['defaulted'] = true;
+            $message['defaulted'] = false;
         }
         //pagos consecutivo
         if ($loan->verify_payment_consecutive()){
