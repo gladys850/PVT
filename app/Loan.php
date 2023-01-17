@@ -73,7 +73,8 @@ class Loan extends Model
         'regional_delivery_contract_date',
         'regional_return_contract_date',
         'payment_plan_compliance',
-        'affiliate_id'
+        'affiliate_id',
+        'loan_procedure_id'
     ];
 
     function __construct(array $attributes = [])
@@ -663,9 +664,14 @@ class Loan extends Model
                 }
             break;
             case 'Refinanciamiento Préstamo a Corto Plazo':
-                if($affiliate_state_type == "Activo" && $affiliate_state !== "Disponibilidad") //affiliados con estado en disponibilidad no realizaran refinanciamientos 
-                {
-                    $modality = ProcedureModality::whereShortened("REF-COR-ACT")->first();//Refinanciamiento corto plazo activo                           
+                if($affiliate_state_type == "Activo"){
+
+                    if($affiliate_state == "Servicio" || $affiliate_state == "Comisión"){
+                        $modality = ProcedureModality::whereShortened("REF-COR-ACT")->first();//Refinanciamiento corto plazo activo
+                    }
+                    if($affiliate_state == "Disponibilidad"){
+                        $modality = ProcedureModality::whereShortened("REF-COR-DIS")->first();//Refinanciamiento corto plazo activo en Disponibilidad
+                    }
                 }else{
                     if($affiliate_state_type == "Pasivo"){
                     
@@ -681,13 +687,21 @@ class Loan extends Model
             case 'Préstamo a Largo Plazo':
                 if($affiliate_state_type == "Activo")
                 {
-                    if($affiliate_state !== "Disponibilidad" ) // disponibilidad letra A o C no puede acceder a prestamos a largo plazo
+                    if($affiliate_state == "Servicio" ) // Servicio
                     {
                         if($cpop_affiliate){
-                            $modality=ProcedureModality::whereShortened("LAR-CPOP")->first();
+                            $modality=ProcedureModality::whereShortened("LAR-1G")->first();
                         }else{
                             $modality=ProcedureModality::whereShortened("LAR-ACT")->first();
                         }
+                    }
+                    if($affiliate_state == "Comisión" ) // Comision
+                    {
+                        $modality=ProcedureModality::whereShortened("LAR-COM")->first();
+                    }
+                    if($affiliate_state == "Disponibilidad" ) // disponibilidad letra A o C
+                    {
+                        $modality=ProcedureModality::whereShortened("LAR-DIS")->first();
                     }
                 }
                 if($affiliate_state_type == "Pasivo")
@@ -705,10 +719,10 @@ class Loan extends Model
             case 'Refinanciamiento Préstamo a Largo Plazo':
                 if($affiliate_state_type == "Activo")
                 {
-                    if($affiliate_state !== "Disponibilidad" ) //disponibilidad letra A o C no tiene prestamos
+                    if($affiliate_state == "Servicio") //Prestamo en Servicio
                     {
                         if($cpop_affiliate){
-                            $modality=ProcedureModality::whereShortened("REF-ACT-CPOP")->first(); //refi largo plazo activo  cpop
+                            $modality=ProcedureModality::whereShortened("REF-LAR-1G")->first(); //refi largo plazo activo  un solo garante
                         }else{
                             $modality=ProcedureModality::whereShortened("REF-LAR-ACT")->first(); //refi largo plazo activo
                         }
@@ -749,13 +763,13 @@ class Loan extends Model
                         }else{
                             $modality=ProcedureModality::whereShortened("REF-HIP-ACT")->first(); // Refinanciamiento hipotecario Sector Activo
                         }
-                    }                   
+                    }
                 }
             break;
             }
         }
         if ($modality) {
-            $modality->loan_modality_parameter;
+            $modality->loan_modality_parameter = $modality->loan_modality_parameter;
             $modality->procedure_type;
             return response()->json($modality);
         }else{

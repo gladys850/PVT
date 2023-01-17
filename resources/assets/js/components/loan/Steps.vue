@@ -423,8 +423,7 @@ export default {
           for(let i = 0; i < this.modalities.length; i++ ){
             if(this.modalities[i].name == "Préstamo Anticipo" ||
               this.modalities[i].name == "Préstamo a Corto Plazo" ||
-              this.modalities[i].name == "Préstamo a Largo Plazo" ||
-              this.modalities[i].name == "Préstamo Hipotecario" ){
+              this.modalities[i].name == "Préstamo a Largo Plazo" ){
               modalities_aux.push(this.modalities[i])
             }
           }
@@ -434,8 +433,7 @@ export default {
           let modalities_aux=[]
           for(let i = 0; i < this.modalities.length; i++ ){
             if(this.modalities[i].name == "Refinanciamiento Préstamo a Corto Plazo" ||
-              this.modalities[i].name == "Refinanciamiento Préstamo a Largo Plazo" ||
-              this.modalities[i].name == "Refinanciamiento Préstamo Hipotecario"){
+              this.modalities[i].name == "Refinanciamiento Préstamo a Largo Plazo" ){
               modalities_aux.push(this.modalities[i])
             }
           }
