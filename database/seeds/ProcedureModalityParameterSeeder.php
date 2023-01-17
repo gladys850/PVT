@@ -291,7 +291,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal en Comisión')->first()->id,
                 'debt_index' => 40,//17
                 'quantity_ballots' => 1,
-                'guarantors' => 1,
+                'guarantors' => 2,
                 'min_guarantor_category'=>0.35,
                 'max_guarantor_category'=>0.85,
                 'personal_reference'=>true,
@@ -308,7 +308,7 @@ class ProcedureModalityParameterSeeder extends Seeder
                 'procedure_modality_id'=>$procedure_modality_all->where('name','Largo Plazo con Garantía Personal en Disponibilidad')->first()->id,
                 'debt_index' => 40,//18
                 'quantity_ballots' => 1,
-                'guarantors' => 1,
+                'guarantors' => 2,
                 'min_guarantor_category'=>0.35,
                 'max_guarantor_category'=>0.85,
                 'personal_reference'=>true,
