@@ -15,9 +15,9 @@ class AddColumnLoanProcedureId extends Migration
     {
         Schema::table('loan_global_parameters', function (Blueprint $table) {
             $table->unsignedInteger('min_amount_fund_rotary')->change();
-            $table->float('max_approved_amount')->nullable();
             $table->bigInteger('loan_procedure_id')->nullable();
             $table->foreign('loan_procedure_id')->references('id')->on('loan_procedures');
+            $table->float('days_year_calculated',10,6)->nullable();
         });
 
         Schema::table('loans', function (Blueprint $table) {
@@ -29,6 +29,8 @@ class AddColumnLoanProcedureId extends Migration
             $table->bigInteger('loan_procedure_id')->nullable();
             $table->foreign('loan_procedure_id')->references('id')->on('loan_procedures');
             $table->unique(['procedure_modality_id', 'loan_procedure_id']);
+            $table->float('max_approved_amount')->nullable();
+            $table->float('guarantor_debt_index',5,2)->nullable();
         });
     }
 

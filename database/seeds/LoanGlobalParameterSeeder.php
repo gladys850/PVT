@@ -48,7 +48,7 @@ class LoanGlobalParameterSeeder extends Seeder
             'min_percentage_paid' => 25,
             'min_remaining_installments' => 3,
             'min_amount_fund_rotary' => 100000,
-            'max_approved_amount'=> 80000,
+            'days_year_calculated'=> 1,
             'loan_procedure_id' => 2,
             ]
         ];
