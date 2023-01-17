@@ -1557,7 +1557,7 @@ class AffiliateController extends Controller
             $guarantor = false;
             $message = "El afiliado no tiene registrada su categoria";
         }
-        elseif($affiliate->category->percentage > 0)
+        elseif($modality->loan_modality_parameter->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= $modality->loan_modality_parameter->max_guarantor_category)
         {
             switch($request->procedure_modality_id){
                 case (in_array($request->procedure_modality_id, $id_activo)):
