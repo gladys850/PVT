@@ -1615,13 +1615,12 @@ class AffiliateController extends Controller
                     }
                     else
                     {
-                        if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
-                            $message = "Afiliado pasivo no puede garantizar a un afp";
+                        //if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
+                        if($affiliate->pension_entity->type == 'SENASIR')
+                            $guarantor = true;
                         else
-                        {
-                            if($affiliate->affiliate_state->name != "Servicio")
-                            $message = "Afiliado se encuentra en comision o disponibilidad";
-                        }
+                            $message = "Afiliado AFP no puede garantizar a un AFP";
+
                     }
                     if($affiliate->category == null)
                         $affiliate->category_name = null;
