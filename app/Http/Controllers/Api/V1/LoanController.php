@@ -1338,6 +1338,9 @@ class LoanController extends Controller
         $lenders = [];
         $lenders = $loan->borrower;
         $guarantors = $loan->borrowerguarantors;
+        $hight_amount = false;
+        if($loan->modality->loan_modality_parameter->max_approved_amount != null && $loan->amount_requested >= $loan->modality->loan_modality_parameter->max_approved_amount)
+        $hight_amount = true;
         $data = [
            'header' => [
                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
@@ -1354,7 +1357,7 @@ class LoanController extends Controller
            'Loan_type_title' => $loan_type_title, 
            'estimated' => $estimated,
            'file_title' => $file_title,
-           'high_amount' => $loan->amount_requested < LoanGlobalParameter::where('loan_procedure_id', $loan->loan_procedure_id)->first()->max_approved_amount ? false: true
+           'high_amount' => $hight_amount
        ];
        $information_loan= $this->get_information_loan($loan);
        $file_name =implode('_', ['calificación', $procedure_modality->shortened, $loan->code]) . '.pdf'; 

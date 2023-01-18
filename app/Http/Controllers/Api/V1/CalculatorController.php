@@ -467,7 +467,7 @@ class CalculatorController extends Controller
         $quantity_guarantors = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter->guarantors;
         if($quantity_guarantors > 0){
             $type = false;
-            $debt_index = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter->debt_index; // solo para garantias se evalua al 50%
+            $debt_index = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter->guarantor_debt_index; // solo para garantias se evalua al 50%
             $affiliate = Affiliate::findOrFail($request->affiliate_id);
             $contributions = collect($request->contributions);
             $payable_liquid_average = $contributions->avg('payable_liquid');
