@@ -93,7 +93,7 @@
             <span>Anular trámite de anticipo</span>
           </v-tooltip>
           </div>
-          <v-tooltip top v-if="permissionSimpleSelected.includes('send-notification-contract') && (loan.guarantors.length>0)">
+          <v-tooltip top v-if="permissionSimpleSelected.includes('send-notification-contract')">
               <template v-slot:activator="{ on }">
                 <v-btn
                 top
