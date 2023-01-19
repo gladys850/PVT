@@ -24,7 +24,7 @@
         {{ searchCategory(item.category_id) }}
       </template>
       <template v-slot:[`item.breakdown`]="{ item }">
-        {{ item.breakdown.name }}
+        {{ item.breakdown != null ? item.breakdown.name : '' }}
       </template>
       <template v-slot:[`item.unit_id`]="{ item }">
         {{ searchUnit(item.unit_id) }}
