@@ -28,7 +28,7 @@ class CreateFunctionsReportLoansMora extends Migration
                 BEGIN
                     IF (type_mora = 'mora') 
                     THEN
-                        SELECT (diff_in_days((SELECT lpv.estimated_date FROM last_payment_validated(id_loan) lpv)::date, rqst_date::date) - (SELECT lgp.days_current_interest FROM loan_global_parameters lgp)) INTO days;
+                        SELECT (diff_in_days((SELECT lpv.estimated_date FROM last_payment_validated(id_loan) lpv)::date, rqst_date::date) - (SELECT lgp.days_current_interest FROM loan_global_parameters lgp limit 1 offset 0)) INTO days;
                         RETURN days;
                     END IF;
                     
@@ -45,7 +45,7 @@ class CreateFunctionsReportLoansMora extends Migration
                     
                     IF (type_mora = 'mora_total')
                     THEN
-                        SELECT (diff_in_days((SELECT l.disbursement_date FROM loans l WHERE l.id = id_loan)::date, rqst_date::date) - (SELECT lgp.days_current_interest FROM loan_global_parameters lgp)) INTO days;
+                        SELECT (diff_in_days((SELECT l.disbursement_date FROM loans l WHERE l.id = id_loan)::date, rqst_date::date) - (SELECT lgp.days_current_interest FROM loan_global_parameters lgp limit 1 offset 0)) INTO days;
                         RETURN days;
                     END IF;
                 END
