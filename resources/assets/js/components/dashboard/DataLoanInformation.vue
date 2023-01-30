@@ -9,7 +9,7 @@
             <template v-if="ver && loans_lender.loans.length > 0">
               <h3 class="pa-1 text-center">PRÉSTAMOS SOLICITADOS POR EL TITULAR</h3>
               <v-row>
-                <v-col cols="12" md="12" class="py-0">
+                <v-col cols="12" md="12">
                   <v-card>
                     <v-data-table
                       class="text-uppercase"
@@ -82,7 +82,7 @@
             <template v-if="ver && loans_lender.guarantees.length > 0">
               <h3 class="pa-1 text-center">PRESTAMOS GARANTIZADOS POR EL TITULAR</h3>
               <v-row>
-                <v-col cols="12" md="12" class="py-0">
+                <v-col cols="12" md="12">
                   <v-card>
                     <v-data-table
                       class="text-uppercase"
@@ -157,7 +157,7 @@
             <template v-if="loans_spouse.loans.length > 0 && ver">
               <h3 class="pa-1 text-center ">PRÉSTAMOS SOLICITADOS POR CONYUGUE</h3>
               <v-row>
-                <v-col cols="12" md="12" class="py-0">
+                <v-col cols="12" md="12">
                   <v-card>
                     <v-data-table
                       class="text-uppercase"
@@ -231,7 +231,7 @@
             <template v-if="loans_spouse.guarantees.length > 0 && ver ">
               <h3 class="pa-1 text-center">PRESTAMOS GARANTIZADOS POR CONYUGUE</h3>
               <v-row>
-                <v-col cols="12" md="12" class="py-0">
+                <v-col cols="12" md="12">
                   <v-card>
                     <v-data-table
                       class="text-uppercase"
