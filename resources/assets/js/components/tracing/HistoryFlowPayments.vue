@@ -1,123 +1,23 @@
 <template>
   <v-container fluid>
-    <v-toolbar-title class="pb-2 ma-0 pa-0">KARDEX</v-toolbar-title>
-    <template v-if="removeAccents(loan.disbursement_date) != 'Fecha invalida'">
 
-      <!-- B O T Ó N   N U E V O   R E G I S T R O   C O B R O -->
-      <v-tooltip top v-if="permissionSimpleSelected.includes('create-payment-loan')">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            dark
-            x-small
-            :color="'success'"
-            top
-            left
-            absolute
-            v-on="on"
-            style="margin-left: 100px; margin-top: 20px"
-            :disabled="loan.state.name == 'Liquidado' ? true : false"
-            @click="createPayment()"
-          >
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-        </template>
-        <div>
-          <span>Nuevo registro de cobro</span>
-        </div>
-      </v-tooltip>
+    <template v-if="loan.state.name == 'Vigente'">
 
-      <!-- B O T Ó N  I M P R I M I R  P L A N  D E  P A G O S -->
-      <v-tooltip top v-if="permissionSimpleSelected.includes('print-payment-plan')">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            x-small
-            color="info"
-            top
-            left
-            absolute
-            v-on="on"
-            style="margin-left: 150px; margin-top: 20px"
-            @click="imprimirPlan($route.params.id)"
-          >
-            <v-icon>mdi-printer</v-icon>
-          </v-btn>
-        </template>
-        <div>
-          <span>Imprimir Plan de Pagos</span>
-        </div>
-      </v-tooltip>
-
-      <!-- B O T Ó N  I M P R I M I R  K A R D E X -->
-      <v-tooltip top v-if="permissionSimpleSelected.includes('print-payment-kardex-loan')">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            x-small
-            color="dark"
-            top
-            left
-            absolute
-            v-on="on"
-            style="margin-left: 200px; margin-top: 20px"
-            @click="imprimirK($route.params.id, true)"
-          >
-            <v-icon>mdi-printer</v-icon>
-          </v-btn>
-        </template>
-        <div>
-          <span>Imprimir Kardex</span>
-        </div>
-      </v-tooltip>
-
-      <!-- B O T Ó N  I M P R I M I R  K A R D E X  D E S P L E G A D O -->
-      <v-tooltip top v-if="permissionSimpleSelected.includes('print-payment-kardex-loan')">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            x-small
-            color="blue lighten-4"
-            top
-            left
-            absolute
-            v-on="on"
-            style="margin-left: 250px; margin-top: 20px"
-            @click="imprimirK($route.params.id, false)"
-          >
-            <v-icon>mdi-printer</v-icon>
-          </v-btn>
-        </template>
-        <div>
-          <span>Imprimir Kardex desplegado</span>
-        </div>
-      </v-tooltip>
-
-      <!-- S E C C I Ó N  D A T O S  B O R R O W E R  Y  L O A N -->
       <v-card class="ma-0 pa-0 pb-2">
         <v-row class="ma-0 pa-0">
           <v-col md="4" class="ma-0 pa-0">
-            <strong>Prestatario: </strong> {{ borrower.type == 'spouses' ? $options.filters.fullName(spouse, true) : $options.filters.fullName(affiliate, true)  }}<br />
-            <strong>CI: </strong> {{ borrower.type == 'spouses' ? spouse.identity_card : affiliate.identity_card  }}<br />
-            <strong>Matrícula: </strong> {{ borrower.type == 'spouses' ?  spouse.registration : affiliate.registration }}<br />
-            <strong>Cuotas: </strong> {{ payments.length ? payments.length : ""}}<br />
-          </v-col>
-          <v-col md="4" class="ma-0 pa-0">
-            <strong>Desembolso: </strong>{{ loan.disbursement_date | datetimeshorted }}<br />
-            <strong>Nro de comprobante contable: </strong>{{ loan.num_accounting_voucher }}<br />
-            <strong>Tasa anual: </strong> {{ loan.intereses.annual_interest | percentage }}%<br />
-            <strong>Cuota fija mensual: </strong> {{ loan.estimated_quota | moneyString}}<br />
-          </v-col>
-          <v-col md="4" class="ma-0 pa-0">
             <strong>Monto desembolsado: </strong>{{ loan.amount_approved | moneyString }}<br />
-            <strong>Saldo Capital: </strong>{{ loan.balance | moneyString }}<br />
-            <strong>Intereses Corrientes Pendientes: </strong>{{(payments[payments.length - 1] ? payments[payments.length - 1].interest_accumulated : 0) | moneyString }}<br />
-            <strong>Intereses Penales Pendientes: </strong>{{ payments[payments.length - 1] ? payments[payments.length - 1].penal_accumulated : 0 | moneyString }}
-           </v-col>
+            <strong>Desembolso: </strong>{{ loan.disbursement_date | date }}<br />
+            <strong>Nro de comprobante contable: </strong>{{ loan.num_accounting_voucher }}<br />
+          </v-col>
+          <v-col md="4" class="ma-0 pa-0">
+            <strong>Tasa anual: </strong> {{ loan.intereses.annual_interest | percentage }}%<br />
+            <strong>Cuota fija mensual: </strong> {{ loan.estimated_quota | money}}<br />
+          </v-col>
+
         </v-row>
       </v-card>
 
-      <!-- S E C C I Ó N  T A B L A  D E  P A G O S -->
       <v-data-table
         dense
         :headers="headers"
@@ -152,6 +52,12 @@
             </v-menu>
           </template>
 
+        <template v-slot:[`item.role_display_name`]="{ item }">
+          {{ item.role.display_name }}
+        </template>
+        <template v-slot:[`item.user_username`]="{ item }">
+          {{ item.user ? item.user.username : '' }}
+        </template>
         <template v-slot:[`item.estimated_date`]="{ item }">
           {{ item.estimated_date | date }}
         </template>
@@ -161,13 +67,13 @@
         <template v-slot:[`item.capital_payment`]="{ item }">
           {{ item.capital_payment | moneyString }}
         </template>
-                <template v-slot:[`item.interest_payment`]="{ item }">
+        <template v-slot:[`item.interest_payment`]="{ item }">
           {{ item.interest_payment | moneyString }}
         </template>
-                <template v-slot:[`item.interest_remaining`]="{ item }">
+        <template v-slot:[`item.interest_remaining`]="{ item }">
           {{ item.interest_remaining | moneyString }}
         </template>
-                <template v-slot:[`item.penal_payment`]="{ item }">
+        <template v-slot:[`item.penal_payment`]="{ item }">
           {{ item.penal_payment | moneyString }}
         </template>
         <template v-slot:[`item.penal_remaining`]="{ item }">
@@ -187,17 +93,12 @@
             <span>{{item.modality.name}}</span>
           </v-tooltip>
         </template>
-        <template v-slot:[`item.state_name`]="{ item }">
+
+        <template v-slot:[`item.state.name`]="{ item }">
           {{ item.state.name }}
         </template>
-        <template v-slot:[`item.voucher_treasury_code`]="{ item }">
-          {{ item.voucher_treasury != null ? item.voucher_treasury.code : ''}}
-        </template>
-        <template v-slot:[`item.paid_by`]="{ item }">
-          {{item.paid_by}}-{{item.initial_affiliate}}
-        </template>
 
-        <template v-slot:[`item.actions`]="{ item }">
+        <!-- <template v-slot:[`item.actions`]="{ item }">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn
@@ -213,43 +114,6 @@
               </v-btn>
             </template>
             <span>Ver registro de cobro</span>
-          </v-tooltip>
-
-          <v-tooltip top bottom v-if="permissionSimpleSelected.includes('update-payment-loan')"
-          >
-            <template v-slot:activator="{ on }">
-              <v-btn
-                icon
-                small
-                v-on="on"
-                color="success"
-                v-if="item.state.name != 'Pagado'"
-                :to="{
-                  name: 'paymentAdd',
-                  params: { hash: 'edit' },
-                  query: { loan_payment: item.id },
-                }"
-              >
-                <v-icon>mdi-file-document-edit-outline</v-icon>
-              </v-btn>
-            </template>
-            <span>Editar/Validar registro de cobro</span>
-          </v-tooltip>
-
-          <v-tooltip bottom v-if="permissionSimpleSelected.includes('delete-payment-loan')">
-            <template v-slot:activator="{ on }">
-              <v-btn
-                icon
-                small
-                v-on="on"
-                color="error"
-                v-if="item.is_last_payment_kardex"
-                @click.stop="bus.$emit('openRemoveDialog', `delete_last_payment/${item.id}/payment`)"
-              >
-                <v-icon>mdi-file-cancel-outline</v-icon>
-              </v-btn>
-            </template>
-            <span>Anular registro de cobro</span>
           </v-tooltip>
 
           <v-menu offset-y close-on-content-click>
@@ -277,9 +141,9 @@
             </v-list>
           </v-menu>
           <template></template>
-        </template>
+        </template> -->
       </v-data-table>
-      <RemoveItem :bus="bus" />
+
     </template>
     <template v-else>
       <h3>NO SE CUENTA AÚN CON EL KARDEX</h3>
@@ -287,28 +151,14 @@
   </v-container>
 </template>
 <script>
-import RemoveItem from "@/components/shared/RemoveItem"
-import common from "@/plugins/common"
 
 export default {
   name: "Kardex-list",
   components: {
-    RemoveItem,
+
   },
   props: {
-    affiliate: {
-      type: Object,
-      required: true,
-    },
-    borrower: {
-      type: Object,
-      required: true,
-    },
     loan: {
-      type: Object,
-      required: true,
-    },
-    spouse: {
       type: Object,
       required: true,
     },
@@ -341,7 +191,22 @@ export default {
         width: "5%",
         filterable: false,
       },
-      ,
+      {
+        text: "Ubicación área",
+        value: "role_display_name",
+        class: ["normal", "white--text"],
+        align: "center",
+        sortable: true,
+        width: "5%",
+      },
+            {
+        text: "Usuario",
+        value: "user_username",
+        class: ["normal", "white--text"],
+        align: "center",
+        sortable: true,
+        width: "5%",
+      },
       {
         text: "Código",
         value: "code",
@@ -432,15 +297,6 @@ export default {
         filterable: false,
       },
       {
-        text: "Código de Transacción",
-        value: "voucher_treasury_code",
-        class: ["normal", "white--text"],
-        align: "center",
-        sortable: true,
-        width: "5%",
-        filterable: false,
-      },
-      {
         text: "Tipo de Amortización.",
         value: "modality_shortened",
         class: ["normal", "white--text"],
@@ -460,33 +316,29 @@ export default {
       },
       {
         text: "Estado",
-        value: "state_name",
+        value: "state.name",
         class: ["normal", "white--text"],
         align: "center",
         sortable: true,
         width: "5%",
         filterable: false,
       },
-      {
-        text: "Acciones",
-        value: "actions",
-        class: ["normal", "white--text"],
-        align: "center",
-        sortable: false,
-        width: "15%",
-        filterable: false,
-      },
+      // {
+        // text: "Acciones",
+        // value: "actions",
+        // class: ["normal", "white--text"],
+        // align: "center",
+        // sortable: false,
+        // width: "15%",
+        // filterable: false,
+      // },
     ],
     refreshKardexTable: 0,
-    refreshKardexButton: 0,
   }),
   computed: {
     //Metodo para obtener Permisos por rol
     permissionSimpleSelected() {
       return this.$store.getters.permissionSimpleSelected;
-    },
-    rolePermissionSelected () {
-      return this.$store.getters.rolePermissionSelected
     },
   },
   watch: {
@@ -497,39 +349,32 @@ export default {
         newVal.sortBy != oldVal.sortBy ||
         newVal.sortDesc != oldVal.sortDesc
       ) {
-        this.getPayments();
+        this.getPayments()
       }
     },
 
   },
-
-  created(){
-    this.removeAccents = common.removeAccents
-  },
   mounted() {
-  this.bus.$on('removed', val => {
-      this.getPayments()
-    })
     this.getPayments()
   },
   methods: {
     async getPayments() {
       try {
         this.loading = true;
-        let res = await axios.get(`kardex_loan_payment`, {
+        let res = await axios.get(`history_loan_payment`, {
           params: {
             loan_id: this.$route.params.id,
           },
-        });
+        })
         this.payments = res.data.payments
         if(this.payments.length > 0){
           this.docsLoans()
         }
         this.refreshKardexTable++
       } catch (e) {
-        console.log(e);
+        console.log(e)
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     createPayment(){
@@ -559,7 +404,7 @@ export default {
         });
       } catch (e) {
         this.toastr.error("Ocurrió un error en la impresión.");
-        console.log(e);
+        console.log(e)
       }
     },
 
@@ -584,6 +429,7 @@ export default {
             folded: folded,
           },
         });
+        console.log("kardex " + item);
         printJS({
           printable: res.data.content,
           type: res.data.type,
@@ -595,30 +441,13 @@ export default {
         console.log(e);
       }
     },
-
-    async imprimirPlan(item) {
-      try {
-        let res = await axios.get(`loan/${item}/print/plan`);
-        printJS({
-          printable: res.data.content,
-          type: res.data.type,
-          file_name: res.data.file_name,
-          base64: true,
-        });
-      } catch (e) {
-        this.toastr.error("Ocurrió un error en la impresión.");
-        console.log(e);
-      }
-    },
-
-    /*Obtener ultimo pago desde front
     last_payment(item){
       if(item.id == this.payments[this.payments.length -1].id ){
         return true
       }else{
         return false
       }
-    },*/
+    },
 
   },
 };

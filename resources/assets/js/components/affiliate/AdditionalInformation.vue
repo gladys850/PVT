@@ -36,7 +36,7 @@
                 <template v-slot:item="props">
                   <tr>
                     <td>
-                      {{ cities.find((o) => o.id == props.item.city_address_id).name }}
+                      {{ props.item.city_address_id != null? cities.find((o) => o.id == props.item.city_address_id).name : '' }}
                     </td>
                     <td>{{ props.item.description }}</td>
                     <!--<td>{{ props.item.street }}</td>

@@ -93,12 +93,12 @@
                   <v-col cols="12" class="ma-0 py-0 px-10">
                     <v-text-field
                       dense
-                      outlined
+                      :outlined="req.pivot.is_valid==false"
                       color="success"
                       label="Comentario"
                       v-model="req.pivot.comment"
-                      @change="createObjectDocuments(req.id, req.pivot.is_valid, req.pivot.comment)"
                       :disabled="!editable"
+                      :readonly="req.pivot.is_valid==true"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -136,7 +136,7 @@
                                         class="py-0"
                                         color="success"
                                         v-model="opt.pivot.is_valid"
-                                        @change="createObjectDocuments(req.id, req.pivot.is_valid, req.pivot.comment)"
+                                        @change="createObjectDocuments(opt.id, opt.pivot.is_valid, opt.pivot.comment)"
                                         :disabled="!editable"
                                       ></v-checkbox>
                                     </div>
@@ -150,12 +150,12 @@
                           <v-col cols="12" class="ma-0 py-0 pl-10 pr-2">
                             <v-text-field
                               dense
-                              outlined
+                              :outlined="opt.pivot.is_valid==false"
                               color="success"
                               label="Comentario"
                               v-model="opt.pivot.comment"
-                              @change="createObjectDocuments(req.id, req.pivot.is_valid, req.pivot.comment)"
                               :disabled="!editable"
+                              :readonly="opt.pivot.is_valid==true"
                             ></v-text-field>
                           </v-col>
                         </v-row>
@@ -194,7 +194,7 @@
                               <span>Cancelar</span>
                             </div>
                           </v-tooltip>
-                          <v-tooltip top>
+                          <!-- <v-tooltip top>
                             <template v-slot:activator="{ on }">
                               <v-btn
                                 fab
@@ -215,7 +215,7 @@
                               <span v-if="editable">Guardar</span>
                               <span v-else>Editar Otros Documentos</span>
                             </div>
-                          </v-tooltip>
+                          </v-tooltip> -->
                         </div>
                       </template>
                     </v-col>
@@ -223,7 +223,7 @@
                   <v-row v-show="!editar">
                     <v-col cols="6" class="ma-0 px-10">
                       <div
-                        class="align-end font-weight-light ma-0 pa-0 pl-2"
+                        class="align-end  ma-0 pa-0 pl-2"
                         v-for="(note, index) of notes"
                         :key="index"
                       >

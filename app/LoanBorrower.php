@@ -288,4 +288,8 @@ class LoanBorrower extends Model
   {
     return $this->belongsTo(Degree::class);
   }
+  public function getDateEntryAttribute()
+  {
+    return $this->affiliate()->date_entry;
+  }
 }

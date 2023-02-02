@@ -37,7 +37,7 @@
                           <v-checkbox
                             dense
                             v-model="affiliate_data.cpop_affiliate"
-                            label="CPOP"
+                            label="1G"
                             class="py-0 my-0"
                             color="teal"
                             @change="Onchange()"

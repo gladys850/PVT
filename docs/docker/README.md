@@ -8,10 +8,10 @@
 
 ## Configuración
 
-* Una vez clonado el proyecto, dentro del directorio raíz del mismo se debe clonar el submódulo Laradock:
+* Una vez clonado el proyecto, dentro del directorio raíz clonar el submódulo Laradock:
 
 ```sh
-git submodule update --init --recursive
+git clone https://github.com/laradock/laradock.git
 ```
 
 * Copiar las recetas modificadas:
@@ -35,6 +35,11 @@ laradock/.env
 
 * Modificar el archivo `.env` de laradock de acuerdo a los puertos que se irán a utilizar.
 
+* Crear las imagenes:
+
+```sh
+docker-compose build --no-cache nginx php-fpm workspace laravel-echo-server redis
+```
 * Levantar los contenedores:
 
 ```sh
@@ -67,6 +72,7 @@ docker-compose exec workspace /var/www/install-spanish-locale.sh
 ```sh
 docker-compose exec --user laradock workspace composer run-script post-root-package-install
 ```
+* Revisar el archivo yarn.lock que tenga la última actualización.
 
 * Instalar las dependencias:
 

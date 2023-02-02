@@ -79,13 +79,14 @@ Route::group([
         //Conceptos de movimientos
         Route::apiResource('movement_concept', 'Api\V1\MovementConceptController')->only('index', 'show', 'store', 'update', 'destroy');
         //REPORTS
+        Route::post('send_contract', 'Api\V1\SMSController@send_sms_for_contract');
             //loanReport
         Route::get('loan_tracking', 'Api\V1\LoanReportController@loan_tracking');//seguimiento de prestamos
         Route::get('list_loan_generate', 'Api\V1\LoanReportController@list_loan_generate');
         Route::get('report_loan_vigent', 'Api\V1\LoanReportController@report_loan_vigent');
         Route::get('report_loan_state_cartera', 'Api\V1\LoanReportController@report_loan_state_cartera');
-        Route::get('report_loans_mora', 'Api\V1\LoanReportController@report_loans_mora');
-        Route::get('report_loans_mora_v2', 'Api\V1\LoanReportController@report_loans_mora_v2');
+        Route::get('report_loans_mora', 'Api\V1\LoanReportController@report_loans_mora_v2');
+        //Route::get('report_loans_mora_v2', 'Api\V1\LoanReportController@report_loans_mora_v2');
         Route::get('loan_information', 'Api\V1\LoanReportController@loan_information');//reporte de nuevos prestamos desembolsados
         Route::get('loan_defaulted_guarantor', 'Api\V1\LoanReportController@loan_defaulted_guarantor');//reporte de nuevos prestamos desembolsados
         Route::get('loan_pvt_sismu_report', 'Api\V1\LoanReportController@loan_pvt_sismu_report');//reporte de prestamos PVT y sismu simultaneos

@@ -44,6 +44,7 @@ class CreateViewLoanBorrowerTable extends Migration
             lb.mothers_last_name AS mothers_last_name_borrower,
             lb.first_name AS first_name_borrower,
             lb.second_name AS second_name_borrower,
+            lb.cell_phone_number AS cell_phone_number_borrower,
             lb.surname_husband AS surname_husband_borrower,
             concat_full_name(lb.first_name, lb.second_name, lb.last_name, lb.mothers_last_name, lb.surname_husband) AS full_name_borrower,
             pm.name AS sub_modality_loan,

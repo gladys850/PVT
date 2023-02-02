@@ -280,11 +280,13 @@
                 ELABORADO POR
                 </td>
                 <td width="35%">
-                APROBADO POR 
+                APROBADO POR
                 </td>
-                <td width="30%">
-                AUTORIZADO POR
-                </td>
+                @if($high_amount)
+                    <td width="30%">
+                    AUTORIZADO POR
+                    </td>
+                @endif
                 </tr>             
             </tbody>
         </table>
