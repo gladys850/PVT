@@ -94,7 +94,7 @@
     <div>
         <?php
             if($modality->name == 'Anticipo Sector Pasivo AFP'){ ?>
-        <b>NOVENA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTE, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber presentes y futuros conforme lo determina el Art. 1335 del Código Civil, asimismo el PRESTATARIO, garantiza con el Beneficio del Complemento Económico que otorga la MUSERPOL y el GARANTE garantiza con los Beneficios que otorga la MUSERPOL, que son Fondo de Retiro Policial Solidario y Complemento Económico de acuerdo al Reglamento de Préstamos MUSERPOL.
+        <b>NOVENA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTE, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber presentes y futuros conforme lo determina el Art. 1335 del Código Civil, ademas el PRESTATARIO, garantiza con el Beneficio del Complemento Económico que otorga la MUSERPOL y el GARANTE garantiza con los Beneficios que otorga la MUSERPOL, que son Fondo de Retiro Policial Solidario y Complemento Económico de acuerdo al Reglamento de Préstamos MUSERPOL.
         <br>
         Asimismo, se constituye como garante personal, solidario, mancomunado e indivisible:
             @if (count($guarantors) == 1)
