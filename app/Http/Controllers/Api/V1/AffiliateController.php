@@ -256,7 +256,7 @@ class AffiliateController extends Controller
             if(in_array($id_prestamos, Auth::user()->modules, true))
             {
                 foreach ($affiliate->processloans as $loan) 
-                {   
+                {
                     $borrower = LoanBorrower::find($loan->borrower[0]->id);
                     if ($borrower->type == 'affiliates')
                     {
@@ -277,12 +277,12 @@ class AffiliateController extends Controller
                         $borrower->surname_husband = $request['surname_husband'];
                         $borrower->gender = $request['gender'];
                         $borrower->civil_status = $request['civil_status'];
-                        $borrower->phone_number = $request['phone_number'];
-                        $borrower->cell_phone_number = $request['cell_phone_number'];
-                        $borrower->address_id = $affiliate->address->id;
                         $borrower->pension_entity_id = $request['pension_entity_id'];
-                        $borrower->update();
                     }
+                    $borrower->phone_number = $request['phone_number'];
+                    $borrower->cell_phone_number = $request['cell_phone_number'];
+                    $borrower->address_id = $affiliate->address->id;
+                    $borrower->update();
                 }
                 $guarantees = $affiliate->guarantees;
                 foreach($guarantees as $guarantee)
