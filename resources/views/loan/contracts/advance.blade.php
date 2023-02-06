@@ -46,7 +46,7 @@
     <div>
     <?php $modality = $loan->modality;
             if($modality->name == 'Anticipo Sector Pasivo AFP'){ ?>
-        <b>SEXTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oﬁcina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta bancaria de la MUSERPOL y enviar la boleta de depósito original a la oﬁcina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída. Consecuentemente se procecerá al descuento al garante personal incluido los intereses penales pasado los 30 días de incumplimiento sin necesidad de previo aviso.
+        <b>SEXTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oﬁcina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oﬁcina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída. Consecuentemente se procecerá al descuento al garante personal incluido los intereses penales pasado los 30 días de incumplimiento sin necesidad de previo aviso.
         <?php }
         else{
             if($modality->name == 'Anticipo Sector Activo' || $modality->name == 'Anticipo en Disponibilidad'){
@@ -62,7 +62,7 @@
            Si por cualquier motivo la MUSERPOL estuviera imposibilitada de realizar el descuento por el medio señalado, el PRESTATARIO se obliga a cumplir con la cuota de amortización mediante pago directo en la Oficina Central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito bancario en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la Oficina Central inmediatamente; sin necesidad de previo aviso; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída.
         </div>
         <div>
-           Asimismo el PRESTATARIO se compromete a hacer conocer oportunamente a la MUSERPOL sobre la omisión del descuento mensual que se hubiera dado a efectos de solicitar al {{ $discount_entity }} se regularice este descuento, sin perjuicio que realice el depósito directo del mes omitido, de acuerdo a lo estipulado en el párrafo precedente.
+           Asimismo el PRESTATARIO se compromete hacer conocer oportunamente a la MUSERPOL sobre la omisión del descuento mensual que se hubiera dado a efectos de solicitar al {{ $discount_entity }} se regularice este descuento, sin perjuicio que realice el depósito directo del mes omitido, de acuerdo a lo estipulado en el párrafo precedente.
         </div>
         <?php }?>
     </div>
@@ -157,9 +157,10 @@
         <b>DÉCIMA CUARTA.- (DE LA CONFORMIDAD Y ACEPTACIÓN):</b> Por una parte en calidad de ACREEDOR la Mutual de Servicios al Policía (MUSERPOL), representada por su {{ $employees[0]['position'] }} {{ $employees[0]['name'] }} y su {{ $employees[1]['position'] }} {{ $employees[1]['name'] }} y por otra parte en calidad de
         @if (count($lenders) == 1)
         <span>
-            PRESTATARI{{ $lender->gender == 'M' ? 'O' : 'A' }} {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }} de generales ya señaladas; asimismo en calidad de garante personal 
+            PRESTATARI{{ $lender->gender == 'M' ? 'O' : 'A' }} {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }} de generales ya señaladas;
             <?php
             if($modality->name == 'Anticipo Sector Pasivo AFP'){ ?>
+            asimismo en calidad de garante personal
             @if (count($guarantors) == 1)
                 @php ($guarantor = $guarantors[0])
                 @php ($male_female_guarantor = Util::male_female($guarantor->gender))
