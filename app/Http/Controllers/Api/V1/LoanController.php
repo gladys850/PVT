@@ -53,6 +53,7 @@ use App\LoanPlanPayment;
 use App\LoanBorrower;
 use App\LoanGuarantor;
 use App\LoanProcedure;
+use App\Jobs\ProcessNotificationSMS;
 
 /** @group Préstamos
 * Datos de los trámites de préstamos y sus relaciones
@@ -525,14 +526,10 @@ class LoanController extends Controller
                     $loan_id = $loan->id;
                     $cell_phone_number = $loan->affiliate->cell_phone_number;
                     if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
-                        //$cell_phone_number = Util::remove_special_char($cell_phone_number);//todos los numeros
                         $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
                         $message = "AL HABERSE EFECTIVIZADO SU DESEMBOLSO, SE NOTIFICA PARA QUE SE APERSONE POR OFICINAS DE MUSERPOL A OBJETO DEL RECOJO DE SU CONTRATO Y PLAN DE PAGOS DE SU PRÉSTAMO.";
-                        if(Util::delegate_shipping($cell_phone_number,$message, $loan_id,Auth::user()->id)) {
-                            logger("envio correctamente");
-                        } else {
-                            logger("No envío!");
-                        }
+                        $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
+                        ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
                     }
                 }
             }else{
@@ -568,14 +565,10 @@ class LoanController extends Controller
                                 $loan_id = $loan->id;
                                 $cell_phone_number = $loan->affiliate->cell_phone_number;
                                 if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
-                                    //$cell_phone_number = Util::remove_special_char($cell_phone_number);//todos los numeros
                                     $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
                                     $message = "AL HABERSE EFECTIVIZADO SU DESEMBOLSO, SE NOTIFICA PARA QUE SE APERSONE POR OFICINAS DE MUSERPOL A OBJETO DEL RECOJO DE SU CONTRATO Y PLAN DE PAGOS DE SU PRÉSTAMO.";
-                                    if(Util::delegate_shipping($cell_phone_number,$message, $loan_id,Auth::user()->id)) {
-                                        logger("envio correctamente");
-                                    } else {
-                                        logger("No envío!");
-                                    }
+                                    $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
+                                    ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
                                 }
                             }
                         }else abort(409, "El usuario no tiene los permisos necesarios para realizar el registro");
