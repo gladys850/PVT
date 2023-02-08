@@ -666,71 +666,45 @@ class Util
         return $correlative_number;
     }
 
-    public static function delegate_shipping($sms_num, $message, $loan_id, $user_id) {
-    // public function delegate_shipping(Request $request) {
-
-        $threshold = 10;
-        $flag = false;
-        if(Util::check_balance() <= $threshold) {
-            $loan = new Loan();
-            $alias = $loan->getMorphClass();
-            $notification_send = new NotificationSend();
-            $transmitter_id = 1;
-            $issuer_number = NotificationNumber::find($transmitter_id)->number;
-            $notification_send->create([
-                'user_id' => $user_id,
-                'carrier_id' => NotificationCarrier::whereName('SMS')->first()->id,
-                'number_id' => NotificationNumber::whereNumber($issuer_number)->first()->id,
-                'sendable_type' => $alias,
-                'sendable_id' => $loan_id,
-                'send_date' => Carbon::now(),
-                'delivered' => false,
-                'message' => json_encode(['data' => $message]),
-                'subject' => null
-            ]);
-            return $flag;
-        }
+    public static function delegate_shipping($sms_num, $message, $loan_id, $user_id, $notification_type) {
         $sms_server_url = env('SMS_SERVER_URL', 'localhost');
         $root = env('SMS_SERVER_ROOT', 'root');
         $password = env('SMS_SERVER_PASSWORD', 'root');
         $sms_provider = env('SMS_PROVIDER', 1);
 
         $code_num = '591' . $sms_num;
-        // $user_id = 1;
         $transmitter_id = 1;
-        $issuer_number = NotificationNumber::find($transmitter_id)->number;
-        $response = Http::get($sms_server_url . "dosend.php?USERNAME=$root&PASSWORD=$password&smsprovider=$sms_provider&smsnum=$code_num&method=2&Memo=$message");
-
-        if($response->successful()) {
-            $clipped_chain = substr($response, strrpos($response, "id=") + 3);
+        $issuer_number = NotificationNumber::find($transmitter_id)->number; $response = Http::get($sms_server_url . "dosend.php?USERNAME=$root&PASSWORD=$password&smsprovider=$sms_provider&smsnum=$code_num&method=2&Memo=$message"); if($response->successful()) { $clipped_chain = substr($response, strrpos($response, "id=") + 3);
             $end_of_chain = substr($clipped_chain,  strrpos($clipped_chain, "&U"));
             $id = substr($clipped_chain, 0, -strlen($end_of_chain));
             $result = Http::timeout(60)->get($sms_server_url . "resend.php?messageid=$id&USERNAME=$root&PASSWORD=$password");
             if($result->successful()) {
                 $var = $result->getBody();
+                $loan = new Loan();
+                $alias = $loan->getMorphClass();
+                $notification_send = new NotificationSend();
                 if(strpos($var, "ERROR") === false || strpos($var, "logout," === false)) {
-                    $flag = true;
-                    $loan = new Loan();
-                    $alias = $loan->getMorphClass();
-                    $notification_send = new NotificationSend();
-                    $notification_send->create([
-                        'user_id' => $user_id,
-                        'carrier_id' => NotificationCarrier::whereName('SMS')->first()->id,
-                        'number_id' => NotificationNumber::whereNumber($issuer_number)->first()->id,
-                        'sendable_type' => $alias,
-                        'sendable_id' => $loan_id,
-                        'send_date' => Carbon::now(),
-                        'delivered' => true,
-                        'message' => json_encode(['data' => $message]),
-                        'subject' => null
-                    ]);
-                }
-            } 
-        } 
-        return $flag;
+                    $delivered = true;
+                } else $delivered = false;
+                $notification_send->create([
+                    'user_id' => $user_id,
+                    'carrier_id' => NotificationCarrier::whereName('SMS')->first()->id,
+                    'sender_number' => NotificationNumber::whereNumber($issuer_number)->first()->id,
+                    'sendable_type' => $alias,
+                    'sendable_id' => $loan_id,
+                    'send_date' => Carbon::now(),
+                    'delivered' => $delivered,
+                    'message' => json_encode(['data' => $message]),
+                    'subject' => null,
+                    'receiver_number' => $sms_num,
+                    'notification_type_id' => $notification_type
+                ]);
+            }
+        }
+        return $delivered;
     }
 
-    public static function remove_special_char($string) {        
+    public static function remove_special_char($string) {
         return preg_replace('/[\(\)\-]+/', '', $string);
     }
 
@@ -756,9 +730,9 @@ class Util
                 }
             }
         }
-        
+
         if($flag) {
-            sleep(7);            
+            sleep(7);
             $message = DB::connection('mysql')->table('receive')->select('msg')->where('srcnum', 330)->orderBY('id', 'desc')->first();
             $clipped_chain = substr($message->msg, strrpos($message->msg, "Bs.") + 4);
             $end_of_chain = substr($clipped_chain, strrpos($clipped_chain, "Paq"));
