@@ -1086,7 +1086,7 @@
                                             </v-btn>
                                           </template>
                                           <div>
-                                            <span v-if="edit_disbursement">Guardarkkk</span>
+                                            <span v-if="edit_disbursement">Guardar</span>
                                             <span v-else>Editar</span>
                                           </div>
                                         </v-tooltip>
