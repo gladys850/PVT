@@ -53,7 +53,15 @@ return [
             'password' => env('DB_LOAN_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
-          ],
+        ],
+        'mysql' => [
+            'driver' => 'mysql',
+            'host' => env('SMS_MYSQL_HOST', 'localhost'),
+            'port' => env('SMS_MYSQL_PORT', '3306'),
+            'database' => env('SMS_MYSQL_DATABASE', 'user'),
+            'username' => env('SMS_MYSQL_USERNAME', 'passwd'),
+            'password' => env('SMS_MYSQL_PASSWORD', ''),
+        ],
     ],
 
     /*
