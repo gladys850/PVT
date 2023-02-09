@@ -279,6 +279,8 @@ class AffiliateController extends Controller
                         $borrower->civil_status = $request['civil_status'];
                         $borrower->pension_entity_id = $request['pension_entity_id'];
                     }
+                    $loan->number_payment_type = $request['account_number'];
+                    $loan->save();
                     $borrower->phone_number = $request['phone_number'];
                     $borrower->cell_phone_number = $request['cell_phone_number'];
                     $borrower->address_id = $affiliate->address->id;
