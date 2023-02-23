@@ -82,7 +82,7 @@
     <div>
         <ol type="a" style="margin:0;">
             <li>Proporcionar información y documentación veraz y legítima para la correcta tramitación del préstamo.</li>
-            <li>Cumplir con los requisitos, condiciones y lineamientos de préstamo.</li>
+            <li>Cumplir con los requisitos, condiciones y lineamientos del préstamo.</li>
             <li>Cumplir con el Contrato de Préstamo suscrito entre la MUSERPOL y el afiliado.</li>
             <li>Amortizar mensualmente la deuda contraída con la MUSERPOL, hasta cubrir el capital adeudado y los intereses correspondientes por la deuda contraída.</li>
             <?php
