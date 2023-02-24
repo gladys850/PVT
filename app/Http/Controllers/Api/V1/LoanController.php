@@ -99,6 +99,12 @@ class LoanController extends Controller
         return $loan;
     }
 
+    public static function append_data_index(Loan $loan){
+        $loan->borrower = $loan->borrower;
+        $loan->modality=$loan->modality->procedure_type;
+        $loan->estimated_quota = $loan->estimated_quota;
+        return $loan;
+    }
     /**
     * Lista de Préstamos
     * Devuelve el listado con los datos paginados
@@ -168,7 +174,7 @@ class LoanController extends Controller
         }
         $data = Util::search_sort(new Loan(), $request, $filters, $relations);
         $data->getCollection()->transform(function ($loan) {
-            return self::append_data($loan, true);
+            return self::append_data_index($loan, true);
         });
         return $data;
     }

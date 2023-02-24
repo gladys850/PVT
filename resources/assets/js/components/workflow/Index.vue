@@ -490,7 +490,8 @@ export default {
         let res = await axios.get(`statistic`, {
           params: {
             module: 'prestamos',
-            filter: 'role_loans'
+            filter: 'role_loans',
+            role_id: this.filters.roleSelected
           }
         })
         res = res.data.find(o => o.role_id == this.filters.roleSelected)
@@ -510,7 +511,8 @@ export default {
         let res = await axios.get(`statistic`, {
           params: {
             module: 'prestamos',
-            filter: 'user_loans'
+            filter: 'user_loans',
+            role_id: this.filters.roleSelected
           }
         })
         //this.resultado = res.data.data_loans

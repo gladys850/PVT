@@ -527,7 +527,7 @@ class Util
         ];
     }
 
-    public static function process_by_procedure_type($model, $object, $module){ //aadecuar para amortizaciones
+    public static function process_by_procedure_type($model, $object, $module,$role_id){ //aadecuar para amortizaciones
         foreach ($object as $key => $procedure_type) {
             $data[] = [
                 'procedure_type_id' => $procedure_type->id,
@@ -538,7 +538,7 @@ class Util
                     'my_received' => 0
                 ]
             ];
-            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
+            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
            // foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $subkey => $role) {
             foreach ( $user_roles as $subkey => $role) {
                 $data[$key]['data'][$subkey] = [
@@ -569,9 +569,8 @@ class Util
         return $data;
     }
 
-    public static function process_by_role($model, $module){
-        $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
-       // foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $role) {
+    public static function process_by_role($model, $module,$role_id){
+        $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
         foreach ($user_roles as $role) {
             $data[] = [
                 'role_id' => $role->id,
@@ -586,7 +585,7 @@ class Util
         return $data;
     }
 
-    public static function loans_by_user($model, $object, $module){
+    public static function loans_by_user($model, $object, $module,$role_id){//prestamos
         foreach ($object as $key => $procedure_type) {
             $data[] = [
                 'procedure_type_id' => $procedure_type->id,
@@ -597,7 +596,8 @@ class Util
                     'my_received' => 0
                 ]
             ];
-            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
+            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
+           // $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
             //foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $subkey => $role) {
             foreach ($user_roles as $subkey => $role) {
                 $data[$key]['data'][$subkey] = [
@@ -628,8 +628,8 @@ class Util
         return $data;
     }
 
-    public static function amortizations_by_user($model, $object, $module){
-        $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
+    public static function amortizations_by_user($model, $object, $module,$role_id){
+        $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
        // foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $role) {
         foreach ($user_roles as $role) {
             $data[] = [
