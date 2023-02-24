@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use App\LoanTrackingType;
 use Carbon;
 use Illuminate\Support\Facades\Validator;
+use App\Helpers\Util;
+use Illuminate\Support\Facades\Auth;
+use App\Loan;
 
 class LoanTrackingController extends Controller
 {
@@ -188,4 +191,41 @@ class LoanTrackingController extends Controller
             'data' => $loan_trackings_types
         ]);
     }
+    /** @group Seguimiento de mora
+   * Imprimir seguimiento mora
+   * Imprimir seguimiento mora de préstamo
+   * @urlParam note required ID de prestamo. Example: 50
+   * @authenticated
+   * @responseFile responses/delay_tracking_loan/print.200.json
+   */
+   public function print_delay_tracking(Loan $loan, $standalone = true)
+   {
+       $file_title = implode('_', ['SEGUIMIENTO MORA','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
+       $lenders = [];
+       $loan_trackings = collect($loan->loan_tracking);
+       $loan->borrower->first();
+       array_push($lenders, $loan->borrower->first());
+       $information_loan= $loan->code;
+       $data = [
+           'header' => [
+               'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+               'unity' => 'UNIDAD DE INVERSIÓN EN PRÉSTAMOS',
+               'table' => [
+                   ['Área', 'COBRANZAS'],
+                   ['Modalidad', $loan->modality->shortened],
+                   ['Fecha', Carbon::now()->format('d/m/Y')],
+                   ['Usuario',Auth::user()->username]
+               ]
+           ],
+           'title' => 'REPORTE DE SEGUIMIENTO DE MORA',
+           'loan' => $loan,
+           'lenders' => collect($lenders),
+           'loan_trackings'=>$loan_trackings,
+           'file_title' => $file_title
+       ];
+       $file_name = implode('_', ['seguimiento', 'mora', $loan->code]) . '.pdf';
+       $view = view()->make('loan.tracking.delay_tracking')->with($data)->render();
+       if ($standalone) return Util::pdf_to_base64([$view], $file_name,$information_loan, 'letter', $request->copies ?? 1);
+       return $view;
+   }
 }
