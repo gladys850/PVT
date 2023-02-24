@@ -1425,4 +1425,8 @@ class Loan extends Model
     {
         return $this->hasMany(LoanGuaranteeRegister::class);
     }
+
+    public function loan_tracking() {
+        return $this->hasMany(LoanTracking::class);
+    }
 }
