@@ -24,7 +24,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
         Conste en el presente contrato de {{ strtolower($title) }}, que al solo reconocimiento de firmas y rúbricas será elevado a Instrumento Público, por lo que las partes que intervienen lo suscriben al tenor y contenido de las siguientes cláusulas y condiciones:
     </div>
     <div>
-        <b>PRIMERA.- (DE LAS PARTES):</b> Intervienen en el presente contrato, por una parte la Mutual de Servicios al Policía (MUSERPOL), representada legalmente por su {{ $employees[0]['position'] }} {{ $employees[0]['name'] }} con C.I. {{ $employees[0]['identity_card'] }} y su {{ $employees[1]['position'] }} {{ $employees[1]['name'] }} con C.I. {{ $employees[1]['identity_card'] }}, que para fines de este contrato en adelante se denominará MUSERPOL, con domicilio en la Z. Sopocachi, Av. 6 de Agosto Nº 2354 y por otra parte
+        <b>PRIMERA.- (DE LAS PARTES):</b> Intervienen en el presente contrato, por una parte la Mutual de Servicios al Policía (MUSERPOL), representada legalmente por su {{ $employees[0]['position'] }} {{ $employees[0]['name'] }} con C.I. {{ $employees[0]['identity_card'] }} y su {{ $employees[1]['position'] }} {{ $employees[1]['name'] }} con C.I. {{ $employees[1]['identity_card'] }}, que para fines de este contrato en adelante se denominará MUSERPOL o ACREEDOR, con domicilio en la Z. Sopocachi, Av. 6 de Agosto Nº 2354 y por otra parte
 
         @if (count($lenders) == 1)
         @php ($lender = $lenders[0])
@@ -37,17 +37,17 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     <div>
         <?php $modality = $loan->modality;
         if($loan->data_loan){ ?>
-            <b>SEGUNDA.- (DEL ANTECEDENTE): </b>Mediante contrato de préstamo {{ $loan->data_loan->code }} SISMU con fecha de desembolso {{$loan->data_loan->disbursement_date? Carbon::parse($loan->data_loan->disbursement_date)->isoFormat('LL'):'_________________'}}, se ha suscrito entre MUSERPOL y el PRESTATARIO un préstamo por la suma de Bs.{{ Util::money_format($loan->data_loan->amount_approved) }} (<span class="uppercase">{{ Util::money_format($loan->data_loan->amount_approved, true) }} Bolivianos) </span>, con garantía de rentas o haberes.
+            <b>SEGUNDA.- (DEL ANTECEDENTE): </b>Mediante contrato de préstamo {{ $loan->data_loan->code }} SISMU con fecha de desembolso {{$loan->data_loan->disbursement_date? Carbon::parse($loan->data_loan->disbursement_date)->isoFormat('LL'):'_________________'}}, se ha suscrito entre la MUSERPOL y el PRESTATARIO un préstamo por la suma de Bs.{{ Util::money_format($loan->data_loan->amount_approved) }} (<span class="uppercase">{{ Util::money_format($loan->data_loan->amount_approved, true) }} Bolivianos) </span>, con garantía de rentas y/o haberes y garantía personal segun corresponda.
             <div>
-            <b>TERCERA.- (DEL OBJETO):</b>  El objeto del presente contrato es el refinanciamiento del préstamo de dinero que MUSERPOL otorga al PRESTATARIO conforme a calificación, previa evaluación y autorización, de conformidad a los niveles de aprobación respectivos en la suma de Bs.{{Util::money_format( $loan->refinancing_balance )}} (<span class="uppercase">{{ Util::money_format($loan->refinancing_balance, true) }} Bolivianos)</span>, para lo cual el PRESTATARIO reconoce de manera expresa el saldo anterior de la deuda correspondiente al préstamo contraído con anterioridad, que asciende a la suma de Bs.{{Util::money_format( $loan->balance_parent_refi())}} (<span class="uppercase">{{ Util::money_format($loan->balance_parent_refi(), true) }} Bolivianos)</span>, montos que hacen un total efectivo de Bs.{{ Util::money_format($loan->amount_approved) }} (<span class="uppercase">{{ Util::money_format($loan->amount_approved, true) }} Bolivianos)</span>, que representa la nueva obligación contraída sujeta a cumplimiento, en función a la operación de refinanciamiento.
+            <b>TERCERA.- (DEL OBJETO):</b>  El objeto del presente contrato es el refinanciamiento del préstamo de dinero que la MUSERPOL otorga al PRESTATARIO conforme a calificación, previa evaluación y autorización, de conformidad a los niveles de aprobación respectivos en la suma de Bs.{{Util::money_format( $loan->refinancing_balance )}} (<span class="uppercase">{{ Util::money_format($loan->refinancing_balance, true) }} Bolivianos)</span>, para lo cual el PRESTATARIO reconoce de manera expresa el saldo anterior de la deuda correspondiente al préstamo contraído con anterioridad, que asciende a la suma de Bs.{{Util::money_format( $loan->balance_parent_refi())}} (<span class="uppercase">{{ Util::money_format($loan->balance_parent_refi(), true) }} Bolivianos)</span>, montos que hacen un total efectivo de Bs.{{ Util::money_format($loan->amount_approved) }} (<span class="uppercase">{{ Util::money_format($loan->amount_approved, true) }} Bolivianos)</span>, que representa la nueva obligación contraída sujeta a cumplimiento, en función a la operación de refinanciamiento.
             </div>
             <?php }
         else{?>
             <div>
-            <b>SEGUNDA.- (DEL ANTECEDENTE):</b>Mediante contrato de préstamo {{ $parent_loan->code }} con fecha de desembolso {{ Carbon::parse($parent_loan->disbursement_date)->isoFormat('LL') }} y modalidad de  {{strtolower($parent_loan->modality->name)}}, se ha suscrito entre MUSERPOL y el PRESTATARIO un préstamo por la suma de Bs.{{ Util::money_format($parent_loan->amount_approved) }} (<span class="uppercase">{{ Util::money_format($parent_loan->amount_approved, true) }} Bolivianos)</span>, con garantía de rentas o haberes y garantía personal si corresponde.
+            <b>SEGUNDA.- (DEL ANTECEDENTE):</b>Mediante contrato de préstamo {{ $parent_loan->code }} con fecha de desembolso {{ Carbon::parse($parent_loan->disbursement_date)->isoFormat('LL') }} y modalidad de  {{strtolower($parent_loan->modality->name)}}, se ha suscrito entre la MUSERPOL y el PRESTATARIO un préstamo por la suma de Bs.{{ Util::money_format($parent_loan->amount_approved) }} (<span class="uppercase">{{ Util::money_format($parent_loan->amount_approved, true) }} Bolivianos)</span>, con garantía de rentas y/o haberes y garantía personal segun corresponda.
             </div>
             <div>
-            <b>TERCERA.- (DEL OBJETO):</b>  El objeto del presente contrato es el refinanciamiento del préstamo de dinero que MUSERPOL otorga al PRESTATARIO conforme a calificación, previa evaluación y autorización, de conformidad a los niveles de aprobación respectivos en la suma de Bs.{{ $loan->refinancing_balance }} (<span class="uppercase">{{ Util::money_format($loan->refinancing_balance, true) }} Bolivianos) </span>, para lo cual el PRESTATARIO reconoce de manera expresa el saldo anterior de la deuda correspondiente al préstamo contraído con anterioridad, que asciende a la suma de Bs.{{ Util::money_format($loan->balance_parent_refi())}} (<span class="uppercase">{{ Util::money_format($loan->balance_parent_refi(), true) }} Bolivianos)</span>, montos que hacen un total efectivo de Bs.{{ Util::money_format($loan->amount_approved) }} (<span class="uppercase">{{ Util::money_format($loan->amount_approved, true) }} Bolivianos)</span>, que representa la nueva obligación contraída sujeta a cumplimiento, en función a la operación de refinanciamiento.
+            <b>TERCERA.- (DEL OBJETO):</b>  El objeto del presente contrato es el refinanciamiento del préstamo de dinero que la MUSERPOL otorga al PRESTATARIO conforme a calificación, previa evaluación y autorización, de conformidad a los niveles de aprobación respectivos en la suma de Bs.{{ $loan->refinancing_balance }} (<span class="uppercase">{{ Util::money_format($loan->refinancing_balance, true) }} Bolivianos) </span>, para lo cual el PRESTATARIO reconoce de manera expresa el saldo anterior de la deuda correspondiente al préstamo contraído con anterioridad, que asciende a la suma de Bs.{{ Util::money_format($loan->balance_parent_refi())}} (<span class="uppercase">{{ Util::money_format($loan->balance_parent_refi(), true) }} Bolivianos)</span>, montos que hacen un total efectivo de Bs.{{ Util::money_format($loan->amount_approved) }} (<span class="uppercase">{{ Util::money_format($loan->amount_approved, true) }} Bolivianos)</span>, que representa la nueva obligación contraída sujeta a cumplimiento, en función a la operación de refinanciamiento.
             </div>
         <?php }?>
     </div>
@@ -66,7 +66,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     <div>
         <?php $modality = $loan->modality;
             if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
-        <b>SEPTIMA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oficina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta bancaria de la MUSERPOL y enviar la boleta de depósito original a la oficina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída. Consecuentemente se procederá al descuento del garante personal incluido los intereses penales pasados los 30 dias de incumplimiento sin necesidad de previo aviso.
+        <b>SEPTIMA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oficina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oficina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída. Consecuentemente se procederá al descuento del garante personal incluido los intereses penales pasado los 30 dias de incumplimiento sin necesidad de previo aviso.
         <?php }
         else{
             if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad'){
@@ -79,7 +79,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             }?>
             <b>SEPTIMA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, autoriza expresamente a MUSERPOL practicar los descuentos respectivos de {{$type_rent}} que percibe en forma mensual a través del {{ $septima }}.
             <div>
-                Si por cualquier motivo la MUSERPOL estuviera imposibilitada de realizar el descuento por el medio señalado, el PRESTATARIO se obliga a cumplir con la cuota de amortización mediante pago directo en la Oficina Central de la MUSERPOL de la ciudad de La Paz o efectuar depósito en la cuenta bancaria de la MUSERPOL y enviar la boleta de depósito original a la Oficina Central inmediatamente. Caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída.
+                Si por cualquier motivo la MUSERPOL estuviera imposibilitada de realizar el descuento por el medio señalado, el PRESTATARIO se obliga a cumplir con la cuota de amortización mediante pago directo en la Oficina Central de la MUSERPOL de la ciudad de La Paz o efectuar depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la Oficina Central inmediatamente. Caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída.
             </div>
             <div>
                 Asimismo, el PRESTATARIO se compromete a hacer conocer oportunamente a MUSERPOL sobre la omisión del descuento mensual que se hubiera dado a efectos de solicitar al {{$septima}} se regularice este descuento, sin perjuicio que realice el depósito directo del mes omitido, de acuerdo a lo estipulado en el párrafo precedente.
@@ -90,7 +90,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
         <b>OCTAVA.- (DERECHOS DEL PRESTATARIO):</b> Conforme al Artículo 10 del Reglamento de Préstamos las partes reconocen expresamente como derechos del PRESTATARIO, lo siguiente:
     </div>
     <div>
-        <olol type="a" style="margin:0;">
+        <ol type="a" style="margin:0;">
             <li>Recibir buena atención, trato equitativo y digno por parte de los funcionarios de la MUSERPOL sin discriminación de ninguna naturaleza, asimismo recibir información y orientación precisa, comprensible, oportuna y accesible con relación a requisitos, características y condiciones del préstamo con calidad y calidez.</li>
             <li>A la confidencialidad, información detallada y precisa concerniente a los préstamos bajo su titularidad en el marco estricto de la normativa legal vigente.</li>
             <li>A presentar queja formal por el servicio recibido si no se ajusta al presente reglamento.</li>
@@ -102,7 +102,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     <div>
         <ol type="a" style="margin:0;">
             <li>Proporcionar información y documentación veraz y legítima para la correcta tramitación del préstamo.</li>
-            <li>Cumplir con los requisitos, condiciones y lineamientos de préstamo.</li>
+            <li>Cumplir con los requisitos, condiciones y lineamientos del préstamo.</li>
             <li>Cumplir con el Contrato de Préstamo suscrito entre la MUSERPOL y el afiliado.</li>
             <li>Amortizar mensualmente la deuda contraída con la MUSERPOL, hasta cubrir el capital adeudado y los intereses correspondientes por la deuda contraída.</li>
         </ol>
@@ -110,7 +110,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     <div>
         <?php
             if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
-        <b>DECIMA.- (DE LA GARANTÍA):</b>El PRESTATARIO, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber presentes y futuros conforme lo determina el Art. 1335 del Código Civil, asimismo con los Beneficios otorgados por la MUSERPOL.
+        <b>DECIMA.- (DE LA GARANTÍA):</b>El PRESTATARIO, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber presentes y futuros conforme lo determina el Art. 1335 del Código Civil, asimismo con los beneficios otorgados por la MUSERPOL.
         Asimismo, se constituye como garante personal, solidario, mancomunado e indivisible:
             @if (count($guarantors) == 1)
             @php ($guarantor = $guarantors[0])
@@ -125,7 +125,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
                     <b>DECIMA.- (DE LA GARANTÍA):</b> El PRESTATARIO, garantiza el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme determina el Art. 1335 del Código Civil, asimismo con los beneﬁcios otorgados por la MUSERPOL.
                 <?php }?>
                 <?php if($modality->name =='Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR'){ ?>
-                    <b>DECIMA.- (DE LA GARANTÍA):</b> El PRESTATARIO, garantiza el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme determina el Art. 1335 del Código Civil, y asi como también con su renta de vejez en curso de pago como señala el Reglamento de Prestamos de la MUSERPOL, asimismo este acepta amortizar la deuda con su complemento económico.
+                    <b>DECIMA.- (DE LA GARANTÍA):</b> El PRESTATARIO, garantiza el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme determina el Art. 1335 del Código Civil, y asi como también con su renta de vejez en curso de pago, asimismo este acepta amortizar la deuda con su complemento económico.
                 <?php }?>
                 <?php }?>
     </div>
@@ -133,7 +133,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     <?php
         if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
         <div>
-            <b>DÉCIMA PRIMERA.- (CONTINGENCIAS POR FALLECIMIENTO / RETIRO):</b>El PRESTATARIO en caso de fallecimiento garantiza el cumplimiento efectivo de la presente obligación con el beneficio del Complemento Económico y Auxilio Mortuorio; por cuanto la liquidación de dichos beneficios pasarán a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley. 
+            <b>DÉCIMA PRIMERA.- (CONTINGENCIAS POR FALLECIMIENTO):</b>El PRESTATARIO en caso de fallecimiento garantiza el cumplimiento efectivo de la presente obligación con el beneficio del Complemento Económico; por cuanto la liquidación de dicho beneficio pasarán a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley. 
         </div>
         <?php }
             else{
@@ -147,19 +147,19 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
                 <?php }?>
                 <?php if($modality->name =='Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR'){ ?>
                 <div>
-                    <b>DÉCIMA PRIMERA.- (CONTINGENCIAS POR FALLECIMIENTO):</b>El PRESTATARIO en caso de fallecimiento garantiza el cumplimiento efectivo de la presente obligación con el beneficio del Complemento Económico y Auxilio Mortuorio; por cuanto la liquidación de dichos beneficios pasarán a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley. 
+                    <b>DÉCIMA PRIMERA.- (CONTINGENCIAS POR FALLECIMIENTO):</b>El PRESTATARIO en caso de fallecimiento garantiza el cumplimiento efectivo de la presente obligación con el beneficio del Complemento Económico; por cuanto la liquidación de dicho beneficio pasara a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley. 
                 </div>
                 <?php }?>
         <?php   } ?>
     </div>
     <div>
-        <b>DÉCIMA SEGUNDA.- (DE LA MORA):</b> El PRESTATARIO se constituirá en mora  automática  sin  intimación  o requerimiento alguno, de acuerdo a lo establecido por el artículo 341, Núm. 1) del Código Civil, al  incumplimiento del pago de cualquier amortización de capital o intereses, sin necesidad de intimación o requerimiento alguno, o acto equivalente por parte de la MUSERPOL.
+        <b>DÉCIMA SEGUNDA.- (DE LA MORA):</b> El PRESTATARIO se constituirá en mora  automática  sin  intimación  o requerimiento alguno, de acuerdo a lo establecido por el artículo 341, Núm. 1) del Código Civil, al incumplimiento del pago de cualquier amortización de capital e intereses, sin necesidad de intimación o requerimiento alguno, o acto equivalente por parte de la MUSERPOL.
     </div>
     <div>
         Además del interés acordado contractualmente, el préstamo generará en caso de mora un interés moratorio anual del 6% sobre saldos de capital de las cuotas impagas, aún cuando fuere exigible todo el capital del préstamo.
     </div>
     <div>
-        <b>DÉCIMA TERCERA.- (DE LOS EFECTOS DEL INCUMPLIMIENTO Y DE LA ACCIÓN EJECUTIVA):</b> El incumplimiento de pago mensual por parte del PRESTATARIO   dará lugar a que la totalidad de la obligación, incluidos los intereses moratorios, se determinen líquidos, exigibles y de plazo vencido quedando la MUSERPOL facultada de iniciar las acciones legales correspondientes en amparo de los artículos 519 y 1465 del Código Civil así como de los artículos 378 y 379, Núm. 2) del Código Procesal Civil, que otorgan a este documento la calidad de Título Ejecutivo, demandando el pago de la totalidad de la obligación contraída, más la cancelación de intereses convencionales y penales, incluyendo los relacionados y emergentes de la cobranza judicial, honorarios, derechos, costas y otros, sin excepción, por efecto de la acción legal que MUSERPOL instaure para lograr el cumplimiento total de la obligación.
+        <b>DÉCIMA TERCERA.- (DE LOS EFECTOS DEL INCUMPLIMIENTO Y DE LA ACCIÓN EJECUTIVA):</b> El incumplimiento de pago mensual por parte del PRESTATARIO   dará lugar a que la totalidad de la obligación, incluidos los intereses moratorios, se determinen líquidos, exigibles y de plazo vencido quedando la MUSERPOL facultada de iniciar las acciones legales correspondientes en amparo de los artículos 519 y 1465 del Código Civil así como de los artículos 378 y 379, Núm. 2) del Código Procesal Civil, que otorgan a este documento la calidad de Título Ejecutivo, demandando el pago de la totalidad de la obligación contraída, más la cancelación de intereses convencionales y penales, incluyendo los relacionados y emergentes de la cobranza judicial, honorarios, derechos, costas y otros, sin excepción, por efecto de la acción legal que la MUSERPOL instaure para lograr el cumplimiento total de la obligación.
     </div>
     <div>
         En caso de incumplimiento de los pagos mensuales estipulados en el presente contrato que generen mora de la obligación, el PRESTATARIO no tendrá derecho a acceder a otro crédito, hasta la cancelación total de la deuda.
@@ -175,10 +175,10 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     </div>
     <?php } ?>
     <div>
-        <b>DÉCIMA QUINTA.- (DE LA CONFORMIDAD Y ACEPTACIÓN):</b> Por una parte en calidad de acreedora la MUSERPOL, representada por su {{ $employees[0]['position'] }} {{ $employees[0]['name'] }} y su {{ $employees[1]['position'] }} {{ $employees[1]['name'] }} y por otra parte en calidad de
+        <b>DÉCIMA QUINTA.- (DE LA CONFORMIDAD Y ACEPTACIÓN):</b> Por una parte en calidad de ACREEDOR la Mutual de Servicios al Policía (MUSERPOL), representada por su {{ $employees[0]['position'] }} {{ $employees[0]['name'] }} y su {{ $employees[1]['position'] }} {{ $employees[1]['name'] }} y por otra parte en calidad de
         @if (count($lenders) == 1)
         <span>
-            DEUDOR{{ $lender->gender == 'M' ? '' : 'A' }} {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }} de generales ya señaladas como PRESTATARIO;
+            PRESTATARIO{{ $lender->gender == 'M' ? '' : 'A' }} {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }} de generales ya señaladas;
             <?php
             if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
             @if (count($guarantors) == 1)
@@ -341,7 +341,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             @php ($guarantor = $guarantors[0])
             @php ($male_female_guarantor = Util::male_female($guarantor->gender))
             <span>
-            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card_ext }}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}, quien en amparo del articulo 16 del Reglamento de Prestamos de la MUSERPOL garantiza el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, autoriza el descuento mensual de sus haberes en su calidad de GARANTE, bajo las mismas condiciones en las que procederia a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que éstos puedan iniciar las acciones legales correspondientes en contra del PRESTATARIO.</div>
+            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card_ext }}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}, quien en amparo del articulo 16 del Reglamento de Prestamos de la MUSERPOL garantiza el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, autoriza el descuento mensual de sus haberes en su calidad de GARANTE, bajo las mismas condiciones en las que procederia a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que este pueda iniciar las acciones legales correspondientes en contra del PRESTATARIO.</div>
             </span>
             @endif
         <?php }
@@ -364,7 +364,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             else{
                 if($modality->name == 'Corto Plazo Sector Activo' || $modality->name == 'Corto Plazo en Disponibilidad' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo'){ ?>
                 <div>
-                    <b>DÉCIMA.- (MODIFICACIÓN DE LA SITUACIÓN DEL PRESTATARIO):</b> El PRESTATARIO, en caso de fallecimiento, retiro voluntario o retiro forzoso garantizan con la totalidad de los beneficios de Fondo de Retiro Policial Solidario otorgados por la MUSERPOL, por cuanto la liquidación de dicho beneficio pasará a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados en fecha, previas las formalidades de ley.
+                    <b>DÉCIMA.- (MODIFICACIÓN DE LA SITUACIÓN DEL PRESTATARIO):</b> El PRESTATARIO, en caso de fallecimiento, retiro voluntario o retiro forzoso garantiza el cumplimiento efectivo de la presente obligación con la totalidad de los beneficios de Fondo de Retiro Policial Solidario otorgados por la MUSERPOL, por cuanto la liquidación de dicho beneficio pasará a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, previas las formalidades de ley.
                 <div>
                 <div>
                     En caso de que se haya modificado la situación del PRESTATARIO del sector activo al sector pasivo de la Policía Boliviana, teniendo un saldo deudor respecto del préstamo obtenido, acepta amortizar la deuda con su Complemento Económico, en caso de corresponderle.
