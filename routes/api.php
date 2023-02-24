@@ -119,7 +119,12 @@ Route::group([
         Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
         Route::post('committee_session/{loan}', 'Api\V1\LoanController@committee_session');
         Route::get('record_affiliate_history', 'Api\V1\RecordController@record_affiliate_history');
-        
+        /*Seguimiento de mora de prestamo*/
+        Route::group([
+            'middleware' => 'permission:print-delay-tracking'
+        ], function () {
+            Route::get('loan/{loan}/print/delay_tracking', 'Api\V1\LoanTrackingController@print_delay_tracking');
+        });
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'
