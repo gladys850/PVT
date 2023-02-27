@@ -125,6 +125,13 @@ Route::group([
         ], function () {
             Route::get('loan/{loan}/print/delay_tracking', 'Api\V1\LoanTrackingController@print_delay_tracking');
         });
+
+        Route::group([
+            'middleware' => ['permission:create-delay-tracking', 'permission:show-delay-tracking', 'permission:update-delay-tracking', 'permission:delete-delay-tracking']
+        ], function() {
+            Route::apiResource('loan_tracking_delay', 'Api\V1\LoanTrackingController');
+            Route::get('get_loan_trackings_types', 'Api\V1\LoanTrackingController@get_loan_trackings_types');
+        });
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'

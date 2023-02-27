@@ -13,7 +13,7 @@ class LoanTracking extends Model
     public $fillable = ['loan_id', 'user_id', 'loan_tracking_type_id', 'tracking_date', 'description'];
 
     public function loan_tracking_type() {
-        return $this->belongsTo(LoanTrackingType::class);
+        return $this->belongsTo(LoanTrackingType::class)->orderBy('sequence_number');
     }
 
     public function loan() {

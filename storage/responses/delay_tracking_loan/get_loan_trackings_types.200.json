@@ -1,0 +1,51 @@
+{
+    "error": false,
+    "message": "Listado de tipos de seguimiento de mora",
+    "data": [
+        {
+            "id": 1,
+            "sequence_number": 1,
+            "name": "LLamadas telefónicas al deudor y/o garante(s)"
+        },
+        {
+            "id": 2,
+            "sequence_number": 2,
+            "name": "Publicación de nómina de prestatarios en situación de mora"
+        },
+        {
+            "id": 3,
+            "sequence_number": 3,
+            "name": "Solicitud de información de situación laboral al comando general de la policía boliviana"
+        },
+        {
+            "id": 4,
+            "sequence_number": 4,
+            "name": "Solicitud de información a dirección de beneficios económicos"
+        },
+        {
+            "id": 5,
+            "sequence_number": 5,
+            "name": "Solicitud de la carpeta a archivo central"
+        },
+        {
+            "id": 6,
+            "sequence_number": 6,
+            "name": "Elaboración de carta de cobro administrativo"
+        },
+        {
+            "id": 7,
+            "sequence_number": 7,
+            "name": "Carta de cobro administrativo notificada"
+        },
+        {
+            "id": 8,
+            "sequence_number": 8,
+            "name": "Elaboración de informe técnico de recuperación de cartera en mora"
+        },
+        {
+            "id": 9,
+            "sequence_number": 9,
+            "name": "Se remite al área legal - DESI"
+        }
+    ]
+}
