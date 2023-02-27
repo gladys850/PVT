@@ -1060,7 +1060,7 @@ class LoanController extends Controller
         if(strpos($procedure_modality->name, 'Refinanciamiento') !== false ) $is_refinancing = true;
         if(strpos($procedure_modality->name, 'AFP') !== false ) $is_afp = true;
         if(strpos($procedure_modality->name, 'SENASIR') !== false ) $is_senasir = true;
-        if(strpos($procedure_modality->name, 'Activo') !== false ) $is_active = true;
+        if(strpos($procedure_modality->name, 'Activo') || strpos($procedure_modality->name, 'Disponibilidad') !== false ) $is_active = true;
         $parent_loan = "";
         $file_title = implode('_', ['CONTRATO', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
         if($loan->parent_loan_id) $parent_loan = Loan::findOrFail($loan->parent_loan_id);
