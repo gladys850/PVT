@@ -67,7 +67,7 @@ class StatisticController extends Controller
     public function index(StatisticForm $request)
     {
         $module = Module::whereName($request->module)->first();
-        return $this->{$this->filters[$request->module][$request->filter]['method']}($module);
+        return $this->{$this->filters[$request->module][$request->filter]['method']}($module, $request->role_id);
     }
 
     /**
@@ -83,9 +83,9 @@ class StatisticController extends Controller
         return [$this->get_filters()[$module]];
     }
 
-    public function loans_by_role(Module $module)
+    public function loans_by_role(Module $module,$role_id)
     {
-        return Util:: process_by_role(new Loan(), $module);
+        return Util:: process_by_role(new Loan(), $module,$role_id);
     }
 
     public function amortizations_by_role(Module $module)
@@ -99,20 +99,20 @@ class StatisticController extends Controller
         return Util:: process_by_procedure_type(new Loan(), $procedure_loans, $module);
     }
 
-    public function amortizations_by_procedure_type(Module $module)
+    public function amortizations_by_procedure_type(Module $module,$role_id)
     {
         $procedure_amortizations = $module->procedure_types()->where('name', 'LIKE', '%Amortización%')->orderBy('name')->get();
-        return Util:: process_by_procedure_type(new LoanPayment(), $procedure_amortizations, $module);
+        return Util:: process_by_procedure_type(new LoanPayment(), $procedure_amortizations, $module,$role_id);
     }
 
-    public function loans_by_user(Module $module)
+    public function loans_by_user(Module $module,$role_id)
     {
         $procedure_loans = $module->procedure_types()->where('name', 'LIKE', '%Préstamo%')->orderBy('name')->get();
-        return Util::loans_by_user(new Loan(), $procedure_loans, $module);
+        return Util::loans_by_user(new Loan(), $procedure_loans, $module,$role_id);
     }
 
-    public function amortizations_by_user(Module $module){
+    public function amortizations_by_user(Module $module,$role_id){
         $procedure_amortizations = $module->procedure_types()->where('name', 'LIKE', '%Amortización%')->orderBy('name')->get();
-        return Util::amortizations_by_user(new LoanPayment(), $procedure_amortizations, $module);
+        return Util::amortizations_by_user(new LoanPayment(), $procedure_amortizations, $module,$role_id);
     }
 }

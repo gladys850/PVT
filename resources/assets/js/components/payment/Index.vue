@@ -458,7 +458,8 @@ export default {
         let res = await axios.get(`statistic`, {
           params: {
             module: 'prestamos',
-            filter: 'user_amortizations'
+            filter: 'user_amortizations',
+            role_id: this.filters.roleSelected
           }
         })
         res = res.data.find(o => o.role_id == this.filters.roleSelected)
@@ -478,7 +479,8 @@ export default {
         let res = await axios.get(`statistic`, {
           params: {
             module: 'prestamos',
-            filter: 'procedure_type_amortizations'
+            filter: 'procedure_type_amortizations',
+            role_id: this.filters.roleSelected
           }
         })
         res.data.forEach((procedure, index) => {
