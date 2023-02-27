@@ -18,6 +18,7 @@ class LoanTrackingController extends Controller
     * Listar seguimiento de mora
     * Listar el seguimiento de mora de un préstamo
     * @bodyParam per_page integer por página. Example: 2
+    * @bodyParam loan_id integer  ID del préstamo. Example: 1
     * @responseFile responses/delay_tracking_loan/index.200.json
     */
     public function index(Request $request)
