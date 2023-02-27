@@ -534,9 +534,9 @@ class LoanController extends Controller
                     if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
                         $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
                         if($loan->city_id === 4) {
-                            $message = "MUSERPOL%0aLe informa que su préstamo fue abonado a su cuenta, favor recoger su contrato y plan de pagos por el área de cobranzas.";
+                            $message = "MUSERPOL%0aLe informa que su prestamo fue abonado a su cuenta, favor recoger su contrato y plan de pagos por el area de cobranzas.";
                         } else {
-                            $message = "MUSERPOL%0aLe informa que su préstamo fue abonado a su cuenta, favor recoger su contrato y plan de pagos pasado los 5 días hábiles por la Regional.";
+                            $message = "MUSERPOL%0aLe informa que su prestamo fue abonado a su cuenta, favor recoger su contrato y plan de pagos pasado los 5 dias habiles por la Regional.";
                         }
                         $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
                         ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
