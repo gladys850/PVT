@@ -1429,4 +1429,60 @@ class Loan extends Model
     public function loan_tracking() {
         return $this->hasMany(LoanTracking::class);
     }
+
+    public function default_alert()
+    {   $state_loan = 0;
+        $loan_global_parameter = LoanGlobalParameter::latest()->first();
+        $current_date = Carbon::now();
+        $year = $current_date->year;
+        $month = $current_date->month;
+        $current_date = $current_date->endOfDay()->format('Y-m-d'); //Fecha actual
+        $days_for_​import_date = Carbon::create($year,$month,$loan_global_parameter->days_for_​import)->endOfDay()->format('Y-m-d'); //Fecha para importacion
+        if($this->state_id == LoanState::whereName('Liquidado')->first()->id){ //Alerta prestamo liquidado
+            $state_loan = 1; // Color Verde Prestamos Liquidados
+        }else{
+            if($this->state_id == LoanState::whereName('Vigente')->first()->id){ // prestamo Vigente
+                if($current_date < $days_for_​import_date){ //Fecha menor al 20
+                   $current_date = Carbon::parse($current_date)->subMonth()->endOfDay();
+                }else{
+                    $current_date = Carbon::parse($current_date)->endOfDay();
+                }
+                if($this->last_payment_validated){
+                    $date_last_payment_validated =  $this->last_payment_validated->estimated_date;
+                    $date_ini = Carbon::parse($date_last_payment_validated)->startOfDay();
+                    $days = $date_ini->diffInDays($current_date);
+                }else{
+                    $date_ini = Carbon::parse($this->disbursement_date)->startOfDay();
+                    if($date_ini){
+                        if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
+                            $date_fin = Carbon::parse($current_date)->endOfDay();
+                            $days = $date_fin->diffInDays($date_ini);
+                        } else{
+                            $date_ini = $date_ini->format('d');
+                            $date_fin_month = Carbon::parse($this->disbursement_date)->endOfMonth()->endOfDay()->format('d');
+                            $extra_days = $date_fin_month - $date_ini;
+                            $date_fin = Carbon::parse($current_date)->endOfDay();
+                            $days = Carbon::parse($this->disbursement_date)->diffInDays($date_fin) - $extra_days;
+                        }
+                    }
+                }
+                if($days <= $loan_global_parameter->days_current_interest){ 
+                    if($this->payment_pending_confirmation()!= null){
+                        $state_loan = 2;// Colo Amarillo tiene Pendiente por confirmar
+                    }else{
+                        if($this->payment_plan_compliance == false){
+                            $state_loan = 2;// Colo Amarillo en algun momento entro en mora
+                        }else{
+                            $state_loan = 1; //Colo Verde Cumplido
+                        }
+                    }
+                }else{
+                    $state_loan = 3; //Colo Rojo Mora
+                }
+            }else{ //prestamo en proceso
+                $state_loan = 0;
+            }
+        }
+        return $state_loan;
+    }
 }
