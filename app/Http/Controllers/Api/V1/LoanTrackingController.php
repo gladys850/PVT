@@ -14,35 +14,27 @@ use App\Loan;
 
 class LoanTrackingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    /** @group Seguimiento de mora
+    * Listar seguimiento de mora
+    * Listar el seguimiento de mora de un préstamo
+    * @bodyParam per_page integer por página. Example: 2
+    * @responseFile responses/delay_tracking_loan/index.200.json
+    */
     public function index(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'per_page' => 'required|integer',
         ]);
-        if($validator->fails()) {
-            $keys = $validator->errors()->keys();
-            $errors = [];
-            foreach($keys as $key) {
-                $errors[$key] = $validator->errors()->get($key);
-            }
-            return response()->json([
-                'error' => true,
-                'message' => 'Error en la validación',
-                'errors' => $errors,
-                'data' => []
-            ], 422);
-        }
         $pagination = $request->per_page ?? 10;
-        $loan_tracking = LoanTracking::withTrashed()->paginate($pagination);
+        $loan_tracking_delays_removed = LoanTracking::onlyTrashed()->paginate($pagination);
+        $loan_tracking_delays = LoanTracking::paginate($pagination);
         return response()->json([
             'error' => false,
             'message' => 'Listado del segumiento de un préstamo en mora',
-            'data' => $loan_tracking
+            'data' => [
+                'loan_tracking_delays_removed' => $loan_tracking_delays_removed,
+                'loan_tracking_delays' => $loan_tracking_delays
+            ]
         ]);
     }
 
@@ -56,39 +48,28 @@ class LoanTrackingController extends Controller
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    /** @group Seguimiento de mora
+    * Creación de un seguimiento de mora
+    * Creación de un seguimiento de un préstamo en mora
+    * @bodyParam loan_tracking_type_id integer id del tipo de seguimiento de mora. Example: 1
+    * @bodyParam loan_id integer id préstamo. Example: 1
+    * @bodyParam tracking_date date  fecha de seguimiento. Example: '02-02-2023'
+    * @bodyParam description date descripción del seguimiento. Example: 'Se realizó la llamada correspondiente'
+    * @responseFile responses/delay_tracking_loan/store.201.json
+    */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'loan_tracking_type_id' => 'required|integer',
             'loan_id' => 'required|integer',
             'tracking_date' => 'required|date',
             'description' => 'required|string|min:1'
         ]);
 
-        if($validator->fails()) {
-            $keys = $validator->errors()->keys();
-            $errors = [];
-            foreach($keys as $key) {
-                $errors[$key] = $validator->errors()->get($key);
-            }
-            return response()->json([
-                'error' => true,
-                'message' => 'Error en la validación',
-                'errors' => $errors,
-                'data' => []
-            ], 422);
-        }
-
         $loan_tracking_type_id = $request->loan_tracking_type_id;
         $loan_id = $request->loan_id;
         $tracking_date = $request->tracking_date;
-        $user_id = auth()->id();
+        $user_id = Auth::user()->id;
         $description = $request->description;
         LoanTracking::create([
             'loan_id' => $loan_id,
@@ -111,7 +92,7 @@ class LoanTrackingController extends Controller
      * @param  \App\LoanTracking  $loanTracking
      * @return \Illuminate\Http\Response
      */
-    public function show(LoanTracking $loan_tracking)
+    public function show(LoanTracking $loan_tracking_delay)
     {
         //
     }
@@ -122,67 +103,78 @@ class LoanTrackingController extends Controller
      * @param  \App\LoanTracking  $loanTracking
      * @return \Illuminate\Http\Response
      */
-    public function edit(LoanTracking $loan_tracking)
+    public function edit(LoanTracking $loan_tracking_delay)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\LoanTracking  $loanTracking
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, LoanTracking $loan_tracking)
+    /** @group Seguimiento de mora
+    * Actualización de un seguimiento de mora
+    * Actualización de un seguimiento de un préstamo en mora
+    * @urlParam loan_tracking_delay required ID del seguimiento de préstamo en mora. Example: 6
+    * @bodyParam loan_tracking_type_id integer id del tipo de seguimiento de mora. Example: 2
+    * @bodyParam loan_id integer id préstamo. Example: 3
+    * @bodyParam tracking_date date  fecha de seguimiento. Example: '2023-02-03'
+    * @bodyParam description date descripción del seguimiento. Example: 'alguna descripción larga'
+    * @responseFile responses/delay_tracking_loan/update.200.json
+    */
+    public function update(Request $request, LoanTracking $loan_tracking_delay)
     {
-        $validator = Validator::make($request->all(), [
-            'loan_tracking_id' => 'required|integer',
+        $request->validate([
             'loan_tracking_type_id' => 'required|integer',
             'loan_id' => 'required|integer',
             'tracking_date' => 'required|date',
             'description' => 'required|string|min:1'
         ]);
 
-        if($validator->fails()) {
-            $keys = $validator->errors()->keys();
-            $errors = [];
-            foreach($keys as $key) {
-                $errors[$key] = $validator->errors()->get($key);
-            }
-            return response()->json([
-                'error' => true,
-                'message' => 'Error en la validación',
-                'errors' => $errors,
-                'data' => []
-            ], 422);
-        }
-
-        $loan_tracking_id = $request->loan_tracking_id;
         $loan_tracking_type_id = $request->loan_tracking_type_id;
-        // $loan_id = $request->loan_id;
-        $user_id = auth()->id();
+        $user_id = Auth::user()->id;
         $tracking_date = $request->tracking_date;
         $description = $request->description;
-        $loan_tracking = LoanTracking::find($loan_tracking_type_id);
-        $loan_tracking->update([
+        $loan_tracking_delay->update([
             'loan_tracking_type_id' => $loan_tracking_type_id,
             'tracking_date' => $tracking_date,
+            'user_id' => $user_id,
+            'description' => $description
+        ]);
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Se actualizó el registro satisfactoriamente',
+            'data' => [
+                'loan_tracking_id' => $loan_tracking_delay->id
+            ]
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\LoanTracking  $loanTracking
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(LoanTracking $loan_tracking)
+    /** @group Seguimiento de mora
+     * Eliminar seguimiento mora
+     * Eliminar seguimiento de mora de préstamo
+     * @urlParam loan-tracking_delay required ID del tipo de seguimiento de préstamo en mora. Example: 6
+     * @responseFile responses/delay_tracking_loan/destroy.200.json
+    */
+    public function destroy(LoanTracking $loan_tracking_delay)
     {
-        $loan_tracking_id = $request->loan_tracking_id;
-        // $loan_tracking
+        if(!is_null($loan_tracking_delay)) {
+            $loan_tracking_delay->delete();
+            return response()->json([
+                'error' => false,
+                'message' => 'Se eliminó el registro de la tabla',
+                'data' => [ 'loan_tracking' => $loan_tracking_delay->id]
+            ]);
+        }
+        return response()->json([
+            'error' => true,
+            'message' => 'Registro nulo',
+            'data' => []
+        ]);
     }
 
+    /** @group Seguimiento de mora
+     * Obtener los tipos de seguimiento de mora
+     * Obtiene los tipos de seguimiento de mora de un préstamo
+     * @responseFile responses/delay_tracking_loan/get_loan_trackings_types.200.json
+    */
     public function get_loan_trackings_types() {
         $loan_trackings_types = LoanTrackingType::where('is_valid', true)->select('id', 'sequence_number', 'name')->orderBy('sequence_number')->get();
         return response()->json([
