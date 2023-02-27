@@ -16,6 +16,7 @@ use App\Affiliate;
 use App\LoanBorrower;
 use App\LoanGuarantor;
 use Illuminate\Support\Str;
+use App\LoanProcedure;
 
 class Loan extends Model
 {
@@ -1432,7 +1433,8 @@ class Loan extends Model
 
     public function default_alert()
     {   $state_loan = 0;
-        $loan_global_parameter = LoanGlobalParameter::latest()->first();
+        $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
+        $loan_global_parameter = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first();
         $current_date = Carbon::now();
         $year = $current_date->year;
         $month = $current_date->month;
@@ -1448,25 +1450,22 @@ class Loan extends Model
                     $current_date = Carbon::parse($current_date)->endOfDay();
                 }
                 if($this->last_payment_validated){
-                    $date_last_payment_validated =  $this->last_payment_validated->estimated_date;
-                    $date_ini = Carbon::parse($date_last_payment_validated)->startOfDay();
+                    $date_ini = Carbon::parse($this->last_payment_validated->estimated_date)->startOfDay();
                     $days = $date_ini->diffInDays($current_date);
                 }else{
                     $date_ini = Carbon::parse($this->disbursement_date)->startOfDay();
                     if($date_ini){
                         if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
-                            $date_fin = Carbon::parse($current_date)->endOfDay();
-                            $days = $date_fin->diffInDays($date_ini);
+                            $date_end = Carbon::parse($current_date)->endOfDay();
+                            $days = $date_end->diffInDays($date_ini);
                         } else{
-                            $date_ini = $date_ini->format('d');
-                            $date_fin_month = Carbon::parse($this->disbursement_date)->endOfMonth()->endOfDay()->format('d');
-                            $extra_days = $date_fin_month - $date_ini;
-                            $date_fin = Carbon::parse($current_date)->endOfDay();
-                            $days = Carbon::parse($this->disbursement_date)->diffInDays($date_fin) - $extra_days;
+                            $extra_days = Carbon::parse($this->disbursement_date)->endOfMonth()->endOfDay()->format('d') - $date_ini->format('d');
+                            $date_end = Carbon::parse($current_date)->endOfDay();
+                            $days = Carbon::parse($this->disbursement_date)->diffInDays($date_end) - $extra_days;
                         }
                     }
                 }
-                if($days <= $loan_global_parameter->days_current_interest){ 
+                if($days <= $loan_global_parameter->days_current_interest){
                     if($this->payment_pending_confirmation()!= null){
                         $state_loan = 2;// Colo Amarillo tiene Pendiente por confirmar
                     }else{
