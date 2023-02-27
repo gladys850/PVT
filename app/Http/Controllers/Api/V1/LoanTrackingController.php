@@ -24,13 +24,15 @@ class LoanTrackingController extends Controller
     {
         $request->validate([
             'per_page' => 'required|integer',
+            'loan_id' => 'required|integer|exists:loans,id'
         ]);
+        $loan_id = $request->loan_id;
         $pagination = $request->per_page ?? 10;
-        $loan_tracking_delays_removed = LoanTracking::onlyTrashed()->paginate($pagination);
-        $loan_tracking_delays = LoanTracking::paginate($pagination);
+        $loan_tracking_delays_removed = Loan::find($loan_id)->loan_tracking()->onlyTrashed()->paginate($pagination);
+        $loan_tracking_delays = Loan::find($loan_id)->loan_tracking()->paginate($pagination);
         return response()->json([
             'error' => false,
-            'message' => 'Listado del segumiento de un préstamo en mora',
+            'message' => 'Listado del seguimiento de un préstamo en mora',
             'data' => [
                 'loan_tracking_delays_removed' => $loan_tracking_delays_removed,
                 'loan_tracking_delays' => $loan_tracking_delays
@@ -60,24 +62,15 @@ class LoanTrackingController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'loan_tracking_type_id' => 'required|integer',
-            'loan_id' => 'required|integer',
+            'loan_tracking_type_id' => 'required|integer|exists:loan_tracking_types,id',
+            'loan_id' => 'required|integer|exists:loans,id',
             'tracking_date' => 'required|date',
-            'description' => 'required|string|min:1'
+            'description' => 'string|min:1'
         ]);
 
-        $loan_tracking_type_id = $request->loan_tracking_type_id;
-        $loan_id = $request->loan_id;
-        $tracking_date = $request->tracking_date;
         $user_id = Auth::user()->id;
-        $description = $request->description;
-        LoanTracking::create([
-            'loan_id' => $loan_id,
-            'user_id' => $user_id,
-            'loan_tracking_type_id' => $loan_tracking_type_id,
-            'tracking_date' => Carbon::parse($tracking_date),
-            'description' => $description
-        ]);
+        $request->merge(['user_id' => $user_id]);
+        LoanTracking::create($request->all());
 
         return response()->json([
             'error' => false,
@@ -86,15 +79,19 @@ class LoanTrackingController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\LoanTracking  $loanTracking
-     * @return \Illuminate\Http\Response
-     */
+    /** @group Seguimiento de mora
+    * Obtener un registro de seguimiento de mora
+    * Obtención de datos de un seguimiento de un préstamo en mora
+    * @urlParam loan_tracking_delay required ID del seguimiento de préstamo en mora. Example: 8
+    * @responseFile responses/delay_tracking_loan/show.200.json
+    */
     public function show(LoanTracking $loan_tracking_delay)
     {
-        //
+        return response()->json([
+            'error' => false,
+            'message' => 'Datos de seguimiento de préstamo en mora',
+            'data' => $loan_tracking_delay
+        ]);
     }
 
     /**
@@ -121,22 +118,16 @@ class LoanTrackingController extends Controller
     public function update(Request $request, LoanTracking $loan_tracking_delay)
     {
         $request->validate([
-            'loan_tracking_type_id' => 'required|integer',
-            'loan_id' => 'required|integer',
+            'loan_tracking_type_id' => 'required|integer|exists:loan_tracking_types,id',
+            'loan_id' => 'required|integer|exists:loans,id',
             'tracking_date' => 'required|date',
-            'description' => 'required|string|min:1'
+            'description' => 'string|min:1'
         ]);
 
-        $loan_tracking_type_id = $request->loan_tracking_type_id;
         $user_id = Auth::user()->id;
-        $tracking_date = $request->tracking_date;
-        $description = $request->description;
-        $loan_tracking_delay->update([
-            'loan_tracking_type_id' => $loan_tracking_type_id,
-            'tracking_date' => $tracking_date,
-            'user_id' => $user_id,
-            'description' => $description
-        ]);
+        $request->merge(['user_id' => $user_id]);
+        $loan_tracking_delay->fill($request->all());
+        $loan_tracking_delay->save();
 
         return response()->json([
             'error' => false,
@@ -155,18 +146,11 @@ class LoanTrackingController extends Controller
     */
     public function destroy(LoanTracking $loan_tracking_delay)
     {
-        if(!is_null($loan_tracking_delay)) {
-            $loan_tracking_delay->delete();
-            return response()->json([
-                'error' => false,
-                'message' => 'Se eliminó el registro de la tabla',
-                'data' => [ 'loan_tracking' => $loan_tracking_delay->id]
-            ]);
-        }
+        $loan_tracking_delay->delete();
         return response()->json([
-            'error' => true,
-            'message' => 'Registro nulo',
-            'data' => []
+            'error' => false,
+            'message' => 'Se eliminó el registro de la tabla',
+            'data' => [ 'loan_tracking' => $loan_tracking_delay->id]
         ]);
     }
 
