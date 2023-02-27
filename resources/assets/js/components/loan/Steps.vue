@@ -704,7 +704,7 @@ export default {
         let res = await axios.get(`loan/${id}`)
         this.data_loan = res.data
 
-         this.data_loan_parent_aux.guarantors=res.data.guarantors
+         this.data_loan_parent_aux.guarantors=res.data.borrowerguarantors
          this.data_loan_parent_aux.parent_reason = res.data.parent_reason
 
         if(this.refinancing || this.reprogramming){//Casos nuevo de refi repro
