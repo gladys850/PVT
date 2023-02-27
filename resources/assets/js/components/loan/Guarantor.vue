@@ -23,20 +23,20 @@
               <v-col class="text-center">
                 <h5>Informacion Garantes</h5>
               </v-col>
-              <ul style="list-style: none" class="pa-0">
+              <ul style="list-style: none" >
                 <li v-for="(garantes_detalle_loan,i) in data_loan_parent_aux.guarantors" :key="i" >
                   <v-progress-linear></v-progress-linear>
                     <v-row>
-                    <v-col cols="12" md="5" class="py-0">
+                    <v-col cols="12" md="5" >
                       Nombre del Afiliado: {{garantes_detalle_loan.first_name +' '+ garantes_detalle_loan.last_name }}
                     </v-col>
-                    <v-col cols="12" md="2" class="py-0">
+                    <v-col cols="12" md="2" >
                       C.I.: {{garantes_detalle_loan.identity_card}}
                     </v-col>
-                      <v-col cols="12" md="2" class="py-0">
+                      <v-col cols="12" md="2">
                       Sigep: {{garantes_detalle_loan.sigep_status}}
                     </v-col>
-                      <v-col cols="12" md="3" class="py-0">
+                      <v-col cols="12" md="3" >
                       Porcentaje de Pago: {{garantes_detalle_loan.payment_percentage}}
                     </v-col>
                   </v-row>
@@ -45,10 +45,10 @@
             </v-container>
           </v-card>
         </v-col>
-        <v-col cols="12" md="4" class="py-0">
+        <v-col cols="12" md="4">
           <!-- Panel del buscador-->
           <v-card>
-            <v-container class="py-0">
+            <v-container >
               <v-row>
                 <v-col cols="12" md="8" class="px-5 pt-3">
                   <v-text-field
@@ -78,20 +78,20 @@
                 </v-col>
                 <v-col cols="12" md="5" class="pb-0 ma-0 py-0">
                   <v-radio-group
-                    class="pb-0 ma-0 py-0"
+                    class="pb-0 ma-0"
                     v-model="type_affiliate"
                     row
                   >
                     <v-radio
                       label="Titular"
                       :value="false"
-                      class="pb-0 ma-0 py-0"
+                      class="pb-0 ma-0"
                       @change="searchGuarantor()"
                     ></v-radio>
                     <v-radio
                       label="conyuge"
                       :value="true"
-                      class="pb-0 ma-0 py-0"
+                      class="pb-0 ma-0"
                       @change="searchGuarantor()"
                     ></v-radio>
                   </v-radio-group>
@@ -102,7 +102,7 @@
           </v-card>
         </v-col>
 
-        <v-col cols="12" md="8" class="py-0" v-if="modalidad_guarantors>0">
+        <v-col cols="12" md="8" v-if="modalidad_guarantors>0">
           <v-card v-show="!show_garante">
             <v-container>
               <v-row>
@@ -135,7 +135,7 @@
             <v-progress-linear></v-progress-linear>
             <v-col cols="12" md="12" class="font-weight-black caption ma-0 py-0">
             <v-row>
-            <v-col cols="12" md="12" class="font-weight-black caption ma-0 py-0">
+            <v-col cols="12" md="12" class="font-weight-black caption ma-0">
               DATOS DEL AFILIADO
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
@@ -170,7 +170,7 @@
             <v-col
               cols="12"
               md="4"
-              class="text-uppercase py-0 font-weight-light caption"
+              class="text-uppercase pt-0 font-weight-light caption"
             >
               ESTADO: {{affiliate_guarantor.affiliate.affiliate_state.name}}
             </v-col>
@@ -180,7 +180,7 @@
             <template v-if="show_spouse">
             <v-col cols="12" md="12" class="font-weight-black caption ma-0 py-0">
             <v-row>
-              <v-col cols="12" md="8" class="font-weight-black caption py-0">
+              <v-col cols="12" md="8" class="font-weight-black caption">
                 DATOS DE LA CONGUYE
               </v-col>
               <v-col
