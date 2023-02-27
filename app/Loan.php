@@ -1427,7 +1427,7 @@ class Loan extends Model
     }
 
     public function loan_tracking() {
-        return $this->hasMany(LoanTracking::class);
+        return $this->hasMany(LoanTracking::class)->orderBy("created_at");
     }
 
     public function default_alert()

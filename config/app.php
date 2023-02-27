@@ -153,6 +153,7 @@ return [
         App\Providers\MovementFundRotatoryServiceProvider::class,
         App\Providers\MovementConceptServiceProvider::class,
         App\Providers\LoanGuaranteeRegisterServiceProvider::class,
+        App\Providers\LoanTrackingServiceProvider::class,
 
         /*
         * Application Service Providers...

@@ -1,0 +1,7 @@
+{
+    "error": false,
+    "message": "Se eliminó el registro de la tabla",
+    "data": {
+        "loan_tracking": 6
+    }
+}
