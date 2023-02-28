@@ -1432,7 +1432,7 @@ class Loan extends Model
     }
 
     public function default_alert()
-    {   $state_loan = 0;
+    {   $state_loan = 'blue';
         $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
         $loan_global_parameter = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first();
         $current_date = Carbon::now();
@@ -1441,7 +1441,7 @@ class Loan extends Model
         $current_date = $current_date->endOfDay()->format('Y-m-d'); //Fecha actual
         $days_for_​import_date = Carbon::create($year,$month,$loan_global_parameter->days_for_​import)->endOfDay()->format('Y-m-d'); //Fecha para importacion
         if($this->state_id == LoanState::whereName('Liquidado')->first()->id){ //Alerta prestamo liquidado
-            $state_loan = 1; // Color Verde Prestamos Liquidados
+            $state_loan = 'green'; // Color Verde Prestamos Liquidados
         }elseif($this->state_id == LoanState::whereName('Vigente')->first()->id){ // prestamo Vigente
                 if($current_date < $days_for_​import_date){ //Fecha menor al 20
                     $current_date = Carbon::parse($current_date)->subMonth()->endOfDay();
@@ -1465,14 +1465,14 @@ class Loan extends Model
                 }
                 if($days <= $loan_global_parameter->days_current_interest){
                     if($this->payment_pending_confirmation()!= null){
-                        $state_loan = 2;// Colo Amarillo tiene Pendiente por confirmar
+                        $state_loan = 'yellow';// Colo Amarillo tiene Pendiente por confirmar
                     }elseif($this->payment_plan_compliance == false){
-                            $state_loan = 2;// Colo Amarillo en algun momento entro en mora
+                            $state_loan = 'yellow';// Colo Amarillo en algun momento entro en mora
                         }else{
-                            $state_loan = 1; //Colo Verde Cumplido
+                            $state_loan = 'green'; //Colo Verde Cumplido
                         }
                 }else{
-                    $state_loan = 3; //Colo Rojo Mora
+                    $state_loan = 'red'; //Colo Rojo Mora
                 }
             }
         return $state_loan;
