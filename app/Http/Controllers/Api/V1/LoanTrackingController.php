@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Helpers\Util;
 use Illuminate\Support\Facades\Auth;
 use App\Loan;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class LoanTrackingController extends Controller
 {
@@ -27,10 +28,16 @@ class LoanTrackingController extends Controller
             'per_page' => 'required|integer',
             'loan_id' => 'required|integer|exists:loans,id'
         ]);
+        $page =  $request->page ?? 1;
         $loan_id = $request->loan_id;
         $pagination = $request->per_page ?? 10;
+        $loan_tracking_delays = Loan::find($loan_id)->loan_tracking()->get();
+        foreach($loan_tracking_delays->values() as $loan_tracking_delay) {
+            $loan_tracking_delay->is_last_loan_tracking = false;
+        }
+        $loan_tracking_delays->values()->last()['is_last_loan_tracking'] = true;
         $loan_tracking_delays_removed = Loan::find($loan_id)->loan_tracking()->onlyTrashed()->paginate($pagination);
-        $loan_tracking_delays = Loan::find($loan_id)->loan_tracking()->paginate($pagination);
+        $loan_tracking_delays = new LengthAwarePaginator($loan_tracking_delays->forPage($page, $pagination)->values(), $loan_tracking_delays->count(), $pagination, $page);
         return response()->json([
             'error' => false,
             'message' => 'Listado del seguimiento de un préstamo en mora',
