@@ -17,8 +17,8 @@ class LoanTrackingController extends Controller
     /** @group Seguimiento de mora
     * Listar seguimiento de mora
     * Listar el seguimiento de mora de un préstamo
-    * @bodyParam per_page integer por página. Example: 2
-    * @bodyParam loan_id integer  ID del préstamo. Example: 1
+    * @bodyParam per_page integer required por página. Example: 2
+    * @bodyParam loan_id integer required ID del préstamo. Example: 1
     * @responseFile responses/delay_tracking_loan/index.200.json
     */
     public function index(Request $request)
@@ -54,9 +54,9 @@ class LoanTrackingController extends Controller
     /** @group Seguimiento de mora
     * Creación de un seguimiento de mora
     * Creación de un seguimiento de un préstamo en mora
-    * @bodyParam loan_tracking_type_id integer id del tipo de seguimiento de mora. Example: 1
-    * @bodyParam loan_id integer id préstamo. Example: 1
-    * @bodyParam tracking_date date  fecha de seguimiento. Example: '02-02-2023'
+    * @bodyParam loan_tracking_type_id integer required id del tipo de seguimiento de mora. Example: 1
+    * @bodyParam loan_id integer required id préstamo. Example: 1
+    * @bodyParam tracking_date date required fecha de seguimiento. Example: '02-02-2023'
     * @bodyParam description date descripción del seguimiento. Example: 'Se realizó la llamada correspondiente'
     * @responseFile responses/delay_tracking_loan/store.201.json
     */
@@ -110,9 +110,9 @@ class LoanTrackingController extends Controller
     * Actualización de un seguimiento de mora
     * Actualización de un seguimiento de un préstamo en mora
     * @urlParam loan_tracking_delay required ID del seguimiento de préstamo en mora. Example: 6
-    * @bodyParam loan_tracking_type_id integer id del tipo de seguimiento de mora. Example: 2
-    * @bodyParam loan_id integer id préstamo. Example: 3
-    * @bodyParam tracking_date date  fecha de seguimiento. Example: '2023-02-03'
+    * @bodyParam loan_tracking_type_id required integer id del tipo de seguimiento de mora. Example: 2
+    * @bodyParam loan_id integer required id préstamo. Example: 3
+    * @bodyParam tracking_date date fecha de seguimiento. Example: '2023-02-03'
     * @bodyParam description date descripción del seguimiento. Example: 'alguna descripción larga'
     * @responseFile responses/delay_tracking_loan/update.200.json
     */
@@ -142,7 +142,7 @@ class LoanTrackingController extends Controller
     /** @group Seguimiento de mora
      * Eliminar seguimiento mora
      * Eliminar seguimiento de mora de préstamo
-     * @urlParam loan-tracking_delay required ID del tipo de seguimiento de préstamo en mora. Example: 6
+     * @urlParam loan_tracking_delay required ID del tipo de seguimiento de préstamo en mora. Example: 6
      * @responseFile responses/delay_tracking_loan/destroy.200.json
     */
     public function destroy(LoanTracking $loan_tracking_delay)
