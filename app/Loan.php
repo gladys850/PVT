@@ -1442,10 +1442,9 @@ class Loan extends Model
         $days_for_​import_date = Carbon::create($year,$month,$loan_global_parameter->days_for_​import)->endOfDay()->format('Y-m-d'); //Fecha para importacion
         if($this->state_id == LoanState::whereName('Liquidado')->first()->id){ //Alerta prestamo liquidado
             $state_loan = 1; // Color Verde Prestamos Liquidados
-        }else{
-            if($this->state_id == LoanState::whereName('Vigente')->first()->id){ // prestamo Vigente
+        }elseif($this->state_id == LoanState::whereName('Vigente')->first()->id){ // prestamo Vigente
                 if($current_date < $days_for_​import_date){ //Fecha menor al 20
-                   $current_date = Carbon::parse($current_date)->subMonth()->endOfDay();
+                    $current_date = Carbon::parse($current_date)->subMonth()->endOfDay();
                 }else{
                     $current_date = Carbon::parse($current_date)->endOfDay();
                 }
@@ -1454,13 +1453,12 @@ class Loan extends Model
                     $days = $date_ini->diffInDays($current_date);
                 }else{
                     $date_ini = Carbon::parse($this->disbursement_date)->startOfDay();
+                    $date_end = Carbon::parse($current_date)->endOfDay();
                     if($date_ini){
                         if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
-                            $date_end = Carbon::parse($current_date)->endOfDay();
                             $days = $date_end->diffInDays($date_ini);
                         } else{
                             $extra_days = Carbon::parse($this->disbursement_date)->endOfMonth()->endOfDay()->format('d') - $date_ini->format('d');
-                            $date_end = Carbon::parse($current_date)->endOfDay();
                             $days = Carbon::parse($this->disbursement_date)->diffInDays($date_end) - $extra_days;
                         }
                     }
@@ -1468,20 +1466,15 @@ class Loan extends Model
                 if($days <= $loan_global_parameter->days_current_interest){
                     if($this->payment_pending_confirmation()!= null){
                         $state_loan = 2;// Colo Amarillo tiene Pendiente por confirmar
-                    }else{
-                        if($this->payment_plan_compliance == false){
+                    }elseif($this->payment_plan_compliance == false){
                             $state_loan = 2;// Colo Amarillo en algun momento entro en mora
                         }else{
                             $state_loan = 1; //Colo Verde Cumplido
                         }
-                    }
                 }else{
                     $state_loan = 3; //Colo Rojo Mora
                 }
-            }else{ //prestamo en proceso
-                $state_loan = 0;
             }
-        }
         return $state_loan;
     }
 }
