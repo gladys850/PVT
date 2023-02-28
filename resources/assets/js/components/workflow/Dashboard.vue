@@ -99,6 +99,23 @@
         </v-row>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col>
+      <v-alert v-if="loan.state.name != 'En Proceso'"
+        dense
+        text
+        border="left"
+        :color="loan.default_alert"
+        icon="mdi-information"
+        dismissible
+      >
+      
+        <span v-if="loan.default_alert == 'green'" :class="loan.default_alert+'--text'">VERDE, Préstamos que cumplan el Plan de Pagos y préstamos liquidados.</span>
+        <span v-if="loan.default_alert == 'yellow'" class="orange--text">AMARILLO; Prestamos que no cumplan el Plan de Pagos y prestamos en estado pendiente.</span>
+        <span v-if="loan.default_alert == 'red'" :class="loan.default_alert+'--text'">ROJO; Préstamos en situación de mora y sin registro de ninguna amortización.</span>
+      </v-alert>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
