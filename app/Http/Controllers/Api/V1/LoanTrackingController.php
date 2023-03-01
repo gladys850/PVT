@@ -18,8 +18,9 @@ class LoanTrackingController extends Controller
     /** @group Seguimiento de mora
     * Listar seguimiento de mora
     * Listar el seguimiento de mora de un préstamo
-    * @bodyParam per_page integer required por página. Example: 2
-    * @bodyParam loan_id integer required ID del préstamo. Example: 1
+    * @queryParam page integer página. Example: 1
+    * @queryParam per_page integer por página. Example: 2
+    * @queryParam loan_id integer required ID del préstamo. Example: 1
     * @responseFile responses/delay_tracking_loan/index.200.json
     */
     public function index(Request $request)
@@ -98,7 +99,9 @@ class LoanTrackingController extends Controller
         return response()->json([
             'error' => false,
             'message' => 'Datos de seguimiento de préstamo en mora',
-            'data' => $loan_tracking_delay
+            'data' => [
+                'loan_tracking_delay' => $loan_tracking_delay
+            ]
         ]);
     }
 
@@ -141,7 +144,7 @@ class LoanTrackingController extends Controller
             'error' => false,
             'message' => 'Se actualizó el registro satisfactoriamente',
             'data' => [
-                'loan_tracking_id' => $loan_tracking_delay->id
+                'loan_tracking_delay' => $loan_tracking_delay
             ]
         ]);
     }
@@ -158,7 +161,7 @@ class LoanTrackingController extends Controller
         return response()->json([
             'error' => false,
             'message' => 'Se eliminó el registro de la tabla',
-            'data' => [ 'loan_tracking' => $loan_tracking_delay->id]
+            'data' => [ 'loan_tracking' => $loan_tracking_delay]
         ]);
     }
 
