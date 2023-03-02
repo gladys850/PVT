@@ -193,7 +193,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
                 if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Corto Plazo Sector Activo' || $modality->name == 'Corto Plazo en Disponibilidad' || $modality->name == 'Corto Plazo Sector Pasivo SENASIR'){
                     $loan_name = ' ';
                 }
-                if($modality->name =='Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){
+                if($modality->name =='Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad'){
                     $loan_name = 'de refinancimiento';
                 }?>
             <?php  ?>
