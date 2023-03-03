@@ -37,15 +37,23 @@ class LoanTrackingController extends Controller
         $loan_tracking_delays = Loan::find($loan_id)->loan_tracking()->get();
         foreach($loan_tracking_delays->values() as $loan_tracking_delay) {
             $loan_tracking_delay->is_last_loan_tracking = false;
-            $loan_tracking_delay->user_id = User::find($loan_tracking_delay->user_id);
-            $loan_tracking_delay->loan_tracking_type_id = LoanTrackingType::find($loan_tracking_delay->loan_tracking_type_id);
+            $user_id = $loan_tracking_delay->user_id;
+            $loan_tracking_type_id = $loan_tracking_delay->loan_tracking_type_id;
+            unset($loan_tracking_delay->user_id);
+            unset($loan_tracking_delay->loan_tracking_type_id);
+            $loan_tracking_delay->user = User::find($user_id);
+            $loan_tracking_delay->loan_tracking_type = LoanTrackingType::find($loan_tracking_type_id);
         }
         $loan_tracking_delays->values()->last()['is_last_loan_tracking'] = true;
 
         $loan_tracking_delays_removed = Loan::find($loan_id)->loan_tracking()->onlyTrashed()->get();
         foreach($loan_tracking_delays_removed as $loan_tracking_delay_removed) {
-            $loan_tracking_delay_removed->user_id = User::find($loan_tracking_delay_removed->user_id);
-            $loan_tracking_delay_removed->loan_tracking_type_id = LoanTrackingType::find($loan_tracking_delay_removed->loan_tracking_type_id);
+            $user_id = $loan_tracking_delay_removed->user_id;
+            $loan_tracking_type_id = $loan_tracking_delay_removed->loan_tracking_type_id;
+            unset($loan_tracking_delay_removed->user_id);
+            unset($loan_tracking_delay_removed->loan_tracking_type_id);
+            $loan_tracking_delay_removed->user = User::find($user_id);
+            $loan_tracking_delay_removed->loan_tracking_type = LoanTrackingType::find($loan_tracking_type_id);
         }
 
         $loan_tracking_delays_removed = new LengthAwarePaginator($loan_tracking_delays_removed->forPage($page, $pagination)->values(), $loan_tracking_delays_removed->count(), $pagination, $page);
