@@ -90,14 +90,35 @@
         </span>
         </div>
       </v-col>
-      <v-col cols="12" md="9" class="text-center ma-0 pa-2 pt-0">
+
+      <v-col cols="12" md="9" class=" ma-0 pa-2 pt-0">
         <v-progress-linear
           indeterminate
           color="primary"
           v-if="loading_loan"
         ></v-progress-linear>
         <v-card v-else color="info_card " shaped class="elevation-1" >
-          <v-card-title>Préstamos</v-card-title>
+          <div class="title pl-4 pt-4">Préstamos
+            <v-btn
+              color="warning"
+              icon
+              @click="alert = !alert"
+            >
+              <v-icon>mdi-information</v-icon>
+            </v-btn>
+            <v-alert
+              dense
+              text
+              type
+              v-model="alert"
+              dismissible
+              transition="scale-transition"
+              border="left"
+              color="warning"
+            >
+              <span class="red--text">Nota: Los préstamos de color ROJO se encuentran en situación de mora.</span> 
+            </v-alert>
+          </div>
           <v-card-text>
             <div>
               <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS REGISTRADOS</h1>
@@ -112,7 +133,9 @@
                     <strong>S.Capital:</strong>
                     {{ item.balance | money}} |
                     <strong>Mod.:</strong>
-                    {{ item.modality.procedure_type.second_name  }}
+                    {{ item.modality.procedure_type.second_name  }} |
+                    <strong>Estado:</strong>
+                     {{item.state.name}}
                     <span>
                       <v-tooltip
                         left
@@ -202,15 +225,13 @@
                       <span>Reprogramacion</span>
                     </v-tooltip>
                     </span>
-
-
                     <v-progress-linear
-                      :color="randomColor()"
+                      :color="item.default_alert ? 'error' : 'info'"
                       height="15"
                       :value="(((item.amount_approved-item.balance)*100)/item.amount_approved)"
                       striped
                     >
-                      <strong>Porcentaje pagado: {{ (((item.amount_approved-item.balance)*100)/item.amount_approved) | percentage}}%</strong>
+                      <strong>Porcentaje pagado: {{ (((item.amount_approved-item.balance)*100)/item.amount_approved) | percentage}}% </strong>
                     </v-progress-linear>
 
                   </div>
@@ -320,7 +341,8 @@ export default {
     spouse: {},
     global_parameters: {},
     validate_affiliate: false,
-    loading_loan: true
+    loading_loan: true,
+    alert: false,
   }),
   created() {
     this.randomColor = common.randomColor
