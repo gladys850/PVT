@@ -100,7 +100,7 @@
         <v-card v-else color="info_card " shaped class="elevation-1" >
           <div class="title pl-4 pt-4">Préstamos
             <v-btn
-              color="info"
+              color="warning"
               icon
               @click="alert = !alert"
             >
@@ -114,11 +114,9 @@
               dismissible
               transition="scale-transition"
               border="left"
-              color="info"
+              color="warning"
             >
-              <span class="green--text">VERDE, </span> Préstamos que cumplan el Plan de Pagos y préstamos liquidados.<br>
-              <span class="warning--text">AMARILLO; </span> Prestamos que no cumplan el Plan de Pagos y prestamos en estado pendiente.<br> 
-              <span class="red--text">ROJO; </span> Préstamos en situación de mora y sin registro de ninguna amortización.
+              <span class="red--text">Nota: Los préstamos de color ROJO se encuentran en situación de mora.</span> 
             </v-alert>
           </div>
           <v-card-text>
@@ -228,12 +226,12 @@
                     </v-tooltip>
                     </span>
                     <v-progress-linear
-                      :color="item.default_alert"
+                      :color="item.default_alert ? 'error' : 'info'"
                       height="15"
                       :value="(((item.amount_approved-item.balance)*100)/item.amount_approved)"
                       striped
                     >
-                      <strong>Porcentaje pagado: {{ (((item.amount_approved-item.balance)*100)/item.amount_approved) | percentage}}% - </strong>
+                      <strong>Porcentaje pagado: {{ (((item.amount_approved-item.balance)*100)/item.amount_approved) | percentage}}% </strong>
                     </v-progress-linear>
 
                   </div>
