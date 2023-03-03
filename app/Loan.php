@@ -1436,22 +1436,23 @@ class Loan extends Model
         $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
         $loan_global_parameter = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first();
         $current_date = Carbon::now();
+        $days_for_​import = $loan_global_parameter->days_for_​import;
         $year = $current_date->year;
         $month = $current_date->month;
         $current_date = $current_date->endOfDay()->format('Y-m-d'); //Fecha actual
-        $days_for_​import_date = Carbon::create($year,$month,$loan_global_parameter->days_for_​import)->endOfDay()->format('Y-m-d'); //Fecha para importacion
+        $days_for_​import_date = Carbon::create($year,$month,$days_for_​import)->endOfDay()->format('Y-m-d'); //Fecha para importacion
         if($this->state_id == LoanState::whereName('Vigente')->first()->id){ // prestamo Vigente
-                if($current_date < $days_for_​import_date){ //Fecha menor al 20
-                    $current_date = Carbon::parse($current_date)->subMonth()->endOfDay();
+                if($current_date <= $days_for_​import_date){ //Fecha menor al 20
+                    $new_current_date = Carbon::parse($current_date)->subMonthNoOverflow()->day($days_for_​import)->endOfDay();
                 }else{
-                    $current_date = Carbon::parse($current_date)->endOfDay();
+                    $new_current_date = Carbon::parse($current_date)->copy()->day($days_for_​import)->endOfDay();
                 }
                 if($this->last_payment_validated){
                     $date_ini = Carbon::parse($this->last_payment_validated->estimated_date)->startOfDay();
-                    $days = $date_ini->diffInDays($current_date);
+                    $days = $date_ini->diffInDays($new_current_date);
                 }else{
                     $date_ini = Carbon::parse($this->disbursement_date)->startOfDay();
-                    $date_end = Carbon::parse($current_date)->endOfDay();
+                    $date_end = Carbon::parse($new_current_date)->endOfDay();
                     if($date_ini){
                         if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
                             $days = $date_end->diffInDays($date_ini);
@@ -1467,6 +1468,9 @@ class Loan extends Model
                     $state_loan = true; // Prestamo en Mora
                 }
             }
-        return $state_loan;
+        return (object)[
+            'default_alert_state' => $state_loan,
+            'default_alert_date' => $new_current_date
+        ];
     }
 }

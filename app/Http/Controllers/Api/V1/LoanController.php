@@ -78,7 +78,8 @@ class LoanController extends Controller
         $loan->modality=$loan->modality->procedure_type;
         $loan->tags = $loan->tags;
         $loan->affiliate = $loan->affiliate;
-        $loan->default_alert = $loan->default_alert();
+        $loan->default_alert_state = $loan->default_alert()->default_alert_state;
+        $loan->default_alert_date = $loan->default_alert()->default_alert_date;
         if($loan->borrower->first()->type == 'spouses')
             $loan->affiliate->spouse = $loan->affiliate->spouse;
         if($loan->parent_loan){
