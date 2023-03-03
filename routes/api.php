@@ -132,6 +132,13 @@ Route::group([
             Route::apiResource('loan_tracking_delay', 'Api\V1\LoanTrackingController');
             Route::get('get_loan_trackings_types', 'Api\V1\LoanTrackingController@get_loan_trackings_types');
         });
+
+        Route::group([
+            'middleware' => ['permission:print-loan-certification']
+        ], function () {
+            Route::get('loan/{loan}/print/loan_certification','Api\V1\LoanCertificationController@print_warranty_discount_certification');
+        });
+
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'
