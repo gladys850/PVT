@@ -1434,7 +1434,7 @@ class Loan extends Model
     public function default_alert()
     {   $state_loan = false;
         $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
-        $offset_interest_day = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first()->offset_interest_day;
+        $loan_global_parameter = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first();
         if($this->state_id == LoanState::whereName('Vigente')->first()->id){ // prestamo Vigente
                 $new_current_date= Affiliate::find($this->affiliate_id)->default_alert_date_import();
                 if($this->last_payment_validated){
@@ -1444,7 +1444,7 @@ class Loan extends Model
                     $date_ini = Carbon::parse($this->disbursement_date)->startOfDay();
                     $date_end = Carbon::parse($new_current_date)->endOfDay();
                     if($date_ini){
-                        if(Carbon::parse($date_ini)->format('d') <= $offset_interest_day){
+                        if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
                             $days = $date_end->diffInDays($date_ini);
                         } else{
                             $extra_days = Carbon::parse($this->disbursement_date)->endOfMonth()->endOfDay()->format('d') - $date_ini->format('d');
