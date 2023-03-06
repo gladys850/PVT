@@ -8,6 +8,7 @@ use App\User;
 use App\Record;
 use App\Helpers\Util;
 use App\LoanTrackingType;
+use Carbon;
 
 class LoanTrackingObserver
 {
@@ -32,7 +33,7 @@ class LoanTrackingObserver
     public function updated(LoanTracking $loanTracking)
     {
         $loan = Loan::find($loanTracking->loan_id);
-        $message = 'modificó datos del seg. de MORA (creado el ' . $loanTracking->created_at . '): ';
+        $message = 'modificó datos del seg. de MORA '. $loanTracking->loan_tracking_type->name.' (creado el ' . $loanTracking->created_at . '): ';
 
         if($loanTracking->user_id != $loanTracking->getOriginal('user_id')) {
             $id = $loanTracking->getOriginal('user_id');
@@ -44,7 +45,7 @@ class LoanTrackingObserver
             $old = LoanTrackingType::find($loanTracking->getOriginal('loan_tracking_type_id'));
             $message = $message . ' [Tipo de seguimiento] '.($old->name??"Sin tipo de seguimiento").' a '.(optional($loanTracking->loan_tracking_type)->name??"Sin tipo de seguimiento").', ';
         }
-        if($loanTracking->tracking_date != $loanTracking->getOriginal('tracking_date')) {
+        if(Carbon::parse($loanTracking->tracking_date) != $loanTracking->getOriginal('tracking_date')) {
             $message = $message . ' [Fecha] '.($loanTracking->getOriginal('tracking_date')??"Sin fecha de seguimiento").' a '.($loanTracking->tracking_date??"Sin fecha de seguimiento").', ';
         }
         if($loanTracking->description != $loanTracking->getOriginal('description')) {
@@ -62,7 +63,7 @@ class LoanTrackingObserver
     public function deleted(LoanTracking $loanTracking)
     {
         $loan = Loan::find($loanTracking->loan_id);
-        $message = 'eliminó registro de Seg. de MORA '. $loanTracking->loan_tracking_type->name.' (creado el ' . $loanTracking->created_at .').';
+        $message = 'eliminó registro de Seg. de MORA: '. $loanTracking->loan_tracking_type->name.' (creado el ' . $loanTracking->created_at .')';
         Util::save_record($loan, 'datos-de-un-tramite',  $message);
     }
 
