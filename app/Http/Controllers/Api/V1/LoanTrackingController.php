@@ -205,7 +205,6 @@ class LoanTrackingController extends Controller
        $file_title = implode('_', ['SEGUIMIENTO MORA','PRESTAMO', $loan->code,Carbon::now()->format('m/d')]);
        $lenders = [];
        $loan_trackings = collect($loan->loan_tracking);
-       $loan->borrower->first();
        array_push($lenders, $loan->borrower->first());
        $information_loan= $loan->code;
        $data = [
