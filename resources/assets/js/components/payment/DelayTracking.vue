@@ -116,6 +116,9 @@
         :server-items-length="this.total_items"
         :footer-props="{ itemsPerPageOptions: [10, 50, -1] }"
       >
+        <template v-slot:[`item.id`]="{ index }">
+          {{ (options.page - 1) * options.itemsPerPage + index + 1 }}
+        </template>
         <template v-slot:[`item.tracking_date`]="{ item }">
           {{ item.tracking_date | date }}
         </template>
@@ -333,6 +336,30 @@ export default {
   }),
 
   computed: {
+    itemsWithIndex() {
+      return this.tracking_delays.map((items, index) => ({
+        ...items,
+        index: index + 1,
+      }));
+    },
+    itemsWithIndex() {
+      return this.tracking_delays.map((items, index) => ({
+        ...items,
+        index: index + 1,
+      }));
+    },
+    itemsWithIndex() {
+      return this.tracking_delays.map((items, index) => ({
+        ...items,
+        index: index + 1,
+      }));
+    },
+    itemsWithIndex() {
+      return this.tracking_delays.map((items, index) => ({
+        ...items,
+        index: index + 1,
+      }));
+    },
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo Registro" : "Editar registro";
     },
