@@ -108,6 +108,21 @@
                 </v-card>
               </v-tab-item>
 
+              <v-tab>SEGUIMIENTO DE MORA</v-tab>
+              <v-tab-item >
+                <v-card flat tile>
+                  <v-card-text>
+                    <v-col cols="12" class="mb-0">
+                      <DelayTracking
+                        :affiliate.sync="affiliate"
+                        :borrower.sync ="borrower"
+                        :loan="loan"
+                       />
+                    </v-col>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
+
             </v-tabs>
           </v-col>
         </v-row>
@@ -122,6 +137,7 @@
 import AddObservation from "@/components/workflow/AddObservation"
 import RemoveItem from "@/components/shared/RemoveItem"
 import HistoryPayments from "@/components/payment/HistoryPayments"
+import DelayTracking from "@/components/payment/DelayTracking"
 
 export default {
   name: "observer-flow",
@@ -129,7 +145,8 @@ export default {
   components: {
     AddObservation,
     RemoveItem,
-    HistoryPayments
+    HistoryPayments,
+    DelayTracking
   },
   data: () => ({
     observation_type: [],

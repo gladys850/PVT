@@ -8,7 +8,7 @@
           v-if="loading_affiliate"
         ></v-progress-linear>
         <v-card color="info_card elevation-1" max-width="350" :loading="loading_affiliate">
-                      <v-chip style="position:absolute; top:0;left:0"
+            <v-chip style="position:absolute; top:0;left:0"
               class="ma-0"
               color="#151515"
               label
@@ -116,7 +116,8 @@
               border="left"
               color="warning"
             >
-              <span class="red--text">Nota: Los préstamos de color ROJO se encuentran en situación de mora.</span> 
+              <span class="black--text font-weight-regular">* Los préstamos de color <span class="red--text">ROJO</span> se encuentran en situación de mora ó no se realizó el registro de ninguna amortización.<br>
+                ** La fecha de actualización de los trámites en mora considerado por el Área de Cobranzas es: {{affiliate.default_alert_date_import | date}}.</span> 
             </v-alert>
           </div>
           <v-card-text>
@@ -226,7 +227,7 @@
                     </v-tooltip>
                     </span>
                     <v-progress-linear
-                      :color="item.default_alert ? 'error' : 'info'"
+                      :color="item.default_alert_state ? 'error' : 'info'"
                       height="15"
                       :value="(((item.amount_approved-item.balance)*100)/item.amount_approved)"
                       striped
