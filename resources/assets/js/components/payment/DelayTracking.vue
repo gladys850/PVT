@@ -40,14 +40,14 @@
       </v-card>
       <v-tooltip
         top
-
+        v-if="permissionSimpleSelected.includes('print-delay-tracking')"
       >
         <template v-slot:activator="{ on }">
           <v-btn
             fab
             x-small
             color="success"
-            @click.stop="dialog= true"
+            @click.stop="dialog = true"
             v-on="on"
             top
             right
@@ -128,7 +128,10 @@
             small
             class="mr-2"
             color="info"
-            v-if="!trashed_delay"
+            v-if="
+              !trashed_delay &&
+              permissionSimpleSelected.includes('update-delay-tracking')
+            "
             @click="editItem(item)"
             :disabled="!item.is_last_loan_tracking"
           >
@@ -137,7 +140,10 @@
           <v-icon
             small
             color="error"
-            v-if="!trashed_delay"
+            v-if="
+              !trashed_delay &&
+              permissionSimpleSelected.includes('delete-delay-tracking')
+            "
             @click="deleteItem(item)"
             :disabled="!item.is_last_loan_tracking"
           >
@@ -323,7 +329,7 @@ export default {
       itemsPerPage: 10,
     },
     trashed_delay: false,
-    total_items: 0
+    total_items: 0,
   }),
 
   computed: {
@@ -389,12 +395,18 @@ export default {
         if (!this.trashed_delay) {
           this.tracking_delays = res.data.data.loan_tracking_delays.data;
           this.options.page = res.data.data.loan_tracking_delays.current_page;
-          this.options.itemsPerPage = parseInt(res.data.data.loan_tracking_delays.per_page)
+          this.options.itemsPerPage = parseInt(
+            res.data.data.loan_tracking_delays.per_page
+          );
           this.total_items = res.data.data.loan_tracking_delays.total;
         } else {
-          this.tracking_delays = res.data.data.loan_tracking_delays_removed.data;
-          this.options.page = res.data.data.loan_tracking_delays_removed.current_page;
-          this.options.itemsPerPage = parseInt(res.data.data.loan_tracking_delays_removed.per_page)
+          this.tracking_delays =
+            res.data.data.loan_tracking_delays_removed.data;
+          this.options.page =
+            res.data.data.loan_tracking_delays_removed.current_page;
+          this.options.itemsPerPage = parseInt(
+            res.data.data.loan_tracking_delays_removed.per_page
+          );
           this.total_items = res.data.data.loan_tracking_delays_removed.total;
         }
         this.loading_tracking_delay = false;
