@@ -541,4 +541,20 @@ class Affiliate extends Model
      //return (substr($this->first_name, 0, 1).substr($this->second_name, 0, 1).substr($this->last_name, 0, 1).substr($this->mothers_last_name, 0, 1).substr($this->surname_husband, 0, 1));
        return (mb_substr($this->first_name, 0, 1).mb_substr($this->second_name, 0, 1).mb_substr($this->last_name, 0, 1).mb_substr($this->mothers_last_name, 0, 1).mb_substr($this->surname_husband, 0, 1));
    }
+   public function default_alert_date_import(){
+    $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
+    $current_date = Carbon::now();
+    $days_for_​import = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first()->days_for_​import;
+    $year = $current_date->year;
+    $month = $current_date->month;
+    $current_date = $current_date->endOfDay()->format('Y-m-d'); //Fecha actual
+    $days_for_​import_date = Carbon::create($year,$month,$days_for_​import)->endOfDay()->format('Y-m-d');
+    if($current_date <= $days_for_​import_date){ //Fecha menor al 20
+      $new_current_date = Carbon::parse($current_date)->subMonthNoOverflow()->day($days_for_​import)->endOfDay();
+    }else{
+      $new_current_date = Carbon::parse($current_date)->copy()->day($days_for_​import)->endOfDay();
+    }
+    return $new_current_date;
+   }
+
 }

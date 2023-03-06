@@ -1435,18 +1435,8 @@ class Loan extends Model
     {   $state_loan = false;
         $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
         $loan_global_parameter = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first();
-        $current_date = Carbon::now();
-        $days_for_​import = $loan_global_parameter->days_for_​import;
-        $year = $current_date->year;
-        $month = $current_date->month;
-        $current_date = $current_date->endOfDay()->format('Y-m-d'); //Fecha actual
-        $days_for_​import_date = Carbon::create($year,$month,$days_for_​import)->endOfDay()->format('Y-m-d'); //Fecha para importacion
         if($this->state_id == LoanState::whereName('Vigente')->first()->id){ // prestamo Vigente
-                if($current_date <= $days_for_​import_date){ //Fecha menor al 20
-                    $new_current_date = Carbon::parse($current_date)->subMonthNoOverflow()->day($days_for_​import)->endOfDay();
-                }else{
-                    $new_current_date = Carbon::parse($current_date)->copy()->day($days_for_​import)->endOfDay();
-                }
+                $new_current_date= Affiliate::find($this->affiliate_id)->default_alert_date_import();
                 if($this->last_payment_validated){
                     $date_ini = Carbon::parse($this->last_payment_validated->estimated_date)->startOfDay();
                     $days = $date_ini->diffInDays($new_current_date);
@@ -1467,10 +1457,7 @@ class Loan extends Model
                 }else{
                     $state_loan = true; // Prestamo en Mora
                 }
-            }
-        return (object)[
-            'default_alert_state' => $state_loan,
-            'default_alert_date' => $new_current_date
-        ];
+        }
+        return $state_loan;
     }
 }

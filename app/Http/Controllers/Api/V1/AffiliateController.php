@@ -58,6 +58,7 @@ class AffiliateController extends Controller
         $affiliate->defaulted_lender = $affiliate->defaulted_lender;
         //$affiliate->defaulted_guarantor = $affiliate->defaulted_guarantor;
         $affiliate->cpop = $affiliate->cpop;
+        $affiliate->default_alert_date_import = $affiliate->default_alert_date_import();
         if($affiliate->spouse){
             $affiliate->spouse = $affiliate->spouse;
             $affiliate->dead_spouse = $affiliate->spouse->dead;
