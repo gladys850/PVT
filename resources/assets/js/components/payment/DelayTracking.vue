@@ -377,24 +377,6 @@ export default {
         index: index + 1,
       }));
     },
-    itemsWithIndex() {
-      return this.tracking_delays.map((items, index) => ({
-        ...items,
-        index: index + 1,
-      }));
-    },
-    itemsWithIndex() {
-      return this.tracking_delays.map((items, index) => ({
-        ...items,
-        index: index + 1,
-      }));
-    },
-    itemsWithIndex() {
-      return this.tracking_delays.map((items, index) => ({
-        ...items,
-        index: index + 1,
-      }));
-    },
     formTitle() {
       return this.editedIndex === -1 ? "Nuevo Registro" : "Editar registro";
     },
