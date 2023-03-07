@@ -128,7 +128,7 @@
           <v-list dense class="py-0">
             <v-list-item v-for="doc in printDocs" :key="doc.id" @click="imprimir(doc.id, item.id)">
               <v-list-item-icon class="ma-0 py-0 pt-2">
-                <v-icon class="ma-0 py-0" small v-text="doc.icon" color="light-blue accent-4"></v-icon>
+                <v-icon class="ma-0 py-0" small color="light-blue accent-4">{{doc.icon}}</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="ma-0 py-0 mt-n2">{{ doc.title }}</v-list-item-title>
             </v-list-item>

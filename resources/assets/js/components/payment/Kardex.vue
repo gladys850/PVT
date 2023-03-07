@@ -268,9 +268,8 @@
                   <v-icon
                     class="ma-0 py-0"
                     small
-                    v-text="doc.icon"
                     color="light-blue accent-4"
-                  ></v-icon>
+                  >{{doc.icon}}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title class="ma-0 py-0 mt-n2">{{doc.title}}</v-list-item-title>
               </v-list-item>
