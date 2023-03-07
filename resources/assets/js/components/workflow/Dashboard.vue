@@ -107,7 +107,6 @@
         border="left"
         color="error"
         icon="mdi-information"
-        dismissible
       >
       <span class="red--text">Nota: El préstamo se encuentran en situación de mora.</span>
       </v-alert>
