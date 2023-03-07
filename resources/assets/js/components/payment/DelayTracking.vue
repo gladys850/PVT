@@ -76,6 +76,7 @@
             v-on="on"
             style="margin-right: 80px; margin-top: 110px"
             @click="printDelayTracking($route.params.id)"
+            :loading="loading_print"
           >
             <v-icon>mdi-printer</v-icon>
           </v-btn>
@@ -365,6 +366,7 @@ export default {
     trashed_delay: false,
     total_items: 0,
     val_tracking: false,
+    loading_print:false
   }),
 
   computed: {
@@ -577,6 +579,7 @@ export default {
 
     async printDelayTracking(item) {
       try {
+        this.loading_print= true
         let res = await axios.get(`loan/${item}/print/delay_tracking`);
         printJS({
           printable: res.data.content,
@@ -584,7 +587,9 @@ export default {
           file_name: res.data.file_name,
           base64: true,
         });
+        this.loading_print=false
       } catch (e) {
+        this.loading_print=false
         this.toastr.error("Ocurrió un error en la impresión.");
         console.log(e);
       }
