@@ -100,8 +100,9 @@
         <v-card v-else color="info_card " shaped class="elevation-1" >
           <div class="title pl-4 pt-4">Préstamos
             <v-btn
-              color="warning"
+              color="#E65100"
               icon
+              class="mr-2"
               @click="alert = !alert"
             >
               <v-icon>mdi-information</v-icon>
@@ -114,10 +115,11 @@
               dismissible
               transition="scale-transition"
               border="left"
-              color="warning"
+              color="#E65100"
+              class="mr-4"
             >
-              <span class="black--text font-weight-regular">* Los préstamos de color <span class="red--text">ROJO</span> se encuentran en situación de mora ó no se realizó el registro de ninguna amortización.<br>
-                ** La fecha de actualización de los trámites en mora considerado por el Área de Cobranzas es: {{affiliate.default_alert_date_import | date}}.</span> 
+              <span class="black--text font-weight-regular">- Los préstamos de color <span class="red--text">ROJO</span> se encuentran en situación de mora o no se realizó el registro de ninguna amortización.<br>
+                - La fecha de actualización de los trámites en mora considerado por el Área de Cobranzas es: {{affiliate.default_alert_date_import | date}}.</span> 
             </v-alert>
           </div>
           <v-card-text>
