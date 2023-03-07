@@ -40,7 +40,7 @@ class AffiliateObservationController extends Controller
     public function store(ObservationForm $request, Affiliate $affiliate)
     {
         $observation = $affiliate->observations()->make([
-            'message' => $request->message ?? null,
+            'message' => $request->message,
             'observation_type_id' => $request->observation_type_id,
             'date' => Carbon::now()
         ]);
@@ -102,7 +102,7 @@ class AffiliateObservationController extends Controller
     /** @group Observaciones de Afiliado
     * Eliminar observación
     * Elimina una observación del afiliado siempre y cuando no haya sido modificada
-    * @urlParam affiliate required ID del préstamo. Example: 2
+    * @urlParam affiliate required ID del afiliado. Example: 2
     * @bodyParam user_id integer required ID de usuario que creó la observación. Example: 123
     * @bodyParam observation_type_id integer required ID de tipo de observación. Example: 2
     * @bodyParam message string required Mensaje de la observación. Example: Subsanable en una semana

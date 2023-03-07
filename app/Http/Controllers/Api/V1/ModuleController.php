@@ -90,7 +90,7 @@ class ModuleController extends Controller
     */
     public function get_observation_types_affiliate(Module $module)
     {
-        return ObservationType::where('module_id',$module->id)->where('type','like','%A%')->get();
+        return ObservationType::where('module_id',$module->id)->where('type','like','A%')->get();
     }
 
     /**
