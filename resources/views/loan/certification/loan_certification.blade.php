@@ -39,7 +39,7 @@
                     <td class="data-row py-5">{{ $loan->code }}</td>
                     <td class="data-row py-5">{{ Carbon::parse($loan->disbursement_date)->format('d/m/Y')}}</td>
                     <td class="data-row py-5">{{ Util::money_format($loan->amount_approved) }} <span class="capitalize">Bs.</span></td>
-                    <td class="data-row py-5">{{ Carbon::parse($loan->last_payment_validated->estimated_date)->format('d/m/Y')}}</td>
+                    <td class="data-row py-5">{{ !is_null($loan->last_payment_validated)? Carbon::parse($loan->last_payment_validated->estimated_date)->format('d/m/Y'):'Sin registro'}}</td>
                     <td class="data-row py-5">{{ Util::money_format($loan->balance) }} <span class="capitalize">Bs.</span></td>
                 </tr>
             </table>
