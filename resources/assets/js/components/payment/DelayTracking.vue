@@ -116,6 +116,7 @@
         :loading="loading_tracking_delay"
         :server-items-length="this.total_items"
         :footer-props="{ itemsPerPageOptions: [10, 50, -1] }"
+        :item-class="itemRowBackground"
       >
         <template v-slot:[`item.id`]="{ index }">
           {{ (options.page - 1) * options.itemsPerPage + index + 1 }}
@@ -123,8 +124,8 @@
         <template v-slot:[`item.tracking_date`]="{ item }">
           {{ item.tracking_date | date }}
         </template>
-        <template v-slot:[`item.updated_at`]="{ item }">
-          {{ item.updated_at | date }}
+        <template v-slot:[`item.created_at`]="{ item }">
+          {{ item.created_at | date }}
         </template>
         <template v-slot:top> </template>
         <template v-slot:[`item.actions`]="{ item }">
@@ -322,7 +323,7 @@ export default {
       },
       {
         text: "Fecha de registro",
-        value: "updated_at",
+        value: "created_at",
         class: ["normal", "white--text"],
         align: "center",
         sortable: true,
@@ -366,7 +367,7 @@ export default {
     trashed_delay: false,
     total_items: 0,
     val_tracking: false,
-    loading_print:false
+    loading_print: false,
   }),
 
   computed: {
@@ -579,7 +580,7 @@ export default {
 
     async printDelayTracking(item) {
       try {
-        this.loading_print= true
+        this.loading_print = true;
         let res = await axios.get(`loan/${item}/print/delay_tracking`);
         printJS({
           printable: res.data.content,
@@ -587,13 +588,23 @@ export default {
           file_name: res.data.file_name,
           base64: true,
         });
-        this.loading_print=false
+        this.loading_print = false;
       } catch (e) {
-        this.loading_print=false
+        this.loading_print = false;
         this.toastr.error("Ocurrió un error en la impresión.");
         console.log(e);
+      }
+    },
+      itemRowBackground: function (item) {
+      if(item.deleted_at != null){
+        return 'style-4'
       }
     },
   },
 };
 </script>
+<style scoped>
+.style-4 {
+  background-color: pink
+}
+</style>
