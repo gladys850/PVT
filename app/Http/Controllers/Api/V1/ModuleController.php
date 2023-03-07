@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Module;
+use App\ObservationType;
 use Util;
 
 /** @group Módulos
@@ -79,6 +80,17 @@ class ModuleController extends Controller
     public function get_observation_types(Module $module)
     {
         return $module->observation_types;
+    }
+    /**
+    * Tipos de observaciones asociados al módulo y afiliado
+    * Devuelve la lista de tipos de observaciones asociados a un módulo y afiliado
+    * @urlParam module required ID del módulo. Example: 6
+    * @authenticated
+    * @responseFile responses/module/get_observation_types.200.json
+    */
+    public function get_observation_types_affiliate(Module $module)
+    {
+        return ObservationType::where('module_id',$module->id)->where('type','like','A%')->get();
     }
 
     /**
