@@ -155,53 +155,82 @@
         </template>
       </v-data-table>
       <v-dialog v-model="dialog" max-width="800px">
-        <v-card>
-          <v-card-title>
-            <span class="text-h5">{{ formTitle }} </span>
-          </v-card-title>
+        <ValidationObserver ref="observerDelayTracking">
+          <v-form>
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">{{ formTitle }} </span>
+              </v-card-title>
 
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12">
-                  <v-select
-                    dense
-                    :loading="loading_tracking_types"
-                    :items="tracking_types"
-                    item-text="name"
-                    item-value="id"
-                    label="Tipo seguimiento"
-                    v-model="editedItem.loan_tracking_type_id"
-                  >
-                  </v-select>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    v-model="editedItem.tracking_date"
-                    label="Fecha de acción"
-                    hint="Día/Mes/Año"
-                    class="purple-input"
-                    type="date"
-                    clearable
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-textarea
-                    v-model="editedItem.description"
-                    label="Comentario"
-                    rows="4"
-                  ></v-textarea>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card-text>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <ValidationProvider
+                        v-slot="{ errors }"
+                        name="Tipo de seguimiento"
+                        rules="required"
+                      >
+                        <v-select
+                          :error-messages="errors"
+                          dense
+                          :loading="loading_tracking_types"
+                          :items="tracking_types"
+                          item-text="name"
+                          item-value="id"
+                          label="Tipo seguimiento"
+                          v-model="editedItem.loan_tracking_type_id"
+                        >
+                        </v-select>
+                      </ValidationProvider>
+                    </v-col>
+                    <v-col cols="12">
+                      <ValidationProvider
+                        v-slot="{ errors }"
+                        name="Fecha de acción"
+                        rules="required"
+                      >
+                        <v-text-field
+                          :error-messages="errors"
+                          v-model="editedItem.tracking_date"
+                          label="Fecha de acción"
+                          hint="Día/Mes/Año"
+                          class="purple-input"
+                          type="date"
+                          clearable
+                        ></v-text-field>
+                      </ValidationProvider>
+                    </v-col>
+                    <v-col cols="12">
+                      <ValidationProvider
+                        v-slot="{ errors }"
+                        name="Comentario"
+                        rules="required"
+                      >
+                        <v-textarea
+                          :error-messages="errors"
+                          v-model="editedItem.description"
+                          label="Comentario"
+                          rows="4"
+                        ></v-textarea>
+                      </ValidationProvider>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
 
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="secondary" text @click="close"> Cancelar </v-btn>
-            <v-btn color="success" text @click="save"> Guardar </v-btn>
-          </v-card-actions>
-        </v-card>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="secondary" text @click="close()">
+                  Cancelar
+                </v-btn>
+                <v-btn color="success" text @click="validateDelayTracking()">
+                  Guardar
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </ValidationObserver>
       </v-dialog>
       <v-dialog v-model="dialogDelete" max-width="500px">
         <v-card>
@@ -210,8 +239,10 @@
           >
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="secondary" text @click="closeDelete">Cancelar</v-btn>
-            <v-btn color="success" text @click="deleteItemConfirm"
+            <v-btn color="secondary" text @click="closeDelete()"
+              >Cancelar</v-btn
+            >
+            <v-btn color="success" text @click="deleteItemConfirm()"
               >Aceptar</v-btn
             >
             <v-spacer></v-spacer>
@@ -333,6 +364,7 @@ export default {
     },
     trashed_delay: false,
     total_items: 0,
+    val_tracking: false,
   }),
 
   computed: {
@@ -481,7 +513,7 @@ export default {
         //this.tracking_delays.splice(this.editedIndex, 1);
         this.getTrackingDelay();
         this.closeDelete();
-        this.toastr.error("Se eliminó correctamente el registro.");
+        this.toastr.success("Se eliminó correctamente el registro.");
       } catch (e) {
         console.log(e);
       }
@@ -502,16 +534,7 @@ export default {
         this.editedIndex = -1;
       });
     },
-
-    // save() {
-    //   if (this.editedIndex > -1) {
-    //     Object.assign(this.tracking_delays[this.editedIndex], this.editedItem);
-    //   } else {
-    //     this.tracking_delays.push(this.editedItem);
-    //   }
-    //   this.close();
-    // },
-    async save() {
+    async saveTracking() {
       try {
         if (this.editedIndex == -1) {
           let res = await axios.post("loan_tracking_delay", {
@@ -539,6 +562,16 @@ export default {
       } catch (e) {
         console.log(e);
         this.dialog = false;
+      }
+    },
+    async validateDelayTracking() {
+      try {
+        this.val_tracking = await this.$refs.observerDelayTracking.validate();
+        if (this.val_tracking == true) {
+          this.saveTracking();
+        }
+      } catch (e) {
+        this.$refs.observerDelayTracking.setErrors(e);
       }
     },
 
