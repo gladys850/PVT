@@ -121,7 +121,7 @@
 
       <Dashboard :affiliate.sync="affiliate" :loan.sync="loan"/>
       
-      <v-alert v-if="loan.state.name == 'Vigente' && loan.default_alert"
+      <v-alert v-if="loan.state.name == 'Vigente' && loan.default_alert_state"
         dense
         text
         border="left"
