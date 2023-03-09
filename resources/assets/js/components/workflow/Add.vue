@@ -545,7 +545,7 @@
                   left
                   absolute
                   v-on="on"
-                  style="margin-left: 300px; margin-top: 20px"
+                  style="margin-left: 350px; margin-top: 20px"
                   @click="dialog_guarantor_lender=true"
                 >
                   <v-icon>mdi-account-switch</v-icon>
