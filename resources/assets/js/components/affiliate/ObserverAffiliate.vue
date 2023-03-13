@@ -45,10 +45,6 @@ export default {
       type: Object,
       required: true,
     },
-    observations: {
-      type: Array,
-      required: true
-    },
   },
 };
 </script>
