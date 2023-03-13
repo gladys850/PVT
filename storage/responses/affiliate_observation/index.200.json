@@ -1,14 +1,72 @@
 [
     {
-        "user_id": 123,
-        "observation_type_id": 2,
-        "observable_id": 5012,
+        "user_id": 181,
+        "observation_type_id": 40,
+        "observable_id": 6227,
         "observable_type": "affiliates",
-        "message": "Subsanable en una semana",
-        "date": "2020-05-07 19:52:06",
+        "message": "prueba noemi",
+        "date": "2023-03-13 11:31:20",
         "enabled": false,
-        "created_at": "2020-05-07T23:52:06.000000Z",
-        "updated_at": "2020-05-07T23:52:06.000000Z",
-        "deleted_at": null
+        "created_at": "2023-03-13T15:31:20.000000Z",
+        "updated_at": "2023-03-13T15:31:20.000000Z",
+        "deleted_at": null,
+        "observation_type": {
+            "id": 40,
+            "module_id": 6,
+            "name": "Observado - Solicitud de Retención para Garantes por Descuento de Préstamo.",
+            "description": "Subsanable",
+            "type": "A",
+            "shortened": "Solicitud de Retención para Garantes por Descuento de Préstamo",
+            "active": true
+        },
+        "user": {
+            "id": 181,
+            "city_id": 4,
+            "first_name": "NOEMI ROSARIO",
+            "last_name": "ANCARI VILCARANI",
+            "username": "nancari",
+            "created_at": "2021-06-16T15:21:45.000000Z",
+            "updated_at": "2023-03-13T15:14:07.000000Z",
+            "position": "ANALISTA DE REQUERIMIENTOS Y DISEÑO DE BASE DE DATOS",
+            "is_commission": null,
+            "phone": "76579661",
+            "active": true,
+            "identity_card": "10069779"
+        }
+    },
+    {
+        "user_id": 181,
+        "observation_type_id": 1,
+        "observable_id": 6227,
+        "observable_type": "affiliates",
+        "message": "prueba noemi",
+        "date": "2023-03-10 15:16:30",
+        "enabled": false,
+        "created_at": "2023-03-10T19:16:30.000000Z",
+        "updated_at": "2023-03-10T19:16:30.000000Z",
+        "deleted_at": null,
+        "observation_type": {
+            "id": 1,
+            "module_id": 9,
+            "name": "Suspendido - Rendición de cuentas o fondos en avance en el sistema contable.",
+            "description": "Amortizable",
+            "type": "AT",
+            "shortened": "Rendición de Cuentas o Fondos en Avance en el Sistema Contable",
+            "active": true
+        },
+        "user": {
+            "id": 181,
+            "city_id": 4,
+            "first_name": "NOEMI ROSARIO",
+            "last_name": "ANCARI VILCARANI",
+            "username": "nancari",
+            "created_at": "2021-06-16T15:21:45.000000Z",
+            "updated_at": "2023-03-13T15:14:07.000000Z",
+            "position": "ANALISTA DE REQUERIMIENTOS Y DISEÑO DE BASE DE DATOS",
+            "is_commission": null,
+            "phone": "76579661",
+            "active": true,
+            "identity_card": "10069779"
+        }
     }
 ]
