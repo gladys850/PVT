@@ -1,9 +1,6 @@
 <<template>
   <div>
     <v-row>
-      <v-col cols="12">
-        <v-toolbar-title>HISTORIAL DE AFILIADOS</v-toolbar-title>
-      </v-col>
       <v-col>
         <v-data-table
           :headers="headersHist"
