@@ -110,7 +110,6 @@
             <v-alert
               dense
               text
-              type
               v-model="alert"
               dismissible
               transition="scale-transition"
