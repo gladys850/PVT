@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\ObservationForm;
 use App\Affiliate;
+use App\ObservationType;
 use Carbon;
 use Illuminate\Support\Facades\Auth;
 use Util;
@@ -24,7 +25,12 @@ class AffiliateObservationController extends Controller
     {
         $query = $affiliate->observations();
         if ($request->boolean('trashed')) $query = $query->onlyTrashed();
-        return $query->get();
+        $observations = $query->get();
+        foreach ($observations as $observation){
+            $observation->observation_type = ObservationType::find($observation->observation_type_id);
+            $observation->user;
+        }
+        return $observations;
     }
 
 
