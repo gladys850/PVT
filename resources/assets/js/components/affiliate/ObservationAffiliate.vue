@@ -226,6 +226,7 @@ export default {
     loading_observation_type: false,
     trashed: false,
     val_observation: false,
+    options:{}
   }),
 
   computed: {
