@@ -63,8 +63,8 @@
 </div>
 @php ($n = 1)
 <div class="block">
-        <table style="font-size:11px;" class="table-info w-100 text-center uppercase my-10">
-            <tr class="bg-grey-darker text-white">
+        <table style="font-size:11px;" class="table-info w-100 uppercase my-10">
+            <tr class="bg-grey-darker text-white text-center">
                 <td class="w-5">N°</td>
                 <td class="w-10">Fecha</td>
                 <td class="w-10">Usuario</td>
@@ -73,11 +73,11 @@
             </tr>
             <tr>
             @foreach ($loan_trackings as $loan_tracking)
-                <td class="data-row py-5">{{$n++}}</td>
-                <td class="data-row py-5">{{Carbon::parse($loan_tracking->tracking_date)->format('d/m/Y')}}</td>
-                <td class="data-row py-5">{{$loan_tracking->user->username}}</td>
-                <td class="data-row py-5">{{$loan_tracking->loan_tracking_type->name}}</td>
-                <td class="data-row py-5">{{$loan_tracking->description}}</td>
+                <td class="data-row py-5 text-center">{{$n++}}</td>
+                <td class="data-row py-5 text-center">{{Carbon::parse($loan_tracking->tracking_date)->format('d/m/Y')}}</td>
+                <td class="data-row py-5 text-center">{{$loan_tracking->user->username}}</td>
+                <td class="data-row py-5 text-justify">{{$loan_tracking->loan_tracking_type->name}}</td>
+                <td class="data-row py-5 text-justify">{{$loan_tracking->description}}</td>
              </tr>
             @endforeach
         </table>
