@@ -82,18 +82,6 @@ class ModuleController extends Controller
         return $module->observation_types;
     }
     /**
-    * Tipos de observaciones asociados al módulo y afiliado
-    * Devuelve la lista de tipos de observaciones asociados a un módulo y afiliado
-    * @urlParam module required ID del módulo. Example: 6
-    * @authenticated
-    * @responseFile responses/module/get_observation_types.200.json
-    */
-    public function get_observation_types_affiliate(Module $module)
-    {
-        return ObservationType::where('module_id',$module->id)->where('type','like','A%')->get();
-    }
-
-    /**
     * Tipos de modalidades de préstamo asociados al módulo
     * Devuelve la lista de tipos de modalidades de préstamo asociados a un módulo
     * @urlParam module required ID del módulo. Example: 6
