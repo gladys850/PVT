@@ -12,6 +12,7 @@ use Carbon\CarbonImmutable;
 use Util;
 use App\LoanState;
 use Illuminate\Support\Facades\DB;
+use App\LoanProcedure;
 
 class Affiliate extends Model
 {
@@ -377,7 +378,7 @@ class Affiliate extends Model
         }
       }
       if($guarantor){
-          $loan_global_parameter = LoanGlobalParameter::latest()->first();
+          $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
           if($this->affiliate_state->affiliate_state_type->name == 'Activo'){
             if($remake_evaluation)
               $remake_loan = 1;
