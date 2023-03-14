@@ -103,7 +103,7 @@
             left
             absolute
             v-on="on"
-            style="margin-left: 300px; margin-top: 20px"
+            style="margin-left: 350px; margin-top: 20px"
             @click="dialog_guarantor_certification = true"
           >
             <v-icon color="white">mdi-printer-check</v-icon>
@@ -680,7 +680,7 @@ export default {
 
     async printWarrantyDiscountCertification(item) {
       try {
-        if(this.selected_guarantor>0){
+        if(this.selected_guarantor.length>0){
           let res = await axios.get(`loan/${item}/print/loan_certification`, {
           params: {
             guarantors: this.selected_guarantor
@@ -696,6 +696,7 @@ export default {
         }else{
           this.toastr.error("Selecciones un garante para generar la certificación")
         }
+        this.selected_guarantor= []
       } catch (e) {
         this.toastr.error("Ocurrió un error en la impresión.");
         this.dialog_guarantor_certification = false
