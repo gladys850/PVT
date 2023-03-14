@@ -31,6 +31,7 @@
         <v-tooltip top v-if="tab != 'tab-1'">
           <template v-slot:activator="{ on }">
             <v-btn
+              v-if="(permissionSimpleSelected.includes('update-affiliate-primary') || permissionSimpleSelected.includes('update-affiliate-secondary'))"
               fab
               dark
               small
