@@ -743,4 +743,8 @@ class Util
         }
         return 0;
     }
+    public static function getEnabledLabel($is_enabled)
+    {
+        return $is_enabled ? 'Subsanado' : 'Vigente';
+    }
 }
