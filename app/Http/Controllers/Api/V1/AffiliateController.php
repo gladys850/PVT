@@ -583,7 +583,7 @@ class AffiliateController extends Controller
         if ($request->has('city_id')) {
             $is_latest = false;
             $city = City::findOrFail($request->city_id);
-            $offset_day = LoanGlobalParameter::latest()->first()->offset_ballot_day;
+            $offset_day = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->offset_ballot_day;
             $now = CarbonImmutable::now();
             if($choose_diff_month == true && $request->has('number_diff_month')){
                 $before_month=$number_diff_month;
@@ -898,7 +898,7 @@ class AffiliateController extends Controller
     public function evaluate_maximum_loans(Affiliate $affiliate)
     {
         $maximum = false;
-        $loan_global_parameter = LoanGlobalParameter::latest()->first();
+        $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $process = $affiliate->process_loans;
         $disbursement = $affiliate->disbursement_loans;
         if(count($process)<$loan_global_parameter->max_loans_process && count($disbursement)<$loan_global_parameter->max_loans_active) $maximum = true;
