@@ -108,7 +108,7 @@
         color="error"
         icon="mdi-information"
       >
-      <span class="red--text">Nota: El préstamo se encuentran en situación de mora.</span>
+      <span class="red--text">El préstamo se encuentran en situación de mora.</span>
       </v-alert>
       </v-col>
     </v-row>
