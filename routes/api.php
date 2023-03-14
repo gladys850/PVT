@@ -53,7 +53,7 @@ Route::group([
         Route::get('module/{module}/role', 'Api\V1\ModuleController@get_roles');
         Route::get('module/{module}/procedure_type', 'Api\V1\ModuleController@get_procedure_types');
         Route::get('module/{module}/observation_type', 'Api\V1\ModuleController@get_observation_types');
-        Route::get('module/{module}/observation_type_affiliate', 'Api\V1\ModuleController@get_observation_types_affiliate');
+        Route::get('module/{module}/observation_type_affiliate/{affiliate}', 'Api\V1\AffiliateObservationController@get_observation_types_affiliate');
         Route::get('module/{module}/modality_loan', 'Api\V1\ModuleController@get_modality_types');
         Route::get('module/{module}/amortization_loan', 'Api\V1\ModuleController@get_amortization_types');
         Route::patch('loans', 'Api\V1\LoanController@bulk_update_role');

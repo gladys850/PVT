@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\ObservationForm;
 use App\Affiliate;
+use App\Module;
 use App\AffiliateRecordPVT;
 use App\ObservationType;
 use Carbon;
@@ -147,5 +148,28 @@ class AffiliateObservationController extends Controller
             abort(403, 'La observación no existe, no se puede eliminar');
         }
     }
-
+    /**
+    * Tipos de observaciones asociados al módulo y afiliado
+    * Devuelve la lista de tipos de observaciones asociados a un módulo y afiliado
+    * @urlParam module required ID del módulo. Example: 6
+    * @urlParam affiliate required ID del Afiliado. Example: 3
+    * @authenticated
+    * @responseFile responses/module/get_observation_types.200.json
+    */
+    public function get_observation_types_affiliate(Module $module,Affiliate $affiliate)
+    {
+        $observations = $affiliate->observations()->get();
+        $observation_types_all= ObservationType::where('module_id',$module->id)->where('type','like','A%')->get();
+        $observation_types= collect([]);
+        foreach($observation_types_all as $observation_type){
+            $is = false;
+            foreach($observations as $observation){
+               if($observation_type->id == $observation->observation_type_id)
+               $is = true;
+            }
+            if(!$is)
+            $observation_types->push($observation_type);
+        }
+        return  $observation_types;
+    }
 }
