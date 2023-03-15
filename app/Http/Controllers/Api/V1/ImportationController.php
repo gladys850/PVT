@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\V1\LoanController;
 use Util;
 use App\LoanBorrower;
 use App\LoanGuarantor;
+use App\LoanProcedure;
 
 /** @group Importacion de datos C o S
 * Importacion de datos Comando  o Senasir
@@ -344,8 +345,7 @@ class ImportationController extends Controller
 
     //prestamos por  afiliado
     public function loan_lenders($id_affiliate,LoanPaymentPeriod $period){
-
-        $date_day = LoanGlobalParameter::latest()->first()->offset_interest_day;
+        $date_day = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->offset_interest_day;
 
         $estimated_date = Carbon::create($period->year, $period->month, $date_day);
         $estimated_date = Carbon::parse($estimated_date)->format('Y-m-d');
@@ -362,8 +362,7 @@ class ImportationController extends Controller
     }
     //prestamos por  guarantor
     public function loan_guarantors($id_affiliate, LoanPaymentPeriod $period){
-        $date_day = LoanGlobalParameter::latest()->first()->offset_interest_day;
-
+        $date_day = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->offset_interest_day;
         $estimated_date = Carbon::create($period->year, $period->month, $date_day);
         $estimated_date = Carbon::parse($estimated_date)->format('Y-m-d');
         $query = "SELECT *
@@ -629,18 +628,15 @@ class ImportationController extends Controller
             if(!$period->importation)
             {
                 $query = "select * from loan_payment_group_commands where period_id = $period->id order by id";
-                $payments = DB::select($query);//return $payments;
+                $payments = DB::select($query);
                 $estimated_date = Carbon::create($period->year, $period->month, 1);
                 $estimated_date = Carbon::parse($estimated_date)->endOfMonth()->format('Y-m-d');
-                $estimated_date_disbursement = Carbon::create($period->year, $period->month, LoanGlobalParameter::first()->offset_interest_day);
+                $estimated_date_disbursement = Carbon::create($period->year, $period->month, LoanProcedure::where('is_enable',true)->first()->loan_global_parameter->offset_interest_day);
                 $estimated_date_disbursement = Carbon::parse($estimated_date_disbursement)->endOfMonth()->format('Y-m-d');
                 $c = 0;$sw = false;$c2 = 0;
                 foreach ($payments as $payment){
                     $amount = $payment->amount_balance;
-                    //$affiliate = "select * from Affiliates where id = $payment->affiliate_id";
                     $affiliate = Affiliate::find($payment->affiliate_id);
-                    //$affiliate = DB::select($affiliate);//return $affiliate;
-                    //$affiliate = $affiliate[0];
                     $loans = "SELECT l.id
                             from loans l
                             join loan_states ls on ls.id = l.state_id
@@ -757,7 +753,6 @@ class ImportationController extends Controller
 
     public function set_payment($request, $loan)
     {
-        //$loan = Loan::whereId($loan->id)->first();
         if($loan->balance!=0){
             $payment = $loan->next_payment2($request->affiliate_id, $request->estimated_date, $request->paid_by, $request->procedure_modality_id, $request->estimated_quota, $request->liquidate);
             $payment->description = $request->description;
@@ -765,7 +760,6 @@ class ImportationController extends Controller
             $payment->role_id = Role::whereName('PRE-cobranzas')->first()->id;
             $payment->procedure_modality_id = $request->procedure_modality_id;
             $payment->voucher = $request->voucher;
-            //$payment->amortization_type_id = $request->input('amortization_type_id');
             $payment->affiliate_id = $request->affiliate_id;
 
             $affiliate_id=$request->affiliate_id;

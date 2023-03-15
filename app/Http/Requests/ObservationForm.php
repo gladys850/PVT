@@ -84,6 +84,7 @@ class ObservationForm extends FormRequest
             'update.observation_type_id' => 'trim',
             'update.message' => 'trim|uppercase',
             'update.date' => 'trim',
+            'message' => 'trim|uppercase'
         ];
     }
 }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\ObservationForm;
 use App\Affiliate;
+use App\Module;
+use App\AffiliateRecordPVT;
 use App\ObservationType;
 use Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +35,6 @@ class AffiliateObservationController extends Controller
         return $observations;
     }
 
-
     /** @group Observaciones de Afiliado
     * Nueva observación
     * Inserta una nueva observación asociada al afiliado
@@ -52,18 +53,15 @@ class AffiliateObservationController extends Controller
         ]);
         $observation->user()->associate(Auth::user());
         $observation->save();
+        /*************records*************/
+        $observation_type = ObservationType::find($observation->observation_type_id);
+        $record = new AffiliateRecordPVT();
+        $record->user_id = Auth::user()->id;
+        $record->affiliate_id = $affiliate->id;
+        $record->message = "El usuario " . Auth::user()->username  . " creó la observación " . $observation_type->name;
+        $record->save();
+        /*************end records*************/
         return $observation;
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /** @group Observaciones de Afiliado
@@ -87,27 +85,37 @@ class AffiliateObservationController extends Controller
             $observation = $observation->where($key, $value);
         }
         if ($observation->count() === 1) {
-            $obs = $observation->first();
-            if (isset($request->update['enabled'])) {
-                if ($request->update['enabled']) {
-                    $message = 'subsanó observación: ';
-                } else {
-                    $message = 'observó: ';
-                }
-            } else {
-                $message = 'modificó observación: ';
-            }
-            Util::save_record($obs, 'observaciones', $message . $obs->message, $obs->observable);
             $observation->update(collect($request->update)->only('observation_type_id', 'message', 'enabled')->toArray());
+
+            /*************records*************/
+            $observation_type = ObservationType::find($request->original['observation_type_id']);
+            $isDirty = false;
+            $message =  "El usuario ".Auth::user()->username.' '."modificó la observación " . $observation_type->name . " :";
+            $record = new AffiliateRecordPVT();
+            $record->user_id = Auth::user()->id;
+            $record->affiliate_id = $affiliate->id;
+            if (isset($request->update['message']) && $request->original['message'] != $request->update['message']){
+                $message = $message . ' Mensaje de - ' . $request->original['message'] . ' - a - ' . $request->update['message']. ', ';
+                $isDirty = true;
+            }
+            if (isset($request->update['enabled']) && $request->original['enabled'] != $request->update['enabled']){
+                $message = $message . ' de ' . Util::getEnabledLabel($request->original['enabled']) . ' a ' . Util::getEnabledLabel($request->update['enabled']) . ', ';
+                $isDirty = true;
+            }
+            $record->message = $message . ".";
+            if($isDirty)
+                $record->save();
+            /*************end records*************/
+
             return $affiliate->observations;
         }
         else {
-            abort(403, 'La observación fue modificada, no se puede encontrar');
+            abort(403, 'La observación no se puede encontrar');
         }
     }
     /** @group Observaciones de Afiliado
     * Eliminar observación
-    * Elimina una observación del afiliado siempre y cuando no haya sido modificada
+    * Elimina una observación del afiliado siempre y cuando exista
     * @urlParam affiliate required ID del afiliado. Example: 2
     * @bodyParam user_id integer required ID de usuario que creó la observación. Example: 123
     * @bodyParam observation_type_id integer required ID de tipo de observación. Example: 2
@@ -121,15 +129,47 @@ class AffiliateObservationController extends Controller
     {
         $request->request->add(['observable_type' => 'affiliates', 'observable_id' => $affiliate->id]);
         $observation = $affiliate->observations();
-        foreach ($request->except('created_at','updated_at','deleted_at') as $key => $value) {
+        foreach ($request->except('created_at','updated_at','deleted_at','role_id') as $key => $value) {
             $observation = $observation->where($key, $value);
         }
-        if($observation->count() > 0) {
+        if($observation->count() == 1) {
             $observation->delete();
+            /*************records*************/
+            $message = "El usuario " . Auth::user()->username  . " eliminó la observación " . $observation_type->name . ".";
+            $observation_type = ObservationType::find($request->observation_type_id);
+            $record = new AffiliateRecordPVT();
+            $record->user_id = Auth::user()->id;
+            $record->affiliate_id = $affiliate->id;
+            $record->message = $message;
+            $record->save();
+            /*************end records*************/
             return $affiliate->observations;
         }else{
             abort(403, 'La observación no existe, no se puede eliminar');
         }
     }
-
+    /**
+    * Tipos de observaciones asociados al módulo y afiliado
+    * Devuelve la lista de tipos de observaciones asociados a un módulo y afiliado
+    * @urlParam module required ID del módulo. Example: 6
+    * @urlParam affiliate required ID del Afiliado. Example: 3
+    * @authenticated
+    * @responseFile responses/module/get_observation_types.200.json
+    */
+    public function get_observation_types_affiliate(Module $module,Affiliate $affiliate)
+    {
+        $observations = $affiliate->observations()->get();
+        $observation_types_all= ObservationType::where('module_id',$module->id)->where('type','like','A%')->get();
+        $observation_types= collect([]);
+        foreach($observation_types_all as $observation_type){
+            $is = false;
+            foreach($observations as $observation){
+               if($observation_type->id == $observation->observation_type_id)
+               $is = true;
+            }
+            if(!$is)
+            $observation_types->push($observation_type);
+        }
+        return  $observation_types;
+    }
 }
