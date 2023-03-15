@@ -132,7 +132,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="error" text @click="close()"> Cancelar </v-btn>
-              <v-btn color="success" text @click="validateObservation()">
+              <v-btn color="success" :loading="loading_button" text @click="validateObservation()">
                 Guardar
               </v-btn>
             </v-card-actions>
@@ -148,7 +148,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="closeDelete()">Cancelar</v-btn>
-          <v-btn color="success" text @click="deleteItemConfirm()"
+          <v-btn color="success" :loading="loading_button" text @click="deleteItemConfirm()"
             >Aceptar</v-btn
           >
           <v-spacer></v-spacer>
@@ -226,7 +226,8 @@ export default {
     loading_observation_type: false,
     trashed: false,
     val_observation: false,
-    options:{}
+    options:{},
+    loading_button: false
   }),
 
   computed: {
@@ -301,7 +302,7 @@ export default {
     async getTrackingTypes() {
       try {
         this.observation_types_loading = true;
-        let res = await axios.get(`module/${6}/observation_type_affiliate`);
+        let res = await axios.get(`module/${6}/observation_type_affiliate/${this.$route.params.id}`);
         this.observation_type = res.data;
         console.log(this.observation_type);
         this.observation_types_loading = false;
@@ -326,6 +327,7 @@ export default {
 
     async deleteItemConfirm() {
       try {
+        this.loading_button = true
         let res = await axios.delete(
           `affiliate/${this.$route.params.id}/observation`,
           {
@@ -338,9 +340,10 @@ export default {
             },
           }
         );
-        //this.observations.splice(this.editedIndex, 1);
-        this.getObservations();
+        this.getObservations()
+        this.getTrackingTypes()
         this.closeDelete();
+        this.loading_button = false
         this.toastr.success("Se eliminó correctamente el registro.");
       } catch (e) {
         console.log(e);
@@ -364,15 +367,14 @@ export default {
     },
     async saveObservation() {
       try {
+        this.loading_button = true
         if (this.editedIndex == -1) {
-          let res = await axios.post(
-            `affiliate/${this.$route.params.id}/observation`,
+          let res = await axios.post(`affiliate/${this.$route.params.id}/observation`,
             {
               observation_type_id: this.editedItem.observation_type_id,
               message: this.editedItem.message,
             }
           );
-          this.getObservations();
           this.toastr.success("Se realizó el registró correctamente.");
         } else {
           let res = await axios.patch(
@@ -380,8 +382,7 @@ export default {
             {
               original: {
                 user_id: this.editedItem_original.user_id,
-                observation_type_id:
-                  this.editedItem_original.observation_type_id,
+                observation_type_id: this.editedItem_original.observation_type_id,
                 message: this.editedItem_original.message,
                 date: this.editedItem_original.date,
                 enabled: false,
@@ -392,13 +393,16 @@ export default {
               },
             }
           );
-          this.getObservations();
           this.toastr.success("Se actualizó el registro correctamente.");
         }
-        this.dialog = false;
+        this.getObservations()
+        this.getTrackingTypes()
+        this.loading_button = false
+        this.dialog = false
       } catch (e) {
-        console.log(e);
-        this.dialog = false;
+        console.log(e)
+        this.loading_button = false
+        this.dialog = false
       }
     },
     async validateObservation() {
