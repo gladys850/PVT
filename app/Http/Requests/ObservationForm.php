@@ -77,14 +77,22 @@ class ObservationForm extends FormRequest
 
     public function filters()
     {
-        return [
-            'original.observation_type_id' => 'trim',
-            'original.message' => 'trim',
-            'original.date' => 'trim',
-            'update.observation_type_id' => 'trim',
-            'update.message' => 'trim|uppercase',
-            'update.date' => 'trim',
-            'message' => 'trim|uppercase'
-        ];
+        switch ($this->method()) {
+            case 'POST':
+                return [
+                    'message' => 'trim|uppercase'
+                ];
+                break;
+            case 'DELETE' || 'PATCH' || 'PUT':
+                return [
+                    'original.observation_type_id' => 'trim',
+                    'original.message' => 'trim',
+                    'original.date' => 'trim',
+                    'update.observation_type_id' => 'trim',
+                    'update.message' => 'trim|uppercase',
+                    'update.date' => 'trim'
+                ];
+                break;
+        }
     }
 }

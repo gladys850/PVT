@@ -135,8 +135,8 @@ class AffiliateObservationController extends Controller
         if($observation->count() == 1) {
             $observation->delete();
             /*************records*************/
-            $message = "El usuario " . Auth::user()->username  . " eliminó la observación " . $observation_type->name . ".";
             $observation_type = ObservationType::find($request->observation_type_id);
+            $message = "El usuario " . Auth::user()->username  . " eliminó la observación " . $observation_type->name . ".";
             $record = new AffiliateRecordPVT();
             $record->user_id = Auth::user()->id;
             $record->affiliate_id = $affiliate->id;
