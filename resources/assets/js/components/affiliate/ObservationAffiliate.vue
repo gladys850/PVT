@@ -102,11 +102,12 @@
                         :error-messages="errors"
                         dense
                         :loading="loading_observation_type"
-                        :items="observation_type"
+                        :items="editedIndex == -1 ? observation_type : editedItem.observation_type"
                         item-text="name"
                         item-value="id"
                         label="Tipo de observación"
                         v-model="editedItem.observation_type_id"
+                        :disabled="editedIndex != -1 ? true : false"
                       >
                       </v-select>
                     </ValidationProvider>
