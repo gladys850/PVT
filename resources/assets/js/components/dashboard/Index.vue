@@ -250,7 +250,7 @@
               </v-row>
             </template>
             <!--tabs-->
-            <v-col cols="12" class="py-0 px-0 " v-if="history_observables == null && ver">
+            <v-col cols="12" class="px-0 " v-if="history_observables == null && ver">
               <v-container fluid class="py-0 px-0 ">
                 <v-row class="py-0">
                   <v-col cols="12" class="py-0">

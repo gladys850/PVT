@@ -52,6 +52,8 @@ use App\Exports\FileWithMultipleSheetsDefaulted;
 use App\LoanPlanPayment;
 use App\LoanBorrower;
 use App\LoanGuarantor;
+use App\LoanProcedure;
+use App\Jobs\ProcessNotificationSMS;
 
 /** @group Préstamos
 * Datos de los trámites de préstamos y sus relaciones
@@ -97,6 +99,12 @@ class LoanController extends Controller
         return $loan;
     }
 
+    public static function append_data_index(Loan $loan){
+        $loan->borrower = $loan->borrower;
+        $loan->modality=$loan->modality->procedure_type;
+        $loan->estimated_quota = $loan->estimated_quota;
+        return $loan;
+    }
     /**
     * Lista de Préstamos
     * Devuelve el listado con los datos paginados
@@ -166,7 +174,7 @@ class LoanController extends Controller
         }
         $data = Util::search_sort(new Loan(), $request, $filters, $relations);
         $data->getCollection()->transform(function ($loan) {
-            return self::append_data($loan, true);
+            return self::append_data_index($loan, true);
         });
         return $data;
     }
@@ -520,7 +528,20 @@ class LoanController extends Controller
                     $state_id = LoanState::whereName('Vigente')->first()->id;
                     $loan['state_id'] = $state_id;
                     $loan->save();
-                    }       
+                    $this->get_plan_payments($loan, $loan['disbursement_date']);
+                    $loan_id = $loan->id;
+                    $cell_phone_number = $loan->affiliate->cell_phone_number;
+                    if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
+                        $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
+                        if($loan->city_id === 4) {
+                            $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS POR EL AREA DE COBRANZAS.";
+                        } else {
+                            $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS PASADO LOS 5 DIAS HABILES POR LA REGIONAL.";
+                        }
+                        $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
+                        ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
+                    }
+                }
             }else{
                 if($request->date_signal == false){
                     if($request->has('disbursement_date') && $request->disbursement_date != NULL){
@@ -549,13 +570,21 @@ class LoanController extends Controller
                                 $loan['disbursement_date'] = $request->disbursement_date;
                                 $state_id = LoanState::whereName('Vigente')->first()->id;
                                 $loan['state_id'] = $state_id;
-                                $loan->save();      
-                            }           
+                                $loan->save();
+                                $this->get_plan_payments($loan, $loan['disbursement_date']);
+                                $loan_id = $loan->id;
+                                $cell_phone_number = $loan->affiliate->cell_phone_number;
+                                if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
+                                    $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
+                                    $message = "AL HABERSE EFECTIVIZADO SU DESEMBOLSO, SE NOTIFICA PARA QUE SE APERSONE POR OFICINAS DE MUSERPOL A OBJETO DEL RECOJO DE SU CONTRATO Y PLAN DE PAGOS DE SU PRÉSTAMO.";
+                                    $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
+                                    ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
+                                }
+                            }
                         }else abort(409, "El usuario no tiene los permisos necesarios para realizar el registro");
                     }
                 }
             }
-        $this->get_plan_payments($loan, $loan['disbursement_date']);
         }
    /* else{
         abort(409, "El usuario no tiene los permisos para realizar el desembolso");
@@ -673,6 +702,8 @@ class LoanController extends Controller
                 $loan = new Loan(array_merge($request->all(), ['affiliate_id' => $disbursable->id,'amount_approved' => $request->amount_requested]));
                 $loan->code = $code;
             }
+            $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
+            $loan->loan_procedure_id = $loan_procedure;
         }
         //rehacer obtener cod
         if($request->has('remake_loan_id')&& $request->remake_loan_id != null)
@@ -1029,7 +1060,7 @@ class LoanController extends Controller
         if(strpos($procedure_modality->name, 'Refinanciamiento') !== false ) $is_refinancing = true;
         if(strpos($procedure_modality->name, 'AFP') !== false ) $is_afp = true;
         if(strpos($procedure_modality->name, 'SENASIR') !== false ) $is_senasir = true;
-        if(strpos($procedure_modality->name, 'Activo') !== false ) $is_active = true;
+        if(strpos($procedure_modality->name, 'Activo') || strpos($procedure_modality->name, 'Disponibilidad') !== false ) $is_active = true;
         $parent_loan = "";
         $file_title = implode('_', ['CONTRATO', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
         if($loan->parent_loan_id) $parent_loan = Loan::findOrFail($loan->parent_loan_id);
@@ -1274,6 +1305,7 @@ class LoanController extends Controller
             ];
             $information_loan= $this->get_information_loan($loan);
             $file_name = implode('_', ['plan', $procedure_modality->shortened, $loan->code]) . '.pdf';
+            // $id = $loan->borrower->first()->id;
             $view = view()->make('loan.payments.payment_plan')->with($data)->render();
             if ($standalone) return Util::pdf_to_base64([$view], $file_name, $information_loan, 'legal', $request->copies ?? 1);
             return $view;
@@ -1309,6 +1341,9 @@ class LoanController extends Controller
         $lenders = [];
         $lenders = $loan->borrower;
         $guarantors = $loan->borrowerguarantors;
+        $hight_amount = false;
+        if($loan->modality->loan_modality_parameter->max_approved_amount != null && $loan->amount_requested >= $loan->modality->loan_modality_parameter->max_approved_amount)
+        $hight_amount = true;
         $data = [
            'header' => [
                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
@@ -1324,7 +1359,8 @@ class LoanController extends Controller
            'guarantors' => collect($guarantors),
            'Loan_type_title' => $loan_type_title, 
            'estimated' => $estimated,
-           'file_title' => $file_title
+           'file_title' => $file_title,
+           'high_amount' => $hight_amount
        ];
        $information_loan= $this->get_information_loan($loan);
        $file_name =implode('_', ['calificación', $procedure_modality->shortened, $loan->code]) . '.pdf'; 

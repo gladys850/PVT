@@ -150,7 +150,7 @@
             @endforeach      
             @php($average = $loan->borrower->first()->ballots->average_ballot_adjust->first())
             <tr>
-                <td>Total Promedio</td>
+                <td>Total</td>
                 <td> {{Util::money_format($average['average_payable_liquid'])}}</td>
                 <td> {{Util::money_format($average['average_mount_adjust'])}}</td>
                 <td> {{Util::money_format($average['average_dignity_rent'])}}</td>             
@@ -171,7 +171,7 @@
             @endforeach
             @php($average = $loan->borrower->first()->ballots->average_ballot_adjust->first())
             <tr>
-                <td>Total Promedio</td>
+                <td>Total</td>
                 <td> {{Util::money_format($average['average_payable_liquid'])}}</td> 
                 <td> {{Util::money_format($average['average_mount_adjust'])}}</td>            
              </tr>
@@ -280,11 +280,13 @@
                 ELABORADO POR
                 </td>
                 <td width="35%">
-                APROBADO POR 
+                APROBADO POR
                 </td>
-                <td width="30%">
-                AUTORIZADO POR
-                </td>
+                @if($high_amount)
+                    <td width="30%">
+                    AUTORIZADO POR
+                    </td>
+                @endif
                 </tr>             
             </tbody>
         </table>

@@ -46,7 +46,7 @@
       </v-stepper-header>
       <v-stepper-items>
         <v-stepper-content :key="`${1}-content`" :step="1">
-          <v-card color="grey lighten-1">
+          <v-card color="grey lighten-1" class="pt-4">
             <Ballots
               ref="ballotsComponent"
               :modalities.sync="modalities"
@@ -63,10 +63,10 @@
               :global_parameters ="global_parameters"
               :affiliate_data.sync="affiliate_data"
             />
-            <v-container class="py-0">
+            <v-container>
               <v-row>
                 <v-spacer></v-spacer> <v-spacer></v-spacer> <v-spacer></v-spacer>
-                <v-col class="py-0">
+                <v-col>
                   <v-btn
                     color="primary"
                     @click="validateStepsOne()">
@@ -93,7 +93,7 @@
                 :liquid_calificated="liquid_calificated"
                 >
                 <template v-slot:title>
-                  <v-col cols="12" class="py-0">Resultado para el Préstamo</v-col>
+                  <v-col cols="12">Resultado para el Préstamo</v-col>
                 </template>
               </BallotsResult>
               <BallotsResultHipotecary
@@ -108,10 +108,10 @@
                 :lenders_aux.sync="lenders_aux"
               />
             </v-card>
-            <v-container class="py-0">
+            <v-container>
               <v-row>
               <v-spacer></v-spacer><v-spacer> </v-spacer> <v-spacer></v-spacer>
-                <v-col class="py-0">
+                <v-col>
                   <v-btn text
                     @click="beforeStep(2)">Atras</v-btn>
                   <v-btn
@@ -145,10 +145,10 @@
             :modalidad_id.sync="modalidad.id"
             :calculator_result_amount_requested.sync="calculator_result.amount_requested"
             :calculator_result.sync ="calculator_result"/>
-          <v-container class="py-0" v-show="modalidad.procedure_type_name!='Préstamo Hipotecario' && modalidad.procedure_type_name!='Refinanciamiento Préstamo Hipotecario'">
+          <v-container v-show="modalidad.procedure_type_name!='Préstamo Hipotecario' && modalidad.procedure_type_name!='Refinanciamiento Préstamo Hipotecario'">
             <v-row>
             <v-spacer></v-spacer><v-spacer></v-spacer> <v-spacer></v-spacer>
-              <v-col class="py-0">
+              <v-col>
                 <v-btn text
                 @click="beforeStep(3)">Atras</v-btn>
                 <v-btn right
@@ -168,10 +168,10 @@
           :affiliate.sync="affiliate"
           :addresses.sync="addresses"
           />
-        <v-container class="py-0">
+        <v-container>
           <v-row>
           <v-spacer></v-spacer><v-spacer></v-spacer><v-spacer></v-spacer>
-            <v-col class="py-0">
+            <v-col>
               <v-btn text
               @click="beforeStep(4)">Atras</v-btn>
               <v-btn right
@@ -423,8 +423,7 @@ export default {
           for(let i = 0; i < this.modalities.length; i++ ){
             if(this.modalities[i].name == "Préstamo Anticipo" ||
               this.modalities[i].name == "Préstamo a Corto Plazo" ||
-              this.modalities[i].name == "Préstamo a Largo Plazo" ||
-              this.modalities[i].name == "Préstamo Hipotecario" ){
+              this.modalities[i].name == "Préstamo a Largo Plazo" ){
               modalities_aux.push(this.modalities[i])
             }
           }
@@ -434,8 +433,7 @@ export default {
           let modalities_aux=[]
           for(let i = 0; i < this.modalities.length; i++ ){
             if(this.modalities[i].name == "Refinanciamiento Préstamo a Corto Plazo" ||
-              this.modalities[i].name == "Refinanciamiento Préstamo a Largo Plazo" ||
-              this.modalities[i].name == "Refinanciamiento Préstamo Hipotecario"){
+              this.modalities[i].name == "Refinanciamiento Préstamo a Largo Plazo" ){
               modalities_aux.push(this.modalities[i])
             }
           }
@@ -706,7 +704,7 @@ export default {
         let res = await axios.get(`loan/${id}`)
         this.data_loan = res.data
 
-         this.data_loan_parent_aux.guarantors=res.data.guarantors
+         this.data_loan_parent_aux.guarantors=res.data.borrowerguarantors
          this.data_loan_parent_aux.parent_reason = res.data.parent_reason
 
         if(this.refinancing || this.reprogramming){//Casos nuevo de refi repro

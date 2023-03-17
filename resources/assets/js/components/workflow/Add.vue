@@ -70,6 +70,7 @@
             </template>
             <span>Anular trámite</span>
           </v-tooltip>
+
           <div v-if="loan.modality.procedure_type.second_name == 'Anticipo'">
           <v-tooltip top>
             <template v-slot:activator="{ on }">
@@ -92,6 +93,52 @@
             <span>Anular trámite de anticipo</span>
           </v-tooltip>
           </div>
+          <v-tooltip top v-if="permissionSimpleSelected.includes('send-notification-contract')">
+              <template v-slot:activator="{ on }">
+                <v-btn
+                top
+                v-on="on"
+                icon
+                small
+                color="primary"
+                class="darken-2 ml-4"
+                  @click="dialog_notification=true"
+                >
+                  <v-icon class="x-small">mdi-message-text</v-icon>
+                </v-btn>
+              </template>
+              <div>
+                <span>Enviar noticación</span>
+              </div>
+            </v-tooltip>
+            <v-dialog
+              v-model="dialog_notification"
+              max-width="500"
+            >
+              <v-card>
+                <v-card-title>
+                  ¿Está seguro del envio de noticacion al afiliado <br> para el recojo del contrato?
+                </v-card-title>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="red darken-1"
+                    text
+                    @click="dialog_notification = false"
+                  >
+                    Cancelar
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click.stop="sendContractNotificaction()"
+                    :loading= loading_notify
+                  >
+                    Aceptar
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
       </v-toolbar>
     </v-card-title>
 
@@ -223,7 +270,7 @@
                <v-tooltip top >
                 <template v-slot:activator="{ on }">
                   <v-btn
-                    v-show="loan.modality.procedure_type.second_name == 'Anticipo' && loan.disbursement_date != 'Fecha invalida' "
+                    v-show="loan.modality.procedure_type.second_name == 'Anticipo' && removeAccents(loan.disbursement_date) != 'Fecha invalida' "
                     fab
                     x-small
                     color="success"
@@ -231,7 +278,7 @@
                     right
                     absolute
                     v-on="on"
-                    style="margin-right: 40px; margin-top: 38px;"
+                    style="margin-right: 40px; margin-top: 25px;"
                     @click="imprimirRecive($route.params.id)"
                     >
                     <v-icon>mdi-badge-account-horizontal</v-icon>
@@ -251,7 +298,7 @@
                     right
                     absolute
                     v-on="on"
-                    style="margin-right: -9px; margin-top: 48px;"
+                    style="margin-top: 25px;"
                     @click="imprimir($route.params.id)"
                   >
                     <v-icon>mdi-printer</v-icon>
@@ -274,7 +321,7 @@
                     right
                     absolute
                     v-on="on"
-                    style="margin-right: -9px;margin-top: 48px;"
+                    style="margin-top: 25px;"
                     @click="printQualificationForm($route.params.id)"
                   >
                     <v-icon>mdi-printer-check</v-icon>
@@ -561,7 +608,7 @@
     >
       <v-card>
         <v-card-title>
-          Esta seguro de habilitar el plan de pagos?
+          ¿Está seguro de habilitar el plan de pagos?
         </v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -576,6 +623,7 @@
             color="green darken-1"
             text
             @click="generatePlan($route.params.id)"
+            :loading="loading_btn_plan"
           >
             Aceptar
           </v-btn>
@@ -597,6 +645,7 @@ import Dashboard from "@/components/workflow/Dashboard"
 import Kardex from "@/components/payment/Kardex"
 import AdditionalInformation from '@/components/affiliate/AdditionalInformation'
 import Spouse from "@/components/affiliate/Spouse"
+import common from "@/plugins/common";
 
 export default {
   name: "flow-index",
@@ -684,6 +733,9 @@ export default {
     user_name: null,
     id_street: 0,
     dialog_guarantor_lender:false,
+    dialog_notification: false,
+    loading_notify: false,
+    loading_btn_plan: false
   }),
   watch: {
     search: _.debounce(function() {
@@ -725,6 +777,11 @@ export default {
       }
     }
   },
+
+  created() {
+    this.removeAccents = common.removeAccents
+  },
+
   mounted() {
     // si existe el query de redireccion de tab, se setea el valor
     if(this.$route.query.redirectTab) {
@@ -923,7 +980,7 @@ export default {
     },
     async imprimir(item) {
       try {
-        if(this.loan.disbursement_date!='Fecha invalida')
+        if(this.removeAccents(this.loan.disbursement_date)!='Fecha invalida')
         {
           let res = await axios.get(`loan/${item}/print/plan`)
             printJS({
@@ -943,11 +1000,13 @@ export default {
     },
      async generatePlan(item) {
       try {
+            this.loading_btn_plan = true
             let res1 = await axios.patch(`loan/${this.loan.id}`, {
             date_signal:true
           })
           this.loan.disbursement_date= this.$moment(res1.data.disbursement_date).format('YYYY-MM-DD')
            let res = await axios.get(`loan/${item}/print/plan`)
+           this.loading_btn_plan = false
           printJS({
             printable: res.data.content,
             type: res.data.type,
@@ -956,6 +1015,7 @@ export default {
           })
           this.dialog=false
       } catch (e) {
+        this.loading_btn_plan = false
         this.toastr.error("Ocurrió un error en la impresión.")
         console.log(e)
       }
@@ -1013,13 +1073,13 @@ export default {
       //VALIDACION FECHA ENTREGA DE CONTRATO
      if(this.permissionSimpleSelected.includes('registration-delivery-return-contracts') == true)
       {
-        if((this.loan.delivery_contract_date != 'Fecha invalida')){
+        if(this.removeAccents(this.loan.delivery_contract_date) != 'Fecha invalida'){
          this.validate.valid_date_contract = true
         }else{
            this.validate.valid_date_contract = false
         }
 
-        if((this.loan.return_contract_date != 'Fecha invalida')){
+        if(this.removeAccents(this.loan.return_contract_date) != 'Fecha invalida'){
           this.validate.valid_date_contract_return = true
         }else{
           this.validate.valid_date_contract_return = false
@@ -1027,7 +1087,7 @@ export default {
 
       }else if(this.permissionSimpleSelected.includes('disbursement-loan')==true)
       {
-        if((this.loan.disbursement_date != 'Fecha invalida' ) ){
+        if(this.removeAccents(this.loan.disbursement_date) != 'Fecha invalida'){
           this.validate.valid_disbursement = true
         }else{
           this.validate.valid_disbursement = false
@@ -1143,7 +1203,30 @@ export default {
         this.toastr.error(res.data.validate)
         console.log(e)
       }
+    },
+
+    async sendContractNotificaction(){
+      try {
+        this.loading_notify= true
+        let res = await axios.post(`send_contract`,{
+            loan_id: this.$route.params.id,
+            user_id: this.$store.getters.id
+        })
+        this.loading_notify= false
+        this.dialog_notification = false
+        if(!res.data.error){
+          this.toastr.success(res.data.message)
+        }else{
+          this.toastr.error(res.data.message)
+        }
+      } catch (e) {
+        this.loading_notify= false
+        this.dialog_notification = false
+        this.toastr.error(e)
+        console.log(e)
+      }
     }
+
 
    },
   }

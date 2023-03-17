@@ -14,6 +14,12 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use App\LoanCorrelative;
+use Illuminate\Support\Facades\Http;
+use App\Notification\NotificationCarrier;
+use App\Notification\NotificationNumber;
+use App\Notification\NotificationSend;
+use Illuminate\Support\Facades\DB;
+use App\Loan;
 
 class Util
 {
@@ -521,7 +527,7 @@ class Util
         ];
     }
 
-    public static function process_by_procedure_type($model, $object, $module){ //aadecuar para amortizaciones
+    public static function process_by_procedure_type($model, $object, $module,$role_id){ //aadecuar para amortizaciones
         foreach ($object as $key => $procedure_type) {
             $data[] = [
                 'procedure_type_id' => $procedure_type->id,
@@ -532,7 +538,7 @@ class Util
                     'my_received' => 0
                 ]
             ];
-            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
+            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
            // foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $subkey => $role) {
             foreach ( $user_roles as $subkey => $role) {
                 $data[$key]['data'][$subkey] = [
@@ -563,9 +569,8 @@ class Util
         return $data;
     }
 
-    public static function process_by_role($model, $module){
-        $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
-       // foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $role) {
+    public static function process_by_role($model, $module,$role_id){
+        $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
         foreach ($user_roles as $role) {
             $data[] = [
                 'role_id' => $role->id,
@@ -580,7 +585,7 @@ class Util
         return $data;
     }
 
-    public static function loans_by_user($model, $object, $module){
+    public static function loans_by_user($model, $object, $module,$role_id){//prestamos
         foreach ($object as $key => $procedure_type) {
             $data[] = [
                 'procedure_type_id' => $procedure_type->id,
@@ -591,7 +596,8 @@ class Util
                     'my_received' => 0
                 ]
             ];
-            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
+            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
+           // $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
             //foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $subkey => $role) {
             foreach ($user_roles as $subkey => $role) {
                 $data[$key]['data'][$subkey] = [
@@ -622,8 +628,8 @@ class Util
         return $data;
     }
 
-    public static function amortizations_by_user($model, $object, $module){
-        $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
+    public static function amortizations_by_user($model, $object, $module,$role_id){
+        $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
        // foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $role) {
         foreach ($user_roles as $role) {
             $data[] = [
@@ -658,5 +664,83 @@ class Util
             $correlative_number = $correlative->correlative;
         }
         return $correlative_number;
+    }
+
+    public static function delegate_shipping($sms_num, $message, $loan_id, $user_id, $notification_type) {
+        $sms_server_url = env('SMS_SERVER_URL', 'localhost');
+        $root = env('SMS_SERVER_ROOT', 'root');
+        $password = env('SMS_SERVER_PASSWORD', 'root');
+        $sms_provider = env('SMS_PROVIDER', 1);
+
+        $code_num = '591' . $sms_num;
+        $transmitter_id = 1;
+        $issuer_number = NotificationNumber::find($transmitter_id)->number; $response = Http::get($sms_server_url . "dosend.php?USERNAME=$root&PASSWORD=$password&smsprovider=$sms_provider&smsnum=$code_num&method=2&Memo=$message"); if($response->successful()) { $clipped_chain = substr($response, strrpos($response, "id=") + 3);
+            $end_of_chain = substr($clipped_chain,  strrpos($clipped_chain, "&U"));
+            $id = substr($clipped_chain, 0, -strlen($end_of_chain));
+            $result = Http::timeout(60)->get($sms_server_url . "resend.php?messageid=$id&USERNAME=$root&PASSWORD=$password");
+            if($result->successful()) {
+                $var = $result->getBody();
+                $loan = new Loan();
+                $alias = $loan->getMorphClass();
+                $notification_send = new NotificationSend();
+                if(strpos($var, "ERROR") === false || strpos($var, "logout," === false)) {
+                    $delivered = true;
+                } else $delivered = false;
+                $notification_send->create([
+                    'user_id' => $user_id,
+                    'carrier_id' => NotificationCarrier::whereName('SMS')->first()->id,
+                    'sender_number' => NotificationNumber::whereNumber($issuer_number)->first()->id,
+                    'sendable_type' => $alias,
+                    'sendable_id' => $loan_id,
+                    'send_date' => Carbon::now(),
+                    'delivered' => $delivered,
+                    'message' => json_encode(['data' => $message]),
+                    'subject' => null,
+                    'receiver_number' => $sms_num,
+                    'notification_type_id' => $notification_type
+                ]);
+            }
+        }
+        return $delivered;
+    }
+
+    public static function remove_special_char($string) {
+        return preg_replace('/[\(\)\-]+/', '', $string);
+    }
+
+    public static function check_balance() {
+
+        $sms_server_url = env('SMS_SERVER_URL', 'localhost');
+        $root = env('SMS_SERVER_ROOT', 'root');
+        $password = env('SMS_SERVER_PASSWORD', 'root');
+        $sms_provider = env('SMS_PROVIDER', 1);
+        $flag = false;
+
+        $response = Http::get($sms_server_url . "dosend.php?USERNAME=$root&PASSWORD=$password&smsprovider=$sms_provider&smsnum=330&method=2&Memo=Saldo");
+
+        if($response->successful()) {
+            $clipped_chain = substr($response, strrpos($response, "id=") + 3);
+            $end_of_chain = substr($clipped_chain,  strrpos($clipped_chain, "&U"));
+            $id = substr($clipped_chain, 0, -strlen($end_of_chain));
+            $result = Http::timeout(60)->get($sms_server_url . "resend.php?messageid=$id&USERNAME=$root&PASSWORD=$password");
+            if($result->successful()) {
+                $var = $result->getBody();
+                if(strpos($var, "ERROR") === false || strpos($var, "logout,") === false) {
+                    $flag = true;
+                }
+            }
+        }
+
+        if($flag) {
+            sleep(7);
+            $message = DB::connection('mysql')->table('receive')->select('msg')->where('srcnum', 330)->orderBY('id', 'desc')->first();
+            $clipped_chain = substr($message->msg, strrpos($message->msg, "Bs.") + 4);
+            $end_of_chain = substr($clipped_chain, strrpos($clipped_chain, "Paq"));
+            $balance = substr($clipped_chain, 0, -strlen($end_of_chain));
+            $balance = floatval($balance);
+
+            return $balance;
+        }
+        return 0;
     }
 }

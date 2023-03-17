@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\ProcedureDocument;
 use App\LoanModalityParameter;
 use App\LoanInterest;
+use App\LoanProcedure;
 
 class ProcedureModality extends Model
 {
@@ -21,9 +22,10 @@ class ProcedureModality extends Model
         'is_valid'
     ];
 
-    public function loan_modality_parameter()
+    public function getLoanModalityParameterAttribute()
     {
-        return $this->hasOne(LoanModalityParameter::class);
+        $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
+        return LoanModalityParameter::where('procedure_modality_id', $this->id)->where('loan_procedure_id', $loan_procedure)->first();
     }
 
     public function documents()
@@ -33,12 +35,12 @@ class ProcedureModality extends Model
 
     public function required_documents()
     {
-        return $this->documents()->wherePivot('number', '!=', 0);
+        return $this->documents()->wherePivot('number', '!=', 0)->whereNull('deleted_at');
     }
 
     public function optional_documents()
     {
-        return $this->documents()->wherePivot('number', 0);
+        return $this->documents()->wherePivot('number', 0)->whereNull('deleted_at');
     }
 
     public function getRequirementsListAttribute()

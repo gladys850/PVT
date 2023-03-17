@@ -266,24 +266,23 @@ class VoucherController extends Controller
       $total_voucher = request('total_voucher') ?? '';
       $code_loan = request('code_loan') ?? '';//CODE LOAN
 
-              if ($code_voucher != '') {
-                  array_push($conditions, array('view_loan_amortizations.code_voucher', 'ilike', "%{$code_voucher}%"));
-              }
-              if ($states_loan_payment != '') {
-                array_push($conditions, array('view_loan_amortizations.states_loan_payment ', 'ilike', "%{$states_loan_payment}%"));
-              }
+            if ($code_voucher != '') {
+                array_push($conditions, array('view_loan_amortizations.code_voucher', 'ilike', "%{$code_voucher}%"));
+            }
+            if ($states_loan_payment != '') {
+                array_push($conditions, array('view_loan_amortizations.states_loan_payment', 'ilike', "%{$states_loan_payment}%"));
+            }
 
-              if ($identity_card_borrower != '') {
+            if ($identity_card_borrower != '') {
                 array_push($conditions, array('view_loan_amortizations.identity_card_borrower', 'ilike', "%{$identity_card_borrower}%"));
-              }    
-              if ($full_name_borrower != '') {
+            }
+            if ($full_name_borrower != '') {
                 array_push($conditions, array('view_loan_amortizations.full_name_borrower', 'ilike', "%{$full_name_borrower}%"));
-              }
+            }
 
             if ($code_loan_payment != '') {
                 array_push($conditions, array('view_loan_amortizations.code_loan_payment', 'ilike', "%{$code_loan_payment}%"));
             }
-
             if ($payment_date_voucher != '') {
                 array_push($conditions, array('view_loan_amortizations.payment_date_voucher', 'ilike', "%{$payment_date_voucher}%"));
             }
@@ -291,7 +290,7 @@ class VoucherController extends Controller
                 array_push($conditions, array('view_loan_amortizations.voucher_type_loan_payment', 'ilike', "%{$voucher_type_loan_payment}%"));
             }
             if ($bank_pay_number_voucher != '') {
-                array_push($conditions, array('view_loan_amortizations.bank_pay_number_voucher ', 'ilike', "%{$bank_pay_number_voucher}%"));
+                array_push($conditions, array('view_loan_amortizations.bank_pay_number_voucher', 'ilike', "%{$bank_pay_number_voucher}%"));
             }
             if ($total_voucher != '') {
                 array_push($conditions, array('view_loan_amortizations.total_voucher', 'ilike', "%{$total_voucher}%"));
@@ -299,57 +298,49 @@ class VoucherController extends Controller
             if ($code_loan != '') {
                 array_push($conditions, array('view_loan_amortizations.code_loan', 'ilike', "%{$code_loan}%"));
             }
-                       
-              if ($trashed_voucher) {
-                  array_push($conditions, array('view_loan_amortizations.deleted_at_voucher', '<>', NULL));
-              }else{
-                 array_push($conditions, array('view_loan_amortizations.deleted_at_voucher', '=', NULL));
-              }
-
-              $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','DIRECTO'));
-              
-              array_push($conditions, array('view_loan_amortizations.code_voucher', '<>',NULL));
-              
-
-              if ($excel==true) {
-                  $list_voucher = DB::table('view_loan_amortizations')
-                      ->where($conditions)
-                      ->select('*')
-                      ->orderBy('code_voucher', $order_voucher)
-                      ->get();
-
-                  $File="ListadoVouchers";
-                  $data=array(
-                      array("CODIGO","CI PRESTATARIO","NOMBRE COMPLETO","REG COBRO","FECHA PAGO", "TIPO PAGO", "NRO DEPOSITO", "TOTAL PAGO", 
-                       "COD PRESTAMO" )
-                  );
-            foreach ($list_voucher as $row){
-                 array_push($data, array(
-                     $row->code_voucher,
-                     $row->identity_card_borrower,
-                     $row->full_name_borrower,
-                     $row->code_loan_payment,
-                     Carbon::parse($row->payment_date_voucher)->format('d/m/Y'),
-                     $row->voucher_type_loan_payment,
-                     $row->bank_pay_number_voucher,
-                     $row->total_voucher,
-                     $row->code_loan
-                 ));
+            if ($trashed_voucher) {
+                array_push($conditions, array('view_loan_amortizations.deleted_at_voucher', '<>', NULL));
+            }else{
+                array_push($conditions, array('view_loan_amortizations.deleted_at_voucher', '=', NULL));
             }
-                  $export = new ArchivoPrimarioExport($data);
-                  return Excel::download($export, $File.'.xls');
-              } else {
-                      $list_voucher = DB::table('view_loan_amortizations')
-                      ->where($conditions)
-                      ->select('*')
-                      ->orderBy('code_voucher', $order_voucher)
-                      ->paginate($pagination_rows);
-                  return $list_voucher;
-              }
-          }
 
+            $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','DIRECTO'));
+            array_push($conditions, array('view_loan_amortizations.code_voucher', '<>',NULL));
 
+            if ($excel==true) {
+                $list_voucher = DB::table('view_loan_amortizations')
+                ->where($conditions)
+                ->select('*')
+                ->orderBy('code_voucher', $order_voucher)
+                ->get();
 
-
-
+                $File="ListadoVouchers";
+                $data=array(
+                    array("CÓDIGO","CI PRESTATARIO","NOMBRE COMPLETO","REG COBRO","FECHA PAGO", "TIPO PAGO", "NRO DEPOSITO", "TOTAL PAGO", 
+                    "COD PRÉSTAMO" )
+                );
+                foreach ($list_voucher as $row){
+                    array_push($data, array(
+                        $row->code_voucher,
+                        $row->identity_card_borrower,
+                        $row->full_name_borrower,
+                        $row->code_loan_payment,
+                        Carbon::parse($row->payment_date_voucher)->format('d/m/Y'),
+                        $row->voucher_type_loan_payment,
+                        $row->bank_pay_number_voucher,
+                        $row->total_voucher,
+                        $row->code_loan
+                    ));
+                }
+            $export = new ArchivoPrimarioExport($data);
+            return Excel::download($export, $File.'.xls');
+            } else {
+                $list_voucher = DB::table('view_loan_amortizations')
+                ->where($conditions)
+                ->select('*')
+                ->orderBy('code_voucher', $order_voucher)
+                ->paginate($pagination_rows);
+            return $list_voucher;
+            }
+    }
 }
