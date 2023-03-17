@@ -1196,10 +1196,13 @@ class AffiliateController extends Controller
         ]);
         $message = array();
         $ci=$request->identity_card;
+        $affiliate = '';
         if(Affiliate::where('identity_card', $ci)->first())
             $affiliate = Affiliate::where('identity_card', $ci)->first();
         elseif(Spouse::where('identity_card', $ci)->first())
             $affiliate = Spouse::where('identity_card', $ci)->first()->affiliate;
+        if($affiliate != '')
+        {
          $state_affiliate=$affiliate->affiliate_state->affiliate_state_type->name;
          $state_affiliate_sub=$affiliate->affiliate_state->name;
          $evaluate=false;
@@ -1286,6 +1289,17 @@ class AffiliateController extends Controller
           "modalities" => $modalities_all,
           "message"=>$message
           );
+        }
+        else{
+            $data = array(  //data 
+                "evaluate"=>'',
+                "affiliate" => '',
+                "affiliate_identity_card"=>'',
+                "state_affiliate" => '',
+                "modalities" => '',
+                "message"=>$message['existence'] = 'no existe'
+                );
+        }
          return $data;
      }
 
