@@ -1,0 +1,131 @@
+{
+    "error": false,
+    "message": "Listado del seguimiento de un préstamo en mora",
+    "data": {
+        "loan_tracking_delays_removed": {
+            "current_page": 1,
+            "data": [
+                {
+                    "id": 8,
+                    "loan_id": 1,
+                    "tracking_date": "2023-02-03 15:33:30",
+                    "description": "alguna descripción larga",
+                    "created_at": "2023-02-27T15:11:34.000000Z",
+                    "updated_at": "2023-03-01T20:15:36.000000Z",
+                    "deleted_at": "2023-03-01T20:15:36.000000Z",
+                    "user": {
+                        "id": 204,
+                        "city_id": 4,
+                        "first_name": "LEONEL MAXIMO",
+                        "last_name": "VARGAS RAMIREZ",
+                        "username": "lvargas",
+                        "created_at": "2023-02-10T18:43:03.000000Z",
+                        "updated_at": "2023-03-03T12:44:09.000000Z",
+                        "position": "AUXILIAR I – TECNICO EN CALIDAD Y AUTOMATIZACION DE SOFTWARE",
+                        "is_commission": null,
+                        "phone": null,
+                        "active": true,
+                        "identity_card": null
+                    },
+                    "loan_tracking_type": {
+                        "id": 2,
+                        "sequence_number": 2,
+                        "name": "Publicación de nómina de prestatarios en situación de mora",
+                        "is_valid": true,
+                        "created_at": "2023-02-23T22:29:01.000000Z",
+                        "updated_at": "2023-02-23T22:29:01.000000Z"
+                    }
+                }
+            ],
+            "first_page_url": "/?page=1",
+            "from": 1,
+            "last_page": 1,
+            "last_page_url": "/?page=1",
+            "next_page_url": null,
+            "path": "/",
+            "per_page": 2,
+            "prev_page_url": null,
+            "to": 1,
+            "total": 1
+        },
+        "loan_tracking_delays": {
+            "current_page": 1,
+            "data": [
+                {
+                    "id": 2,
+                    "loan_id": 1,
+                    "tracking_date": "2023-02-03 00:00:00",
+                    "description": "otra descripción más",
+                    "created_at": "2023-02-24T14:13:27.000000Z",
+                    "updated_at": "2023-02-27T13:37:08.000000Z",
+                    "deleted_at": null,
+                    "is_last_loan_tracking": false,
+                    "user": {
+                        "id": 2,
+                        "city_id": 4,
+                        "first_name": "Yasmin",
+                        "last_name": "Limpias Ossio",
+                        "username": "ylimpias",
+                        "created_at": "2017-06-06T19:32:06.000000Z",
+                        "updated_at": "2018-09-14T14:06:50.000000Z",
+                        "position": "",
+                        "is_commission": false,
+                        "phone": null,
+                        "active": false,
+                        "identity_card": null
+                    },
+                    "loan_tracking_type": {
+                        "id": 2,
+                        "sequence_number": 2,
+                        "name": "Publicación de nómina de prestatarios en situación de mora",
+                        "is_valid": true,
+                        "created_at": "2023-02-23T22:29:01.000000Z",
+                        "updated_at": "2023-02-23T22:29:01.000000Z"
+                    }
+                },
+                {
+                    "id": 4,
+                    "loan_id": 1,
+                    "tracking_date": "2023-02-02 00:00:00",
+                    "description": "otra descripción más",
+                    "created_at": "2023-02-24T14:14:39.000000Z",
+                    "updated_at": "2023-02-27T13:40:38.000000Z",
+                    "deleted_at": null,
+                    "is_last_loan_tracking": false,
+                    "user": {
+                        "id": 1,
+                        "city_id": 4,
+                        "first_name": "ALEJANDRO ERICK",
+                        "last_name": "GUISBERT FLOR",
+                        "username": "aguisbert",
+                        "created_at": "2017-06-01T14:41:03.000000Z",
+                        "updated_at": "2023-02-02T12:31:51.000000Z",
+                        "position": "Jefe de Unidad de Sistemas y Soportes Técnico",
+                        "is_commission": false,
+                        "phone": "78773841",
+                        "active": true,
+                        "identity_card": "4771553"
+                    },
+                    "loan_tracking_type": {
+                        "id": 1,
+                        "sequence_number": 1,
+                        "name": "LLamadas telefónicas al deudor y/o garante(s)",
+                        "is_valid": true,
+                        "created_at": "2023-02-23T22:29:01.000000Z",
+                        "updated_at": "2023-02-23T22:29:01.000000Z"
+                    }
+                }
+            ],
+            "first_page_url": "/?page=1",
+            "from": 1,
+            "last_page": 3,
+            "last_page_url": "/?page=3",
+            "next_page_url": "/?page=2",
+            "path": "/",
+            "per_page": 2,
+            "prev_page_url": null,
+            "to": 2,
+            "total": 6
+        }
+    }
+}

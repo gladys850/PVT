@@ -169,7 +169,7 @@ class LoanPayment extends Model
             $payment_date = Carbon::parse($payment_date)->format('d-m-Y');
             if ($estimated_date < $payment_date || $first)
                 $estimated_date = Carbon::parse($payment_date)->endOfMonth()->format('d-m-Y');
-            if (Carbon::parse($payment_date)->day > LoanGlobalParameter::latest()->first()->offset_interest_day && Carbon::parse($estimated_date)->diffInMonths(Carbon::parse($payment_date)) == 0) {
+            if (Carbon::parse($payment_date)->day > $loan->loan_procedure->loan_global_parameter->offset_interest_day && Carbon::parse($estimated_date)->diffInMonths(Carbon::parse($payment_date)) == 0) {
                 $estimated_date = Carbon::parse($payment_date)->startOfMonth()->addMonth()->endOfMonth();
             }
         } else {
@@ -218,7 +218,6 @@ class LoanPayment extends Model
         $affiliate_state=$affiliate->affiliate_state->affiliate_state_type->name;
         $payment->state_affiliate = strtoupper($affiliate_state);
         //$payment->initial_affiliate = LoanController::verify_loan_affiliates($affiliate,$loan)->disbursable->initials;//iniciales
-        $payment->initial_affiliate = "asdasd";
         $payment->loan_payment_date =Carbon::now();
 
         //$payment->amortization_type_id = $payment_type->id;

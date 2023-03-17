@@ -53,6 +53,7 @@ Route::group([
         Route::get('module/{module}/role', 'Api\V1\ModuleController@get_roles');
         Route::get('module/{module}/procedure_type', 'Api\V1\ModuleController@get_procedure_types');
         Route::get('module/{module}/observation_type', 'Api\V1\ModuleController@get_observation_types');
+        Route::get('module/{module}/observation_type_affiliate/{affiliate}', 'Api\V1\AffiliateObservationController@get_observation_types_affiliate');
         Route::get('module/{module}/modality_loan', 'Api\V1\ModuleController@get_modality_types');
         Route::get('module/{module}/amortization_loan', 'Api\V1\ModuleController@get_amortization_types');
         Route::patch('loans', 'Api\V1\LoanController@bulk_update_role');
@@ -119,7 +120,26 @@ Route::group([
         Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
         Route::post('committee_session/{loan}', 'Api\V1\LoanController@committee_session');
         Route::get('record_affiliate_history', 'Api\V1\RecordController@record_affiliate_history');
-        
+        /*Seguimiento de mora de prestamo*/
+        Route::group([
+            'middleware' => 'permission:print-delay-tracking'
+        ], function () {
+            Route::get('loan/{loan}/print/delay_tracking', 'Api\V1\LoanTrackingController@print_delay_tracking');
+        });
+
+        Route::group([
+            'middleware' => ['permission:create-delay-tracking', 'permission:show-delay-tracking', 'permission:update-delay-tracking', 'permission:delete-delay-tracking']
+        ], function() {
+            Route::apiResource('loan_tracking_delay', 'Api\V1\LoanTrackingController');
+            Route::get('get_loan_trackings_types', 'Api\V1\LoanTrackingController@get_loan_trackings_types');
+        });
+
+        Route::group([
+            'middleware' => ['permission:print-loan-certification']
+        ], function () {
+            Route::get('loan/{loan}/print/loan_certification','Api\V1\LoanCertificationController@print_warranty_discount_certification');
+        });
+
         //Movimientos de fondo Rotatorio
         Route::group([
             'middleware' => 'permission:closing-movement-fund-rotatory'
@@ -166,10 +186,10 @@ Route::group([
             Route::get('affiliate/{affiliate}/contribution', 'Api\V1\AffiliateController@get_contributions');
             Route::get('affiliate/{affiliate}/fingerprint_picture', 'Api\V1\AffiliateController@get_fingerprint_images');
             Route::get('affiliate/{affiliate}/profile_picture', 'Api\V1\AffiliateController@get_profile_images');
-            Route::get('affiliate/{affiliate}/observation','Api\V1\AffiliateController@get_observations');
-            Route::post('affiliate/{affiliate}/observation','Api\V1\AffiliateController@set_observation');
-            Route::patch('affiliate/{affiliate}/observation','Api\V1\AffiliateController@update_observation');
-            Route::delete('affiliate/{affiliate}/observation','Api\V1\AffiliateController@unset_observation');
+            Route::get('affiliate/{affiliate}/observation','Api\V1\AffiliateObservationController@index')->middleware('permission:show-observation-affiliate');
+            Route::post('affiliate/{affiliate}/observation','Api\V1\AffiliateObservationController@store')->middleware('permission:create-observation-affiliate');
+            Route::patch('affiliate/{affiliate}/observation','Api\V1\AffiliateObservationController@update')->middleware('permission:update-observation-affiliate');
+            Route::delete('affiliate/{affiliate}/observation','Api\V1\AffiliateObservationController@destroy')->middleware('permission:delete-observation-affiliate');
             Route::post('affiliate_spouse_guarantor', 'Api\V1\AffiliateController@test_spouse_guarantor');
             Route::get('affiliate_existence','Api\V1\AffiliateController@get_existence');
             Route::get('affiliate/{affiliate}/maximum_loans','Api\V1\AffiliateController@evaluate_maximum_loans');

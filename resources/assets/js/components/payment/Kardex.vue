@@ -92,6 +92,72 @@
           <span>Imprimir Kardex desplegado</span>
         </div>
       </v-tooltip>
+            <!-- B O T Ó N  I M P R I M I R  C E R T I F I C A D O  D E  D E V O L U C I Ó N  A  G A R A N T E -->
+      <v-tooltip top v-if="permissionSimpleSelected.includes('print-loan-certification') && loan.guarantors.length>0">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            fab
+            x-small
+            color="danger"
+            top
+            left
+            absolute
+            v-on="on"
+            style="margin-left: 350px; margin-top: 20px"
+            @click="dialog_guarantor_certification = true"
+          >
+            <v-icon color="white">mdi-printer-check</v-icon>
+          </v-btn>
+        </template>
+        <div>
+          <span>Imprimir Certificado de descuento por garantia</span>
+        </div>
+      </v-tooltip>
+
+      <v-dialog
+        v-model="dialog_guarantor_certification"
+        max-width="550"
+      >
+        <v-card>
+          <v-card-title>
+            Se realizará la generación de certificacion de:
+            <div v-for="guarantor in loan.borrowerguarantors" :key="guarantor.id">
+              <div>
+                <v-row class="pt-2">
+                  <v-col cols="2">
+                    <v-checkbox
+                      class="ma-0 pa-0"
+                      color="success"
+                      v-model="selected_guarantor"
+                      :value="guarantor.affiliate_id"
+                    ></v-checkbox>
+                  </v-col>
+                  <v-col cols="10" class="ma-0 body-1">
+                    {{$options.filters.fullName(guarantor, true)}}
+                  </v-col>
+                </v-row>
+              </div>
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="red darken-1"
+              text
+              @click="dialog_guarantor_certification = false"
+            >
+              Cancelar
+            </v-btn>
+            <v-btn
+              color="green darken-1"
+              text
+              @click.stop="printWarrantyDiscountCertification($route.params.id)"
+            >
+              Aceptar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
       <!-- S E C C I Ó N  D A T O S  B O R R O W E R  Y  L O A N -->
       <v-card class="ma-0 pa-0 pb-2">
@@ -268,9 +334,8 @@
                   <v-icon
                     class="ma-0 py-0"
                     small
-                    v-text="doc.icon"
                     color="light-blue accent-4"
-                  ></v-icon>
+                  >{{doc.icon}}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title class="ma-0 py-0 mt-n2">{{doc.title}}</v-list-item-title>
               </v-list-item>
@@ -479,6 +544,8 @@ export default {
     ],
     refreshKardexTable: 0,
     refreshKardexButton: 0,
+    dialog_guarantor_certification: false,
+    selected_guarantor: [],
   }),
   computed: {
     //Metodo para obtener Permisos por rol
@@ -607,6 +674,32 @@ export default {
         });
       } catch (e) {
         this.toastr.error("Ocurrió un error en la impresión.");
+        console.log(e);
+      }
+    },
+
+    async printWarrantyDiscountCertification(item) {
+      try {
+        if(this.selected_guarantor.length>0){
+          let res = await axios.get(`loan/${item}/print/loan_certification`, {
+          params: {
+            guarantors: this.selected_guarantor
+          },
+        });
+        printJS({
+          printable: res.data.content,
+          type: res.data.type,
+          file_name: res.data.file_name,
+          base64: true,
+        });
+        this.dialog_guarantor_certification= false
+        }else{
+          this.toastr.error("Selecciones un garante para generar la certificación")
+        }
+        this.selected_guarantor= []
+      } catch (e) {
+        this.toastr.error("Ocurrió un error en la impresión.");
+        this.dialog_guarantor_certification = false
         console.log(e);
       }
     },

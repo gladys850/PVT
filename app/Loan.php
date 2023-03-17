@@ -16,6 +16,7 @@ use App\Affiliate;
 use App\LoanBorrower;
 use App\LoanGuarantor;
 use Illuminate\Support\Str;
+use App\LoanProcedure;
 
 class Loan extends Model
 {
@@ -355,8 +356,7 @@ class Loan extends Model
 
     public function next_payment2($affiliate_id, $estimated_date, $paid_by, $procedure_modality_id, $estimated_quota, $liquidate = false)
     {
-        $grace_period = LoanGlobalParameter::latest()->first()->grace_period;
-
+        $grace_period = $this->loan_procedure->loan_global_parameter->grace_period;
         // nuevos calculos
         $quota = new LoanPayment();
         $quota->transaction_date = Carbon::now()->format('Y-m-d H:i:s');
@@ -368,7 +368,7 @@ class Loan extends Model
         $quota->quota_number = $this->paymentsKardex->count() + 1;
         $date_ini = CarbonImmutable::parse($this->disbursement_date);
         $penal_days = 0;
-        if($date_ini->day <= LoanGlobalParameter::latest()->first()->offset_interest_day){
+        if($date_ini->day <= $this->loan_procedure->loan_global_parameter->offset_interest_day){
             $date_pay = $date_ini->endOfMonth()->endOfDay()->format('Y-m-d');
         }
         else{
@@ -781,7 +781,7 @@ class Loan extends Model
     //verificar pagos manuales consecutivos
    public function verify_payment_consecutive()
    {
-     $loan_global_parameter  = $loan_global_parameter = LoanGlobalParameter::latest()->first();
+     $loan_global_parameter  = $loan_global_parameter = $this->loan_procedure->loan_global_parameter;
      $number_payment_consecutive = $loan_global_parameter->consecutive_manual_payment;//3
      $modality_id=ProcedureModality::whereShortened("DIRECTO")->first()->id;
 
@@ -1082,7 +1082,7 @@ class Loan extends Model
     public function getPlanAttribute()
     {
         $plan = [];
-        $loan_global_parameter = LoanGlobalParameter::latest()->first();
+        $loan_global_parameter = $this->loan_procedure->loan_global_parameter;
         $balance = $this->amount_approved;
         $days_aux = 0;
         $interest_rest = 0;
@@ -1245,11 +1245,11 @@ class Loan extends Model
                 $days = Carbon::parse(Carbon::parse($this->last_payment_validated->estimated_date)->endOfDay())->diffInDays(Carbon::parse($loan_payment_date)->endOfDay());
                 $remaining = $this->last_payment_validated->interest_accumulated + $this->last_payment_validated->penal_accumulated;
             }
-            if($days >= (LoanGlobalParameter::first()->days_current_interest + LoanGlobalParameter::first()->grace_period))
-                $penal = LoanPayment::interest_by_days(($days - LoanGlobalParameter::first()->days_current_interest), $this->interest->penal_interest, $this->balance);
+            if($days >= ($this->loan_procedure->loan_global_parameter->days_current_interest + $this->loan_procedure->loan_global_parameter->grace_period))
+                $penal = LoanPayment::interest_by_days(($days - $this->loan_procedure->loan_global_parameter->days_current_interest), $this->interest->penal_interest, $this->balance);
             $interest_by_days = LoanPayment::interest_by_days($days, $this->interest->annual_interest, $this->balance);
-            if($days > LoanGlobalParameter::first()->days_current_interest + LoanGlobalParameter::first()->grace_period)
-                $penal_interest = LoanPayment::interest_by_days($days - LoanGlobalParameter::first()->days_current_interest, $this->interest->penal_interest, $this->balance);
+            if($days > $this->loan_procedure->loan_global_parameter->days_current_interest + $this->loan_procedure->loan_global_parameter->grace_period)
+                $penal_interest = LoanPayment::interest_by_days($days - $this->loan_procedure->loan_global_parameter->days_current_interest, $this->interest->penal_interest, $this->balance);
             $suggested_amount = $this->balance + $interest_by_days + $penal_interest + $remaining + $penal;
             
        }
@@ -1257,7 +1257,7 @@ class Loan extends Model
             if($type == "T"){
                     if(!$this->last_payment_validated){
                             $date_ini = CarbonImmutable::parse($this->disbursement_date);
-                            if($date_ini->day <= LoanGlobalParameter::latest()->first()->offset_interest_day){
+                            if($date_ini->day <= $this->loan_procedure->loan_global_parameter->offset_interest_day){
                                 $suggested_amount = $this->estimated_quota;
                             }
                             else{
@@ -1427,6 +1427,41 @@ class Loan extends Model
     }
 
     public function loan_tracking() {
-        return $this->hasMany(LoanTracking::class);
+        return $this->hasMany(LoanTracking::class)->orderBy("created_at");
+    }
+
+    public function default_alert()
+    {   $state_loan = false;
+        $loan_procedure = LoanProcedure::where('is_enable', true)->first()->id;
+        $loan_global_parameter = LoanGlobalParameter::where('loan_procedure_id', $loan_procedure)->first();
+        if($this->state_id == LoanState::whereName('Vigente')->first()->id){ // prestamo Vigente
+                $new_current_date= Affiliate::find($this->affiliate_id)->default_alert_date_import();
+                if($this->last_payment_validated){
+                    $date_ini = Carbon::parse($this->last_payment_validated->estimated_date)->startOfDay();
+                    $days = $date_ini->diffInDays($new_current_date);
+                }else{
+                    $date_ini = Carbon::parse($this->disbursement_date)->startOfDay();
+                    $date_end = Carbon::parse($new_current_date)->endOfDay();
+                    if($date_ini){
+                        if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
+                            $days = $date_end->diffInDays($date_ini);
+                        } else{
+                            $extra_days = Carbon::parse($this->disbursement_date)->endOfMonth()->endOfDay()->format('d') - $date_ini->format('d');
+                            $days = Carbon::parse($this->disbursement_date)->diffInDays($date_end) - $extra_days;
+                        }
+                    }
+                }
+                if($days <= $loan_global_parameter->days_current_interest){
+                    $state_loan = false;
+                }else{
+                    $state_loan = true; // Prestamo en Mora
+                }
+        }
+        return $state_loan;
+    }
+
+    public function loan_procedure()
+    {
+        return $this->hasOne(LoanProcedure::class,'id','loan_procedure_id');
     }
 }
