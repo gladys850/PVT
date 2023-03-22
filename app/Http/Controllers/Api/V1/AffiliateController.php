@@ -266,17 +266,17 @@ class AffiliateController extends Controller
                         $borrower->category_id = $request['category_id'];
                         $borrower->type_affiliate = $request['type'];
                         $borrower->unit_police_description = $request['unit_police_description'];
-                        $borrower->affiliate_state_id = $request['affiliate_state_id'];
+                        $request->has('affiliate_state_id') ? $borrower->affiliate_state_id = $request['affiliate_state_id']:'';
                         $borrower->identity_card = $request['identity_card'];
                         $borrower->city_identity_card_id = $request['city_identity_card_id'];
                         $borrower->city_birth_id = $request['city_birth_id'];
                         $borrower->registration = $request['registration'];
                         $borrower->last_name = $request['last_name'];
-                        $borrower->first_name = $request['first_name'];
+                        $request->has('first_name') ? $borrower->first_name = $request['first_name']:'';
                         $borrower->second_name = $request['second_name'];
                         $borrower->mothers_last_name = $request['mothers_last_name'];
                         $borrower->surname_husband = $request['surname_husband'];
-                        $borrower->gender = $request['gender'];
+                        $request->has('gender') ? $borrower->gender = $request['gender']:'';
                         $borrower->civil_status = $request['civil_status'];
                         $borrower->pension_entity_id = $request['pension_entity_id'];
                     }
@@ -1523,7 +1523,7 @@ class AffiliateController extends Controller
                             $message = "El afiliado no tiene registrado su categoria";
                         else
                         {
-                            if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->first()->max_guarantor_category)
+                            if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->where('loan_procedure_id',LoanProcedure::where('is_enable', true)->first()->id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->where('loan_procedure_id',LoanProcedure::where('is_enable', true)->first()->id)->first()->max_guarantor_category)
                                 $guarantor = true;
                             else
                                 $message = "El afiliado no se encuentra en la categoria necesaria";

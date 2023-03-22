@@ -125,8 +125,8 @@
             <div>
               <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS REGISTRADOS</h1>
               <ul style="list-style: none;" class="pa-0">
-                <li v-for="(item,index) in loan" :key="item.id" class="pb-2">
-                  <div v-if="index <= 3">
+                <li v-for="item in loan" :key="item.id" class="pb-2">
+                  <div>
 
                     <strong>Cód.:</strong>
                     {{ item.code }} |
