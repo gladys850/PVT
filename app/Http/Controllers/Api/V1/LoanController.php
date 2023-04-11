@@ -1069,7 +1069,7 @@ class LoanController extends Controller
         $guarantors = $loan->borrowerguarantors;
         $lenders = $loan->borrower;
         $employees = [
-            ['position' => 'Director General Ejecutivo','name'=>'CNL. DESP. EDGAR JOSE CORTEZ ALBORNOZ','identity_card'=>'3351371 LP'],
+            ['position' => 'Director General Ejecutivo','name'=>'CNL. MSc. CAD. LUCIO ENRIQUE RENÉ JIMÉNEZ VARGAS','identity_card'=>'3475563'],
             ['position' => 'Director de Asuntos Administrativos','name'=>'LIC. FRANZ LAZO CHAVEZ','identity_card'=>'3367169 LP']
         ];
         $data = [
