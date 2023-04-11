@@ -26,9 +26,9 @@ class LoanInterest extends Model
         return $this->penal_interest * $parameter/ (100 * 360);
     }
 
-    public function monthly_current_interest($parameter)
+    public function monthly_current_interest($parameter, $month_term)
     {
-        return (($this->annual_interest * $parameter) / 100) / 12;
+        return (($this->annual_interest * $parameter) / 100) / (12 / $month_term);
     }
 
     public function getMonthlyPenalInterestAttribute($parameter)

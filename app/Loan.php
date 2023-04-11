@@ -364,10 +364,16 @@ class Loan extends Model
         return $latest_quota;
     }
 
+    public function getLoanMonthTermAttribute()
+    {
+        $procedure_modality = ProcedureModality::find($this->procedure_modality_id);
+        return $procedure_modality->loan_modality_parameter->loan_month_term;
+    }
+
     public function getEstimatedQuotaAttribute()
     {
         $parameter = $this->loan_procedure->loan_global_parameter->numerator/$this->loan_procedure->loan_global_parameter->denominator;
-        $monthly_interest = $this->interest->monthly_current_interest($parameter);
+        $monthly_interest = $this->interest->monthly_current_interest($parameter, $this->loan_month_term);
         unset($this->interest);
         return Util::round2($monthly_interest * $this->amount_approved / (1 - 1 / pow((1 + $monthly_interest), $this->loan_term)));
     }
