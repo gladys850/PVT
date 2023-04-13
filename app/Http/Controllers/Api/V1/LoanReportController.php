@@ -1590,7 +1590,7 @@ class LoanReportController extends Controller
                 );
                 if($trashed_loan){ array_push($bodyFile, 
                     $trashed_loan ? Carbon::parse($row->date)->format('d/m/Y'):'',
-                    $trashed_loan ? $row->message : '',
+                    $trashed_loan ? $row->message : ''
                 );}
                 array_push($data, $bodyFile);
             }
