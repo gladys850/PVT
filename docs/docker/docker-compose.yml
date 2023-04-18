@@ -121,7 +121,7 @@ services:
       networks:
         - pvt_prestamos
       logging:
-        driver: none
+        driver: "json-file"
       restart: always
 
 ### PHP-FPM ##############################################
@@ -211,7 +211,7 @@ services:
       networks:
         - pvt_prestamos
       logging:
-        driver: none
+        driver: "json-file"
       restart: always
 
 ### PHP Worker ############################################
@@ -307,7 +307,7 @@ services:
       networks:
         - pvt_prestamos
       logging:
-        driver: none
+        driver: "json-file"
       restart: always
 
 ### Redis ################################################
@@ -320,7 +320,7 @@ services:
       networks:
         - pvt_prestamos
       logging:
-        driver: none
+        driver: "json-file"
       restart: always
 
 ### Redis Cluster ##########################################
@@ -356,5 +356,5 @@ services:
       networks:
         - pvt_prestamos
       logging:
-        driver: none
+        driver: "json-file"
       restart: always

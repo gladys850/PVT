@@ -35,7 +35,11 @@ laradock/.env
 
 * Modificar el archivo `.env` de laradock de acuerdo a los puertos que se irán a utilizar.
 
-* Crear las imagenes:
+```sh
+NGINX_HOST_HTTP_PORT=80
+```
+
+* Construir las imagenes:
 
 ```sh
 docker-compose build --no-cache nginx php-fpm workspace laravel-echo-server redis
@@ -51,7 +55,14 @@ docker-compose up -d nginx php-fpm workspace laravel-echo-server redis
 * Verificar que los contenedores se encuentren funcionando:
 
 ```sh
-docker-compose ps
+docker-compose ps -a
+```
+```sh
+loans_laravel-echo-server_1
+loans_nginx_1
+loans_php-fpm_1
+loans_redis_1
+loans_workspace_1
 ```
 
 * Instalar las fuentes dentro del contenedor `php-fpm`:
@@ -72,9 +83,7 @@ docker-compose exec workspace /var/www/install-spanish-locale.sh
 ```sh
 docker-compose exec --user laradock workspace composer run-script post-root-package-install
 ```
-* Revisar el archivo yarn.lock que tenga la última actualización.
-
-* Instalar las dependencias:
+* Instalar las dependencias del proyecto dentro los contenedores:
 
 ```sh
 docker-compose exec --user laradock workspace composer install
@@ -95,7 +104,7 @@ docker-compose restart laravel-echo-server
 
 * Modificar el archivo `.env` de laravel de acuerdo a las credenciales de base de datos, sockets, etc.
 
-* Transpilar el código Javascript
+* Compilar el codigo para producción
 
 ```sh
 docker-compose exec --user laradock workspace yarn prod
@@ -103,7 +112,7 @@ docker-compose exec --user laradock workspace yarn prod
 
 ## Para continuar con el desarrollo
 
-* Cambiar la variable APP_ENV=development en el archivo `.env` de laravel y transpilar el código Javascript:
+* Cambiar la variable APP_ENV=development en el archivo `.env` de laravel y compilar el código:
 
 ```sh
 docker-compose exec --user laradock workspace yarn dev
@@ -115,6 +124,14 @@ docker-compose exec --user laradock workspace yarn dev
 
 ```sh
 docker-compose ps
+```
+
+* Se pueden verificar los log's de los contenedores levantados o hacer seguimiento en caso de que algun contenedor genere algun error
+
+```sh
+docker-compose logs nginx
+
+docker-compose -f nginx
 ```
 
 * Eliminar los contenedores que no se encuentren levantados:
