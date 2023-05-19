@@ -1897,6 +1897,7 @@ class LoanController extends Controller
                     if($loan->borrower) $loan->destroy_borrower();
                     //if($loan->guarantors) $loan->guarantors()->detach();
                     if($loan->guarantors) $loan->destroy_guarantors();
+                    if($loan->observations) $loan->observations()->forceDelete();
                     //$loan->forceDelete();
                     $options=[$loan->id];
                     $loan = Loan::withoutEvents(function() use($options){
