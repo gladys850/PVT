@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Module;
+use App\ObservationType;
 use Util;
 
 /** @group Módulos
@@ -80,7 +81,6 @@ class ModuleController extends Controller
     {
         return $module->observation_types;
     }
-
     /**
     * Tipos de modalidades de préstamo asociados al módulo
     * Devuelve la lista de tipos de modalidades de préstamo asociados a un módulo

@@ -147,10 +147,10 @@ return [
     */
 
     'required_claims' => [
-        Claims\Issuer::NAME,
-        Claims\IssuedAt::NAME,
-        Claims\Expiration::NAME,
-        Claims\Subject::NAME,
+        'iss',
+        'iat',
+        'exp',
+        'sub',
         // Claims\JwtId::NAME,
     ],
 

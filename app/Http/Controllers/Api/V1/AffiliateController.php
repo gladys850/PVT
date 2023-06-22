@@ -58,6 +58,7 @@ class AffiliateController extends Controller
         $affiliate->defaulted_lender = $affiliate->defaulted_lender;
         //$affiliate->defaulted_guarantor = $affiliate->defaulted_guarantor;
         $affiliate->cpop = $affiliate->cpop;
+        $affiliate->default_alert_date_import = $affiliate->default_alert_date_import();
         if($affiliate->spouse){
             $affiliate->spouse = $affiliate->spouse;
             $affiliate->dead_spouse = $affiliate->spouse->dead;
@@ -582,7 +583,7 @@ class AffiliateController extends Controller
         if ($request->has('city_id')) {
             $is_latest = false;
             $city = City::findOrFail($request->city_id);
-            $offset_day = LoanGlobalParameter::latest()->first()->offset_ballot_day;
+            $offset_day = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->offset_ballot_day;
             $now = CarbonImmutable::now();
             if($choose_diff_month == true && $request->has('number_diff_month')){
                 $before_month=$number_diff_month;
@@ -852,107 +853,6 @@ class AffiliateController extends Controller
         }
     }
 
-    /** @group Observaciones de Afiliado
-    * Lista de observaciones
-    * Devuelve el listado de observaciones del afiliado
-    * @urlParam affiliate required ID del afiliado. Example: 5012
-    * @queryParam trashed Booleano para obtener solo observaciones eliminadas. Example: 1
-    * @authenticated
-    * @responseFile responses/affiliate/get_observations.200.json
-    */
-    public function get_observations(Request $request, Affiliate $affiliate)
-    {
-        $query = $affiliate->observations();
-        if ($request->boolean('trashed')) $query = $query->onlyTrashed();
-        return $query->get();
-    }
-
-    /** @group Observaciones de Afiliado
-    * Nueva observación
-    * Inserta una nueva observación asociada al afiliado
-    * @urlParam affiliate required ID del afiliado. Example: 5012
-    * @bodyParam observation_type_id integer required ID de tipo de observación. Example: 2
-    * @bodyParam message string required Mensaje adjunto a la observación. Example: Subsanable en una semana
-    * @authenticated
-    * @responseFile responses/affiliate/set_observation.200.json
-    */
-    public function set_observation(ObservationForm $request, Affiliate $affiliate)
-    {
-        $observation = $affiliate->observations()->make([
-            'message' => $request->message ?? null,
-            'observation_type_id' => $request->observation_type_id,
-            'date' => Carbon::now()
-        ]);
-        $observation->user()->associate(Auth::user());
-        $observation->save();
-        return $observation;
-    }
-
-    /** @group Observaciones de Afiliado
-    * Actualizar observación
-    * Actualiza los datos de una observación asociada al afiliado
-    * @urlParam affiliate required ID del afiliado. Example: 5012
-    * @bodyParam original.user_id integer required ID de usuario que creó la observación. Example: 123
-    * @bodyParam original.observation_type_id integer required ID de tipo de observación original. Example: 2
-    * @bodyParam original.message string required Mensaje de la observación original. Example: Subsanable en una semana
-    * @bodyParam original.date date required Fecha de la observación original. Example: 2020-04-14 21:16:52
-    * @bodyParam original.enabled boolean required Estado de la observación original. Example: false
-    * @bodyParam update.enabled boolean Estado de la observación a actualizar. Example: true
-    * @authenticated
-    * @responseFile responses/affiliate/update_observation.200.json
-    */
-    public function update_observation(ObservationForm $request, Affiliate $affiliate)
-    {
-        $observation = $affiliate->observations();
-        foreach (collect($request->original)->only('user_id', 'observation_type_id', 'message', 'date', 'enabled')->put('observable_id', $affiliate->id)->put('observable_type', 'affiliates') as $key => $value) {
-            $observation = $observation->where($key, $value);
-        }
-        if ($observation->count() === 1) {
-            $obs = $observation->first();
-            if (isset($request->update['enabled'])) {
-                if ($request->update['enabled']) {
-                    $message = 'subsanó observación: ';
-                } else {
-                    $message = 'observó: ';
-                }
-            } else {
-                $message = 'modificó observación: ';
-            }
-            Util::save_record($obs, 'observaciones', $message . $obs->message, $obs->observable);
-            $observation->update(collect($request->update)->only('observation_type_id', 'message', 'enabled')->toArray());
-        }
-        return $affiliate->observations;
-    }
-
-    /** @group Observaciones de Afiliado
-    * Eliminar observación
-    * Elimina una observación del afiliado siempre y cuando no haya sido modificada
-    * @urlParam affiliate required ID del préstamo. Example: 2
-    * @bodyParam user_id integer required ID de usuario que creó la observación. Example: 123
-    * @bodyParam observation_type_id integer required ID de tipo de observación. Example: 2
-    * @bodyParam message string required Mensaje de la observación. Example: Subsanable en una semana
-    * @bodyParam date required Fecha de la observación. Example: 2020-04-14 21:16:52
-    * @bodyParam enabled boolean required Estado de la observación. Example: false
-    * @authenticated
-    * @responseFile responses/affiliate/unset_observation.200.json
-    */
-    public function unset_observation(ObservationForm $request, Affiliate $affiliate)
-    {
-        $request->request->add(['observable_type' => 'affiliates', 'observable_id' => $affiliate->id]);
-        $observation = $affiliate->observations();
-        foreach ($request->except('created_at','updated_at','deleted_at') as $key => $value) {
-            $observation = $observation->where($key, $value);
-        }
-        $observation = $observation->whereColumn('created_at','updated_at');
-        if ($observation->count() == 1) {
-            $observation->delete();
-            return $affiliate->observations;
-        } else {
-            abort(404, 'La observación fue modificada, no se puede eliminar');
-        }
-    }
-
-
     /**
     * Existencia del afiliado
     * Devuelve si la persona esta afiliado a Muserpol
@@ -998,7 +898,7 @@ class AffiliateController extends Controller
     public function evaluate_maximum_loans(Affiliate $affiliate)
     {
         $maximum = false;
-        $loan_global_parameter = LoanGlobalParameter::latest()->first();
+        $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $process = $affiliate->process_loans;
         $disbursement = $affiliate->disbursement_loans;
         if(count($process)<$loan_global_parameter->max_loans_process && count($disbursement)<$loan_global_parameter->max_loans_active) $maximum = true;
@@ -1296,10 +1196,13 @@ class AffiliateController extends Controller
         ]);
         $message = array();
         $ci=$request->identity_card;
+        $affiliate = '';
         if(Affiliate::where('identity_card', $ci)->first())
             $affiliate = Affiliate::where('identity_card', $ci)->first();
         elseif(Spouse::where('identity_card', $ci)->first())
             $affiliate = Spouse::where('identity_card', $ci)->first()->affiliate;
+        if($affiliate != '')
+        {
          $state_affiliate=$affiliate->affiliate_state->affiliate_state_type->name;
          $state_affiliate_sub=$affiliate->affiliate_state->name;
          $evaluate=false;
@@ -1386,6 +1289,17 @@ class AffiliateController extends Controller
           "modalities" => $modalities_all,
           "message"=>$message
           );
+        }
+        else{
+            $data = array(  //data 
+                "evaluate"=>'',
+                "affiliate" => '',
+                "affiliate_identity_card"=>'',
+                "state_affiliate" => '',
+                "modalities" => '',
+                "message"=>$message['existence'] = 'no existe'
+                );
+        }
          return $data;
      }
 

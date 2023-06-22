@@ -31,6 +31,7 @@
         <v-tooltip top v-if="tab != 'tab-1'">
           <template v-slot:activator="{ on }">
             <v-btn
+              v-if="(permissionSimpleSelected.includes('update-affiliate-primary') || permissionSimpleSelected.includes('update-affiliate-secondary'))"
               fab
               dark
               small
@@ -269,7 +270,7 @@
         >
           <v-card flat tile >
           <v-card-text>
-           <HistoryAffiliate
+           <ObserverAffiliate
               :affiliate.sync="affiliate"/>
            </v-card-text>
           </v-card>
@@ -291,7 +292,7 @@ import Dashboard from '@/components/affiliate/Dashboard'
 import AdditionalInformation from '@/components/affiliate/AdditionalInformation'
 import Contributions from '@/components/affiliate/Contributions'
 
- import HistoryAffiliate from '@/components/affiliate/HistoryAffiliate'
+ import ObserverAffiliate from '@/components/affiliate/ObserverAffiliate'
 
 export default {
   name: "affiliate-index",
@@ -303,8 +304,7 @@ export default {
     Dashboard,
     AdditionalInformation,
     Contributions,
-    //historico 
-    HistoryAffiliate
+    ObserverAffiliate
   },
   data: () => ({
     addresses:[],

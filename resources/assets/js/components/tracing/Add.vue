@@ -120,6 +120,16 @@
     <v-card-text>
 
       <Dashboard :affiliate.sync="affiliate" :loan.sync="loan"/>
+      
+      <v-alert v-if="loan.state.name == 'Vigente' && loan.default_alert_state"
+        dense
+        text
+        border="left"
+        color="error"
+        icon="mdi-information"
+      >
+      <span class="red--text">El préstamo se encuentran en situación de mora.</span>
+      </v-alert>
 
       <FormTracing
           :loan.sync="loan"

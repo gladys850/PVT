@@ -12,7 +12,7 @@ use App\Http\Requests\CalculatorForm;
 use App\Http\Requests\SimulatorForm;
 use App\Http\Requests\Guarantor_evaluateForm;
 use App\LoanGlobalParameter;
-
+use App\LoanProcedure;
 
 
 /** @group Calculadora
@@ -90,11 +90,7 @@ class CalculatorController extends Controller
             $dignity_rent_bonus_average = $contributions->avg('dignity_rent_bonus');
 
             $total_bonuses = $position_bonus_average+$border_bonus_average+$public_security_bonus_average+$east_bonus_average+$dignity_rent_bonus_average;
-            //$contribution_first = $contributions->first();// se obtiene los bonos de la ultima boleta
-            //$total_bonuses = $contribution_first['seniority_bonus']+$contribution_first['border_bonus']+$contribution_first['public_security_bonus']+$contribution_first['east_bonus'];
-            //$total_bonuses = $contribution_first['position_bonus']+$contribution_first['border_bonus']+$contribution_first['public_security_bonus']+$contribution_first['east_bonus'];
             $liquid_qualification_calculated = $this->liquid_qualification($type, $payable_liquid_average, $total_bonuses, $affiliate, $parent_quota);
-            $loan_global_parameter = LoanGlobalParameter::latest()->first();
             $livelihood_amount = false;
             if($liquid_qualification_calculated > 0) $livelihood_amount=true;
             $guarantees_sismu = $affiliate->active_guarantees_sismu();
@@ -163,7 +159,6 @@ class CalculatorController extends Controller
         $amount_requested = $request->amount_requested;
         $liquid_calculated = collect($request->liquid_calculated);
         $calculated_data = collect([]);
-        $loan_global_parameter = LoanGlobalParameter::latest()->first();
         if($request->guarantor)
         {
             if(count($liquid_calculated) != $modality->loan_modality_parameter->guarantors)abort(403, 'La cantidad de garantes no corresponde a la modalidad');
@@ -277,7 +272,7 @@ class CalculatorController extends Controller
     private function liquid_qualification($type, $payable_liquid_average, $total_bonuses, $affiliate, $parent_quota=null){
         $sum_quota = 0;
         if($type){
-            $sum_quota += LoanGlobalParameter::latest()->first()->livelihood_amount;
+            $sum_quota += LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->livelihood_amount;
         }
         $liquid_qualification_calculated = $payable_liquid_average - $total_bonuses - $sum_quota + $parent_quota;
         return $liquid_qualification_calculated;
@@ -299,7 +294,7 @@ class CalculatorController extends Controller
 
     //division porcentual de las cuotas de los codeudores
     private function loan_percent(request $request){
-        $loan_global_parameter = LoanGlobalParameter::latest()->first();
+        $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $procedure_modality = ProcedureModality::findOrFail($request->procedure_modality_id);
         $debt_index = $procedure_modality->loan_modality_parameter->debt_index;
         $lc = $request->liquid_calculated;
@@ -394,7 +389,6 @@ class CalculatorController extends Controller
     */
     public function evaluate_guarantor(Guarantor_evaluateForm $request){
         $procedure_modality = ProcedureModality::findOrFail($request->procedure_modality_id);
-        $loan_global_parameter = LoanGlobalParameter::latest()->first();
         $livelihood_amount = true;
         $quantity_guarantors = $procedure_modality->loan_modality_parameter->guarantors;
         if($quantity_guarantors > 0){$type = false;
@@ -419,12 +413,6 @@ class CalculatorController extends Controller
             $liquid_rest = Util::round(($liquid_qualification_calculated * 0.5) - ($quota_calculated + $sum_quota));
             $indebtedness_calculated = ($quota_calculated + $sum_quota)/$liquid_qualification_calculated * 100;
             $evaluate = true;
-            /*if($liquid_qualification_calculated < 0)
-                $livelihood_amount = false;
-            if ($indebtedness_calculated <= $debt_index && $liquid_qualification_calculated > 0)
-                $evaluate = true;
-            else
-                $evaluate = false;*/
             $response = array(
                 "affiliate_id" => $affiliate_id,
                 "payable_liquid_calculated" => Util::round2($payable_liquid_average),

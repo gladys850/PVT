@@ -78,7 +78,12 @@ class AuthController extends Controller
         }
         if ($token) {
             \Log::channel('access')->info("Usuario ".Auth::user()->username." autenticado desde la dirección ".request()->ip());
-            return $token;
+            //return $token;
+            return [
+                    'access_token' => $token,
+                    'token_type' => 'Bearer',
+                    'expires_in' => 18000,
+                ];
         }
         return response()->json([
             'message' => 'No autorizado',

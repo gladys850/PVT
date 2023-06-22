@@ -78,6 +78,7 @@ class LoanController extends Controller
         $loan->modality=$loan->modality->procedure_type;
         $loan->tags = $loan->tags;
         $loan->affiliate = $loan->affiliate;
+        $loan->default_alert_state = $loan->default_alert();
         if($loan->borrower->first()->type == 'spouses')
             $loan->affiliate->spouse = $loan->affiliate->spouse;
         if($loan->parent_loan){
@@ -1824,7 +1825,7 @@ class LoanController extends Controller
     {
         $message['validate'] = false;
         $affiliate = Affiliate::findOrFail($affiliate_id);
-        $loan_global_parameter = LoanGlobalParameter::latest()->first();
+        $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $loan_disbursement = count($affiliate->disbursement_loans);
         if($request->refinancing)
             $loan_disbursement = $loan_disbursement - 1;
@@ -2220,7 +2221,7 @@ class LoanController extends Controller
                 LoanPlanPayment::where('loan_id', $loan->id)->delete();
             }
                 $plan = [];
-                $loan_global_parameter = LoanGlobalParameter::latest()->first();
+                $loan_global_parameter = $loan->loan_procedure->loan_global_parameter;
                 $balance = $loan->amount_approved;
                 $days_aux = 0;
                 $interest_rest = 0;
