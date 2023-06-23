@@ -30,9 +30,9 @@ class LoanPaymentReportController extends Controller
    */
   public function report_amortization_discount_months(Request $request){
     // aumenta el tiempo máximo de ejecución de este script a 150 min:
-    ini_set('max_execution_time', 9000);
+    ini_set('max_execution_time', 900000);
     // aumentar el tamaño de memoria permitido de este script:
-    ini_set('memory_limit', '960M');
+    ini_set('memory_limit', '96000M');
 
     $order_loan = 'Desc';
     

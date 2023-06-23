@@ -142,28 +142,6 @@
                 <v-col cols="12" md="4">
                   <ValidationProvider
                     v-slot="{ errors }"
-                    vid="city_identity_card_id"
-                    name="Ciudad de Expedición"
-                    rules="required|integer|min:1"
-                  >
-                    <v-select
-                      :error-messages="errors"
-                      dense
-                      :items="cities"
-                      item-text="name"
-                      item-value="id"
-                      :loading="loading"
-                      label="Ciudad de Expedición"
-                      v-model="affiliate.city_identity_card_id"
-                      :readonly="!editable || !permission.secondary"
-                      :outlined="editable && permission.secondary"
-                      :disabled="editable && !permission.secondary"
-                    ></v-select>
-                  </ValidationProvider>
-                </v-col>
-                    <v-col cols="12" md="4">
-                  <ValidationProvider
-                    v-slot="{ errors }"
                     vid="registration"
                     name="matrícula"
                     rules="required|alpha_dash|min:5|max:15"

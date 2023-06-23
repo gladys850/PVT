@@ -3,7 +3,7 @@
     <v-toolbar-title  class="pb-2">DOCUMENTOS PRESENTADOS</v-toolbar-title>
       <v-form>
         <template top v-if="permissionSimpleSelected.includes('validate-submitted-documents')">
-          <div >
+          <div>
             <v-tooltip >
               <template v-slot:activator="{ on }">
                 <v-btn
@@ -15,7 +15,7 @@
                   right
                   absolute
                   v-on="on"
-                  style="margin-right: 75px;"
+                  style="margin-right: 75px; margin-top: 20px;"
                   @click.stop="resetForm()"
                   v-show="editable"
                 >
@@ -37,7 +37,7 @@
                   right
                   absolute
                   v-on="on"
-                  style="margin-right: 35px;"
+                  style="margin-right: 35px; margin-top: 20px;"
                   @click.stop="validarDoc()"
                 >
                   <v-icon v-if="editable">mdi-check</v-icon>
