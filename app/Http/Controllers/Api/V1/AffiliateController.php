@@ -1532,7 +1532,7 @@ class AffiliateController extends Controller
                     else
                     {
                         //if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
-                        if($affiliate->pension_entity->type == 'SENASIR')
+                        if($affiliate->pension_entity->name == 'SENASIR')
                             $guarantor = true;
                         else
                             $message = "Afiliado AFP no puede garantizar a un AFP";
@@ -1618,8 +1618,6 @@ class AffiliateController extends Controller
             array_push($data, $loans_pvt);
         }
         $affiliate->active_loans = count($affiliate->active_loans())+count($affiliate->active_loans_sismu());
-        if($affiliate->city_identity_card == null)
-            $information = $information."ciudad de expedicion del carnet de identidad,";
         if($affiliate->affiliate_state == null)
             $information = $information." estado del afiliado,";
         if($affiliate->city_birth == null)

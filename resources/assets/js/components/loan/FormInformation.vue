@@ -230,33 +230,6 @@
                       ></v-text-field>
                     </ValidationProvider>
                   </v-col>
-                  <!--<v-col cols="12" md="3">
-                    <ValidationProvider v-slot="{ errors }" name="CI" rules="required|min:3">
-                      <v-text-field
-                        :error-messages="errors"
-                        v-model="personal_reference.identity_card"
-                        dense
-                        label="Cédula de Identidad"
-                      ></v-text-field>
-                    </ValidationProvider>
-                  </v-col>
-                  <v-col cols="12" md="3">
-                    <ValidationProvider
-                      v-slot="{ errors }"
-                      name="Ciudad de Expedición"
-                      rules="required"
-                    >
-                      <v-select
-                        :error-messages="errors"
-                        v-model="personal_reference.city_identity_card_id"
-                        dense
-                        :items="cities"
-                        item-text="name"
-                        item-value="id"
-                        label="Ciudad de Expedición"
-                      ></v-select>
-                    </ValidationProvider>
-                  </v-col>-->
                   <v-col cols="12" md="3">
                     <ValidationProvider
                       v-slot="{ errors }"
@@ -369,7 +342,7 @@ export default {
       default:0
     }
   },
-  data: () => ({  
+  data: () => ({
     cuenta: null,
     destino:[],
     visible: false,
@@ -450,7 +423,7 @@ export default {
             this.getEntity()
           } else {
             this.visible = false
-            this.espacio = true            
+            this.espacio = true
           }
         }
       }
@@ -529,7 +502,7 @@ export default {
     {
       try{
         if (this.modalidad_personal_reference) {
-          this.reference = []        
+          this.reference = []
           if (this.editedIndexPerRef == -1){
             let res = await axios.post(`personal_reference`, {
               city_identity_card_id:this.personal_reference.city_identity_card_id,
@@ -541,11 +514,11 @@ export default {
               phone_number:this.personal_reference.phone_number,
               cell_phone_number:this.personal_reference.cell_phone_number,
               address:this.personal_reference.address
-            })         
+            })
             this.editedIndexPerRef = res.data.id
             this.reference.push(res.data.id)
           }else{
-            let res = await axios.patch(`personal_reference/${this.editedIndexPerRef}`, 
+            let res = await axios.patch(`personal_reference/${this.editedIndexPerRef}`,
             {
               city_identity_card_id:this.personal_reference.city_identity_card_id,
               identity_card:this.personal_reference.identity_card,
@@ -556,8 +529,8 @@ export default {
               phone_number:this.personal_reference.phone_number,
               cell_phone_number:this.personal_reference.cell_phone_number,
               address:this.personal_reference.address
-            })   
-            this.reference.push(res.data.id)     
+            })
+            this.reference.push(res.data.id)
           }
           this.loan_detail.reference = this.reference
         }
@@ -641,14 +614,14 @@ export default {
               this.val_per_ref = await this.$refs.observerPerRef.validate();
               if(this.val_per_ref){
                   this.savePersonalReference()
-                  this.savePCosigner() 
+                  this.savePCosigner()
                   this.nextStepBus(5)
               }else{
                   console.log("no pasa")
               }
             }else{
               this.savePersonalReference()
-              this.savePCosigner() 
+              this.savePCosigner()
               this.nextStepBus(5)
             }
           }else{
@@ -658,7 +631,7 @@ export default {
           this.toastr.error("Por favor guarde los datos de la entidad financiera.")
         }
 
-    
+
       }catch (e) {
         this.$refs.observerDestiny.setErrors(e);
         if(this.modalidad_personal_reference){

@@ -54,7 +54,7 @@
                                   </v-col>
 
                                   <v-col cols="12" md="4" class="py-0">
-                                    <p><b>CÉDULA DE IDENTIDAD:</b> {{borrower.identity_card +' '+  borrower.city_identity_card.first_shortened}}</p>
+                                    <p><b>CÉDULA DE IDENTIDAD:</b> {{borrower.identity_card}}</p>
                                   </v-col>
 
                                   <v-col cols="12" md="4" class="py-0">
@@ -81,7 +81,7 @@
                                   </v-col>
 
                                   <v-col cols="12" md="5" class="py-0">
-                                    <p><b>CÉDULA DE IDENTIDAD:</b> {{borrower_detail.identity_card_borrower +' '+  borrower_detail.city_exp_first_shortened_borrower}}</p>
+                                    <p><b>CÉDULA DE IDENTIDAD:</b> {{borrower_detail.identity_card_borrower}}</p>
                                   </v-col>
                                 </v-row>
                               </v-col>
@@ -113,7 +113,7 @@
                             <label><b style="color:teal">Fecha del ultimo Pago:</b></label>
                             <b style="color:teal">{{loan.last_payment_validated.estimated_date | date }}</b>
                           </v-col>
-                          
+
                           <v-col cols="3" class="ma-0 py-2" v-show="isNew" v-if="last_payment">
                             <label><b style="color:teal" >Total Pagado:</b></label>
                             <b style="color:teal">{{loan.last_payment_validated.estimated_quota | moneyString}}</b>
@@ -133,7 +133,7 @@
 
                           <v-col cols="9"  v-show="edit" v-if="permissionSimpleSelected.includes('create-payment-loan') && this.data_payment.validar">
                           </v-col>
-                          
+
                           <v-col cols="3" class="ma-0 py-0" v-show="permissionSimpleSelected.includes('create-payment-loan') && this.data_payment.validar" v-if="edit">
                             <v-checkbox class="ma-0 py-3"
                               :outlined="edit"
@@ -348,7 +348,7 @@
                               persistent-hint
                             ></v-select>
                           </v-col>
-                          
+
                           <v-col cols="4" v-show="edit" v-if="permissionSimpleSelected.includes('create-payment')" >
                             <v-text-field
                               v-model="data_payment.comprobante"
@@ -607,7 +607,7 @@ export default {
           for (let i = 0; i<  this.loan.borrower.length; i++) {
             this.data_payment.affiliate_id_paid_by=this.loan.affiliate_id
             this.code_initials = "T-" + this.loan.borrower[i].initials
-          } 
+          }
       }
     },
     //Metodo que genera el codigo del garante

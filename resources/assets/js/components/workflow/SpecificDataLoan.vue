@@ -568,7 +568,7 @@
                                               <p><b>NOMBRE:</b> {{$options.filters.fullName(guarantor, true)}}</p>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3">
-                                              <p><b>CÉDULA DE IDENTIDAD:</b> {{guarantor.identity_card +" "+ identityCardExt(guarantor.city_identity_card_id) }}</p>
+                                              <p><b>CÉDULA DE IDENTIDAD:</b> {{guarantor.identity_card}}</p>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3">
                                               <p><b>TELÉFONO:</b> {{guarantor.cell_phone_number}}</p>
@@ -1455,7 +1455,7 @@ created(){
         for(let i=0; i<this.city.length;i++){
           if(this.city[i].id == id){
             ext = this.city[i].first_shortened
-          }  
+          }
         }
       return ext
       }else{

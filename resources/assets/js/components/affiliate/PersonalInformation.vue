@@ -64,35 +64,6 @@
               </v-col>
             </v-row>
           </v-card>
-          <v-card>
-            <v-row class="ma-0 pa-0">
-              <v-col cols="12" class="py-2">
-                <v-toolbar-title>CIUDAD EXPEDICIÓN CI.</v-toolbar-title>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  dense
-                  v-model="affiliate.identity_card"
-                  label="Cédula de Identidad"
-                  readonly
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  dense
-                  :items="cities"
-                  item-text="name"
-                  item-value="id"
-                  :loading="loading"
-                  label="Ciudad de Expedición"
-                  v-model="affiliate.city_identity_card_id"
-                  :readonly="!editable || !permission.secondary"
-                  :outlined="editable && permission.secondary"
-                  :disabled="editable && !permission.secondary"
-                ></v-select>
-              </v-col>
-            </v-row>
-          </v-card>
         </v-container>
       </v-col>
       <v-col cols="12" md="3">
@@ -259,7 +230,7 @@ export default {
     //Metodo para obtener Permisos por rol
     permissionSimpleSelected () {
       return this.$store.getters.permissionSimpleSelected
-    },    
+    },
     permission() {
       return {
         primary: this.primaryPermission,
