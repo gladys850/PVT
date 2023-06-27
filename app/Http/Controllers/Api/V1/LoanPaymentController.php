@@ -819,7 +819,7 @@ class LoanPaymentController extends Controller
     {
         $estimated_date = $estimated_date? Carbon::parse($estimated_date) : Carbon::now()->endOfMonth();
         $loan_state = LoanState::where('name', 'Vigente')->first();
-        $modalities = ProcedureModality::where('name', 'like', '%AFP')->get();
+        $modalities = ProcedureModality::where('name', 'like', '%AFP')->orWhere('name','like','%Gestora%')->get();
         $categorie=LoanPaymentCategorie::where('name','Regular')->where('type_register','SISTEMA')->first();
 
         $id = [];

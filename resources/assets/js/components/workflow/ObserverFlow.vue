@@ -67,7 +67,7 @@
                   </v-card-text>
                 </v-card>
               </v-tab-item>
-              <v-tab>HISTORIAL DEL TRÁMITE{{$store.getters.module.id}}</v-tab>
+              <v-tab>HISTORIAL DEL TRÁMITE</v-tab>
               <v-tab-item >
                 <v-card flat tile>
                   <v-card-text>
@@ -98,7 +98,7 @@
                 <v-card flat tile>
                   <v-card-text>
                     <v-col cols="12" class="mb-0">
-                      <HistoryPayments 
+                      <HistoryPayments
                         :affiliate.sync="affiliate"
                         :borrower.sync ="borrower"
                         :loan="loan"

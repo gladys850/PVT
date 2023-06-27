@@ -87,7 +87,7 @@
                                 <v-col cols="12" md="12" class="py-0">
                                   <p style="color:teal"><b>EVALUACION DEL PRESTATARIO PARA ACCEDER AL PRESTAMO</b></p>
                                 </v-col>
-                                
+
                                 <v-progress-linear></v-progress-linear>
                                 <br>
 
@@ -110,7 +110,7 @@
                                 <v-col cols="12" md="4" class="py-0">
                                    <p><b>TOTAL BONOS:</b> {{loan.borrower[0].bonus_calculated | moneyString}}</p>
                                 </v-col>
-                                
+
                                 <v-col cols="12" md="4" class="py-0">
                                    <p><b>INDICE DE ENDEUDAMIENTO:</b> {{loan.borrower[0].indebtedness_calculated|percentage }}% </p>
                                 </v-col>
@@ -139,7 +139,7 @@
 
                                   <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
                                     <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo'">
-                                    
+
                                       <li v-for="guarantor in loan.borrowerguarantors" :key="guarantor.id">
                                         <v-col cols="12" md="12" class="pa-0">
 
@@ -155,7 +155,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>CÉDULA DE IDENTIDAD:</b> {{guarantor.identity_card +" "+ identityCardExt(guarantor.city_identity_card_id) }}</p>
+                                              <p><b>CÉDULA DE IDENTIDAD:</b> {{guarantor.identity_card}}</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
@@ -270,18 +270,18 @@
 
                               <v-progress-linear></v-progress-linear>
                               <br>
-                              
+
                               <v-col cols="12" md="6" class="pa-0" >
                                 <p>DATOS DEL CONTRATO</p>
                               </v-col>
 
                               <v-progress-linear></v-progress-linear>
-                              
+
                               <v-row>
                                 <v-col cols="12" md="6">
                                   <p><b>FECHA ENTREGA DE CONTRATO:</b> {{loan.delivery_contract_date | date}}</p>
                                 </v-col>
-                                
+
                                 <v-col cols="12" md="6">
                                   <p><b>FECHA RECEPCION DE CONTRATO:</b> {{loan.return_contract_date==null? loan.return_contract_date:' '}}</p>
                                 </v-col>
@@ -290,9 +290,9 @@
                               <v-col cols="12" class="pa-0">
                                 <v-progress-linear></v-progress-linear>
                                 <br>
-                                
+
                                 <p>DATOS DEL DESEMBOLSO</p>
-                                
+
                                 <v-progress-linear></v-progress-linear>
 
                                 <v-row>
@@ -330,7 +330,7 @@
 
                               <v-progress-linear v-show="loan_refinancing.refinancing"></v-progress-linear  >
 
-                              <v-row v-show="loan_refinancing.refinancing"> <v-col cols="12" md="4" class="py-2"> <p><b>Codigo de Prestamo a Padre:</b>{{' '+loan_refinancing.code}}</p> </v-col> 
+                              <v-row v-show="loan_refinancing.refinancing"> <v-col cols="12" md="4" class="py-2"> <p><b>Codigo de Prestamo a Padre:</b>{{' '+loan_refinancing.code}}</p> </v-col>
                                 <v-col cols="12" md="4" class="py-2" >
                                   <p><b>Monto de Préstamo Padre:</b> {{loan_refinancing.amount_approved_son | money}}</p>
                                 </v-col>
@@ -338,11 +338,11 @@
                                 <v-col cols="12" md="4" class="py-2">
                                   <p><b>Plazo de Préstamo Padre:</b>{{' '+loan_refinancing.loan_term}}</p>
                                 </v-col>
-                                
+
                                 <v-col cols="12" md="4" class="py-0">
                                   <p><b>Cuota de Préstamo Padre:</b> {{loan_refinancing.estimated_quota | money}}</p>
                                 </v-col>
-                                
+
                                 <v-col cols="12" md="4" class="py-0" v-show="loan_refinancing.date_cut_refinancing==null">
                                   <p><b>Fecha de Corte :</b> Sin registar</p>
                                 </v-col>
@@ -375,7 +375,7 @@
                         <v-tab-item>
                           <v-card flat>
                             <v-card-text>
-                            
+
                               <v-col cols="12" md="4" class="py-0" >
                                 <p style="color:teal"><b>PERSONA DE REFERENCIA </b></p>
                               </v-col>
@@ -411,7 +411,7 @@
                              <br v-if="loan.cosigners.length==0">
 
                               <p v-if="loan.cosigners.length==0" > <b>NO TIENE CODEUDORES</b></p>
-                              
+
                               <v-col cols="12" md="12" class="py-0">
                                 <div v-for="procedure_type in procedure_types" :key="procedure_type.id">
                                   <div v-if="procedure_type.name === 'Préstamo Hipotecario'">
@@ -544,7 +544,7 @@
                               <br>
 
                               <!-- C O M P O N E N T E -->
-                              <HistoryFlowPayments 
+                              <HistoryFlowPayments
                                 :loan="loan"
                               />
 

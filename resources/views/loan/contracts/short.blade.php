@@ -18,7 +18,7 @@
 </div>
 
 <?php $modality = $loan->modality;
-if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad')){?>
+if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública')){?>
 <div class="block text-justify">
     <div>
         Conste en el presente contrato de {{ ucfirst($title) }}, que al solo reconocimiento de firmas y rúbricas será elevado a Instrumento Público, por lo que las partes que intervienen lo suscriben al tenor y contenido de las siguientes cláusulas y condiciones:
@@ -65,7 +65,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     </div>
     <div>
         <?php $modality = $loan->modality;
-            if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+            if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){ ?>
         <b>SEPTIMA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oficina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oficina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída. Consecuentemente se procederá al descuento del garante personal incluido los intereses penales pasado los 30 dias de incumplimiento sin necesidad de previo aviso.
         <?php }
         else{
@@ -109,7 +109,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     </div>
     <div>
         <?php
-            if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+            if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){ ?>
         <b>DECIMA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTE, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber presentes y futuros conforme lo determina el Art. 1335 del Código Civil, ademas el PRESTATARIO con los beneficios otorgados por la MUSERPOL.
         Asimismo, se constituye como garante personal, solidario, mancomunado e indivisible:
             @if (count($guarantors) == 1)
@@ -131,7 +131,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     </div>
     <div>
     <?php
-        if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+        if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){ ?>
         <div>
             <b>DÉCIMA PRIMERA.- (CONTINGENCIAS POR FALLECIMIENTO):</b>El PRESTATARIO en caso de fallecimiento acepta amortizar para el cumplimiento efectivo de la presente obligación con el beneficio del Complemento Económico en caso de corresponderle; por cuanto la liquidación de dicho beneficio pasarán a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley. 
         </div>
@@ -180,7 +180,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
         <span>
             PRESTATARIO {{ $lender->gender == 'M' ? '' : 'a' }} {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }} de generales ya señaladas;
             <?php
-            if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+            if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){ ?>
             @if (count($guarantors) == 1)
             @php ($guarantor = $guarantors[0])
             @php ($male_female_guarantor = Util::male_female($guarantor->gender))
@@ -190,10 +190,10 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             @endif
             <?php } ?>
             <?php
-                if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Corto Plazo Sector Activo' || $modality->name == 'Corto Plazo en Disponibilidad' || $modality->name == 'Corto Plazo Sector Pasivo SENASIR'){
+                if($modality->name == 'Corto Plazo Sector Pasivo Gestora Pública' || $modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Corto Plazo Sector Activo' || $modality->name == 'Corto Plazo en Disponibilidad' || $modality->name == 'Corto Plazo Sector Pasivo SENASIR'){
                     $loan_name = ' ';
                 }
-                if($modality->name =='Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad'){
+                if($modality->name =='Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){
                     $loan_name = 'de refinancimiento';
                 }?>
             <?php  ?>
@@ -211,7 +211,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
 <div>
     <table>
         <?php
-        if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+        if($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){ ?>
         <tr class="align-top">
             <td width="50%">
             @include('partials.signature_box', [
@@ -289,7 +289,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     </div>
     <div>
         <?php $modality = $loan->modality;
-            if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+            if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Corto Plazo Sector Pasivo Gestora Pública' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){ ?>
         <b>SEXTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oficina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oficina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída. Consecuentemente se procederá al descuento al garante personal incluido los intereses penales pasado los 30 dias sin necesidad de previo aviso.
         <?php }
         else{
@@ -333,7 +333,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     </div>
     <div>
         <?php
-            if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+            if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' ||$modality->name == 'Corto Plazo Sector Pasivo Gestora Pública' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){ ?>
         
         <b>NOVENA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTE, garantizan el pago de lo adeudado con la generalidad sus bienes, derechos y acciones habidos y por haber presentes y futuros conforme lo determina el Art. 1335 del Código Civil, asimismo el PRESTATARIO con los beneﬁcios otorgados por la MUSERPOL.
         <div>Asimismo, se constituye como garante personal, solidario, mancomunado e indivisible:
@@ -356,7 +356,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
     </div>
     <div>
     <?php
-        if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+        if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Corto Plazo Sector Pasivo Gestora Pública' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){ ?>
         <div>
             <b>DÉCIMA.- (CONTINGENCIAS POR FALLECIMIENTO):</b>El  PRESTATARIO  en  caso  de  fallecimiento  acepta amortizar para el cumplimiento efectivo de la presente obligación con el beneficio del Complemento Económico en caso de corresponderle; por cuanto la liquidación de dicho beneficio pasará a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley.
         </div>
@@ -415,10 +415,10 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             @endif
             <?php }?>
             <?php
-                if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Corto Plazo Sector Activo' || $modality->name == 'Corto Plazo en Disponibilidad' || $modality->name == 'Corto Plazo Sector Pasivo SENASIR'){
+                if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Corto Plazo Sector Activo' || $modality->name == 'Corto Plazo en Disponibilidad' || $modality->name == 'Corto Plazo Sector Pasivo SENASIR' || $modality->name == 'Corto Plazo Sector Pasivo Gestora Pública'){
                     $loan_name = ' ';
                 }
-                if($modality->name =='Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){
+                if($modality->name =='Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública'){
                     $loan_name = 'de refinancimiento';
                 }?>
             damos nuestra plena conformidad con todas y cada una de las cláusulas precedentes, obligándonos a su fiel y estricto cumplimiento. En señal de lo cual suscribimos el presente contrato {{$loan_name}} de préstamo de dinero a corto plazo en manifestación de nuestra libre y espontánea voluntad y sin que medie vicio de consentimiento alguno.
@@ -434,7 +434,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
 <div>
     <table>
         <?php
-        if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP'){ ?>
+        if($modality->name == 'Corto Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Corto Plazo sector Pasivo AFP' || $modality->name == 'Corto Plazo Sector Pasivo Gestora Pública'){ ?>
         <tr class="align-top">
             <td width="50%">
             @include('partials.signature_box', [
