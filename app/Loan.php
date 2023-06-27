@@ -637,11 +637,12 @@ class Loan extends Model
                     }
                 }
                 if($affiliate_state_type == "Pasivo"){
-                    if($affiliate->pension_entity->name != 'SENASIR')
-                    {
-                    $modality=ProcedureModality::whereShortened("ANT-AFP")->first(); //  Prestamo a anticipo afp
-                    }else{
-                        $modality=ProcedureModality::whereShortened("ANT-SEN")->first(); // Prestamo a anticipo senasir
+                    if($affiliate->pension_entity->type == 'SENASIR'){
+                        $modality=ProcedureModality::whereShortened("ANT-SEN")->first(); //  Prestamo a anticipo afp
+                    }elseif($affiliate->pension_entity->type == 'AFPS'){
+                        $modality=ProcedureModality::whereShortened("ANT-AFP")->first(); // Prestamo a anticipo senasir
+                    }elseif($affiliate->pension_entity->type == 'GESTORA'){
+                        $modality=ProcedureModality::whereShortened("ANT-GES")->first(); // Prestamo a anticipo senasir
                     }
                 }
             break;
@@ -655,11 +656,12 @@ class Loan extends Model
                     }
                 }
                 if($affiliate_state_type == "Pasivo"){
-                    if($affiliate->pension_entity->name != 'SENASIR')
-                    {
-                    $modality=ProcedureModality::whereShortened("COR-AFP")->first(); //  Prestamo a corto plazo sector pasivo afp caso SISMU
-                    }else{
-                        $modality=ProcedureModality::whereShortened("COR-SEN")->first(); // Prestamo a corto plazo senarir caso SISMU
+                    if($affiliate->pension_entity->type == 'SENASIR'){
+                        $modality=ProcedureModality::whereShortened("COR-SEN")->first(); //  Prestamo a anticipo afp
+                    }elseif($affiliate->pension_entity->type == 'AFPS'){
+                        $modality=ProcedureModality::whereShortened("COR-AFP")->first(); // Prestamo a anticipo senasir
+                    }elseif($affiliate->pension_entity->type == 'GESTORA'){
+                        $modality=ProcedureModality::whereShortened("COR-GES")->first(); // Prestamo a anticipo senasir
                     }
                 }
             break;
@@ -674,12 +676,12 @@ class Loan extends Model
                     }
                 }else{
                     if($affiliate_state_type == "Pasivo"){
-                    
-                        if($affiliate->pension_entity->name != 'SENASIR')
-                        {
-                        $modality=ProcedureModality::whereShortened("REF-COR-AFP")->first();// refi afp pasivo sismu
-                        }else{
-                            $modality=ProcedureModality::whereShortened("REF-COR-SEN")->first();// refi senasir pasivo sismu
+                        if($affiliate->pension_entity->type == 'SENASIR'){
+                            $modality=ProcedureModality::whereShortened("REF-COR-SEN")->first();
+                        }elseif($affiliate->pension_entity->type == 'AFPS'){
+                            $modality=ProcedureModality::whereShortened("REF-COR-AFP")->first();
+                        }elseif($affiliate->pension_entity->type == 'GESTORA'){
+                            $modality=ProcedureModality::whereShortened("REF-COR-GES")->first();
                         }
                     }
                 }
@@ -707,11 +709,12 @@ class Loan extends Model
                 if($affiliate_state_type == "Pasivo")
                 {
                     if((!$cpop_affiliate)){
-                        if($affiliate->pension_entity->name != 'SENASIR')
-                        {
-                            $modality=ProcedureModality::whereShortened("LAR-AFP")->first();// Largo plazo Sector PAsivo
-                        }else{
-                            $modality=ProcedureModality::whereShortened("LAR-SEN")->first();// Largo plazo Sector PAsivo
+                        if($affiliate->pension_entity->type == 'SENASIR'){
+                            $modality=ProcedureModality::whereShortened("LAR-SEN")->first();
+                        }elseif($affiliate->pension_entity->type == 'AFPS'){
+                            $modality=ProcedureModality::whereShortened("LAR-AFP")->first();
+                        }elseif($affiliate->pension_entity->type == 'GESTORA'){
+                            $modality=ProcedureModality::whereShortened("LAR-GES")->first();
                         }
                     }
                 }
@@ -731,11 +734,12 @@ class Loan extends Model
                 else{
                     if($affiliate_state_type == "Pasivo"){
                         if((!$cpop_affiliate)){
-                            if($affiliate->pension_entity->name != 'SENASIR')
-                            {
-                                $modality=ProcedureModality::whereShortened("REF-LAR-AFP")->first();// ref Largo plazo Sector Pasivo
-                            }else{
-                                $modality=ProcedureModality::whereShortened("REF-LAR-SEN")->first();// ref Largo plazo Sector Pasivo
+                            if($affiliate->pension_entity->type == 'SENASIR'){
+                                $modality=ProcedureModality::whereShortened("REF-LAR-SEN")->first();
+                            }elseif($affiliate->pension_entity->type == 'AFPS'){
+                                $modality=ProcedureModality::whereShortened("REF-LAR-AFP")->first();
+                            }elseif($affiliate->pension_entity->type == 'GESTORA'){
+                                $modality=ProcedureModality::whereShortened("REF-LAR-GES")->first();
                             }
                         }
                     }
