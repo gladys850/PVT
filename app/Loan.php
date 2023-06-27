@@ -657,11 +657,11 @@ class Loan extends Model
                 }
                 if($affiliate_state_type == "Pasivo"){
                     if($affiliate->pension_entity->type == 'SENASIR'){
-                        $modality=ProcedureModality::whereShortened("COR-SEN")->first(); //  Prestamo a anticipo afp
+                        $modality=ProcedureModality::whereShortened("COR-SEN")->first();
                     }elseif($affiliate->pension_entity->type == 'AFPS'){
-                        $modality=ProcedureModality::whereShortened("COR-AFP")->first(); // Prestamo a anticipo senasir
+                        $modality=ProcedureModality::whereShortened("COR-AFP")->first();
                     }elseif($affiliate->pension_entity->type == 'GESTORA'){
-                        $modality=ProcedureModality::whereShortened("COR-GES")->first(); // Prestamo a anticipo senasir
+                        $modality=ProcedureModality::whereShortened("COR-GES")->first();
                     }
                 }
             break;
