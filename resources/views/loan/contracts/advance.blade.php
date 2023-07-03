@@ -45,7 +45,7 @@
     </div>
     <div>
     <?php $modality = $loan->modality;
-            if($modality->name == 'Anticipo Sector Pasivo AFP'){ ?>
+            if($modality->name == 'Anticipo Sector Pasivo AFP' || $modality->name == 'Anticipo Sector Pasivo Gestora Pública'){ ?>
         <b>SEXTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oﬁcina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oﬁcina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída. Consecuentemente se procecerá al descuento al garante personal incluido los intereses penales pasado los 30 días de incumplimiento sin necesidad de previo aviso.
         <?php }
         else{
@@ -93,7 +93,7 @@
     </div>
     <div>
         <?php
-            if($modality->name == 'Anticipo Sector Pasivo AFP'){ ?>
+            if($modality->name == 'Anticipo Sector Pasivo AFP' || $modality->name == 'Anticipo Sector Pasivo Gestora Pública'){ ?>
         <b>NOVENA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTE, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber presentes y futuros conforme lo determina el Art. 1335 del Código Civil, ademas el PRESTATARIO, con los beneficios otorgados por la MUSERPOL.
         <br>
         Asimismo, se constituye como garante personal, solidario, mancomunado e indivisible:
@@ -116,7 +116,7 @@
     </div>
     <div>
     <?php
-        if($modality->name == 'Anticipo Sector Pasivo AFP' || $modality->name == 'Anticipo Sector Pasivo SENASIR'){ ?>
+        if($modality->name == 'Anticipo Sector Pasivo AFP' || $modality->name == 'Anticipo Sector Pasivo SENASIR' || $modality->name == 'Anticipo Sector Pasivo Gestora Pública'){ ?>
         <div>
             <b>DÉCIMA.- (CONTINGENCIAS POR FALLECIMIENTO):</b> El PRESTATARIO en caso de fallecimiento acepta amortizar para el cumplimiento efectivo de la presente obligación con el beneficio del Complemento Económico en caso de corresponderle; por cuanto la liquidación de dicho beneficio pasará a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley.
         </div>
@@ -182,7 +182,7 @@
 <div class="block m-t-100">
     <table>
         <?php
-        if($modality->name == 'Anticipo Sector Pasivo AFP'){ ?>
+        if($modality->name == 'Anticipo Sector Pasivo AFP' || $modality->name == 'Anticipo Sector Pasivo Gestora Pública'){ ?>
         <tr class="align-top">
             <td width="50%">
             @include('partials.signature_box', [

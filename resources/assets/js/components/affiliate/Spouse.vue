@@ -114,20 +114,6 @@
                 </ValidationProvider>
               </v-col>
               <v-col cols="12" md="4">
-                <v-select
-                  dense
-                  :items="cities"
-                  item-text="name"
-                  item-value="id"
-                  :loading="loading"
-                  label="Ciudad de Expedición"
-                  v-model="spouse.city_identity_card_id"
-                  :readonly="!editable || !permission.secondary"
-                  :outlined="editable && permission.secondary"
-                  :disabled="(editable && !permission.secondary) || state_id != 4"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" md="4">
                 <ValidationProvider
                   v-slot="{ errors }"
                   vid="identity_card"

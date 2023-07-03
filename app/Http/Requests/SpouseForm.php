@@ -29,7 +29,6 @@ class SpouseForm extends FormRequest
         $rules = [
             'first_name' => 'alpha_spaces|min:3',
             'last_name' => 'sometimes|required_without:mothers_last_name|nullable|alpha_spaces|min:3',
-            'city_identity_card_id' => 'exists:cities,id',
             'affiliate_id' => 'exists:affiliates,id', 
             'identity_card' => 'min:3',
             'civil_status' => 'in:C,D,S,V',

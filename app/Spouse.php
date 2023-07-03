@@ -53,7 +53,11 @@ class Spouse extends Model
 
     public function getIdentityCardExtAttribute()
     {
-        return $this->identity_card . ' ' . $this->city_identity_card->first_shortened;
+        $data = $this->identity_card;
+        if ($this->city_identity_card && $this->city_identity_card != 'NINGUNO'){
+          $data .= ' ' . $this->city_identity_card->first_shortened;
+        }
+        return rtrim($data);
     }
 
     public function getFullNameAttribute()

@@ -14,7 +14,7 @@
     </div>
 </div>
 <?php $modality = $loan->modality;
-if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP'|| $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo')){ ?>
+if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP'|| $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública')){ ?>
 <div class="block text-justify">
     <div>
         Conste en el presente contrato de {{ $title }}, que al solo reconocimiento de firmas y rúbricas será elevado a Instrumento Público, por lo que las partes que intervienen lo suscriben al tenor y contenido de las siguientes cláusulas y condiciones:
@@ -62,7 +62,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
     </div>
     <div>
     <?php $modality = $loan->modality;
-        if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP')){ ?>
+        if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública')){ ?>
         <b>SEPTIMA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oficina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oficina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída y consecuentemente se procedera al descuento del garante personal incluidos los intereses penales pasados los 30 dias de incumplimiento sin necesidad de previo aviso.
         <?php }
         else{
@@ -108,7 +108,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         <b>DECIMA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTE, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme lo determina el artículo 1335 del Código Civil y así como también con su renta de vejez en curso de pago, ademas este acepta amortizar la deuda con su Complemento Económico.
         <br> Asimismo se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
         <?php } else{
-        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP'){ ?>
+        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública'){ ?>
         <b>DECIMA.- (DE LA GARANTÍA):</b>El PRESTATARIO y {{ count($guarantors)>1 ? 'GARANTES':'GARANTE' }}, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme lo determina el artículo 1335 del Código Civil, además el PRESTATARIO, con los beneficios otorgados por la MUSERPOL.
         <br> Asimismo se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
         <?php }
@@ -134,14 +134,14 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo'){ ?>
          {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} {{$is_active? 'en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL':''}} {{ count($guarantors) > 1 ? 'garantizaran' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan el descuento mensual de sus haberes' : 'autoriza el descuento mensual de sus haberes' }} en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }} bajo las mismas condiciones en las que se procedería a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que {{ count($guarantors) > 1 ? 'estos puedan' : 'este pueda' }} iniciar las acciones legales correspondientes en contra del PRESTATARIO.
         <?php }
-        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP'){ ?>
-         {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} {{$is_afp? 'en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL':''}} {{ count($guarantors) > 1 ? 'garantizaran' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan el descuento mensual de sus haberes' : 'autoriza el descuento mensual de sus haberes' }} en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }}, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que {{ count($guarantors) > 1 ? 'estos puedan' : 'este pueda' }} iniciar las acciones legales correspondientes en contra del PRESTATARIO.
+        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública'){ ?>
+         {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} {{$is_afp || $is_gestora? 'en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL':''}} {{ count($guarantors) > 1 ? 'garantizaran' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan el descuento mensual de sus haberes' : 'autoriza el descuento mensual de sus haberes' }} en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }}, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que {{ count($guarantors) > 1 ? 'estos puedan' : 'este pueda' }} iniciar las acciones legales correspondientes en contra del PRESTATARIO.
         <?php }?>
         <?php } ?>
     </div>
     <div>
     <?php
-        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP'||$modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'){ ?>
+        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública'){ ?>
         <div>
             <b>DÉCIMA PRIMERA.- (CONTINGENCIAS POR FALLECIMIENTO):</b>El PRESTATARIO en caso de fallecimiento acepta amortizar para el cumplimiento efectivo de la presente obligación con el beneﬁcio del Complemento Económico{{$is_senasir ? ' en caso de corresponderle':''}}; por cuanto la liquidación de dicho beneﬁcio pasará a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley.
         </div>
@@ -303,7 +303,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
     </div>
     <div>
     <?php $modality = $loan->modality;
-        if(($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP')){ ?>
+        if(($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP' || $modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública')){ ?>
         <b>SEXTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oﬁcina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oﬁcina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída y consecuentemente se procederá al descuento al garante personal incluido los intereses penales pasados los 30 días de incumplimiento sin necesidad de previo aviso.
         <?php }
         else{
@@ -362,7 +362,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         </div>
         Se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
         <?php } else{
-            if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP'){ ?>
+            if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP' || $modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública'){ ?>
             <b>NOVENA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTES, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme lo determina el artículo 1335 del Código Civil, además el PRESTATARIO con los beneficios otorgados por la MUSERPOL
             <br>Asimismo se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
             <?php }
@@ -392,14 +392,14 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo' || $modality->name == 'Largo Plazo con un Solo Garante Sector Activo' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad'){ ?>
          {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL {{ count($guarantors) > 1 ? 'garantizan' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan el descuento mensual de sus haberes' : 'autoriza el descuento mensual de sus haberes' }} en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }} bajo las mismas condiciones en las que se procedería a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que {{ count($guarantors) > 1 ? 'estos puedan' : 'este pueda' }} iniciar las acciones legales correspondientes en contra del PRESTATARIO.
         <?php }
-         if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP'){ ?>
+         if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP' || $modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública'){ ?>
             {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL {{ count($guarantors) > 1 ? 'garantizaran' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan el descuento mensual de sus haberes' : 'autoriza el descuento mensual de sus haberes' }} en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }}, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que estos puedan iniciar las acciones legales correspondientes en contra del PRESTATARIO.
            <?php }?>
         <?php } ?>
     </div>
     <div>
     <?php
-        if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP'||$modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo SENASIR'){ ?>
+        if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP' || $modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo SENASIR' || $modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública'){ ?>
         <div>
             <b>DECIMA.- (CONTINGENCIAS POR FALLECIMIENTO):</b> El PRESTATARIO en caso de fallecimiento acepta amortizar para el cumplimiento efectivo de la presente obligación con el beneﬁcio del Complemento Económico<?php if($modality->name != 'Largo Plazo con Garantía Personal Sector Pasivo AFP'){ ?> en caso de corresponderle<?php } ?>; por cuanto la liquidación de dicho beneﬁcio pasará a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, cobrados a los derechohabientes, previas las formalidades de ley.
         </div>

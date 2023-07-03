@@ -1464,6 +1464,10 @@ class AffiliateController extends Controller
         foreach (ProcedureModality::where('name', 'like', '%AFP')->get() as $procedure) {
             array_push($id_afp, $procedure->id);
         }
+        $id_gestora = array();
+        foreach (ProcedureModality::where('name', 'like', '%Gestora%')->get() as $procedure) {
+            array_push($id_gestora, $procedure->id);
+        }
         $id_com_disp = array();
         foreach (ProcedureModality::where('name', 'like', '%Comisión')->orWhere('name', 'like', '%Disponibilidad')->get() as $procedure) {
             array_push($id_com_disp, $procedure->id);
@@ -1502,7 +1506,7 @@ class AffiliateController extends Controller
                         if($affiliate->pension_entity != null)
                         {
                             if(strpos($affiliate->pension_entity->name, "AFP") === 0)
-                                $message = "Afiliado AFP no puede garantizar prestamos";
+                                $message = "Afiliado AFP o gestora no puede garantizar prestamos";
                             else
                                 $guarantor = true;
                         }
@@ -1532,10 +1536,10 @@ class AffiliateController extends Controller
                     else
                     {
                         //if($affiliate->affiliate_state->affiliate_state_type->name != "Activo")
-                        if($affiliate->pension_entity->type == 'SENASIR')
+                        if($affiliate->pension_entity->name == 'SENASIR')
                             $guarantor = true;
                         else
-                            $message = "Afiliado AFP no puede garantizar a un AFP";
+                            $message = "Afiliado AFP o gestora no puede garantizar a un AFP";
 
                     }
                     if($affiliate->category == null)
@@ -1543,6 +1547,34 @@ class AffiliateController extends Controller
                     else
                         $affiliate->category_name = $affiliate->category->name;
                     break;
+                // Caso gestora
+                case (in_array($request->procedure_modality_id, $id_gestora)):
+                    if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
+                    {
+                        if($affiliate->category == null)
+                            $message = "El afiliado no tiene registrado su categoria";
+                        else
+                        {
+                            if(LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->where('loan_procedure_id',LoanProcedure::where('is_enable', true)->first()->id)->first()->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= LoanModalityParameter::where('procedure_modality_id',$request->procedure_modality_id)->where('loan_procedure_id',LoanProcedure::where('is_enable', true)->first()->id)->first()->max_guarantor_category)
+                                $guarantor = true;
+                            else
+                                $message = "El afiliado no se encuentra en la categoria necesaria";
+                        }
+                    }
+                    else
+                    {
+                        if($affiliate->pension_entity->name == 'SENASIR')
+                            $guarantor = true;
+                        else
+                            $message = "Afiliado AFP o GESTORA no puede garantizar en esta modalidad";
+
+                    }
+                    if($affiliate->category == null)
+                        $affiliate->category_name = null;
+                    else
+                        $affiliate->category_name = $affiliate->category->name;
+                    break;
+                //
                 case (in_array($request->procedure_modality_id, $id_com_disp)):
                     if($affiliate->affiliate_state->affiliate_state_type->name == "Activo" && $affiliate->affiliate_state->name == "Servicio")
                     {
@@ -1618,8 +1650,6 @@ class AffiliateController extends Controller
             array_push($data, $loans_pvt);
         }
         $affiliate->active_loans = count($affiliate->active_loans())+count($affiliate->active_loans_sismu());
-        if($affiliate->city_identity_card == null)
-            $information = $information."ciudad de expedicion del carnet de identidad,";
         if($affiliate->affiliate_state == null)
             $information = $information." estado del afiliado,";
         if($affiliate->city_birth == null)
