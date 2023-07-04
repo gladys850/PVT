@@ -26,7 +26,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         @php ($lender = $lenders[0])
         @php ($male_female = Util::male_female($lender->gender))
         <span>
-            {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card_ext }}, {{ $lender->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female }} PRESTATARIO.
+            {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card }}, {{ $lender->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female }} PRESTATARIO.
         </span>
         @endif
     </div>
@@ -124,7 +124,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
 
             ?>
             <span>
-            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card_ext }}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}{{ count($guarantors) > 1 ? $concat_guarantor : '' }},
+            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card }}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}{{ count($guarantors) > 1 ? $concat_guarantor : '' }},
             </span>
         <?php } ?>
         <?php $modality = $loan->modality;
@@ -195,11 +195,12 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
             damos nuestra plena conformidad con todas y cada una de las cláusulas precedentes, obligándonos a su fiel y estricto cumplimiento. En señal de lo cual suscribimos el presente contrato de refinancimiento de préstamo de dinero con garantia personal en manifestación de nuestra libre y espontánea voluntad y sin que medie vicio de consentimiento alguno.
         </span>
         @endif
-    </div><br><br>
+    </div>
     <div class="text-center">
         <p class="center">
         La Paz, {{ Carbon::now()->isoFormat('LL') }}
         </p>
+        <br>
     </div>
 </div>
 <div>
@@ -211,14 +212,14 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
                 <td  with = "50%">
                 @include('partials.signature_box', [
                     'full_name' => $lender->full_name,
-                    'identity_card' => $lender->identity_card_ext,
+                    'identity_card' => $lender->identity_card,
                     'position' => 'PRESTATARIO'
                 ])
                 </td>
                 <td  with = "50%">
                 @include('partials.signature_box', [
                     'full_name' => $guarantor->full_name,
-                    'identity_card' => $guarantor->identity_card_ext,
+                    'identity_card' => $guarantor->identity_card,
                     'position' => 'GARANTE'
                 ])
                 </td>
@@ -230,7 +231,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
     <div>
         @include('partials.signature_box', [
             'full_name' => $lender->full_name,
-            'identity_card' => $lender->identity_card_ext,
+            'identity_card' => $lender->identity_card,
             'position' => 'PRESTATARIO'
         ])
     </div>
@@ -242,7 +243,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
                     <td with = "50%">
                         @include('partials.signature_box', [
                             'full_name' => $guarantor->full_name,
-                            'identity_card' => $guarantor->identity_card_ext,
+                            'identity_card' => $guarantor->identity_card,
                             'position' => 'GARANTE'
                         ])
                     @endforeach
@@ -282,7 +283,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         @php ($lender = $lenders[0])
         @php ($male_female = Util::male_female($lender->gender))
         <span>
-            {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card_ext }}, {{ $lender->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female }} PRESTATARIO.
+            {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card }}, {{ $lender->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female }} PRESTATARIO.
         </span>
         @endif
     </div>
@@ -382,7 +383,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
             $cont ++; $concat_guarantor = "(garante Nº ".$cont.")";
             ?>
             <span>
-            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card_ext }}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}{{ count($guarantors) > 1 ? $concat_guarantor : '' }},
+            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card }}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}{{ count($guarantors) > 1 ? $concat_guarantor : '' }},
             </span>
         <?php } ?>
         <?php $modality = $loan->modality;
@@ -457,11 +458,12 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
             damos nuestra plena conformidad con todas y cada una de las cláusulas precedentes, obligándonos a su fiel y estricto cumplimiento. En señal de lo cual suscribimos el presente contrato de préstamo de dinero con garantía personal en manifestación de nuestra libre y espontánea voluntad y sin que medie vicio de consentimiento alguno.
         </span>
         @endif
-    </div><br><br>
-    <div class="text-center">
+    </div>
+    <div class="text-center m-b-55">
         <p class="center">
         La Paz, {{ Carbon::now()->isoFormat('LL') }}
         </p>
+        <br>
     </div>
 </div>
 <div>
@@ -473,14 +475,14 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
                 <td  with = "50%">
                 @include('partials.signature_box', [
                     'full_name' => $lender->full_name,
-                    'identity_card' => $lender->identity_card_ext,
+                    'identity_card' => $lender->identity_card,
                     'position' => 'PRESTATARIO'
                 ])
                 </td>
                 <td  with = "50%">
                 @include('partials.signature_box', [
                     'full_name' => $guarantor->full_name,
-                    'identity_card' => $guarantor->identity_card_ext,
+                    'identity_card' => $guarantor->identity_card,
                     'position' => 'GARANTE'
                 ])
                 </td>
@@ -492,7 +494,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
     <div>
         @include('partials.signature_box', [
             'full_name' => $lender->full_name,
-            'identity_card' => $lender->identity_card_ext,
+            'identity_card' => $lender->identity_card,
             'position' => 'PRESTATARIO'
         ])
     </div>
@@ -504,7 +506,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
                     <td with = "50%">
                         @include('partials.signature_box', [
                             'full_name' => $guarantor->full_name,
-                            'identity_card' => $guarantor->identity_card_ext,
+                            'identity_card' => $guarantor->identity_card,
                             'position' => 'GARANTE'
                         ])
                     @endforeach
@@ -514,7 +516,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         </div>
     </div>
     @endif
-    <div class="m-t-75">
+    <div class="m-t-50">
         <table>
             <tr>
                 @foreach ($employees as $key => $employee)

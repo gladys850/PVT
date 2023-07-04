@@ -34,7 +34,7 @@
 </head>
 
 <body onload="substitutePdfVariables()" style="border:0;" class="text-xs">
-    <div class="parent" style="padding-top: {{ isset($footer_margin) ? $footer_margin : 0 }}; border:0;">
+    <div class="parent" style="padding-top: {{ isset($footer_margin) ? $footer_margin : 0 }}; border:0; margin-top: 0;">
         <div class="child" align="left" style="border:0;">
         @if (env("APP_ENV") != "production")
         @if (isset($object))
@@ -79,7 +79,7 @@
         @if (isset($informationqr))
             @if ($informationqr)
             <div class="title m-b-md">
-            {!!QrCode::size(50)->generate($informationqr) !!}
+            {!!QrCode::size(40)->generate($informationqr) !!}
             </div>
             @endif
         @endif
