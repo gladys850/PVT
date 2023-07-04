@@ -457,11 +457,12 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
             damos nuestra plena conformidad con todas y cada una de las cláusulas precedentes, obligándonos a su fiel y estricto cumplimiento. En señal de lo cual suscribimos el presente contrato de préstamo de dinero con garantía personal en manifestación de nuestra libre y espontánea voluntad y sin que medie vicio de consentimiento alguno.
         </span>
         @endif
-    </div><br><br>
-    <div class="text-center">
+    </div>
+    <div class="text-center m-b-55">
         <p class="center">
         La Paz, {{ Carbon::now()->isoFormat('LL') }}
         </p>
+        <br>
     </div>
 </div>
 <div>
@@ -514,7 +515,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         </div>
     </div>
     @endif
-    <div class="m-t-75">
+    <div class="m-t-50">
         <table>
             <tr>
                 @foreach ($employees as $key => $employee)
