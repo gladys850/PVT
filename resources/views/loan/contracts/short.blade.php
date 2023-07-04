@@ -30,7 +30,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
         @php ($lender = $lenders[0])
         @php ($male_female = Util::male_female($lender->gender))
         <span>
-            {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card_ext }}, {{ $lender->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female }} PRESTATARIO.
+            {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card }}, {{ $lender->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female }} PRESTATARIO.
         </span>
         @endif
     </div>
@@ -116,7 +116,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             @php ($guarantor = $guarantors[0])
             @php ($male_female_guarantor = Util::male_female($guarantor->gender))
             <span>
-            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card_ext}}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}, quien en amparo del artículo 16 del Reglamento de Prestamos de la MUSERPOL garantiza el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, autoriza el descuento mensual de sus haberes en su calidad de GARANTE bajo las mismas condiciones en las que se procederia a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que éstos puedan iniciar las acciones legales correspondientes en contra del PRESTATARIO.
+            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card}}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}, quien en amparo del artículo 16 del Reglamento de Prestamos de la MUSERPOL garantiza el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, autoriza el descuento mensual de sus haberes en su calidad de GARANTE bajo las mismas condiciones en las que se procederia a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que éstos puedan iniciar las acciones legales correspondientes en contra del PRESTATARIO.
             </span>
             @endif
         <?php }
@@ -216,14 +216,14 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             <td width="50%">
             @include('partials.signature_box', [
             'full_name' => $lender->full_name,
-            'identity_card' => $lender->identity_card_ext,
+            'identity_card' => $lender->identity_card,
             'position' => 'PRESTATARIO'
             ])
             </td>
             <td width="50%">
             @include('partials.signature_box', [
             'full_name' => $guarantor->full_name,
-            'identity_card' => $guarantor->identity_card_ext,
+            'identity_card' => $guarantor->identity_card,
             'position' => 'GARANTE'
             ])
             </td>
@@ -233,7 +233,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
         <div>
         @include('partials.signature_box', [
             'full_name' => $lender->full_name,
-            'identity_card' => $lender->identity_card_ext,
+            'identity_card' => $lender->identity_card,
             'position' => 'PRESTATARIO'
         ])
         </div>
@@ -268,7 +268,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
         @php ($lender = $lenders[0])
         @php ($male_female = Util::male_female($lender->gender))
         <span>
-            {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card_ext }}, {{ $lender->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female }} PRESTATARIO.
+            {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card }}, {{ $lender->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female }} PRESTATARIO.
         </span>
         @endif
     </div>
@@ -341,7 +341,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             @php ($guarantor = $guarantors[0])
             @php ($male_female_guarantor = Util::male_female($guarantor->gender))
             <span>
-            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card_ext }}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}, quien en amparo del articulo 16 del Reglamento de Prestamos de la MUSERPOL garantiza el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, autoriza el descuento mensual de sus haberes en su calidad de GARANTE, bajo las mismas condiciones en las que procederia a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que este pueda iniciar las acciones legales correspondientes en contra del PRESTATARIO.</div>
+            {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card }}, {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, vecin{{ $male_female_guarantor }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}, quien en amparo del articulo 16 del Reglamento de Prestamos de la MUSERPOL garantiza el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, autoriza el descuento mensual de sus haberes en su calidad de GARANTE, bajo las mismas condiciones en las que procederia a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que este pueda iniciar las acciones legales correspondientes en contra del PRESTATARIO.</div>
             </span>
             @endif
         <?php }
@@ -439,14 +439,14 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
             <td width="50%">
             @include('partials.signature_box', [
             'full_name' => $lender->full_name,
-            'identity_card' => $lender->identity_card_ext,
+            'identity_card' => $lender->identity_card,
             'position' => 'PRESTATARIO'
             ])
             </td>
             <td width="50%">
             @include('partials.signature_box', [
             'full_name' => $guarantor->full_name,
-            'identity_card' => $guarantor->identity_card_ext,
+            'identity_card' => $guarantor->identity_card,
             'position' => 'GARANTE'
             ])
             </td>
@@ -456,7 +456,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Corto Plazo Sector Activ
         <div>
         @include('partials.signature_box', [
             'full_name' => $lender->full_name,
-            'identity_card' => $lender->identity_card_ext,
+            'identity_card' => $lender->identity_card,
             'position' => 'PRESTATARIO'
         ])
         </div>
