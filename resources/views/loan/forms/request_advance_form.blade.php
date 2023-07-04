@@ -67,7 +67,7 @@
             </tr>
             <tr> 
                 <td class="data-row py-5">{{ $disbursable->title ? $disbursable->title : '' }} {{ $disbursable->full_name }}</td>
-                <td class="data-row py-5">{{ $disbursable->identity_card_ext }}</td>
+                <td class="data-row py-5">{{ $disbursable->identity_card }}</td>
                 <td class="data-row py-5">{{ $disbursable->affiliate_state ? $disbursable->affiliate_state->affiliate_state_type->name : $disbursable->affiliate->affiliate_state->affiliate_state_type->name }}</td>
             </tr>
             <tr class="bg-grey-darker text-white">

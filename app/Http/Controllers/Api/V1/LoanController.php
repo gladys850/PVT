@@ -1183,7 +1183,7 @@ class LoanController extends Controller
             $persons->push([
                 'id' => $lender->id,
                 'full_name' => implode(' ', [$lender->title && $lender->type=="affiliates" ? $lender->title : '', $lender->full_name]),
-                'identity_card' => $lender->identity_card_ext,
+                'identity_card' => $lender->identity_card,
                 'position' => 'SOLICITANTE',
             ]);
             $lender->loans_balance = $loans;
@@ -1195,7 +1195,7 @@ class LoanController extends Controller
             $persons->push([
                 'id' => $guarantor_loan->id,
                 'full_name' => implode('', [$guarantor_loan->title && $guarantor_loan->type=="affiliates" ? $guarantor_loan->title :'', $guarantor_loan->full_name]),
-                'identity_card' => $guarantor_loan->identity_card_ext,
+                'identity_card' => $guarantor_loan->identity_card,
                 'position' => 'GARANTE'
             ]);
         }
@@ -1244,7 +1244,7 @@ class LoanController extends Controller
             $persons->push([
                 'id' => $lender->id,
                 'full_name' => implode(' ', [$lender->title ? $lender->title : '', $lender->full_name]),
-                'identity_card' => $lender->identity_card_ext,
+                'identity_card' => $lender->identity_card,
                 'position' => 'SOLICITANTE',
             ]);
         }

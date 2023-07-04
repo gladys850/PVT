@@ -81,7 +81,7 @@
             </tr>
             <tr> 
                 <td class="data-row py-5">{{ $lender->title && $lender->type=="affiliates" ? $lender->title() : '' }} {{ $lender->full_name }}</td>
-                <td class="data-row py-5">{{ $lender->identity_card_ext }}</td>
+                <td class="data-row py-5">{{ $lender->identity_card }}</td>
                 <td class="data-row py-5">{{ $lender->affiliate_state ? $lender->affiliate_state->affiliate_state_type->name : $lender->affiliate->affiliate_state->affiliate_state_type->name }}</td>     
             </tr>
             <tr class="bg-grey-darker text-white">
@@ -161,7 +161,7 @@
             </tr>
             <tr>
                 <td class="data-row py-5">{{ $guarantor->title && $guarantor->type=="affiliates" ? $guarantor->title : '' }} {{ $guarantor->full_name }}</td>
-                <td class="data-row py-5">{{ $guarantor->identity_card_ext }}</td>
+                <td class="data-row py-5">{{ $guarantor->identity_card }}</td>
                 <td class="data-row py-5">{{$guarantor->affiliate_state ? $guarantor->affiliate_state->affiliate_state_type->name : 'Pasivo'}}</td>
             </tr>
             <tr class="bg-grey-darker text-white">
