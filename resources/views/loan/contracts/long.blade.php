@@ -4,6 +4,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>{{$file_title}}</title>
     <link rel="stylesheet" href="{{ public_path("/css/report-print.min.css") }}" media="all"/>
+    <style>
+        body {
+            font-size: 11.6pt;
+        }
+    </style>
 </head>
 @include('partials.header', $header)
 <body>
@@ -235,6 +240,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
             'position' => 'PRESTATARIO'
         ])
     </div>
+    <br>
     <div class = "no-page-break">
         <div>
             <table>
