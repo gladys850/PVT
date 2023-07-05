@@ -11,7 +11,7 @@
     </style>
 </head>
 @include('partials.header', $header)
-<body font>
+<body>
 <div class="block">
     <div class="font-semibold leading-tight text-center m-b-10 text-base">
         {{$is_refinancing?'CONTRATO DE':'CONTRATO DE PRÉSTAMO'}} <font style="text-transform: uppercase;">{{ $title }}</font>
