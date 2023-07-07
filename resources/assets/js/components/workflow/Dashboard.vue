@@ -99,7 +99,7 @@
         </v-row>
       </v-col>
     </v-row>
-    <v-row>
+    <!-- <v-row>
       <v-col>
       <v-alert v-if="loan.state.name == 'Vigente' && loan.default_alert_state"
         dense
@@ -111,7 +111,7 @@
       <span class="red--text">El préstamo se encuentran en situación de mora.</span>
       </v-alert>
       </v-col>
-    </v-row>
+    </v-row> -->
   </v-container>
 </template>
 
