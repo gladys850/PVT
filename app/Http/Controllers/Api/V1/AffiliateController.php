@@ -238,6 +238,7 @@ class AffiliateController extends Controller
     */
     public function update(AffiliateForm $request, Affiliate $affiliate)
     {   
+        $sigep_old = $affiliate->sigep_status;
         try{
             DB::beginTransaction();
             if (!Auth::user()->can('update-affiliate-primary')) {
@@ -247,11 +248,6 @@ class AffiliateController extends Controller
             }
             $affiliate->fill($update);
             $affiliate->save();
-            if($request->has('financial_entity_id')&& $request->financial_entity_id != null || $request->has('account_number') && $request->account_number!= null){
-                $affiliate->update([
-                    'sigep_status' => 'ACTIVO'
-                ]);
-            }
             // verificacion si se encuentra con el rol prestamos
             $id_prestamos = Module::where('name', 'prestamos')->first()->id;
             if(in_array($id_prestamos, Auth::user()->modules, true))
@@ -320,8 +316,8 @@ class AffiliateController extends Controller
             }
             DB::commit();
             return  $affiliate;
-
-            
+            $affiliate->sigep_status = $sigep_old;
+            $affiliate->update();            
         }catch(Exception $e){
             DB::rollback();
             return response()->json(['error' => $e->getMessage()], 500);
