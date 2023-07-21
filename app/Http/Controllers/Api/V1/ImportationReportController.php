@@ -189,10 +189,10 @@ class ImportationReportController extends Controller
         $senasir_ancient=array(
             array("CI Afiliado", "Matricula Afiliado", "Nombre Completo Afiliado", "***",
                 "Nro Préstamo", "Fecha de desembolso", "Ciudad", "tipo", "Matricula Titular",
-                "Matricula Prestatario", "CI", "Extensión", "Paterno", "Materno","Ap de Casada",
+                "Matricula Prestatario", "CI", "Paterno", "Materno","Ap de Casada",
                 "Primer Nombre", "Segundo Nombre", "Saldo Actual", "Cuota Fija Mensual", "Descuento Programado",
                 "Interés","Amort. TIT o GAR?", "CI GAR", "Matricula GAR", "Nombre Completo Garante", "***",
-                "GAR Estado","GAR Tipo de estado","Matricula garante","GAR CI", "GAR Exp","GAR Primer Nombre","GAR Segundo Nombre",
+                "GAR Estado","GAR Tipo de estado","Matricula garante","GAR CI", "GAR Primer Nombre","GAR Segundo Nombre",
                 "GAR 1er Apellido","GAR 2do Apellido","GAR Apellido de Casada","GAR Cuota fija","GAR descuento"));
 
         foreach ($loans_request as $loan) {
@@ -211,7 +211,6 @@ class ImportationReportController extends Controller
                     $loan->affiliate->registration,
                     $loan->borrower->first()->type == 'affiliates' ? $loan->affiliate->registration : $loan->affiliate->spouse->registration,
                     $loan->borrower->first()->type == 'affiliates' ? $loan->affiliate->identity_card : $loan->affiliate->spouse->identity_card,
-                    $loan->borrower->first()->type == 'affiliates' ? $loan->affiliate->city_identity_card->first_shortened : $loan->affiliate->spouse->city_identity_card->first_shortened,
                     $loan->borrower->first()->type == 'affiliates' ? $loan->affiliate->last_name : $loan->affiliate->spouse->last_name,
                     $loan->borrower->first()->type == 'affiliates' ? $loan->affiliate->mothers_last_name : $loan->affiliate->spouse->mothers_last_name,
                     $loan->borrower->first()->type == 'affiliates' ? $loan->affiliate->surname_husband : $loan->affiliate->spouse->surname_husband,
@@ -231,7 +230,6 @@ class ImportationReportController extends Controller
                     $loan->guarantor_amortizing ? $loan->borrowerGuarantors->first()->affiliate->affiliate_state->name : '',
                     $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->first()->type == 'affiliates' ? $loan->borrowerGuarantors->first()->affiliate->registration : $loan->borrowerGuarantors->first()->affiliate->spouse->registration) : '',
                     $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->first()->type == 'affiliates' ? $loan->borrowerGuarantors->first()->affiliate->identity_card : $loan->borrowerGuarantors->first()->affiliate->spouse->identity_card) : '',
-                    $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->first()->type == 'affiliates' ? $loan->borrowerGuarantors->first()->affiliate->city_identity_card->first_shortened : $loan->borrowerGuarantors->first()->affiliate->spouse->city_identity_card->first_shortened) : '',
                     $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->first()->type == 'affiliates' ? $loan->borrowerGuarantors->first()->affiliate->first_name : $loan->borrowerGuarantors->first()->affiliate->spouse->first_name) : '',
                     $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->first()->type == 'affiliates' ? $loan->borrowerGuarantors->first()->affiliate->second_name : $loan->borrowerGuarantors->first()->affiliate->spouse->second_name) : '',
                     $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->first()->type == 'affiliates' ? $loan->borrowerGuarantors->first()->affiliate->last_name : $loan->borrowerGuarantors->first()->affiliate->spouse->last_name) : '',
@@ -284,11 +282,11 @@ class ImportationReportController extends Controller
          $current_loans = DB::select($current_loans);
          $data = array(
             array("Nro Préstamo", "Fecha de desembolso", "Ciudad", "tipo", "Matricula Titular",
-            "CI", "Extensión", "Paterno", "Materno","Ap de Casada", "Primer Nombre", "Segundo Nombre",
+            "CI", "Paterno", "Materno","Ap de Casada", "Primer Nombre", "Segundo Nombre",
             "Saldo Actual", "Cuota Fija Mensual", "Descuento Programado", "Interés","Amort. TIT o GAR?",
-            "GAR Estado","GAR Tipo de estado","Matricula garante","GAR CI", "GAR Exp","GAR Primer Nombre","GAR Segundo Nombre",
+            "GAR Estado","GAR Tipo de estado","Matricula garante","GAR CI","GAR Primer Nombre","GAR Segundo Nombre",
             "GAR 1er Apellido","GAR 2do Apellido","GAR Apellido de Casada","GAR Cuota fija","GAR descuento",
-            "GAR2 Estado","GAR2 Tipo de estado","Matricula garante","GAR2 CI", "GAR2 Exp","GAR2 Primer Nombre","GAR2 Segundo Nombre",
+            "GAR2 Estado","GAR2 Tipo de estado","Matricula garante","GAR2 CI", "GAR2 Primer Nombre","GAR2 Segundo Nombre",
             "GAR2 1er Apellido","GAR2 2do Apellido","GAR2 Apellido de Casada","GAR2 Cuota fija","GAR2 descuento")
         );
         foreach ($current_loans as $loan) {
@@ -301,7 +299,6 @@ class ImportationReportController extends Controller
                 $lender->affiliate_state->name,
                 $lender->registration,
                 $lender->identity_card,
-                $lender->city_identity_card->first_shortened,
                 $lender->last_name,
                 $lender->mothers_last_name,
                 $lender->surname_husband,
@@ -316,7 +313,6 @@ class ImportationReportController extends Controller
                 $loan->guarantor_amortizing ? $loan->borrowerGuarantors->first()->affiliate_state->affiliate_state_type->name : '',
                 $loan->guarantor_amortizing ? $loan->borrowerGuarantors->first()->registration : '',
                 $loan->guarantor_amortizing ? $loan->borrowerGuarantors->first()->identity_card : '',
-                $loan->guarantor_amortizing ? $loan->borrowerGuarantors->first()->city_identity_card->first_shortened : '',
                 $loan->guarantor_amortizing ? $loan->borrowerGuarantors->first()->first_name : '',
                 $loan->guarantor_amortizing ? $loan->borrowerGuarantors->first()->second_name : '',
                 $loan->guarantor_amortizing ? $loan->borrowerGuarantors->first()->last_name : '',
@@ -328,7 +324,6 @@ class ImportationReportController extends Controller
                 $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->count() > 1 ? $loan->borrowerGuarantors->last()->affiliate_state->name : '') : '',
                 $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->count() > 1 ? $loan->borrowerGuarantors->last()->registration : '') : '',
                 $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->count() > 1 ? $loan->borrowerGuarantors->last()->identity_card : '') : '',
-                $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->count() > 1 ? $loan->borrowerGuarantors->last()->city_identity_card->first_shortened : '') : '',
                 $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->count() > 1 ? $loan->borrowerGuarantors->last()->first_name : '') : '',
                 $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->count() > 1 ? $loan->borrowerGuarantors->last()->second_name : '') : '',
                 $loan->guarantor_amortizing ? ($loan->borrowerGuarantors->count() > 1 ? $loan->borrowerGuarantors->last()->last_name : '') : '',
