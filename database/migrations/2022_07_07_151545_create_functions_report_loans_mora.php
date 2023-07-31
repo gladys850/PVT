@@ -204,7 +204,8 @@ class CreateFunctionsReportLoansMora extends Migration
                                 where lp.loan_id = id_loan 
                                     and lp.estimated_date <= date_eval 
                                     and lp.state_id = 4 /* NAME: 'Pagado', ID: 4 */
-                                    and lp.deleted_at is null) loop
+                                    and lp.deleted_at is null)
+                                    order by quota_number loop
                         
                         select lpp.total_amount into ttl_amount
                         from loan_plan_payments lpp
