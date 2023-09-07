@@ -21,7 +21,7 @@
                     <strong><b style="color:white">PRESTATARIO: </b></strong>
                     {{ $options.filters.fullName(loan.borrower[0], true) }} <br>
 
-                    <b style="color:white">C.I: </b>{{loan.borrower[0].identity_card +' '+loan.borrower[0].city_identity_card.first_shortened}}</h6>
+                    <b style="color:white">C.I: </b>{{loan.borrower[0].identity_card}}</h6>
                     <h6 v-show="loan.borrower[0].type=='spouses'" v-if="loan.borrower.length == 1">
 
                     <v-icon large left style="font-size: 25px;">
@@ -37,14 +37,14 @@
                         mdi-shield-account
                         </v-icon>
                       <strong><b style="color:white">PRESTATARIO:</b></strong> {{ $options.filters.fullName(loan.borrower[0], true) }}
-                      <b style="color:white">C.I: </b> {{ loan.borrower[0].identity_card +' '+loan.borrower[0].city_identity_card.first_shortened }}</h6>
+                      <b style="color:white">C.I: </b> {{ loan.borrower[0].identity_card}}</h6>
                     </div>
 
                     <div   v-for="(lenders,i) in loan.borrower" :key="i" v-show="loan.borrower.length > 1">
-                      <h6 v-if="i > 0"><v-icon large left style="font-size: 25px;">
+                      <h6 v-if="i > 0"><v-icon large left style="font-size: 25px;"> +' '+loan.borrower[0].city_identity_card.first_shortened
                       mdi-account-check-outline
                       </v-icon><strong><b style="color:white"  v-if="loan.borrower.length > 1 ">CODEUDOR: </b>{{  $options.filters.fullName( loan.borrower[i],true)}}</strong>
-                      <b style="color:white">C.I: </b>{{ loan.borrower[i].identity_card +' '+ loan.borrower[i].city_identity_card.first_shortened}} </h6>
+                      <b style="color:white">C.I: </b>{{ loan.borrower[i].identity_card}} </h6>
                     </div>
                   </v-col>
 

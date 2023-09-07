@@ -1391,7 +1391,7 @@ class Loan extends Model
     public function regular_payments_date($date)
     {
         $date = Carbon::parse($date)->endOfDay();
-        $loan_payments = LoanPayment::where('loan_id',$this->id)->where('estimated_date','<=',$date)->where('state_id', LoanPaymentState::whereName('Pagado')->first()->id)->get();
+        $loan_payments = LoanPayment::where('loan_id',$this->id)->where('estimated_date','<=',$date)->where('state_id', LoanPaymentState::whereName('Pagado')->first()->id)->orderBy('quota_number','asc')->get();
         $quota_number = 1;
         $sw = true;
         foreach($loan_payments as $payments){

@@ -623,6 +623,7 @@ class LoanPaymentController extends Controller
                 $payment = LoanPayment::find($option->id);
                 $payment->state_id = LoanPaymentState::whereName('Anulado')->first()->id;
                 $payment->update();
+                $payment->delete();
             });
         }
     }
