@@ -16,6 +16,8 @@ Route::group([
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
+    //ruta para saber si un afiliado cuenta con prestamos que hayan sido pagados por sus garantes
+    Route::get('loans_paid_by_guarantors/{affiliate}', 'Api\V1\AffiliateController@loans_paid_by_guarantors');
     // Autenticado con token
     Route::group([
         'middleware' => 'auth'
