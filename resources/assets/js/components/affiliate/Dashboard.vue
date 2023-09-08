@@ -127,7 +127,14 @@
               <ul style="list-style: none;" class="pa-0">
                 <li v-for="item in loan" :key="item.id" class="pb-2">
                   <div>
-
+                  <v-alert v-if="item.paid_by_guarantors"
+                    dense
+                    border="left"
+                    type="warning"
+                    class="ma-0"
+                  >
+                    El préstamo tiene pagos realizados por garante(s)
+                  </v-alert>                    
                     <strong>Cód.:</strong>
                     {{ item.code }} |
                     <strong>Desembolso:</strong>
