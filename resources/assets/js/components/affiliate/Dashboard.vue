@@ -125,16 +125,37 @@
             <div>
               <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS REGISTRADOS</h1>
               <ul style="list-style: none;" class="pa-0">
-                <li v-for="item in loan" :key="item.id" class="pb-2">
+                <li v-for="(item,i) in loan" :key="i" class="pb-3">
                   <div>
-                  <v-alert v-if="item.paid_by_guarantors"
+                  <!-- <v-alert v-if="item.paid_by_guarantors"
                     dense
                     border="left"
                     type="warning"
                     class="ma-0"
                   >
-                    El préstamo tiene pagos realizados por garante(s)
-                  </v-alert>                    
+                    El préstamo <strong>{{ item.code }}</strong> tiene pagos realizados por garante(s)
+                  </v-alert>   -->
+                  <v-alert
+                    dense
+                    v-model="alert2"
+                    border="left"
+                    type="warning"
+                    class="ma-0"
+                    color="warning"
+                     v-if="item.paid_by_guarantors"
+                  >
+                   El préstamo <strong>{{ item.code }}</strong> tiene pagos realizados por garante(s)
+                  </v-alert> 
+                  <v-btn
+                    color="warning"
+                    icon
+                    class="mr-2"
+                    @click="alert2 = !alert2"
+                    v-if="item.paid_by_guarantors"
+                  >
+                    <v-icon v-if="alert2">mdi-information-outline</v-icon>
+                    <v-icon v-if="!alert2">mdi-information</v-icon>
+                  </v-btn>
                     <strong>Cód.:</strong>
                     {{ item.code }} |
                     <strong>Desembolso:</strong>
@@ -352,6 +373,8 @@ export default {
     validate_affiliate: false,
     loading_loan: true,
     alert: false,
+    alert2:true,
+    pos_index: -1,
   }),
   created() {
     this.randomColor = common.randomColor
