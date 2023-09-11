@@ -125,29 +125,8 @@
             <div>
               <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS REGISTRADOS</h1>
               <ul style="list-style: none;" class="pa-0">
-                <li v-for="(item,i) in loan" :key="i" class="pb-3">
+                <li v-for="(item,i) in loan" :key="i">
                   <div>
-                  <v-alert
-                    dense
-                    v-model="alert2"
-                    border="left"
-                    type="warning"
-                    class="ma-0"
-                    color="warning"
-                     v-if="item.paid_by_guarantors"
-                  >
-                   El préstamo <strong>{{ item.code }}</strong> tiene pagos realizados por garante(s)
-                  </v-alert> 
-                  <v-btn
-                    color="warning"
-                    icon
-                    class="mr-2"
-                    @click="alert2 = !alert2"
-                    v-if="item.paid_by_guarantors"
-                  >
-                    <v-icon v-if="alert2">mdi-information-outline</v-icon>
-                    <v-icon v-if="!alert2">mdi-information</v-icon>
-                  </v-btn>
                     <strong>Cód.:</strong>
                     {{ item.code }} |
                     <strong>Desembolso:</strong>
@@ -257,7 +236,18 @@
                     </v-progress-linear>
 
                   </div>
-
+                  <v-alert
+                    dense
+                    v-model="alert2"
+                    border="left"
+                    type="warning"
+                    class="ma-0 mt-2"
+                    color="warning"
+                     v-if="item.paid_by_guarantors"
+                  >
+                   El préstamo <strong>{{ item.code }}</strong> tiene pagos realizados por garante(s)
+                  </v-alert> 
+                  <v-divider class="my-2"></v-divider>
                 </li>
               </ul>
             </div>
