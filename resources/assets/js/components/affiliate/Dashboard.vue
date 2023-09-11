@@ -127,14 +127,6 @@
               <ul style="list-style: none;" class="pa-0">
                 <li v-for="(item,i) in loan" :key="i" class="pb-3">
                   <div>
-                  <!-- <v-alert v-if="item.paid_by_guarantors"
-                    dense
-                    border="left"
-                    type="warning"
-                    class="ma-0"
-                  >
-                    El préstamo <strong>{{ item.code }}</strong> tiene pagos realizados por garante(s)
-                  </v-alert>   -->
                   <v-alert
                     dense
                     v-model="alert2"
