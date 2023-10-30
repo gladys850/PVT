@@ -86,7 +86,7 @@ class LoanReportController extends Controller
                    "CEDULA DE IDENTIDAD","EXP","MATRICULA",
                    "PRIMER NOMBRE","SEGUNDO NOMBRE","PATERNO","MATERNO","APELLIDO CASADA","CELULAR","***",
                    "NRO CBTE CONTABLE","SALDO ACTUAL","AMPLIACIÓN","MONTO DESEMBOLSADO","MONTO REFINANCIADO","LIQUIDO DESEMBOLSADO",
-                   "PLAZO","ESTÁDO PRÉSTAMO","DESTINO CREDITO" )
+                   "PLAZO","ESTÁDO PRÉSTAMO","DESTINO CREDITO", "SIGEP")
                );
                foreach ($list_loan as $loan){
                foreach($loan->getBorrowers() as $lender){
@@ -127,7 +127,8 @@ class LoanReportController extends Controller
                     $loan->amount_approved - (Loan::whereId($loan->id)->first()->balance_parent_refi()),
                     $loan->loan_term,//plazo
                     $loan->state->name,//estado del prestamo
-                    $loan->destiny->name
+                    $loan->destiny->name,
+                    $loan->number_payment_type
                    ));
                }
             }
