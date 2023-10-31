@@ -1804,7 +1804,10 @@ class LoanController extends Controller
             $message['defaulted'] = true;
         }
         else{
-            $message['defaulted'] = false;
+            if($loan->authorize_refinancing)
+                $message['defaulted'] = true;
+            else
+                $message['defaulted'] = false;
         }
         //pagos consecutivo
         if ($loan->verify_payment_consecutive()){
@@ -2188,6 +2191,49 @@ class LoanController extends Controller
         }
         return $message;
    }
+
+    /**
+    * Autorizacion de refinanciamiento
+    * Devuelve el Prestamo al que se autorizo el refinanciamiento
+    * @bodyParam loan integer required ID del préstamo. Example: 6
+    * @bodyParam rol_id integer required id del rol que cambia el tipo de cobro. Example: 2
+    * @authenticated
+    * @responseFile responses/loan/authorize_refinancing.200.json
+    */
+    public function authorize_refinancing(request $request)
+    {
+         $request->validate([
+         'loan_id'=>'required|integer|exists:loans,id',
+         'role_id'=>'required|integer|exists:roles,id',
+        ]);
+        $message = [];
+        if(Loan::find($request->loan_id) != null){
+             $option = Loan::find($request->loan_id);
+             $loan = Loan::withoutEvents(function () use ($option, $request){
+                 $loan = Loan::find($option->id);
+                 if(!$loan->authorize_refinancing){
+                     $loan->authorize_refinancing = true;
+                     $loan->update();
+                     Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'autorizo el refinanciamiento al prestamo: '.$loan->code));
+                     $message = ['message' => 'Autorizacion de refinanciamiento exitoso'];
+                 }else{
+                    if(Loan::where('parent_loan_id', $loan->id)->where('parent_reason', 'REFINANCIAMIENTO')->count() == 0){
+                        $loan->authorize_refinancing = false;
+                        $loan->update();
+                        Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'quito la autorización de refinanciamiento al prestamo: '.$loan->code));
+                        $message = ['message' => 'Revocacion de autorización exitoso'];
+                    }
+                    else{
+                        $message = ['message' => 'No se puede quitar la autorizacion por que el prestamo ya se encuentra refinanciado'];
+                    }
+                 }
+             });
+         }
+         else{
+             $message['validate'] = 'prestamo y / o rol inexistente';
+         }
+         return response()->json($message);
+    }
 
    /**
     * Obtener el monto a pagar
