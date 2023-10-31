@@ -17,7 +17,6 @@ Route::group([
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
     //ruta para saber si un afiliado cuenta con prestamos que hayan sido pagados por sus garantes
     Route::get('loans_paid_by_guarantors/{affiliate}', 'Api\V1\AffiliateController@loans_paid_by_guarantors');
-    Route::post('authorize_refinancing', 'Api\V1\LoanController@authorize_refinancing');
     // Autenticado con token
     Route::group([
         'middleware' => 'auth'
