@@ -249,7 +249,7 @@ class LoanPayment extends Model
             'penal_accumulated' => 0,
             'interest_accumulated' => 0,
         ];
-        if($loan->balance = 0) return $interest;
+        if($loan->balance == 0) return $interest;
             $estimated_date = CarbonImmutable::parse($estimated_date ?? CarbonImmutable::now()->toDateString());
         //$latest_quota = $loan->payments()->first();
         $latest_quota = $loan->last_payment_validated;

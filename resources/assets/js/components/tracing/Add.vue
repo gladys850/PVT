@@ -102,6 +102,51 @@
                 <span>Imprimir Formulario de Calificación</span>
               </v-tooltip>
 
+              <!--Autorizacion de refinanciamiento-->
+              <v-tooltip bottom v-if="loan.state.name === 'Vigente' && loan.modality.name.indexOf('Anticipo') === -1 && permissionSimpleSelected.includes('authorize_refinancing')">
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    fab
+                    x-small
+                    outlined
+                    v-on="on"
+                    class="ml-1"
+                    :color="!loan.authorize_refinancing ? 'green' : 'orange'"
+                    @click="dialog_authorize_refinancing=true"
+                  >
+                  <v-icon>{{ !loan.authorize_refinancing ? "mdi-lock-open-outline" : "mdi-lock-outline"}}</v-icon>
+                  </v-btn>
+                </template>
+                  <span>{{ !loan.authorize_refinancing ? "Autorizar Refinanciamiento" : "Revocar autorización del refinanciamiento"}}</span>
+              </v-tooltip>
+              <v-dialog
+                v-model="dialog_authorize_refinancing"
+                max-width="500"
+              >
+                <v-card>
+                  <v-card-title>
+                    {{ !loan.authorize_refinancing ? "Esta seguro de autorizar el refinanciamiento" : "Esta seguro de revocar la autorización del refinanciamiento"}}
+                  </v-card-title>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="red darken-1"
+                      text
+                      @click="dialog_authorize_refinancing = false"
+                    >
+                      Cancelar
+                    </v-btn>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click.stop="authorizeRefinancing()"
+                    >
+                      Aceptar
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+
           <v-divider vertical class="mx-4"></v-divider>
 
           <h6 class="caption">
@@ -204,7 +249,10 @@ export default {
     loading_print_contract:false,
     loading_print_plan:false,
     loading_print_kardex:false,
-    loading_print_form_calification:false
+    loading_print_form_calification:false,
+    dialog_authorize_refinancing:false,
+    dialog_authorize:"Autorizar refinanciamiento",
+    dialog_span_authorize:"Esta seguro de Autorizar el refinanciamiento"
   }),
    mounted() {
     this.getloan(this.$route.params.id)
@@ -218,6 +266,13 @@ export default {
       return this.$store.getters.permissionSimpleSelected
     },
   },
+  watch: {
+    dialog_authorize_refinancing: function(newVal, oldVal){
+      if(newVal!=oldVal){
+        this.getloan(this.$route.params.id)
+      }
+    }
+  },
   methods: { setBreadcrumbs() { let breadcrumbs = [
         {
           text: "Seguimiento",
@@ -229,6 +284,19 @@ export default {
         to: { name: "tracingAdd", params: { id: this.loan.id } }
       })
       this.$store.commit("setBreadcrumbs", breadcrumbs)
+    },
+    async authorizeRefinancing(){
+      try {
+        let res = await axios.post(`authorize_refinancing`,{
+            loan_id: this.$route.params.id,
+            role_id: this.$store.getters.rolePermissionSelected.id
+        })
+        this.dialog_authorize_refinancing = false
+        this.toastr.success(res.data.validate)
+      } catch (e) {
+        this.toastr.error(res.data.validate)
+        console.log(e)
+      }
     },
     //Metodo para sacar el detalle del loan
     async getloan(id) {
