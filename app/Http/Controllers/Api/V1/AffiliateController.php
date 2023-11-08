@@ -41,6 +41,7 @@ use App\Module;
 use App\LoanBorrower;
 use App\LoanState;
 use App\LoanProcedure;
+use App\LoanPaymentState;
 
 /** @group Afiliados
 * Datos de los afiliados y métodos para obtener y establecer sus relaciones
@@ -1675,5 +1676,23 @@ class AffiliateController extends Controller
             "guarantees"=>$data,
             "max_guarantees"=>$max_guarantees,
             );
+    }
+
+    /**
+    * Prestamos pagados por sus garantes
+    * Devuelve si el afiliado cuenta con prestamos pagados por sus garantes mediante su ID
+    * @urlParam affiliate required ID de afiliado. Example: 54
+    */
+    public function loans_paid_by_guarantors(Affiliate $affiliate)
+    {
+        $state = false;
+        foreach($affiliate->loans as $loan)
+        {
+            if($loan->payments->where('paid_by', 'G')->where('validated', true)->where('state_id', LoanPaymentState::where('name', 'Pagado')->first()->id)->count() > 0)
+                $state = true;
+            else
+                $state = false;
+        }
+        return $state;
     }
 }

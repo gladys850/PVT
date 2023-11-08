@@ -99,7 +99,7 @@
         ></v-progress-linear>
         <v-card v-else color="info_card " shaped class="elevation-1" >
           <div class="title pl-4 pt-4">Préstamos
-            <!-- <v-btn
+            <v-btn
               color="#E65100"
               icon
               class="mr-2"
@@ -119,15 +119,14 @@
             >
               <span class="black--text font-weight-regular">- Los préstamos de color <span class="red--text">ROJO</span> se encuentran en situación de mora o no se realizó el registro de ninguna amortización.<br>
                 - La fecha de actualización de los trámites en mora considerado por el Área de Cobranzas es: {{affiliate.default_alert_date_import | date}}.</span>
-            </v-alert> -->
+            </v-alert>
           </div>
           <v-card-text>
             <div>
               <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS REGISTRADOS</h1>
               <ul style="list-style: none;" class="pa-0">
-                <li v-for="item in loan" :key="item.id" class="pb-2">
+                <li v-for="(item,i) in loan" :key="i">
                   <div>
-
                     <strong>Cód.:</strong>
                     {{ item.code }} |
                     <strong>Desembolso:</strong>
@@ -237,7 +236,18 @@
                     </v-progress-linear>
 
                   </div>
-
+                  <v-alert
+                    dense
+                    v-model="alert2"
+                    border="left"
+                    type="warning"
+                    class="ma-0 mt-2"
+                    color="warning"
+                     v-if="item.paid_by_guarantors"
+                  >
+                   El préstamo <strong>{{ item.code }}</strong> tiene pagos realizados por garante(s)
+                  </v-alert> 
+                  <v-divider class="my-2"></v-divider>
                 </li>
               </ul>
             </div>
@@ -345,6 +355,8 @@ export default {
     validate_affiliate: false,
     loading_loan: true,
     alert: false,
+    alert2:true,
+    pos_index: -1,
   }),
   created() {
     this.randomColor = common.randomColor

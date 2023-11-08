@@ -12,10 +12,11 @@ Route::group([
     Route::apiResource('record', 'Api\V1\RecordController')->only('index');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
-    Route::post('evaluate_garantor2', 'Api\V1\CalculatorController@evaluate_guarantor2');
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
+    //ruta para saber si un afiliado cuenta con prestamos que hayan sido pagados por sus garantes
+    Route::get('loans_paid_by_guarantors/{affiliate}', 'Api\V1\AffiliateController@loans_paid_by_guarantors');
     // Autenticado con token
     Route::group([
         'middleware' => 'auth'
@@ -274,6 +275,7 @@ Route::group([
             Route::patch('loan/{loan}/sismu', 'Api\V1\LoanController@update_sismu');
             Route::post('switch_guarantor_lender', 'Api\V1\LoanController@switch_guarantor_lender');
             Route::post('update_number_payment_type', 'Api\V1\LoanController@update_number_payment_type');
+            Route::post('authorize_refinancing', 'Api\V1\LoanController@authorize_refinancing');
         });
         Route::group([
             'middleware' => 'permission:delete-loan'
