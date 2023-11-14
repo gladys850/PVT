@@ -15,14 +15,25 @@
               borrower.type == "affiliate"
                 ? affiliate.identity_card
                 : borrower.identity_card
-            }}<br />
+            }}
             <strong>Matrícula: </strong>
             {{
               borrower == "affiliate"
                 ? affiliate.registration
                 : borrower.registration
             }}<br />
-
+            <strong>Celular:</strong>
+            {{
+                borrower == "affiliate"
+                ? affiliate.cell_phone_number
+                : borrower.cell_phone_number
+            }}
+            <strong>Teléfono:</strong>
+            {{
+                borrower == "affiliate"
+                ? affiliate.phone_number
+                : borrower.phone_number
+            }}<br/>
             <strong>Monto desembolsado: </strong
             >{{ loan.amount_approved | moneyString }}<br />
           </v-col>
@@ -52,7 +63,7 @@
             top
             right
             absolute
-            style="margin-right: 120px; margin-top: 110px"
+            style="margin-right: 160px; margin-top: 110px"
           >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
@@ -61,7 +72,32 @@
           <span>Crear seguimiento de mora de préstamo</span>
         </div>
       </v-tooltip>
-      <v-tooltip
+      <v-tooltip      
+        top
+        v-if="permissionSimpleSelected.includes('print-delay-tracking')"
+      >
+        <template v-slot:activator="{ on }">
+          <v-btn
+            fab
+            x-small
+            color="success"
+            top
+            right
+            absolute
+            v-on="on"
+            style="margin-right: 120px; margin-top: 110px"
+            @click="downloadDelayTrackingExcel($route.params.id)"
+            :loading="loading_download"
+          >
+            <v-icon>mdi-file-excel</v-icon>
+          </v-btn>
+        </template>
+        <div>
+          <span>Imprimir Excel</span>
+        </div>
+      </v-tooltip>
+            <v-tooltip
+      
         top
         v-if="permissionSimpleSelected.includes('print-delay-tracking')"
       >
@@ -111,7 +147,7 @@
       <v-data-table
         :headers="headers"
         :items="tracking_delays"
-        sort-by="id"
+
         :options.sync="options"
         :loading="loading_tracking_delay"
         :server-items-length="this.total_items"
@@ -363,11 +399,14 @@ export default {
     options: {
       page: 1,
       itemsPerPage: 10,
+            sortBy: ["loan_tracking_type.name"],
+      sortDesc: [false],
     },
     trashed_delay: false,
     total_items: 0,
     val_tracking: false,
     loading_print: false,
+    loading_download: false,
   }),
 
   computed: {
@@ -399,7 +438,9 @@ export default {
     options: function (newVal, oldVal) {
       if (
         newVal.page != oldVal.page ||
-        newVal.itemsPerPage != oldVal.itemsPerPage
+        newVal.itemsPerPage != oldVal.itemsPerPage ||
+                newVal.sortBy != oldVal.sortBy ||
+        newVal.sortDesc != oldVal.sortDesc
       ) {
         this.getTrackingDelay();
       }
@@ -576,6 +617,29 @@ export default {
         this.toastr.error("Ocurrió un error en la impresión.");
         console.log(e);
       }
+    },
+    async downloadDelayTrackingExcel(item) {
+      this.loading_download = true
+      await axios({
+        url: `loan/${item}/print/download_delay_tracking`,
+        method: "GET",
+        responseType: "blob", // important
+        headers: { Accept: "application/vnd.ms-excel" },
+      })
+        .then((response) => {
+          //console.log(response)
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement("a")
+          link.href = url
+          link.setAttribute("download", "Seguimiento_mora.xls")
+          document.body.appendChild(link)
+          link.click()
+          this.loading_download = false
+        })
+        .catch((error) => {
+          console.log(error)
+          this.loading_download = false
+        })
     },
       itemRowBackground: function (item) {
       if(item.deleted_at != null){

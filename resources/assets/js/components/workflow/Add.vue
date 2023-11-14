@@ -245,7 +245,7 @@
               <v-icon v-if="icons" v-bind="attrs" v-on="on">mdi-comment-eye-outline</v-icon>
             </template>
             <span>
-              <b>HISTORIAL DEL TRAMITE</b>
+              <b>SEGUIMIENTO, OBSERVACION E HISTORIAL DEL TRÁMITE</b>
             </span>
           </v-tooltip>
         </v-tab>
