@@ -245,7 +245,7 @@
               <v-icon v-if="icons" v-bind="attrs" v-on="on">mdi-comment-eye-outline</v-icon>
             </template>
             <span>
-              <b>HISTORIAL DEL TRAMITE</b>
+              <b>SEGUIMIENTO, OBSERVACION E HISTORIAL DEL TRÁMITE</b>
             </span>
           </v-tooltip>
         </v-tab>
@@ -588,7 +588,7 @@
         <!-- I T E M  T A B   8-->
         <v-tab-item :value="'tab-8'">
           <v-card flat tile>
-            <v-card-text class="pa-0 pl-3 pr-0 py-0">
+            <v-card-text class="pa-0 pl-3 pr-10 py-0">
               <ObserverFlow
               :loan.sync="loan"
               :observations.sync="observations"
