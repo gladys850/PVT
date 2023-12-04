@@ -248,12 +248,13 @@ class LoanTrackingController extends Controller
                 "tracking_date"=>Carbon::parse($loan_tracking->tracking_date)->format('d/m/Y'),
                 "user_name"=>$user->username,
                 "loan_tracking_type_name"=>$loan_tracking_type->name,
+                "loan_tracking_type_sequence_number"=>$loan_tracking_type->sequence_number,
                 "description"=>$loan_tracking->description,
                 "updated_at"=>Carbon::parse($loan_tracking->updated_at)->format('d/m/Y')
             ]);
         }
         
-        $loan_trackings_array = $loan_trackings_array->sortBy('loan_tracking_type_name');
+        $loan_trackings_array = $loan_trackings_array->sortBy('tracking_date')->sortBy('loan_tracking_type_sequence_number');
 
         foreach($loan_trackings_array as $tracking)
         {
