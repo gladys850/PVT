@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Loan;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\User;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ArchivoPrimarioExport;
 
 class LoanTrackingController extends Controller
 {
@@ -228,5 +230,46 @@ class LoanTrackingController extends Controller
        $view = view()->make('loan.tracking.delay_tracking')->with($data)->render();
        if ($standalone) return Util::pdf_to_base64([$view], $file_name,$information_loan, 'letter', $request->copies ?? 1);
        return $view;
+   }
+   public function download_delay_tracking(Loan $loan, $standalone = true)
+   {
+        $loan_trackings = collect($loan->loan_tracking);
+        $loan_trackings_array = collect([]);
+        $loan_tracking_sheets = array(
+            array("Nro","Fecha de Acción", "Usuario", "Tipo de seguimiento", "Comentario", "Fecha de registro")
+        );
+        $c=0;
+        foreach($loan_trackings as $loan_tracking){
+            $c = $c+1;
+            $loan_trackings_array->push([
+                $user = User::where('id',$loan_tracking->user_id)->first(),
+                $loan_tracking_type = LoanTrackingType::where('id', $loan_tracking->loan_tracking_type_id)->first(),
+                "count"=>$c,
+                "tracking_date"=>Carbon::parse($loan_tracking->tracking_date)->format('d/m/Y'),
+                "user_name"=>$user->username,
+                "loan_tracking_type_name"=>$loan_tracking_type->name,
+                "loan_tracking_type_sequence_number"=>$loan_tracking_type->sequence_number,
+                "description"=>$loan_tracking->description,
+                "updated_at"=>Carbon::parse($loan_tracking->updated_at)->format('d/m/Y')
+            ]);
+        }
+        
+        $loan_trackings_array = $loan_trackings_array->sortBy('tracking_date')->sortBy('loan_tracking_type_sequence_number');
+
+        foreach($loan_trackings_array as $tracking)
+        {
+            array_push($loan_tracking_sheets,array(
+                $tracking['count'],
+                $tracking['tracking_date'],
+                $tracking['user_name'],
+                $tracking['loan_tracking_type_name'],
+                $tracking['description'],
+                $tracking['updated_at'],
+            ));
+
+        }
+        $file_name = "Seguimiento de mora";
+        $export = new ArchivoPrimarioExport($loan_tracking_sheets);
+        return Excel::download($export, $file_name.'.xls');
    }
 }

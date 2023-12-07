@@ -127,6 +127,7 @@ Route::group([
             'middleware' => 'permission:print-delay-tracking'
         ], function () {
             Route::get('loan/{loan}/print/delay_tracking', 'Api\V1\LoanTrackingController@print_delay_tracking');
+            Route::get('loan/{loan}/print/download_delay_tracking', 'Api\V1\LoanTrackingController@download_delay_tracking');
         });
 
         Route::group([
