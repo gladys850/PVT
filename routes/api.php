@@ -64,6 +64,7 @@ Route::group([
         Route::apiResource('voucher_type', 'Api\V1\VoucherTypeController')->only('index', 'show');
         Route::apiResource('financial_entity', 'Api\V1\FinancialEntityController')->only('index', 'show');
         Route::post('evaluate_garantor', 'Api\V1\CalculatorController@evaluate_guarantor');
+        Route::post('evaluate_garantor2', 'Api\V1\CalculatorController@evaluate_guarantor2');
         Route::get('affiliate_record', 'Api\V1\AffiliateController@affiliate_record');
         Route::post('affiliate_guarantor', 'Api\V1\AffiliateController@test_guarantor');
         //evaluacion de garantes
