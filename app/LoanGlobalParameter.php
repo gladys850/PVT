@@ -14,6 +14,8 @@ class LoanGlobalParameter extends Model
         'offset_interest_day',
         'livelihood_amount',
         'days_current_interest',
-        'min_amount_fund_rotary'
+        'min_amount_fund_rotary',
+        'numerator',
+        'denominator'
     ];
 }
