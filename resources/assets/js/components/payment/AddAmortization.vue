@@ -661,8 +661,10 @@ export default {
         this.data_payment.estimated_quota=this.loan_payment.estimated_quota
         this.data_payment.code=this.loan_payment.code
         this.data_payment.quota_number=this.loan_payment.quota_number
-        this.data_payment.quota_number=this.loan_payment.quota_number
-        this.data_payment.quota_number=this.loan_payment.quota_number
+
+        this.data_payment.voucher_amount_total = this.loan_payment.estimated_quota
+        this.data_payment.comprobante = isNaN(this.loan_payment.voucher) ? '' : this.loan_payment.voucher;
+
         if(this.data_payment.procedure_modality_name == 'Amortización Complemento Económico' ||
             this.data_payment.procedure_modality_name == 'Amortización Fondo de Retiro' ||
             this.data_payment.procedure_modality_name == 'Amortización por Ajuste Contable' ||
