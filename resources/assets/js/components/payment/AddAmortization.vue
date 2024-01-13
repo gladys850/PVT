@@ -663,7 +663,7 @@ export default {
         this.data_payment.quota_number=this.loan_payment.quota_number
 
         this.data_payment.voucher_amount_total = this.loan_payment.estimated_quota
-        this.data_payment.comprobante = typeof this.loan_payment.voucher === 'number' ? this.loan_payment.voucher : '';
+        this.data_payment.comprobante = isNaN(this.loan_payment.voucher) ? '' : this.loan_payment.voucher;
 
         if(this.data_payment.procedure_modality_name == 'Amortización Complemento Económico' ||
             this.data_payment.procedure_modality_name == 'Amortización Fondo de Retiro' ||
