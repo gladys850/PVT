@@ -55,6 +55,9 @@
         @endif
             @if($modality == $payment->procedure_type_loan)
                 <tr>
+                    @if(trim($payment->states_loan_payment) == "Anulado")
+                    @php ($payment->capital_payment = $payment->interest_payment = $payment->penal_payment = $payment->interest_remaining = $payment->penal_remaining = 0)
+                    @endif
                     <td>{{ $c }}</td>
                     <td>{{ Carbon::parse($payment->date_loan_payment)->format('d-m-Y')}}</td>
                     <td>{{ $payment->code_loan_payment }}</td>
@@ -120,6 +123,9 @@
                 @php ($c=1)
                 <tr class="bg-grey-darker text-s text-white"><td colspan="5" style="font-size:120%">{{$modality}}</td><td colspan="4" style="font-size:150%">{{$modality_interest}} % Anual</td><td colspan="11"></td></tr>
                 <tr>
+                    @if(trim($payment->states_loan_payment) == "Anulado")
+                        @php ($payment->capital_payment = $payment->interest_payment = $payment->penal_payment = $payment->interest_remaining = $payment->penal_remaining = 0)
+                    @endif
                     <td>{{ $c }}</td>
                     <td>{{ Carbon::parse($payment->date_loan_payment)->format('d-m-Y')}}</td>
                     <td>{{ $payment->code_loan_payment }}</td>
