@@ -954,8 +954,7 @@ class Loan extends Model
             if($payment->state_id == $loan_state->id)
                 $sum += $payment->capital_payment;
         }
-        return round($balance - $sum);
-        //return ($balance - $this->payments->where('state_id', LoanPaymentState::where('name', 'Pagado')->first()->id)->sum('capital_payment'));
+        return round($balance - $sum,2);
     }
     //muestra boletas de afiliado
     public function ballot_affiliate(){
