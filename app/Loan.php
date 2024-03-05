@@ -17,6 +17,7 @@ use App\LoanBorrower;
 use App\LoanGuarantor;
 use Illuminate\Support\Str;
 use App\LoanProcedure;
+use App\LoanPaymentState;
 
 class Loan extends Model
 {
@@ -75,7 +76,8 @@ class Loan extends Model
         'regional_return_contract_date',
         'payment_plan_compliance',
         'affiliate_id',
-        'loan_procedure_id'
+        'loan_procedure_id',
+        'authorize_refinancing'
     ];
 
     function __construct(array $attributes = [])
@@ -952,8 +954,7 @@ class Loan extends Model
             if($payment->state_id == $loan_state->id)
                 $sum += $payment->capital_payment;
         }
-        return round($balance - $sum);
-        //return ($balance - $this->payments->where('state_id', LoanPaymentState::where('name', 'Pagado')->first()->id)->sum('capital_payment'));
+        return round($balance - $sum,2);
     }
     //muestra boletas de afiliado
     public function ballot_affiliate(){
@@ -1390,7 +1391,7 @@ class Loan extends Model
     public function regular_payments_date($date)
     {
         $date = Carbon::parse($date)->endOfDay();
-        $loan_payments = LoanPayment::where('loan_id',$this->id)->where('estimated_date','<=',$date)->where('state_id', LoanPaymentState::whereName('Pagado')->first()->id)->get();
+        $loan_payments = LoanPayment::where('loan_id',$this->id)->where('estimated_date','<=',$date)->where('state_id', LoanPaymentState::whereName('Pagado')->first()->id)->orderBy('quota_number','asc')->get();
         $quota_number = 1;
         $sw = true;
         foreach($loan_payments as $payments){
@@ -1431,7 +1432,7 @@ class Loan extends Model
     }
 
     public function loan_tracking() {
-        return $this->hasMany(LoanTracking::class)->orderBy("created_at");
+        return $this->hasMany(LoanTracking::class)->orderBy("tracking_date");
     }
 
     public function default_alert()
@@ -1467,5 +1468,13 @@ class Loan extends Model
     public function loan_procedure()
     {
         return $this->hasOne(LoanProcedure::class,'id','loan_procedure_id');
+    }
+
+    public function paid_by_guarantors()
+    {
+        if($this->payments->where('paid_by', 'G')->where('validated', true)->where('state_id', LoanPaymentState::where('name', 'Pagado')->first()->id)->count() > 0)
+            return true;
+        else
+            return false;
     }
 }

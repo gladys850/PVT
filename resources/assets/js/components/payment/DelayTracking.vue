@@ -5,36 +5,61 @@
         <v-row class="ma-0 pa-0">
           <v-col md="4" class="ma-0 pa-0">
             <strong>Prestatario: </strong>
-            {{
-              borrower.type == "affiliate"
-                ? $options.filters.fullName(affiliate, true)
-                : $options.filters.fullName(borrower, true)
-            }}<br />
+            {{ borrower.type == "affiliate" ? $options.filters.fullName(affiliate, true) : $options.filters.fullName(borrower, true)}}<br />
             <strong>CI: </strong>
-            {{
-              borrower.type == "affiliate"
-                ? affiliate.identity_card
-                : borrower.identity_card
-            }}<br />
+            {{ borrower.type == "affiliate" ? affiliate.identity_card : borrower.identity_card }}
             <strong>Matrícula: </strong>
-            {{
-              borrower == "affiliate"
-                ? affiliate.registration
-                : borrower.registration
-            }}<br />
-
+            {{ borrower == "affiliate" ? affiliate.registration : borrower.registration  }}<br />
+            <strong>Celular:</strong>
+            {{ borrower == "affiliate" ? affiliate.cell_phone_number : borrower.cell_phone_number }}
+            <strong>Teléfono:</strong>
+            {{ borrower == "affiliate" ? affiliate.phone_number : borrower.phone_number }}<br/>
             <strong>Monto desembolsado: </strong
             >{{ loan.amount_approved | moneyString }}<br />
           </v-col>
           <v-col md="4" class="ma-0 pa-0">
-            <strong>Desembolso: </strong>{{ loan.disbursement_date | date
-            }}<br />
-            <strong>Nro de comprobante contable: </strong
-            >{{ loan.num_accounting_voucher }}<br />
-            <strong>Tasa anual: </strong>
+            <strong>Desembolso: </strong>
+            {{ loan.disbursement_date | date }}<br />
+            <strong>Nro de comprobante contable: </strong >
+            {{ loan.num_accounting_voucher }}<br />
+            <strong>Tasa anual: </strong> 
             {{ loan.intereses.annual_interest | percentage }}%<br />
             <strong>Cuota fija mensual: </strong>
             {{ loan.estimated_quota | money }}<br />
+          </v-col>
+          <v-col col md="4" class="ma-0 pa-0">
+          <strong>Referencia: </strong>
+            {{ loan.personal_references.length>0 ? $options.filters.fullName(loan.personal_references[0], true): "Sin registro"}}<br />
+          <strong>Celular ref.: </strong>
+            {{loan.personal_references.length>0 ? loan.personal_references[0].cell_phone_number: "Sin registro"}}<br />
+            <template v-if="loan.guarantors.length>0">
+            <ul style="list-style: none" class="pa-0">
+              <li v-for="(guarantor) in loan.borrowerguarantors" :key="guarantor.id">
+                <v-col cols="12" md="12" class="pa-0 ma-0">
+                <strong>Gar.:</strong>
+                {{$options.filters.fullName(guarantor, true)}}
+                  <v-tooltip top v-if="permissionSimpleSelected.includes('show-affiliate')">
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        icon
+                        dark
+                        small
+                        color="warning"
+                        bottom
+                        right
+                        v-on="on"
+                        :to="{name: 'affiliateAdd', params: { id: guarantor.affiliate_id}}"
+                        target="_blank"
+                      >
+                        <v-icon>mdi-eye</v-icon>
+                      </v-btn>
+                    </template>
+                    <span>Ver datos del afiliado</span>
+                  </v-tooltip>                        
+                </v-col>  
+              </li>
+            </ul>
+            </template>
           </v-col>
         </v-row>
       </v-card>
@@ -50,9 +75,9 @@
             @click.stop="dialog = true"
             v-on="on"
             top
-            right
+            left
             absolute
-            style="margin-right: 120px; margin-top: 110px"
+            style="margin-left: 0px; margin-top: 20px;"
           >
             <v-icon>mdi-plus</v-icon>
           </v-btn>
@@ -61,42 +86,18 @@
           <span>Crear seguimiento de mora de préstamo</span>
         </div>
       </v-tooltip>
-      <v-tooltip
-        top
-        v-if="permissionSimpleSelected.includes('print-delay-tracking')"
-      >
-        <template v-slot:activator="{ on }">
-          <v-btn
-            fab
-            x-small
-            color="info"
-            top
-            right
-            absolute
-            v-on="on"
-            style="margin-right: 80px; margin-top: 110px"
-            @click="printDelayTracking($route.params.id)"
-            :loading="loading_print"
-          >
-            <v-icon>mdi-printer</v-icon>
-          </v-btn>
-        </template>
-        <div>
-          <span>Imprimir seguimiento mora</span>
-        </div>
-      </v-tooltip>
       <v-tooltip top>
         <template v-slot:activator="{ on }">
           <v-btn
             fab
             @click="trashed_delay = !trashed_delay"
             :color="!trashed_delay ? 'error' : 'primary'"
-            v-on="on"
             x-small
+            v-on="on"
             top
-            right
+            left
             absolute
-            style="margin-right: 40px; margin-top: 110px"
+            style="margin-left: 50px; margin-top: 20px"
           >
             <v-icon>{{
               !trashed_delay ? "mdi-file-cancel" : "mdi-file-multiple"
@@ -108,10 +109,59 @@
         >
         <span v-else>Ver registros de seguimiento de mora</span>
       </v-tooltip>
+      <v-tooltip      
+        top
+        v-if="permissionSimpleSelected.includes('print-delay-tracking')"
+      >
+        <template v-slot:activator="{ on }">
+          <v-btn
+            fab
+            x-small
+            color="success"
+            top
+            left
+            absolute
+            v-on="on"
+            style="margin-left: 100px; margin-top: 20px"
+            @click="downloadDelayTrackingExcel($route.params.id)"
+            :loading="loading_download"
+          >
+            <v-icon>mdi-file-excel</v-icon>
+          </v-btn>
+        </template>
+        <div>
+          <span>Imprimir Excel</span>
+        </div>
+      </v-tooltip>
+      <v-tooltip
+      
+        top
+        v-if="permissionSimpleSelected.includes('print-delay-tracking')"
+      >
+        <template v-slot:activator="{ on }">
+          <v-btn
+            fab
+            x-small
+            color="info"
+            top
+            left
+            absolute
+            v-on="on"
+            style="margin-left: 150px; margin-top: 20px"
+            @click="printDelayTracking($route.params.id)"
+            :loading="loading_print"
+          >
+            <v-icon>mdi-printer</v-icon>
+          </v-btn>
+        </template>
+        <div>
+          <span>Imprimir seguimiento mora</span>
+        </div>
+      </v-tooltip>
       <v-data-table
         :headers="headers"
         :items="tracking_delays"
-        sort-by="id"
+
         :options.sync="options"
         :loading="loading_tracking_delay"
         :server-items-length="this.total_items"
@@ -363,11 +413,14 @@ export default {
     options: {
       page: 1,
       itemsPerPage: 10,
+            sortBy: ["loan_tracking_type.name"],
+      sortDesc: [false],
     },
     trashed_delay: false,
     total_items: 0,
     val_tracking: false,
     loading_print: false,
+    loading_download: false,
   }),
 
   computed: {
@@ -399,7 +452,9 @@ export default {
     options: function (newVal, oldVal) {
       if (
         newVal.page != oldVal.page ||
-        newVal.itemsPerPage != oldVal.itemsPerPage
+        newVal.itemsPerPage != oldVal.itemsPerPage ||
+                newVal.sortBy != oldVal.sortBy ||
+        newVal.sortDesc != oldVal.sortDesc
       ) {
         this.getTrackingDelay();
       }
@@ -576,6 +631,29 @@ export default {
         this.toastr.error("Ocurrió un error en la impresión.");
         console.log(e);
       }
+    },
+    async downloadDelayTrackingExcel(item) {
+      this.loading_download = true
+      await axios({
+        url: `loan/${item}/print/download_delay_tracking`,
+        method: "GET",
+        responseType: "blob", // important
+        headers: { Accept: "application/vnd.ms-excel" },
+      })
+        .then((response) => {
+          //console.log(response)
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement("a")
+          link.href = url
+          link.setAttribute("download", "Seguimiento_mora.xls")
+          document.body.appendChild(link)
+          link.click()
+          this.loading_download = false
+        })
+        .catch((error) => {
+          console.log(error)
+          this.loading_download = false
+        })
     },
       itemRowBackground: function (item) {
       if(item.deleted_at != null){

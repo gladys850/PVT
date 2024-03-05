@@ -46,14 +46,18 @@
             <td>Deposito Bancario</td>
             <td>Fecha deposito</td>
             <td>Nro. Bol.  Dep.</td>
+            <td>Estado</td>
         </tr>
         @foreach( $payments as $payment )
         @if($sw == 1)
-            <tr class="bg-grey-darker text-s text-white"><td colspan="5" style="font-size:120%">{{$modality}}</td><td colspan="4" style="font-size:150%">{{$modality_interest}} % Anual</td><td colspan="10"></td></tr>
+            <tr class="bg-grey-darker text-s text-white"><td colspan="5" style="font-size:120%">{{$modality}}</td><td colspan="4" style="font-size:150%">{{$modality_interest}} % Anual</td><td colspan="11"></td></tr>
             @php ($sw = 0)
         @endif
             @if($modality == $payment->procedure_type_loan)
                 <tr>
+                    @if(trim($payment->states_loan_payment) == "Anulado")
+                    @php ($payment->quota_loan_payment = 0)
+                    @endif
                     <td>{{ $c }}</td>
                     <td>{{ Carbon::parse($payment->date_loan_payment)->format('d-m-Y')}}</td>
                     <td>{{ $payment->code_loan_payment }}</td>
@@ -87,6 +91,7 @@
                         <td>//</td>
                     @endif
                     <td>{{ $payment->voucher_loan_payment }}</td>
+                    <td>{{ $payment->states_loan_payment }}</td>
                         @php ($c++)
                         @php ($total_capital = $total_capital + $payment->capital_payment)
                         @php ($total_interest = $total_interest + $payment->interest_payment)
@@ -116,8 +121,11 @@
                 @php ($modality = $payment->procedure_type_loan)
                 @php ($modality_interest = $payment->annual_interest_loan)
                 @php ($c=1)
-                <tr class="bg-grey-darker text-s text-white"><td colspan="5" style="font-size:120%">{{$modality}}</td><td colspan="4" style="font-size:150%">{{$modality_interest}} % Anual</td><td colspan="10"></td></tr>
+                <tr class="bg-grey-darker text-s text-white"><td colspan="5" style="font-size:120%">{{$modality}}</td><td colspan="4" style="font-size:150%">{{$modality_interest}} % Anual</td><td colspan="11"></td></tr>
                 <tr>
+                    @if(trim($payment->states_loan_payment) == "Anulado")
+                        @php ($payment->quota_loan_payment = 0)
+                    @endif
                     <td>{{ $c }}</td>
                     <td>{{ Carbon::parse($payment->date_loan_payment)->format('d-m-Y')}}</td>
                     <td>{{ $payment->code_loan_payment }}</td>
@@ -151,6 +159,7 @@
                         <td>//</td>
                     @endif
                     <td>{{ $payment->voucher_loan_payment }}</td>
+                    <td>{{ $payment->states_loan_payment }}</td>
                         @php ($c++)
                         @php ($total_capital = $total_capital + $payment->capital_payment)
                         @php ($total_interest = $total_interest + $payment->interest_payment)

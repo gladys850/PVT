@@ -15,7 +15,7 @@ class LoanTrackingTypeSeeder extends Seeder
         $tracking_loans_types = [
             [
                 'sequence_number' => 1,
-                'name' => 'LLamadas telefónicas al deudor y/o garante(s)',
+                'name' => 'Llamadas telefónicas al deudor y/o garante(s)',
             ],
             [
                 'sequence_number' => 2,

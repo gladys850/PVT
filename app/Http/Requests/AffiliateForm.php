@@ -31,7 +31,7 @@ class AffiliateForm extends FormRequest
             'birth_date' => 'date_format:"Y-m-d"',
             'city_birth_id' => 'exists:cities,id',
             'civil_status' => 'in:C,D,S,V',
-            'identity_card' => 'alpha_dash|min:5|max:15',
+            'identity_card' => 'alpha_dash|min:4|max:15',
             'affiliate_state_id' => 'nullable|exists:affiliate_states,id',
             'degree_id' => 'nullable|exists:degrees,id',
             'pension_entity_id' => 'nullable|required_if:affiliate_state_id,4,5,6|exists:pension_entities,id',

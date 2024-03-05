@@ -4,8 +4,9 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
-class ArchivoPrimarioExport implements FromArray,ShouldAutoSize
+class ArchivoPrimarioExport implements FromArray,ShouldAutoSize, WithColumnFormatting
 {
     protected $data;
 
@@ -17,5 +18,12 @@ class ArchivoPrimarioExport implements FromArray,ShouldAutoSize
     public function array(): array
     {
         return $this->data;
+    }
+
+    public function columnFormats(): array
+    {
+        return [
+            'AG' => '0',
+        ];
     }
 }

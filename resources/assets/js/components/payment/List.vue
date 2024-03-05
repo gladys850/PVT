@@ -28,7 +28,7 @@
       </v-tooltip>
     </template>-->
     <template v-slot:[`item.affiliate`]="{ item }">
-     {{ item.borrower[0].full_name_borrower}}
+     {{ item.borrower[0] ? item.borrower[0].full_name_borrower: ""}}
     </template>
 
     <template v-slot:[`item.role_id`]="{ item }">
