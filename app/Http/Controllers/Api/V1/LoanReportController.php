@@ -2211,4 +2211,34 @@ class LoanReportController extends Controller
         return Excel::download($export, $file_name.$extension);
     }
   }
+
+  public function loans_days_amortization(Request $request)
+  {
+    $loans = Loan::where('state_id', 3)->get();
+    $File="PrestamosMora";
+        $data_mora=array(
+            array("CODIGO PRESTAMO","ESTADO", "NOMBRE COMPLETO PRESTATARIO","CI PRESTATARIO", "NUMERO DE TELEFONO","CUOTA PACTADA", "FECHA DE DESEMBOLSO","MONTO ULTIMA AMORTIZACIÓN","FECHA DE AMORTIZACION","DIAS TRANSCURRIDOS")
+        );
+    foreach($loans as $loan)
+    {
+        if(($loan->last_payment_validated && $loan->last_payment_validated->estimated_date < $request->final_date) || (!$loan->last_payment_validated & $loan->disbursement_date < $request->final_date))
+        {
+            array_push($data_mora, array(
+                $loan->code,
+                $loan->state->name,
+                $loan->borrower->first()->full_name,
+                $loan->borrower->first()->identity_card,
+                $loan->borrower->first()->cell_phone_number,
+                $loan->estimated_quota,
+                Carbon::parse($loan->disbursement_date)->format('Y-m-d'),
+                $loan->last_payment_validated ? $loan->last_payment_validated->estimated_quota : 0,
+                $loan->last_payment_validated ? $loan->last_payment_validated->estimated_date : '',
+                $loan->last_payment_validated ? (Carbon::parse($request->final_date)->diffInDays(Carbon::parse($loan->last_payment_validated->estimated_date))) : (Carbon::parse($request->final_date)->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay()->format('Y-m-d')))
+            ));
+        }
+    }
+
+    $export = new ArchivoPrimarioExport($data_mora);
+    return Excel::download($export, $File.'.xls');
+  }
 }

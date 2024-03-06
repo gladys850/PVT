@@ -892,9 +892,9 @@ class Loan extends Model
        elseif($this->parent_loan){
            if($this->parent_loan->state->name != "Liquidado")
            {
-                if(LoanPayment::where('loan_id', $this->parent_loan->id)->where('categorie_id', 1)->first())
-                    $balance_parent = LoanPayment::where('loan_id', $this->parent_loan->id)->where('categorie_id', 1)->first()->estimated_quota;
-                else
+            if(LoanPayment::where('loan_id', $this->parent_loan->id)->where('categorie_id', 1)->orderBy('quota_number', 'desc')->first())
+                $balance_parent = LoanPayment::where('loan_id', $this->parent_loan->id)->where('categorie_id', 1)->orderBy('quota_number', 'desc')->first()->estimated_quota;
+            else
                     $balance_parent = 0;
             }
             else{
