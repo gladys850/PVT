@@ -21,7 +21,7 @@
                 @click="atras()"  v-show="!isNew">
                 Volver a la bandeja
               </v-btn>
-              
+
               <v-btn
                 color="primary"
                 :loading="status_click"
@@ -96,7 +96,8 @@ export default {
           })
           let res = await axios.post(`loan_payment/${this.$route.query.loan_payment}/voucher`,{
 
-            voucher_type_id: this.data_payment.tipo_pago,
+            //voucher_type_id: this.data_payment.tipo_pago,
+            voucher_type_id: 2,
             bank_pay_number: this.data_payment.comprobante,
             voucher_amount_total:this.data_payment.voucher_amount_total,
             voucher_payment_date: this.data_payment.voucher_date,

@@ -333,7 +333,7 @@
                             ></v-text-field>
                           </v-col>
 
-                          <v-col cols="4" class="ma-0 pb-0" v-show="edit" v-if="permissionSimpleSelected.includes('create-payment')">
+                          <!-- <v-col cols="4" class="ma-0 pb-0" v-show="edit" v-if="permissionSimpleSelected.includes('create-payment')">
                             <v-select
                               class="caption"
                               style="font-size: 10px;"
@@ -347,17 +347,7 @@
                               label="Tipo de Pago"
                               persistent-hint
                             ></v-select>
-                          </v-col>
-
-                          <v-col cols="4" v-show="edit" v-if="permissionSimpleSelected.includes('create-payment')" >
-                            <v-text-field
-                              v-model="data_payment.comprobante"
-                              :outlined="edit"
-                              :readonly="!edit"
-                              label="Nro. de Comprobante"
-                              dense
-                            ></v-text-field>
-                          </v-col>
+                          </v-col> -->
 
                           <v-col cols="4" v-show="permissionSimpleSelected.includes('create-payment')">
                             <v-text-field
@@ -664,11 +654,11 @@ export default {
 
         this.data_payment.voucher_amount_total = this.loan_payment.estimated_quota
         this.data_payment.comprobante = isNaN(this.loan_payment.voucher) ? '' : this.loan_payment.voucher;
-
-        if(this.data_payment.procedure_modality_name == 'Amortización Complemento Económico' ||
-            this.data_payment.procedure_modality_name == 'Amortización Fondo de Retiro' ||
+        if(
             this.data_payment.procedure_modality_name == 'Amortización por Ajuste Contable' ||
-            this.data_payment.procedure_modality_name == 'Amortización Automática')
+            this.data_payment.procedure_modality_name == 'Amortización Automática' ||
+            this.data_payment.procedure_modality_name == 'Amortización Deposito Bancario' ||
+            this.data_payment.procedure_modality_name == 'Amortización por Beneficios')
           {
             this.data_payment.validar =true
           }else{
