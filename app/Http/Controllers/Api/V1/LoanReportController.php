@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Module;
 use Util;
-
 use DB;
 use App\Affiliate;
 use App\City;
 use App\User;
 use App\Loan;
+use App\Role;
 use App\LoanState;
 use Carbon;
 use App\ProcedureModality;
@@ -26,7 +26,7 @@ use App\Exports\MultipleSheetExportPaymentMora;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\FileWithMultipleSheetsReport;
 use App\Exports\FileWithMultipleSheetsDefaulted;
-//use App\Exports\SheetExportPayment;
+use App\Record;
 
 class LoanReportController extends Controller
 {
@@ -2240,5 +2240,47 @@ class LoanReportController extends Controller
 
     $export = new ArchivoPrimarioExport($data_mora);
     return Excel::download($export, $File.'.xls');
+  }
+
+  public function processed_loan_report(Request $request)
+  {//return Auth::user()->id;
+    $file = "reporte de tramites procesados";
+    $report_process_loan=array(
+        array("N°","DEPTO.", "CODIGO PRESTAMO","CI PRESTATARIO", "NOMBRE PRESTATARIO","MODALIDAD", "MONTO", "ROL","ACCION", "FECHA DE ACCION","USUARIO")
+    );
+    $records = Record::where('recordable_type', 'loans')
+    ->whereBetween('created_at', [$request->initial_date, $request->final_date])
+    ->where('record_type_id', 3)
+    ->where('user_id', Auth::user()->id)
+    ->orWhere('recordable_type', 'loans')
+    ->whereBetween('created_at', [$request->initial_date, $request->final_date])
+    ->where('action', 'ilike', 'editó [Rol]%')
+    ->where('user_id', Auth::user()->id)->get();
+    $c = 1;
+    $rol = 0;
+    foreach($records  as $record)
+    {
+        $loan = Loan::find($record->recordable_id);
+        if($loan){
+            if(preg_match('/\b\d+\b/', $record->action, $matches) && $record->record_type_id <> 3)
+                $rol = (int)$matches[0];
+            array_push($report_process_loan, array(
+                $c,
+                $loan->city->name,
+                $loan->code,
+                $loan->borrower->first()->identity_card,
+                $loan->borrower->first()->full_name,
+                $loan->modality->name,
+                $loan->amount_approved,
+                $record->record_type_id == 3 ? $record->role->display_name : Role::find($rol)->display_name,
+                $record->record_type_id == 3 ? 'Derivó Tramite' : 'Devolvió Tramite',
+                Carbon::parse($record->created_at)->format('d-m-Y'),
+                User::find($record->user_id)->full_name
+            ));
+            $c++;
+        }
+    }
+    $export = new ArchivoPrimarioExport($report_process_loan);
+    return Excel::download($export, $file.'.xls');
   }
 }

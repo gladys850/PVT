@@ -96,6 +96,7 @@ Route::group([
         Route::get('request_state_report', 'Api\V1\LoanReportController@request_state_report');
         Route::get('loan_application_status', 'Api\V1\LoanReportController@loan_application_status');
         Route::get('loans_days_amortization', 'Api\V1\LoanReportController@loans_days_amortization');// reporte dias transcurridos desde ultima amortización
+        Route::get('processed_loan_report', 'Api\V1\LoanReportController@processed_loan_report');// Reporte de tramites procesados
             //loanPaymentReport
         Route::get('list_loan_payments_generate', 'Api\V1\LoanPaymentReportController@list_loan_payments_generate');
         Route::get('report_amortization_discount_months', 'Api\V1\LoanPaymentReportController@report_amortization_discount_months');
