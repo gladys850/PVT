@@ -296,6 +296,15 @@ export default {
         type: "xls",
         permissions: 'show-report-others'
       },
+      {
+        id: 18,
+        name: "Rep. de tramites procesados",
+        tab: 0,
+        criterios: ["initial_date", "final_date"],
+        service: "/processed_loan_report",
+        type: "xls",
+        permissions: 'show-report-others'
+      },
     ],
     this.type_institution= [
       { value:"C", name:"Comando" },
