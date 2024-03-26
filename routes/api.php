@@ -310,6 +310,7 @@ Route::group([
         Route::group([
             'middleware' => 'permission:create-payment-loan'
         ], function () {
+            Route::get('get_duplicity_account', 'Api\V1\LoanPaymentController@get_duplicity_account');
             Route::get('get_amount_payment', 'Api\V1\LoanController@get_amount_payment');
             Route::patch('loan/{loan}/payment','Api\V1\LoanController@get_next_payment');
             Route::post('loan/{loan}/payment','Api\V1\LoanController@set_payment');
