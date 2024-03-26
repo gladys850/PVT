@@ -100,7 +100,8 @@ Route::group([
             //loanPaymentReport
         Route::get('list_loan_payments_generate', 'Api\V1\LoanPaymentReportController@list_loan_payments_generate');
         Route::get('report_amortization_discount_months', 'Api\V1\LoanPaymentReportController@report_amortization_discount_months');
-        Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit');
+        //Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit');
+        Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit_discount_type');
         Route::get('report_amortization_ajust', 'Api\V1\LoanPaymentReportController@report_amortization_ajust');
         Route::get('report_amortization_pending_confirmation', 'Api\V1\LoanPaymentReportController@report_amortization_pending_confirmation');
         Route::get('report_amortization_fondo_complement', 'Api\V1\LoanPaymentReportController@report_amortization_fondo_complement');
