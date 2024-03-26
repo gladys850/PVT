@@ -235,8 +235,8 @@ class LoanPaymentReportController extends Controller
     $initial_date = request('initial_date') ?? '';
     $final_date = request('final_date') ?? '';
     $state_pagado = 'Pagado';
-    $procedure_type = 'Amortización en Efectivo';
-    $procedure_type1 = 'Amortización con Deposito en Cuenta';
+    $procedure_type_cash = 'Amortización en Efectivo';
+    $procedure_type_deposit = 'Amortización con Deposito en Cuenta';
 
     if ($initial_date != '') {
       array_push($conditions, array('view_loan_amortizations.estimated_date_loan_payment', '>=', "%{$initial_date}%"));
@@ -244,24 +244,16 @@ class LoanPaymentReportController extends Controller
     if ($final_date != '') {
       array_push($conditions, array('view_loan_amortizations.estimated_date_loan_payment', '<=', "%{$final_date}%"));
     }
-    //array_push($conditions, array('view_loan_amortizations.states_loan_payment', 'ilike', "%{$state_pagado}%"));
-    //array_push($conditions, array('view_loan_amortizations.procedure_loan_payment', 'ilike', "%{$procedure_type}%"));
+
     $list_loan = DB::table('view_loan_amortizations')
     ->where($conditions)
-    ->where(function($query) use ($procedure_type, $procedure_type1) {
-        $query->orWhere('view_loan_amortizations.procedure_loan_payment', 'ilike', "%{$procedure_type}%")
-              ->orWhere('view_loan_amortizations.procedure_loan_payment', 'ilike', "%{$procedure_type1}%");
+    ->where(function($query) use ($procedure_type_cash, $procedure_type_deposit) {
+        $query->orWhere('view_loan_amortizations.procedure_loan_payment', 'ilike', "%{$procedure_type_cash}%")
+              ->orWhere('view_loan_amortizations.procedure_loan_payment', 'ilike', "%{$procedure_type_deposit}%");
     })
     ->orderBy('code_loan', $order_loan)
     ->get();
-    /*
-    foreach ($list_loan as $loan) {
-      $padron = Loan::where('id', $loan->id_loan)->first();
-      $loan->modality = $padron->modality->procedure_type->second_name;
-      $loan->sub_modality = $padron->modality->shortened;
-      $loan->separation = '***';
-    }
-    */
+
     $File = "ListadoAmortizacionesPorTipoDePago";
     $data_head = array(
         "CI AFILIADO", "MATRICULA AFILIADO", "NOMBRE COMPLETO AFILIADO", "***", "COD PRÉSTAMO", "FECHA DE DESEMBOLSO", "TIPO", "FECHA DE CALCULO", "FECHA DE TRANSACCIÓN",
@@ -273,7 +265,7 @@ class LoanPaymentReportController extends Controller
 
     $data = collect();
     // DIRECTO
-    $data->automatica = array($data_head);
+    $data->direct = array($data_head);
     // DEP-BANC
     $data->dep_banc = array($data_head);
 
@@ -326,7 +318,7 @@ class LoanPaymentReportController extends Controller
       );
 
       switch($row->modality_shortened_loan_payment){
-        case 'DIRECTO': array_push($data->automatica, $data_body);
+        case 'DIRECTO': array_push($data->direct, $data_body);
             break; 
         case 'DEP-BANC': array_push($data->dep_banc, $data_body);
             break;
@@ -334,7 +326,7 @@ class LoanPaymentReportController extends Controller
 
     }
     //$export = new ArchivoPrimarioExport($data);
-    $export = new MultipleSheetExportPayment($data->automatica,$data->dep_banc,'DIRECTO','DEP_BANC');
+    $export = new MultipleSheetExportPayment($data->direct,$data->dep_banc,'DIRECTO','DEP_BANC');
     return Excel::download($export, $File . '.xls');
   }
 
