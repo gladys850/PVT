@@ -273,6 +273,7 @@
                               :outlined="isNew"
                               :readonly="!isNew"
                               :disabled="show || edit"
+                              @change="checkPaymentDate"
                             ></v-text-field>
                           </v-col>
 
@@ -553,6 +554,15 @@ export default {
     }
   },
   methods: {
+    checkPaymentDate() {
+      const selectedDate = new Date(this.data_payment.payment_date);
+      const currentDate = new Date();
+      const limitDate = new Date();
+      limitDate.setMonth(limitDate.getMonth() + 2);
+      if (selectedDate > limitDate) {
+        this.toastr.warning('La fecha seleccionada es más de dos meses posterior a la fecha actual.')
+      }
+    },
     //Metodo para sacar todos los tipo de pago
     async OnchangeAmortization(){
       try {
@@ -801,6 +811,16 @@ export default {
     //Metodo para sacar la siguiente cuota
     async Calcular(id) {
     try {
+      let res_duplicity = await axios.get(`get_duplicity_account`,{
+          params: {
+            voucher: this.data_payment.voucher,
+            date: this.data_payment.payment_date,
+            procedure_modality_id: this.data_payment.procedure_modality_id,
+          }
+        })
+      console.log(res_duplicity.data)
+      if(res_duplicity.data == 0)
+      {
         let res = await axios.patch(`loan/${id}/payment`,{
           affiliate_id:this.data_payment.affiliate_id_paid_by,
           estimated_date:this.data_payment.payment_date,
@@ -815,6 +835,9 @@ export default {
           this.payment_detail.now_date= new Date().toISOString().substr(0, 10),
           this.$forceUpdate()
           this.$emit("isCalculate",false);
+      }else{
+        this.toastr.error("Ya existe un deposito bancario con ese número de comprobante")
+      }
       }catch (e) {
         console.log(e)
       }finally {

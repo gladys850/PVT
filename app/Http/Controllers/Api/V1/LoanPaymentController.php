@@ -244,10 +244,10 @@ class LoanPaymentController extends Controller
         if (Auth::user()->can('update-payment-loan')) {
             $update = $request->only('description','loan_payment_date', 'validated','procedure_modality_id','affiliate_id','voucher','paid_by');
         }
-        if($payment_procedure_type != 'Amortización Directa' && $request->validated) {
+        if($payment_procedure_type != 'Amortización en Efectivo' && $request->validated) {
             $loanPayment->state_id=$Pagado;
         }
-        if($payment_procedure_type != 'Amortización Directa' && !$request->validated){
+        if($payment_procedure_type != 'Amortización en Efectivo' && !$request->validated){
             $loanPayment->state_id=$pendiente_pago;
         }
         $user_id = auth()->id();
@@ -1270,5 +1270,13 @@ class LoanPaymentController extends Controller
         $consult = DB::select($consult);
 
         return $consult;
+    }
+
+    public function get_duplicity_account(Request $request)
+    {
+        $procedure_modality_id = ProcedureModality::whereName("Deposito Bancario")->first()->id;
+        if($procedure_modality_id == $request->procedure_modality_id && LoanPayment::where('voucher', 'ilike', $request->voucher)->where('procedure_modality_id', $procedure_modality_id)->whereYear('estimated_date', Carbon::parse($request->date)->format('Y'))->count() > 0)
+            return 1;
+        return 0;
     }
 }

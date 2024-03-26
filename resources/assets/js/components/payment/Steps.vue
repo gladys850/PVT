@@ -215,7 +215,7 @@ export default {
           {
             this.data_payment.validar =true
           }else{
-            if(this.data_payment.procedure_modality_name == 'Amortización Directa')
+            if(this.data_payment.procedure_modality_name == 'Amortización en Efectivo')
             {
               this.data_payment.validar =false
             }
@@ -277,7 +277,7 @@ export default {
             {
               this.validatePayment()
             }else{
-              if(this.data_payment.procedure_modality_name == 'Amortización Directa' && this.permissionSimpleSelected.includes('create-payment') )
+              if(this.data_payment.procedure_modality_name == 'Amortización en Efectivo' && this.permissionSimpleSelected.includes('create-payment') )
               {
                 this.savePaymentTreasury()
               }else{
