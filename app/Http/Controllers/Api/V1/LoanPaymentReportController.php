@@ -56,22 +56,29 @@ class LoanPaymentReportController extends Controller
       ->select('*')
       ->orderBy('code_loan', $order_loan)
       ->get();
-        foreach ($list_loan as $loan) {
-          $padron = Loan::where('id', $loan->id_loan)->first();
-          $loan->modality=$padron->modality->procedure_type->second_name;
-          $loan->sub_modality=$padron->modality->shortened;
-          $loan->separation='***';
-          }      
-          $File="ListadoAmortizaciones";
-          $data=array(
-              array("CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***","COD PRÉSTAMO", "FECHA DE DESEMBOLSO", "TIPO","FECHA DE CALCULO","FECHA DE TRANSACCIÓN",
+                      
+          $File="ListadoAmortizacionesPorTipoDePago";
+          $data_head=array(
+              "CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***","COD PRÉSTAMO", "FECHA DE DESEMBOLSO", "TIPO","FECHA DE CALCULO","FECHA DE TRANSACCIÓN",
               "MODALIDAD PRÉSTAMO","SUB MODALIDAD PRÉSTAMO",
               "MATRICULA", "CI", "PRIMER NOMBRE","SEGUNDO NOMBRE","APELLIDO PATERNO","APELLIDO MATERNO","APELLIDO CASADA",
               "CAPITAL","INTERÉS CORRIENTE","INTERÉS PENAL","INTERÉS CORRIENTE PENDIENTE",
-              "INTERÉS PENAL PENDIENTE","TOTAL PAGADO","SALDO ANTERIOR","SALDO ACTUAL","PAGADO POR","TIPO DESCUENTO","NRO DE COBRO","ESTADO AMORTIZACIÓN")
-          );    
-               foreach ($list_loan as $row){
-                   array_push($data, array(
+              "INTERÉS PENAL PENDIENTE","TOTAL PAGADO","SALDO ANTERIOR","SALDO ACTUAL","PAGADO POR","TIPO DESCUENTO","NRO DE COBRO","ESTADO AMORTIZACIÓN"
+              );   
+    $data = collect();
+    //DES-COMANDO
+    $data->discount_comand = array($data_head);
+    //DES-SENASIR
+    $data->discount_senasir= array($data_head);
+    
+               foreach ($list_loan as $row){    
+                  
+                  $padron = Loan::find($row->id_loan);
+                  $row->modality=$padron->modality->procedure_type->second_name;
+                  $row->sub_modality=$padron->modality->shortened;
+                  $row->separation='***';
+                  
+                  $data_body = array(
                        $row->identity_card_affiliate,
                        $row->registration_affiliate,
                        $row->full_name_affiliate,
@@ -107,9 +114,16 @@ class LoanPaymentReportController extends Controller
 
                        $row->code_loan_payment, //Nro de cobro
                        $row->states_loan_payment, //estado del cobro
-                   ));
+                   );
+
+                   switch($row->modality_shortened_loan_payment){
+                    case 'DES-COMANDO': array_push($data->discount_comand, $data_body);
+                        break; 
+                    case 'DES-SENASIR': array_push($data->discount_senasir, $data_body);
+                        break;
+                  };
                }
-               $export = new ArchivoPrimarioExport($data);
+               $export = new MultipleSheetExportPayment($data->discount_comand,$data->discount_senasir,'DES-COMANDO','DES-SENASIR');
                return Excel::download($export, $File.'.xls');
   }
 
