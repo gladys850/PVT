@@ -319,8 +319,8 @@
                               v-model="data_payment.pago_total"
                               label="Total Pagado"
                               :outlined="isNew"
-                              :readonly="!isNew"
-                              :disabled="show || edit"
+                              :readonly="liquidate_disable"
+                              :disabled="liquidate_disable"
                             ></v-text-field>
                           </v-col>
 
@@ -492,6 +492,7 @@ export default {
         picker: false,
       }
     },
+    liquidate_disable:false
   }),
   computed: {
     //Metodo para obtener Permisos por rol
@@ -587,6 +588,7 @@ export default {
           })
           this.data_payment.pago_total=res.data.suggested_amount
         }
+        this.liquidate_disable = this.data_payment.pago == 'Liquidar' ? true : false
       } catch (e) {
         console.log(e)
       } finally {
