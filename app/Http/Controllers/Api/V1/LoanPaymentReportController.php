@@ -382,21 +382,29 @@ class LoanPaymentReportController extends Controller
               ->orderBy('code_loan', $order_loan)
               ->get();
 
-  foreach ($list_loan as $loan) {
-    $padron = Loan::where('id', $loan->id_loan)->first();
-    $loan->modality=$padron->modality->procedure_type->second_name;
-    $loan->sub_modality=$padron->modality->shortened;
-  }
 
-  $File="ListadoAmortizaciones";
-  $data=array(
+  $File="ListadoAmortizacionesPorTipoDePago";
+  $data_head=
         array("NRO DE PRÉSTAMO", "FECHA DE DESEMBOLSO", "TIPO","FECHA DE PAGO","FECHA DE TRANSACCIÓN","MODALIDAD","SUB MODALIDAD",
               "MATRICULA AFILIADO", "CI AFILIADO", "NOMBRE COMPLETO AFILIADO", "***","MATRICULA TITULAR", "CI TITULAR","APELLIDO CASADA", "APELLIDO PATERNO","APELLIDO MATERNO",
               "PRIMER NOMBRE","SEGUNDO NOMBRE","CAPITAL","INTERÉS CORRIENTE","INTERÉS PENAL","INTERÉS CORRIENTE PENDIENTE", 
-              "INTERÉS PENAL PENDIENTE","TOTAL PAGADO","SALDO ANTERIOR", "SALDO ACTUAL","PAGADO POR","TIPO DESCUENTO","CBTE","NRO DE COBRO")
+              "INTERÉS PENAL PENDIENTE","TOTAL PAGADO","SALDO ANTERIOR", "SALDO ACTUAL","PAGADO POR","TIPO DESCUENTO","CBTE","NRO DE COBRO"
              );
+  
+  $data = collect();
+  // AJUSTE-CONT
+  $data->adjust = array($data_head);
+  // REFINANCIAMIENTO
+  $data->refinancing = array($data_head);
+
   foreach ($list_loan as $row){
-    array_push($data, array(
+    
+    $padron = Loan::find($row->id_loan);
+    $row->modality = $padron->modality->procedure_type->second_name;
+    $row->sub_modality = $padron->modality->shortened;
+    $row->separation = '***';
+
+    $data_body = array(
                 $row->code_loan,//nro de prestamo
                 Carbon::parse($row->disbursement_date_loan)->format('d/m/Y H:i:s'),//fecha de desembolso
                 $row->state_type_affiliate,//tipo (pasivo o activo)
@@ -434,9 +442,15 @@ class LoanPaymentReportController extends Controller
                 $row->voucher_type_loan_payment, //comprobante
 
                 $row->code_loan_payment, //Nro de cobro
-             ));
+             );
+             switch($row->modality_shortened_loan_payment){
+              case 'AJUSTE-CONT': array_push($data->adjust, $data_body);
+                  break; 
+              case 'REFINANCIAMIENTO': array_push($data->refinancing, $data_body);
+                  break;
+            };
     }
-    $export = new ArchivoPrimarioExport($data);
+    $export = new MultipleSheetExportPayment($data->adjust,$data->refinancing,'AJUSTE-CONT','REFINANCIAMIENTO');
     return Excel::download($export, $File.'.xls');
   }
  /** @group Reportes de amortizaciones 
