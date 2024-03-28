@@ -1462,7 +1462,10 @@ class LoanController extends Controller
             if(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Directo')
                 $payment->state_id = LoanPaymentState::whereName('Pendiente de Pago')->first()->id;
             elseif(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Deposito Bancario')
+            {
                 $payment->state_id = LoanPaymentState::whereName('Pagado')->first()->id;
+                $payment->validated = true;
+            }
             else
                 $payment->state_id = LoanPaymentState::whereName('Pendiente por confirmar')->first()->id;
             $payment->role_id = Role::whereName('PRE-cobranzas')->first()->id;

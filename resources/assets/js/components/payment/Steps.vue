@@ -57,7 +57,7 @@ export default {
       payment_date:new Date().toISOString().substr(0, 10),
       voucher_date:new Date().toISOString().substr(0, 10),
       pago_total: null,
-      voucher:'REGISTRO MANUAL'
+      voucher:""
     },
   }),
   computed: {
