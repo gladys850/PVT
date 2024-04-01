@@ -670,7 +670,7 @@ export default {
             this.data_payment.procedure_modality_name == 'Amortización por Ajuste Contable' ||
             this.data_payment.procedure_modality_name == 'Amortización Automática' ||
             this.data_payment.procedure_modality_name == 'Amortización Deposito Bancario' ||
-            this.data_payment.procedure_modality_name == 'Amortización por Beneficios')
+            this.data_payment.procedure_modality_name == 'Amortización con Beneficios')
           {
             this.data_payment.validar =true
           }else{
