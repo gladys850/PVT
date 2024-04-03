@@ -181,7 +181,7 @@ export default {
         criterios: ["initial_date", "final_date"],
         service: "/report_loan_vigent",
         type: "xls",
-        permissions: 'show-report-loans-disbursement'
+        permissions: 'show-report-loans-consult'
       },
       {
         id: 7,
@@ -200,7 +200,7 @@ export default {
         service: "/report_loans_mora",
         label: "Fecha final",
         type: "xls",
-        permissions: 'show-report-loans'
+        permissions: 'show-report-loans-consult'
       },
       {
         id: 9,
@@ -414,7 +414,7 @@ export default {
       let reports_items_treasury =[]
       let reports_items_others =[]
       let reports_items_loans =[]
-      let reports_items_loans_disbursement =[]
+      let reports_items_loans_consult =[]
 
       if (this.permissionSimpleSelected.includes("show-report-collections")){
          reports_items_collections = this.reports_items.filter((item) => item.permissions == 'show-report-collections');
@@ -425,15 +425,15 @@ export default {
       if (this.permissionSimpleSelected.includes("show-report-others")){
          reports_items_others = this.reports_items.filter((item) => item.permissions == 'show-report-others');
       }
-      if (this.permissionSimpleSelected.includes("show-report-loans-disbursement")){
-         reports_items_loans_disbursement = this.reports_items.filter((item) => item.permissions == 'show-report-loans-disbursement');
+      if (this.permissionSimpleSelected.includes("show-report-loans-consult")){
+         reports_items_loans_consult = this.reports_items.filter((item) => item.permissions == 'show-report-loans-consult');
       }
       if (this.permissionSimpleSelected.includes("show-report-loans")){
          reports_items_loans = this.reports_items.filter((item) => item.permissions == 'show-report-loans');
       }else{
         reports_items
       }
-      reports_items = reports_items_collections.concat(reports_items_loans_disbursement.concat(reports_items_loans.concat(reports_items_treasury.concat(reports_items_others))))
+      reports_items = reports_items_collections.concat(reports_items_loans_consult.concat(reports_items_loans.concat(reports_items_treasury.concat(reports_items_others))))
       reports_items = reports_items.filter((item) => item.tab == this.tab)
       return reports_items
        
