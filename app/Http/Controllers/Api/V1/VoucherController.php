@@ -304,7 +304,7 @@ class VoucherController extends Controller
                 array_push($conditions, array('view_loan_amortizations.deleted_at_voucher', '=', NULL));
             }
 
-            $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','DIRECTO'));
+            $modality_shortened_loan_payment = array_push($conditions, array('view_loan_amortizations.modality_shortened_loan_payment', '=','EFECTIVO'));
             array_push($conditions, array('view_loan_amortizations.code_voucher', '<>',NULL));
 
             if ($excel==true) {

@@ -148,7 +148,7 @@ class LoanPaymentReportController extends Controller
     $initial_date = request('initial_date') ?? '';
     $final_date = request('final_date') ?? '';
     $state_pagado='Pagado';
-    $procedure_type='Directo';
+    $procedure_type='Efectivo';
 
     if ($initial_date != '') {
       array_push($conditions, array('view_loan_amortizations.estimated_date_loan_payment', '>=', "%{$initial_date}%"));
@@ -258,7 +258,7 @@ class LoanPaymentReportController extends Controller
     if ($final_date != '') {
       array_push($conditions, array('view_loan_amortizations.estimated_date_loan_payment', '<=', "%{$final_date}%"));
     }
-
+    array_push($conditions, array('view_loan_amortizations.states_loan_payment', 'like', "%{$state_pagado}%"));
     $list_loan = DB::table('view_loan_amortizations')
     ->where($conditions)
     ->where(function($query) use ($procedure_type_cash, $procedure_type_deposit) {
@@ -278,9 +278,9 @@ class LoanPaymentReportController extends Controller
     );
 
     $data = collect();
-    // DIRECTO
-    $data->direct = array($data_head);
-    // DEP-BANC
+    // EFECTIVO
+    $data->cash = array($data_head);
+    // DEP EN CUENTA
     $data->dep_banc = array($data_head);
 
     foreach ($list_loan as $row) {
@@ -331,16 +331,16 @@ class LoanPaymentReportController extends Controller
         $row->states_loan_payment, //estado del cobro
       );
 
-      switch($row->modality_shortened_loan_payment){
-        case 'DIRECTO': array_push($data->direct, $data_body);
+      switch($row->voucher_type_loan_payment){
+        case 'Efectivo': array_push($data->cash, $data_body);
             break; 
-        case 'DEP-BANC': array_push($data->dep_banc, $data_body);
+        default: array_push($data->dep_banc, $data_body);
             break;
       };
 
     }
-    //$export = new ArchivoPrimarioExport($data);
-    $export = new MultipleSheetExportPayment($data->direct,$data->dep_banc,'DIRECTO','DEP_BANC');
+
+    $export = new MultipleSheetExportPayment($data->cash,$data->dep_banc,'EFECTIVO','DEP EN CTA');
     return Excel::download($export, $File . '.xls');
   }
 
@@ -352,7 +352,7 @@ class LoanPaymentReportController extends Controller
    * @authenticated
    * @responseFile responses/reports_amortizations/report_amortization_ajust.200.json
    */
- public function report_amortization_ajust(Request $request){
+public function report_amortization_ajust(Request $request){
   // aumenta el tiempo máximo de ejecución de este script a 150 min:
   ini_set('max_execution_time', 9000);
   // aumentar el tamaño de memoria permitido de este script:
