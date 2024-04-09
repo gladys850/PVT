@@ -302,7 +302,7 @@ class LoanPaymentController extends Controller
             $loan_state = $loanPayment->loan->state_id; 
             $loan = $loanPayment->loan;   
             if ($loanPayment->id == $last_records->id){
-                $procedure_modality_id = ProcedureModality::whereName("Directo")->first()->id;
+                $procedure_modality_id = ProcedureModality::whereName("Efectivo")->first()->id;
                 if($loanPayment->procedure_modality_id == $procedure_modality_id){ 
                     $voucher=Voucher::wherePayableId($loanPayment->id)->wherePayableType('loan_payments')->whereDeletedAt(null)->first();
                     if($voucher == null){
