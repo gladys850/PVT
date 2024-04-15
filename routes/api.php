@@ -95,10 +95,13 @@ Route::group([
         Route::get('loan_pvt_sismu_report', 'Api\V1\LoanReportController@loan_pvt_sismu_report');//reporte de prestamos PVT y sismu simultaneos
         Route::get('request_state_report', 'Api\V1\LoanReportController@request_state_report');
         Route::get('loan_application_status', 'Api\V1\LoanReportController@loan_application_status');
+        Route::get('loans_days_amortization', 'Api\V1\LoanReportController@loans_days_amortization');// reporte dias transcurridos desde ultima amortización
+        Route::get('processed_loan_report', 'Api\V1\LoanReportController@processed_loan_report');// Reporte de tramites procesados
             //loanPaymentReport
         Route::get('list_loan_payments_generate', 'Api\V1\LoanPaymentReportController@list_loan_payments_generate');
         Route::get('report_amortization_discount_months', 'Api\V1\LoanPaymentReportController@report_amortization_discount_months');
-        Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit');
+        //Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit');
+        Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit_discount_type');
         Route::get('report_amortization_ajust', 'Api\V1\LoanPaymentReportController@report_amortization_ajust');
         Route::get('report_amortization_pending_confirmation', 'Api\V1\LoanPaymentReportController@report_amortization_pending_confirmation');
         Route::get('report_amortization_fondo_complement', 'Api\V1\LoanPaymentReportController@report_amortization_fondo_complement');
@@ -308,6 +311,7 @@ Route::group([
         Route::group([
             'middleware' => 'permission:create-payment-loan'
         ], function () {
+            Route::get('get_duplicity_account', 'Api\V1\LoanPaymentController@get_duplicity_account');
             Route::get('get_amount_payment', 'Api\V1\LoanController@get_amount_payment');
             Route::patch('loan/{loan}/payment','Api\V1\LoanController@get_next_payment');
             Route::post('loan/{loan}/payment','Api\V1\LoanController@set_payment');

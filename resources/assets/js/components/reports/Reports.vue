@@ -33,8 +33,8 @@
                     </v-select>
                     <!-- SOLAMENTE SE MOSTRARA CUANDO HAYA UN REPORTE SELECCIONADO -->
                     <template v-if="report_selected && visible == true">
-                      <template v-if="report_selected.criterios.includes('initial_date') || 
-                                      report_selected.criterios.includes('final_date') || 
+                      <template v-if="report_selected.criterios.includes('initial_date') ||
+                                      report_selected.criterios.includes('final_date') ||
                                       report_selected.criterios.includes('date')">
                         <v-toolbar-title>
                           <b>Criterios de búsqueda</b>
@@ -287,6 +287,24 @@ export default {
         type: "xls",
         permissions: 'show-report-others'
       },
+      {
+        id: 17,
+        name: "Rep. Dias transcurridos desde la ultima Amortización",
+        tab: 0,
+        criterios: ["final_date"],
+        service: "/loans_days_amortization",
+        type: "xls",
+        permissions: 'show-report-others'
+      },
+      {
+        id: 18,
+        name: "Rep. de tramites procesados",
+        tab: 0,
+        criterios: ["initial_date", "final_date"],
+        service: "/processed_loan_report",
+        type: "xls",
+        permissions: 'show-report-others'
+      },
     ],
     this.type_institution= [
       { value:"C", name:"Comando" },
@@ -436,7 +454,7 @@ export default {
       reports_items = reports_items_collections.concat(reports_items_loans_consult.concat(reports_items_loans.concat(reports_items_treasury.concat(reports_items_others))))
       reports_items = reports_items.filter((item) => item.tab == this.tab)
       return reports_items
-       
+
     },
   },
 };

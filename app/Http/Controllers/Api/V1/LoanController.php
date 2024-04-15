@@ -1459,14 +1459,19 @@ class LoanController extends Controller
         if($loan->balance!=0){
             $payment = $loan->next_payment2($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
             $payment->description = $request->input('description', null);
-            if(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Directo')
+            if(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Efectivo')
                 $payment->state_id = LoanPaymentState::whereName('Pendiente de Pago')->first()->id;
+            elseif(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Deposito Bancario')
+            {
+                $payment->state_id = LoanPaymentState::whereName('Pagado')->first()->id;
+                $payment->validated = true;
+            }
             else
                 $payment->state_id = LoanPaymentState::whereName('Pendiente por confirmar')->first()->id;
             $payment->role_id = Role::whereName('PRE-cobranzas')->first()->id;
             if($request->has('procedure_modality_id')){
                 $modality = ProcedureModality::findOrFail($request->procedure_modality_id)->procedure_type;
-                if($modality->name == "Amortización Directa") $payment->validated = true;
+                if($modality->name == "Amortización en Efectivo" || $modality->name == "Amortización cor Deposito en Cuenta") $payment->validated = true;
             }
             $payment->procedure_modality_id = $request->input('procedure_modality_id');
             $payment->voucher = $request->input('voucher', null);

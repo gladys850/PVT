@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Module;
 use Util;
-
 use DB;
 use App\Affiliate;
 use App\City;
 use App\User;
 use App\Loan;
+use App\Role;
 use App\LoanState;
 use Carbon;
 use App\ProcedureModality;
@@ -26,7 +26,7 @@ use App\Exports\MultipleSheetExportPaymentMora;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\FileWithMultipleSheetsReport;
 use App\Exports\FileWithMultipleSheetsDefaulted;
-//use App\Exports\SheetExportPayment;
+use App\Record;
 
 class LoanReportController extends Controller
 {
@@ -201,7 +201,7 @@ class LoanReportController extends Controller
     $File="ListadoPrestamosDesembolsados";
 
     $data=array(
-    array( "NRO DE PRÉSTAMO", "FECHA DE SOLICITUD", "FECHA DESEMBOLSO",
+    array("NUP","NRO DE PRÉSTAMO", "FECHA DE SOLICITUD", "FECHA DESEMBOLSO",
             "INDICE DE ENDEUDAMIENTO", "SECTOR", "PRODUCTO", 
             "CI AFILIADO", "EXP", "MATRICULA AFILIADO", "NOMBRE COMPLETO AFILIADO", "GRADO", "***",
             "CI PRESTATARIIO", "EXP", "MATRICULA PRESTATARIO", "APELLIDO PATERNO PRESTATARIO", "APELLIDO MATERNO PRESTATARIO", "APE. CASADA PRESTATARIO", "1er NOMPRE PRESTATARIO", "2DO NOMBRE PRESTATARIO", "Nro CELULAR",
@@ -210,7 +210,8 @@ class LoanReportController extends Controller
             "FECHA ULTIMO PAGO DE INTERES")
         );
     foreach ($list_loan as $loan){
-        array_push($data, array(
+            array_push($data, array(
+            $loan->id_affiliate,
             $loan->code_loan,
             Carbon::parse($loan->request_date_loan)->format('d/m/Y'),
             Carbon::parse($loan->disbursement_date_loan)->format('d/m/Y H:i:s'),
@@ -297,7 +298,7 @@ class LoanReportController extends Controller
     //return $list_loan_liq;
     $File="ListadoPrestamosVigenteLiquidado";
     $data_liq=array(
-                array( "NRO DE PRÉSTAMO", "FECHA DE SOLICITUD", "FECHA DESEMBOLSO",
+                array("NUP","NRO DE PRÉSTAMO", "FECHA DE SOLICITUD", "FECHA DESEMBOLSO",
                 "INDICE DE ENDEUDAMIENTO", "SECTOR", "PRODUCTO", 
                 "CI AFILIADO", "EXP", "MATRICULA AFILIADO", "NOMBRE COMPLETO AFILIADO", "GRADO", "***",
                 "CI PRESTATARIIO", "EXP", "MATRICULA PRESTATARIO", "APELLIDO PATERNO PRESTATARIO", "APELLIDO MATERNO PRESTATARIO", "APE. CASADA PRESTATARIO", "1er NOMPRE PRESTATARIO", "2DO NOMBRE PRESTATARIO", "Nro CELULAR",
@@ -307,6 +308,7 @@ class LoanReportController extends Controller
     );
     foreach ($list_loan_liq as $loan){
         array_push($data_liq, array(
+            $loan->id_affiliate,
             $loan->code_loan,
             Carbon::parse($loan->request_date_loan)->format('d/m/Y'),
             Carbon::parse($loan->disbursement_date_loan)->format('d/m/Y H:i:s'),
@@ -711,7 +713,7 @@ class LoanReportController extends Controller
     $loans_mora = json_decode($datos_mora[0]->loans_mora_data);
 
     $File = "PrestamosMora";
-    $data_head = array("MATRICULA AFILIADO","CI AFILIADO", "EXP","NOMBRE COMPLETO AFILIADO", "***","MATRICULA","CI","EXP","NOMBRE COMPLETO","NRO DE CEL.1","NRO DE CEL.2","NRO FIJO","CIUDAD","DIRECCIÓN","PTMO","FECHA DESEMBOLSO",
+    $data_head = array("NUP","MATRICULA AFILIADO","CI AFILIADO", "EXP","NOMBRE COMPLETO AFILIADO", "***","MATRICULA","CI","EXP","NOMBRE COMPLETO","NRO DE CEL.1","NRO DE CEL.2","NRO FIJO","CIUDAD","DIRECCIÓN","PTMO","FECHA DESEMBOLSO",
     "NRO DE CUOTAS","TASA ANUAL","FECHA DEL ÚLTIMO PAGO","TIPO DE PAGO","CUOTA MENSUAL","SALDO ACTUAL","ÉSTADO DEL AFILIADO","MODALIDAD","SUB MODALIDAD","DÍAS MORA",
     "*","NOMBRE COMPLETO (Ref. Personal)","NRO DE TEL. FIJO (Ref. Personal)","NRO DE CEL (Ref. Personal)","DIRECCIÓN(Ref. Personal)",
     "**","MATRICULA AFILIADO (GARANTE 1)", "CI AFILIADO (GARANTE 1)", "EXP (GARANTE 1)", "NOMBRE COMPLETO AFILIADO (GARANTE 1)", "*-->*","MATRICULA (GARANTE TITULAR 1)","CI (GARANTE TITULAR 1)","EXP (GARANTE TITULAR 1)","NOMBRE COMPLETO (GARANTE TITULAR 1)","NRO DE TEL. FIJO","NRO DE CEL1","NRO DE CEL2","ESTADO DEL AFILIADO",
@@ -726,6 +728,7 @@ class LoanReportController extends Controller
     $row = 0;
     for( $row ; $row < sizeof($loans_mora) ; $row++ ){
         $data_body = array(
+            $loans_mora[$row]->id_affiliate ? $loans_mora[$row]->id_affiliate : '',
             $loans_mora[$row]->registration_affiliate ? $loans_mora[$row]->registration_affiliate : '',
             $loans_mora[$row]->identity_card_affiliate ? $loans_mora[$row]->identity_card_affiliate : '',
             $loans_mora[$row]->city_exp_first_shortened_affiliate ? $loans_mora[$row]->city_exp_first_shortened_affiliate : '',
@@ -1123,7 +1126,7 @@ class LoanReportController extends Controller
          $loans = Loan::where('state_id', LoanState::where('name', 'Vigente')->first()->id)->where('guarantor_amortizing', true)->get();
          $date_calculate = Carbon::now()->endOfMonth()->format('Y-m-d');
          $command_sheet_dafaulted=array(
-             array("CI AFILIADO","EXP AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***",
+             array("NUP","CI AFILIADO","EXP AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***",
              "COD PRESTAMO", "FECHA DE DESEMBOLSO", "DPTO", "TIPO ESTADO","ESTADO AFILIADO",
              "MATRICULA PRESTATARIO", "CI PRESTATARIO","EXP PRESTATARIO", "1ER NOMBRE", "2DO NOMBRE", "APELLIDO PATERNO", "APELLIDO MATERNO","APELLIDO DE CASADA", "SALDO ACTUAL", "CUOTA FIJA MENSUAL", "DESCUENTO PROGRAMADO", "INTERES","Amort. TIT o GAR?","***",
              "CI AFILIADO","EXP AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***",
@@ -1133,7 +1136,7 @@ class LoanReportController extends Controller
              "GAR2 1er Apellido","GAR2 2do Apellido","GAR2 Apellido de Casada","GAR2 Cuota fija","GAR2 descuento")
          );
          $senasir_sheet_defaulted=array(
-             array("CI AFILIADO","EXP AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***",
+             array("NUP","CI AFILIADO","EXP AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***",
              "COD PRESTAMO", "FECHA DE DESEMBOLSO", "DPTO", "TIPO ESTADO","ESTADO AFILIADO",
              "MATRICULA PRESTATARIO", "CI PRESTATARIO","EXP PRESTATARIO", "1ER NOMBRE", "2DO NOMBRE", "APELLIDO PATERNO", "APELLIDO MATERNO","APELLIDO DE CASADA", "SALDO ACTUAL", "CUOTA FIJA MENSUAL", "DESCUENTO PROGRAMADO", "INTERES","Amort. TIT o GAR?","***",
              "CI AFILIADO","EXP AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***",
@@ -1156,6 +1159,7 @@ class LoanReportController extends Controller
                  {
                       $loan->guarantor = $loan->guarantors;
                      array_push($command_sheet_dafaulted, array(
+                        $lender->affiliate()->id,
                         $lender->affiliate()->identity_card,
                         $lender->affiliate()->city_identity_card->first_shortened,
                         $lender->affiliate()->registration,
@@ -1225,6 +1229,7 @@ class LoanReportController extends Controller
                 { 
                      $loan->guarantor = $loan->guarantors;
                     array_push($senasir_sheet_defaulted, array(  
+                        $lender->affiliate()->id,
                         $lender->affiliate()->identity_card,
                         $lender->affiliate()->city_identity_card->first_shortened,
                         $lender->affiliate()->registration,
@@ -2210,5 +2215,78 @@ class LoanReportController extends Controller
         $export = new SheetExportPayment($loan_sheets, "Estado de Solicitudes de Prestamo");
         return Excel::download($export, $file_name.$extension);
     }
+  }
+
+  public function loans_days_amortization(Request $request)
+  {
+    $loans = Loan::where('state_id', 3)->get();
+    $File="PrestamosMora";
+        $data_mora=array(
+            array("NUP","CODIGO PRESTAMO","ESTADO", "NOMBRE COMPLETO PRESTATARIO","CI PRESTATARIO", "NUMERO DE TELEFONO","CUOTA PACTADA", "FECHA DE DESEMBOLSO","MONTO ULTIMA AMORTIZACIÓN","FECHA DE AMORTIZACION","DIAS TRANSCURRIDOS")
+        );
+    foreach($loans as $loan)
+    {
+        if(($loan->last_payment_validated && $loan->last_payment_validated->estimated_date < $request->final_date) || (!$loan->last_payment_validated & $loan->disbursement_date < $request->final_date))
+        {
+            array_push($data_mora, array(
+                $loan->affiliate_id,
+                $loan->code,
+                $loan->state->name,
+                $loan->borrower->first()->full_name,
+                $loan->borrower->first()->identity_card,
+                $loan->borrower->first()->cell_phone_number,
+                $loan->estimated_quota,
+                Carbon::parse($loan->disbursement_date)->format('Y-m-d'),
+                $loan->last_payment_validated ? $loan->last_payment_validated->estimated_quota : 0,
+                $loan->last_payment_validated ? $loan->last_payment_validated->estimated_date : '',
+                $loan->last_payment_validated ? (Carbon::parse($request->final_date)->diffInDays(Carbon::parse($loan->last_payment_validated->estimated_date))) : (Carbon::parse($request->final_date)->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay()->format('Y-m-d')))
+            ));
+        }
+    }
+
+    $export = new ArchivoPrimarioExport($data_mora);
+    return Excel::download($export, $File.'.xls');
+  }
+
+  public function processed_loan_report(Request $request)
+  {//return Auth::user()->id;
+    $file = "reporte de tramites procesados";
+    $report_process_loan=array(
+        array("N°","DEPTO.", "CODIGO PRESTAMO","CI PRESTATARIO", "NOMBRE PRESTATARIO","MODALIDAD", "MONTO", "ROL","ACCION", "FECHA DE ACCION","USUARIO")
+    );
+    $records = Record::where('recordable_type', 'loans')
+    ->whereBetween('created_at', [$request->initial_date, $request->final_date])
+    ->where('record_type_id', 3)
+    ->where('user_id', Auth::user()->id)
+    ->orWhere('recordable_type', 'loans')
+    ->whereBetween('created_at', [$request->initial_date, $request->final_date])
+    ->where('action', 'ilike', 'editó [Rol]%')
+    ->where('user_id', Auth::user()->id)->get();
+    $c = 1;
+    $rol = 0;
+    foreach($records  as $record)
+    {
+        $loan = Loan::find($record->recordable_id);
+        if($loan){
+            if(preg_match('/\b\d+\b/', $record->action, $matches) && $record->record_type_id <> 3)
+                $rol = (int)$matches[0];
+            array_push($report_process_loan, array(
+                $c,
+                $loan->city->name,
+                $loan->code,
+                $loan->borrower->first()->identity_card,
+                $loan->borrower->first()->full_name,
+                $loan->modality->name,
+                $loan->amount_approved,
+                $record->record_type_id == 3 ? $record->role->display_name : Role::find($rol)->display_name,
+                $record->record_type_id == 3 ? 'Derivó Tramite' : 'Devolvió Tramite',
+                Carbon::parse($record->created_at)->format('d-m-Y'),
+                User::find($record->user_id)->full_name
+            ));
+            $c++;
+        }
+    }
+    $export = new ArchivoPrimarioExport($report_process_loan);
+    return Excel::download($export, $file.'.xls');
   }
 }
