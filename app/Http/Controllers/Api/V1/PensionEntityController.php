@@ -19,7 +19,7 @@ class PensionEntityController extends Controller
      */
     public function index()
     {
-        return PensionEntity::orderBy('name')->get();
+        return PensionEntity::orderBy('name')->where('is_active', true)->get();
     }
 
     /**
@@ -31,6 +31,6 @@ class PensionEntityController extends Controller
     */
     public function show(PensionEntity $pension_entity)
     {
-        return $pension_entity;
+        return $pension_entity->where('is_active', true);
     }
 }

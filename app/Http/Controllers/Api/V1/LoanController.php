@@ -54,6 +54,7 @@ use App\LoanBorrower;
 use App\LoanGuarantor;
 use App\LoanProcedure;
 use App\Jobs\ProcessNotificationSMS;
+use App\Observation;
 
 /** @group Préstamos
 * Datos de los trámites de préstamos y sus relaciones
@@ -1836,58 +1837,66 @@ class LoanController extends Controller
     {
         $message['validate'] = false;
         $affiliate = Affiliate::findOrFail($affiliate_id);
+        $module_id = Module::where('name', 'prestamos')->first()->id;
+        $observations = Observation::select('observables.*')
+                        ->join('observation_types as ot', 'ot.id', '=', 'observables.observation_type_id')
+                        ->where('ot.module_id', '=', $module_id)
+                        ->where('observable_type', '=', 'affiliates')
+                        ->where('observable_id', '=', $affiliate_id)
+                        ->where('type', 'ilike', '%A%')
+                        ->get();
         $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $loan_disbursement = count($affiliate->disbursement_loans);
         if($request->refinancing)
             $loan_disbursement = $loan_disbursement - 1;
         $loan_process = count($affiliate->process_loans);
-        if ($affiliate->affiliate_state){
-            if($affiliate->affiliate_state->affiliate_state_type->name != "Baja" && $affiliate->affiliate_state->affiliate_state_type->name != ""){
-                    if((!$affiliate->dead) || ($affiliate->dead && (($affiliate->spouse ? ($affiliate->spouse->dead ? false: true) : false) == true))){
-                        if($affiliate->civil_status != null){
-                                if($affiliate->birth_date != null && $affiliate->city_birth_id != null){
-                                    if($affiliate->affiliate_state->affiliate_state_type->name != 'Pasivo'){
-                                        if($loan_process < $loan_global_parameter->max_loans_process ){
-                                            if($loan_disbursement < $loan_global_parameter->max_loans_active){
-                                                $message['validate'] = true;
-                                            }else{
-                                                $message['validate'] ='El afiliado no puede tener más de ' .$loan_global_parameter->max_loans_active. ' préstamos desembolsados. Actualemnte ya tiene '. $loan_disbursement .' préstamos desembolsados.';
-                                                 } 
-                                        }else{
-                                            $message['validate'] = 'El afiliado no puede tener más de '.$loan_global_parameter->max_loans_process.' trámite en proceso. Actualmente ya tiene '.$loan_process.' préstamos en proceso.';
-                                            }
-                                    }elseif($affiliate->pension_entity_id ==  null){
-                                            $message['validate'] = 'El afiliado no tiene registrado su ente Gestor.';
-                                            }else{
+        if($observations->count() == 0)
+        {
+            if ($affiliate->affiliate_state){
+                if($affiliate->affiliate_state->affiliate_state_type->name != "Baja" && $affiliate->affiliate_state->affiliate_state_type->name != ""){
+                        if((!$affiliate->dead) || ($affiliate->dead && (($affiliate->spouse ? ($affiliate->spouse->dead ? false: true) : false) == true))){
+                            if($affiliate->civil_status != null){
+                                    if($affiliate->birth_date != null && $affiliate->city_birth_id != null){
+                                        if($affiliate->affiliate_state->affiliate_state_type->name != 'Pasivo'){
+                                            if($affiliate->unit && $affiliate->unit->breakdown->name != 'Item Cero' || $affiliate->affiliate_state->name != "Comisión")
+                                            {
                                                 if($loan_process < $loan_global_parameter->max_loans_process ){
                                                     if($loan_disbursement < $loan_global_parameter->max_loans_active){
-                                                         $message['validate'] = true;
-                                                        }else{
-                                                    $message['validate'] ='El afiliado no puede tener más de ' .$loan_global_parameter->max_loans_active. ' préstamos desembolsados. Actualemnte ya tiene '. $loan_disbursement .' préstamos desembolsados.';
-                                                    } 
-                                                }else{
+                                                        $message['validate'] = true;
+                                                    }else
+                                                        $message['validate'] ='El afiliado no puede tener más de ' .$loan_global_parameter->max_loans_active. ' préstamos desembolsados. Actualemnte ya tiene '. $loan_disbursement .' préstamos desembolsados.'; 
+                                                }else
                                                     $message['validate'] = 'El afiliado no puede tener más de '.$loan_global_parameter->max_loans_process.' trámite en proceso. Actualmente ya tiene '.$loan_process.' préstamos en proceso.';
-                                                }  
-                                            }
-                                }else{
-                                    $message['validate'] = 'El afiliado no tiene registrado su fecha de nacimiento ó ciudad de nacimiento.';
-                                }
-                        }
-                        else{
-                        $message['validate'] = 'El afiliado no tiene registrado su estado civil.';
-                        }
+                                            }else
+                                                $message['validate'] = 'El afiliado no puede acceder a un prestamos por no tener registrado su unidad o encontrarse en comision Item 0';
+                                        }elseif($affiliate->pension_entity_id ==  null){
+                                                $message['validate'] = 'El afiliado no tiene registrado su ente Gestor.';
+                                                }else{
+                                                    if($loan_process < $loan_global_parameter->max_loans_process ){
+                                                        if($loan_disbursement < $loan_global_parameter->max_loans_active){
+                                                            $message['validate'] = true;
+                                                            }else
+                                                        $message['validate'] ='El afiliado no puede tener más de ' .$loan_global_parameter->max_loans_active. ' préstamos desembolsados. Actualemnte ya tiene '. $loan_disbursement .' préstamos desembolsados.';
+                                                    }else
+                                                        $message['validate'] = 'El afiliado no puede tener más de '.$loan_global_parameter->max_loans_process.' trámite en proceso. Actualmente ya tiene '.$loan_process.' préstamos en proceso.';
+                                                }
+                                    }else
+                                        $message['validate'] = 'El afiliado no tiene registrado su fecha de nacimiento ó ciudad de nacimiento.';
+                            }
+                            else
+                            $message['validate'] = 'El afiliado no tiene registrado su estado civil.';
+                    }
+                    else
+                        $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar fallecido ó no tener registrado a un(a) conyugue.';
                 }
-                else{ 
-                    $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar fallecido ó no tener registrado a un(a) conyugue.';
-                }
+            else
+                $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar dado de baja ó no tener registrado su estado.';
             }
-           else{   
-            $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar dado de baja ó no tener registrado su estado.';
-            }
+            else
+                $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar dado de baja ó no tener registrado su estado.';
         }
-        else{   
-            $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar dado de baja ó no tener registrado su estado.';
-        } 
+        else 
+            $message['validate'] = 'El afiliado esta observado por lo cual no puede acceder a un prestamo';
         return $message;
     }
     //Destruir todo el préstamo
