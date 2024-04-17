@@ -24,6 +24,7 @@
                             required
                             outlined
                             :disabled="edit_refi_repro"
+                            :loading="is_loading"
                           ></v-select>
                             </v-col>
                           <v-col cols="12" md="2" class="py-0 my-0"
@@ -359,6 +360,10 @@ export default {
     },
     affiliate_contribution:{
       type: Object,
+      required: true
+    },
+    is_loading:{
+      type: Boolean,
       required: true
     },
 
