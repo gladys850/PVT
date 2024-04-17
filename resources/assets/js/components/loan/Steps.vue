@@ -62,6 +62,7 @@
               :affiliate_contribution="affiliate_contribution"
               :global_parameters ="global_parameters"
               :affiliate_data.sync="affiliate_data"
+              :is_loading.sync="is_loading"
             />
             <v-container>
               <v-row>
@@ -317,7 +318,8 @@ export default {
     loan_contributions_adjust_ids: [],
     contributionable_ids: [],
     modalidad_refi_repro_remake: 0,
-    global_parameters: {}
+    global_parameters: {},
+    is_loading: false
   }),
   computed: {
     isNew() {
@@ -358,12 +360,15 @@ export default {
   mounted(){
     this.getGlobalParameters()
     if(!this.isNew && !this.type_sismu){
+      this.is_loading=true
+      this.edit_refi_repro = true
       this.getLoan(this.$route.query.loan_id)
     }else{
-    if(this.remake)
-      {
-        this.getLoan(this.$route.query.loan_id)
-      }
+      this.edit_refi_repro = false
+    // if(this.remake)
+    //   {
+    //     this.getLoan(this.$route.query.loan_id)
+    //   }
       //alert("Es nuevo")
     }
   },
@@ -405,6 +410,7 @@ export default {
     },
     async getProcedureType(){
       try {
+        this.is_loading=true
         let resp = await axios.get(`module`,{
           params: {
             name: 'prestamos',
@@ -454,10 +460,11 @@ export default {
         }else{
           this.toastr.error('Ocurrio un error al obtener la modadlidad')
         }
+        this.is_loading=false
       } catch (e) {
         console.log(e)
       } finally {
-          this.loading = false
+          this.is_loading = false
       }
     },
     //Ajuste del Titular
@@ -700,7 +707,6 @@ export default {
     //Obtener información del trámite en el caso que se refinanciamiento, reporgramación y rehacer
     async getLoan(id) {
       try {
-        this.loading = true
         let res = await axios.get(`loan/${id}`)
         this.data_loan = res.data
 
@@ -745,16 +751,18 @@ export default {
         }
         this.loanTypeSelected.id =this.modalidad_refi_repro_remake
         this.edit_refi_repro = true
+        this.is_loading = false
 
         //En el caso de rehacer hipotecario recuperar el VNR
         if(this.data_loan.property_id != null){
           let res3 = await axios.get(`loan_property/${this.data_loan.property_id}`)
           this.loan_detail.net_realizable_value = res3.data.net_realizable_value
         }
+        this.is_loading = false
       } catch (e) {
         console.log(e)
       } finally {
-        this.loading = false
+        this.is_loading = false
       }
     },
 
