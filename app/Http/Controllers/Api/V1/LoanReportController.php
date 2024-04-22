@@ -2219,10 +2219,6 @@ class LoanReportController extends Controller
 
   public function loans_days_amortization(Request $request)
   {
-   // aumenta el tiempo máximo de ejecución de este script a 150 min:
-   ini_set('max_execution_time', 9000);
-   // aumentar el tamaño de memoria permitido de este script:
-   ini_set('memory_limit', '960M');
    //Variables para enviar a la consulta
    $loan_state_id=3;                       // Estado del prestamo --valido
    $loan_payment_earring_id=3;             // Estado de los pagos del prestamo --pendiente por confirmar
@@ -2271,7 +2267,6 @@ class LoanReportController extends Controller
 
    $export = new ArchivoPrimarioExport($data_mora);
    return Excel::download($export, $File.'.xls');
-
 
   }
 
