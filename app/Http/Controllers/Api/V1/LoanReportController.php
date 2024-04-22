@@ -2219,33 +2219,60 @@ class LoanReportController extends Controller
 
   public function loans_days_amortization(Request $request)
   {
-    $loans = Loan::where('state_id', 3)->get();
-    $File="PrestamosMora";
-        $data_mora=array(
-            array("NUP","CODIGO PRESTAMO","ESTADO", "NOMBRE COMPLETO PRESTATARIO","CI PRESTATARIO", "NUMERO DE TELEFONO","CUOTA PACTADA", "FECHA DE DESEMBOLSO","MONTO ULTIMA AMORTIZACIÓN","FECHA DE AMORTIZACION","DIAS TRANSCURRIDOS")
-        );
-    foreach($loans as $loan)
-    {
-        if(($loan->last_payment_validated && $loan->last_payment_validated->estimated_date < $request->final_date) || (!$loan->last_payment_validated & $loan->disbursement_date < $request->final_date))
-        {
-            array_push($data_mora, array(
-                $loan->affiliate_id,
-                $loan->code,
-                $loan->state->name,
-                $loan->borrower->first()->full_name,
-                $loan->borrower->first()->identity_card,
-                $loan->borrower->first()->cell_phone_number,
-                $loan->estimated_quota,
-                Carbon::parse($loan->disbursement_date)->format('Y-m-d'),
-                $loan->last_payment_validated ? $loan->last_payment_validated->estimated_quota : 0,
-                $loan->last_payment_validated ? $loan->last_payment_validated->estimated_date : '',
-                $loan->last_payment_validated ? (Carbon::parse($request->final_date)->diffInDays(Carbon::parse($loan->last_payment_validated->estimated_date))) : (Carbon::parse($request->final_date)->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay()->format('Y-m-d')))
-            ));
-        }
-    }
+   // aumenta el tiempo máximo de ejecución de este script a 150 min:
+   ini_set('max_execution_time', 9000);
+   // aumentar el tamaño de memoria permitido de este script:
+   ini_set('memory_limit', '960M');
+   //Variables para enviar a la consulta
+   $loan_state_id=3;                       // Estado del prestamo --valido
+   $loan_payment_earring_id=3;             // Estado de los pagos del prestamo --pendiente por confirmar
+   $loan_payment_paid_id=4;                // Estado de los pagos del prestamo --pagado
+   $final_date=request('final_date');      // Fecha de entrada fronted
 
-    $export = new ArchivoPrimarioExport($data_mora);
-    return Excel::download($export, $File.'.xls');
+   $loans = Loan::whereDoesntHave('payments', function ($query) use ($final_date, $loan_payment_earring_id, $loan_payment_paid_id) {
+       $query->where('estimated_date', '>=', $final_date)
+           ->where(function ($subquery) use ($loan_payment_earring_id, $loan_payment_paid_id) {
+               $subquery->where('state_id', $loan_payment_earring_id)
+                       ->orWhere('state_id', $loan_payment_paid_id);
+           });
+   })
+   ->with(['payments' => function ($query) use ($loan_payment_earring_id, $loan_payment_paid_id) {
+       $query->where('state_id', $loan_payment_earring_id)
+           ->orWhere('state_id', $loan_payment_paid_id);
+   }])
+   ->where('state_id', $loan_state_id)
+   ->where('disbursement_date','<', $final_date)
+   ->get();
+
+   $File="PrestamosMoraPorPeriodos";
+   $data_mora=array(
+       array("NUP","CÓDIGO PRÉSTAMO","ESTADO","NOMBRE COMPLETO PRESTATARIO","CI PRESTATARIO", "NUMERO DE TELEFONO"
+       ,"CUOTA PACTADA", "FECHA DE DESEMBOLSO","MONTO ULTIMA AMORTIZACIÓN","FECHA DE AMORTIZACION","DIAS TRANSCURRIDOS")
+   );
+   
+   foreach($loans as $loan)
+   {   
+       array_push($data_mora, array(
+
+           $loan->affiliate_id,
+           $loan->code,
+           $loan->state->name,
+           $loan->loanBorrowers->first()->first_name." ".$loan->loanBorrowers->first()->second_name." ".$loan->loanBorrowers->first()->last_name." ".$loan->loanBorrowers->first()->mothers_last_name." ".$loan->loanBorrowers->first()->surname_husband,
+           $loan->loanBorrowers->first()->identity_card,
+           $loan->loanBorrowers->first()->cell_phone_number,
+           $loan->estimated_quota,
+           Carbon::parse($loan->disbursement_date)->format('Y-m-d'),
+           $loan->payments->isNotEmpty() ? $loan->payments->first()->estimated_quota : '',
+           $loan->payments->isNotEmpty() ? $loan->payments->first()->estimated_date : '',
+           $loan->payments->isNotEmpty() ? (Carbon::parse($final_date)->diffInDays(Carbon::parse($loan->payments->first()->estimated_date))) : (Carbon::parse($final_date)->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay()->format('Y-m-d'))),
+           )
+       );
+   }
+
+   $export = new ArchivoPrimarioExport($data_mora);
+   return Excel::download($export, $File.'.xls');
+
+
   }
 
   public function processed_loan_report(Request $request)
