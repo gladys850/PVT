@@ -28,7 +28,7 @@ class Observation extends Model
 
     public function type()
     {
-        return $this->belongsTo(ObservationType::class);
+        return $this->belongsTo(ObservationType::class, 'observation_type_id');
     }
 
     public function records()
