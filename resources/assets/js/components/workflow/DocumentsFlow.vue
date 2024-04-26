@@ -2,9 +2,9 @@
   <v-container fluid >
     <v-toolbar-title  class="pb-2">DOCUMENTOS PRESENTADOS</v-toolbar-title>
       <v-form>
-        <template top v-if="permissionSimpleSelected.includes('validate-submitted-documents')">
+        <template v-if="permissionSimpleSelected.includes('validate-submitted-documents')">
           <div>
-            <v-tooltip >
+            <v-tooltip top>
               <template v-slot:activator="{ on }">
                 <v-btn
                   fab
@@ -51,7 +51,7 @@
             </v-tooltip>
           </div>
         </template>
-        <v-toolbar-title>REQUERIDOS</v-toolbar-title>
+        <v-toolbar-title class="pb-2">REQUERIDOS</v-toolbar-title>
         <v-progress-linear></v-progress-linear>
           <v-row  class="py-3">
             <v-col v-for="(req,i) in docsRequired" :key="req.id" cols="12" class="py-1">
@@ -68,19 +68,18 @@
                           </v-list-item-content>
                         </v-col>
                         <v-col cols="8" class="py-0 ml-n8">
-                          {{ req.name }}
+                          <h2>{{ req.name }}</h2>
                         </v-col>
                         <v-col cols="3" class="py-0 my-0">
                           <div
                             class="py-0"
-                            v-if="permissionSimpleSelected.includes('validate-submitted-documents')"
                           >
                             <v-checkbox
                               class="py-0"
                               color="success"
                               v-model="req.pivot.is_valid"
                               @change="createObjectDocuments(req.id, req.pivot.is_valid, req.pivot.comment)"
-                              :disabled="!editable"
+                              :readonly="!editable"
                             ></v-checkbox>
                           </div>
                           <v-spacer></v-spacer>
@@ -89,16 +88,16 @@
                     </v-list>
                   </v-col>
                 </v-row>
-                <v-row v-if="permissionSimpleSelected.includes('validate-submitted-documents')">
+                <v-row>
                   <v-col cols="12" class="ma-0 py-0 px-10">
                     <v-text-field
                       dense
-                      :outlined="req.pivot.is_valid==false"
+                      :outlined="editable"
                       color="success"
                       label="Comentario"
                       v-model="req.pivot.comment"
-                      :disabled="!editable"
-                      :readonly="req.pivot.is_valid==true"
+                      @input="createObjectDocuments(req.id, req.pivot.is_valid, req.pivot.comment)"
+                      :readonly="!editable"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -108,7 +107,7 @@
           <v-row>
             <v-col cols="12">
               <template  v-if="docsOptional.length >0">
-                <v-toolbar-title>ADICIONALES</v-toolbar-title>
+                <v-toolbar-title class="pb-2">ADICIONALES</v-toolbar-title>
                   <v-progress-linear></v-progress-linear>
                     <v-row  class="py-3">
                       <v-col v-for="(opt,i) in docsOptional" :key="opt.id" cols="12" class="py-1">
@@ -125,12 +124,11 @@
                                     </v-list-item-content>
                                   </v-col>
                                   <v-col cols="8" class="py-0 ml-n8">
-                                    {{ opt.name }}
+                                    <h2>{{ opt.name }}</h2>
                                   </v-col>
                                   <v-col cols="3" class="py-0 my-0">
                                     <div
                                       class="py-0"
-                                      v-if="permissionSimpleSelected.includes('validate-submitted-documents')"
                                     >
                                       <v-checkbox
                                         class="py-0"
@@ -146,16 +144,16 @@
                               </v-list>
                             </v-col>
                           </v-row>
-                        <v-row v-if="permissionSimpleSelected.includes('validate-submitted-documents')">
+                        <v-row>
                           <v-col cols="12" class="ma-0 py-0 pl-10 pr-2">
                             <v-text-field
                               dense
-                              :outlined="opt.pivot.is_valid==false"
+                              :outlined="editable"
                               color="success"
                               label="Comentario"
                               v-model="opt.pivot.comment"
-                              :disabled="!editable"
-                              :readonly="opt.pivot.is_valid==true"
+                              @input="createObjectDocuments(opt.id, opt.pivot.is_valid, opt.pivot.comment)"
+                              :readonly="!editable"
                             ></v-text-field>
                           </v-col>
                         </v-row>
@@ -221,7 +219,7 @@
                     </v-col>
                   </v-row>
                   <v-row v-show="!editar">
-                    <v-col cols="6" class="ma-0 px-10">
+                    <v-col cols="12" class="ma-0 px-10">
                       <div
                         class="align-end  ma-0 pa-0 pl-2"
                         v-for="(note, index) of notes"
@@ -447,36 +445,46 @@ export default {
     dialogDeletex(){
       this.dialogDelete=false
     },
-    createObjectDocuments(id, is_valid, comment){
-      let document = {}
-      document.id = id,
-      document.is_valid = is_valid,
-      document.comment = comment
-      //console.log("mostar objeto")
-      //console.log(document)
-      this.documents.push(document)
-      //console.log(this.documents)
+    createObjectDocuments(id, is_valid, comment) {
+      // Verificar si el documento ya existe en this.documents
+      let existingDocument = this.documents.find(doc => doc.id === id);
 
+      // Si el documento ya existe, se actualiza
+      if (existingDocument) {
+        existingDocument.is_valid = is_valid
+        existingDocument.comment = comment
+      } else {
+        // Si el documento no existe, crear uno nuevo y agregarlo a this.documents
+        let document = {
+          id: id,
+          is_valid: is_valid,
+          comment: comment
+        };
+        this.documents.push(document)
+      }
+
+      console.log(this.documents);
     },
     async validarDoc() {
       try {
         if (!this.editable) {
-          this.editable = true
+          this.editable = true;
         } else {
-          for(let i=0; i < this.documents.length; i++){
-            console.log(this.documents[i].id)
-            let res = await axios.patch(`loan/${this.$route.params.id}/document/${this.documents[i].id}`,
-            {
-              is_valid: this.documents[i].is_valid,
-              comment: this.documents[i].comment
-            }
-          )
-          }
-          this.toastr.success("Los documentos se validarón correctamente")
+          // Crear un array de promesas para almacenar las solicitudes axios
+          const requests = this.documents.map(async doc => {
+            await axios.patch(`loan/${this.$route.params.id}/document/${doc.id}`, {
+              is_valid: doc.is_valid,
+              comment: doc.comment
+            });
+          });
+
+          // Esperar a que todas las solicitudes axios se completen
+          await Promise.all(requests);
+          this.toastr.success("Los documentos se validaron correctamente");
           this.editable = false
         }
       } catch (e) {
-        console.log(e)
+        console.log(e);
       } finally {
         this.loading = false
       }
