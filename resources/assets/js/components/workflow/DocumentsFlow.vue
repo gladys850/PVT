@@ -135,7 +135,7 @@
                                         color="success"
                                         v-model="opt.pivot.is_valid"
                                         @change="createObjectDocuments(opt.id, opt.pivot.is_valid, opt.pivot.comment)"
-                                        :disabled="!editable"
+                                        :readonly="!editable"
                                       ></v-checkbox>
                                     </div>
                                     <v-spacer></v-spacer>
