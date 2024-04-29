@@ -919,6 +919,20 @@ class LoanController extends Controller
         return $loan->submitted_documents;
     }
 
+    public function update_documents(Request $request, Loan $loan)
+    {
+        $request->validate([
+            'documents.*.id' => 'required|exists:procedure_documents,id',
+            'documents.*.is_valid' => 'required|boolean',
+            'documents.*.comment' => 'nullable|string|min:1'
+        ]);
+        foreach($request->documents as $document)
+        {
+            $loan->submitted_documents()->updateExistingPivot($document['procedure_document_id'], ['is_valid' => $document['is_valid'], 'comment' => $document['comment']]);
+        }
+        return $loan->submitted_documents;
+    }
+
     /**
     * Lista de documentos entregados
     * Obtiene la lista de los documentos presentados para el trámite
