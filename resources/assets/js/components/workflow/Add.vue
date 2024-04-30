@@ -415,7 +415,11 @@
         <v-tab-item :value="'tab-3'">
           <v-card flat tile>
             <v-card-text class="pl-12">
-              <DocumentsFlow>
+              <DocumentsFlow
+                :docsRequired.sync="docsRequired"
+                :docsOptional.sync="docsOptional"
+                :val_docs.sync="val_docs"
+              >
                 <template v-slot:title>
                   <v-col cols="12" class>
                     <v-toolbar-title>DOCUMENTOS PRESENTADOS</v-toolbar-title>
@@ -735,7 +739,10 @@ export default {
     dialog_guarantor_lender:false,
     dialog_notification: false,
     loading_notify: false,
-    loading_btn_plan: false
+    loading_btn_plan: false,
+    docsRequired: [],
+    docsOptional: [],
+    val_docs: {}
   }),
   watch: {
     search: _.debounce(function() {
@@ -791,6 +798,7 @@ export default {
       this.workTray = 'received'
     }*/
     this.getloan(this.$route.params.id)
+    this.getDocumentsSubmitted(this.$route.params.id)
     //this.getSpouse(this.$route.params.id)
     this.getObservation(this.$route.params.id)
     //this.getProceduretype(this.$route.params.id)
@@ -1170,7 +1178,20 @@ export default {
           }
           else
           {
-            this.bus.$emit('openDialog', { edit: false, accion: 'validar' })
+            if(this.permissionSimpleSelected.includes('validate-submitted-documents')==true && this.loan.modality.procedure_type.second_name == 'Anticipo'){
+              console.log(this.val_docs.valid)
+              if(this.val_docs.valid){ 
+                console.log("es Calific y validado"+this.val_docs.valid)
+                this.bus.$emit('openDialog', { edit: false, accion: 'validar' })           
+
+              }else{ 
+                console.log(this.val_docs.valid +"es Calific y no valido"+ this.loan.modality.procedure_type.second_name)
+                this.toastr.error('Existen documentos sin validar.')
+              }
+            }else{
+              console.log("no es CAlific o no correponde")
+              this.bus.$emit('openDialog', { edit: false, accion: 'validar' })
+            }
           }
         }
       }
@@ -1225,9 +1246,21 @@ export default {
         this.toastr.error(e)
         console.log(e)
       }
-    }
-
-
+    },
+    async getDocumentsSubmitted(id) {
+      try {
+        this.loading = true
+        let res = await axios.get(`loan/${id}/document`)
+        this.docsRequired = res.data.required
+        this.docsOptional = res.data.optional
+        this.val_docs.valid = res.data.validated
+        console.log(this.val_docs.valid)
+      } catch (e) {
+        console.log(e)
+      } finally {
+        this.loading = false
+      }
+    },
    },
   }
 

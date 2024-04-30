@@ -76,7 +76,7 @@
                           >
                             <v-checkbox
                               class="py-0"
-                              color="success"
+                              :color="editable?'warning':'success'"
                               v-model="req.pivot.is_valid"
                               @change="createObjectDocuments(req.id, req.pivot.is_valid, req.pivot.comment)"
                               :readonly="!editable"
@@ -93,11 +93,12 @@
                     <v-text-field
                       dense
                       :outlined="editable"
-                      color="success"
+                      :color="editable?'warning':'success'"
                       label="Comentario"
                       v-model="req.pivot.comment"
                       @input="createObjectDocuments(req.id, req.pivot.is_valid, req.pivot.comment)"
                       :readonly="!editable"
+                      clearable
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -132,7 +133,7 @@
                                     >
                                       <v-checkbox
                                         class="py-0"
-                                        color="success"
+                                        :color="editable?'warning':'success'"
                                         v-model="opt.pivot.is_valid"
                                         @change="createObjectDocuments(opt.id, opt.pivot.is_valid, opt.pivot.comment)"
                                         :readonly="!editable"
@@ -149,11 +150,12 @@
                             <v-text-field
                               dense
                               :outlined="editable"
-                              color="success"
+                              :color="editable?'warning':'success'"
                               label="Comentario"
                               v-model="opt.pivot.comment"
                               @input="createObjectDocuments(opt.id, opt.pivot.is_valid, opt.pivot.comment)"
                               :readonly="!editable"
+                              clearable
                             ></v-text-field>
                           </v-col>
                         </v-row>
@@ -320,6 +322,20 @@
 <script>
 export default {
   name: "documents-flow",
+  props: {
+    val_docs: {
+      type: Object,
+      required: true
+      },
+    docsRequired: {
+      type: Array,
+      required: true
+    },
+    docsOptional: {
+      type: Array,
+      required: true
+    },
+  },
   data: () => ({
     dialog: false,
     dialogDelete: false,
@@ -336,12 +352,12 @@ export default {
     editedItem: {},
     defaultItem: {},
     editar:false,
-    docsRequired: [],
-    docsOptional: [],
+    // docsRequired: [],
+    // docsOptional: [],
     notes: [],
     editable: false,
     reload: false,
-    documents:[]
+    documents:[],
   }),
 
 
@@ -354,11 +370,11 @@ export default {
     watch: {
       dialog (val) {
         val || this.close()
-      }
+      },
     },
 
  beforeMount() {
-    this.getDocumentsSubmitted(this.$route.params.id)
+    //this.getDocumentsSubmitted(this.$route.params.id)
     this.getNotes(this.$route.params.id)
   },
 
@@ -417,18 +433,19 @@ export default {
           this.loading = false
         }
       },
-    async getDocumentsSubmitted(id) {
-      try {
-        this.loading = true
-        let res = await axios.get(`loan/${id}/document`)
-        this.docsRequired = res.data.required
-        this.docsOptional = res.data.optional
-      } catch (e) {
-        console.log(e)
-      } finally {
-        this.loading = false
-      }
-    },
+    // async getDocumentsSubmitted(id) {
+    //   try {
+    //     this.loading = true
+    //     let res = await axios.get(`loan/${id}/document`)
+    //     this.docsRequired = res.data.required
+    //     this.docsOptional = res.data.optional
+    //     this.validated = res.data.validated
+    //   } catch (e) {
+    //     console.log(e)
+    //   } finally {
+    //     this.loading = false
+    //   }
+    // },
     //Metodo para sacar los Otros Documentos
     async getNotes(id) {
       try {
@@ -445,9 +462,9 @@ export default {
     dialogDeletex(){
       this.dialogDelete=false
     },
-    createObjectDocuments(id, is_valid, comment) {
+    createObjectDocuments(procedure_document_id, is_valid, comment) {
       // Verificar si el documento ya existe en this.documents
-      let existingDocument = this.documents.find(doc => doc.id === id);
+      let existingDocument = this.documents.find(doc => doc.procedure_document_id === procedure_document_id);
 
       // Si el documento ya existe, se actualiza
       if (existingDocument) {
@@ -456,11 +473,12 @@ export default {
       } else {
         // Si el documento no existe, crear uno nuevo y agregarlo a this.documents
         let document = {
-          id: id,
-          is_valid: is_valid,
-          comment: comment
+          procedure_document_id: procedure_document_id,
+          comment: comment,
+          is_valid: is_valid
         };
         this.documents.push(document)
+        console.log(this.documents)
       }
 
       console.log(this.documents);
@@ -470,18 +488,16 @@ export default {
         if (!this.editable) {
           this.editable = true;
         } else {
-          // Crear un array de promesas para almacenar las solicitudes axios
-          const requests = this.documents.map(async doc => {
-            await axios.patch(`loan/${this.$route.params.id}/document/${doc.id}`, {
-              is_valid: doc.is_valid,
-              comment: doc.comment
-            });
+          let res = await axios.patch(`loan/${this.$route.params.id}/documents`, {
+            documents:this.documents
           });
-
-          // Esperar a que todas las solicitudes axios se completen
-          await Promise.all(requests);
+          console.log(this.documents)
+          console.log(res.data)
           this.toastr.success("Los documentos se validaron correctamente");
           this.editable = false
+          
+          this.val_docs.valid =res.data.every(doc => doc.pivot.is_valid===true)
+          console.log(this.val_docs.valid)
         }
       } catch (e) {
         console.log(e);
