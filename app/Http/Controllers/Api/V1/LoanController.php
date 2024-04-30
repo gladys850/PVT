@@ -922,9 +922,9 @@ class LoanController extends Controller
     public function update_documents(Request $request, Loan $loan)
     {
         $request->validate([
-            'documents.[].procedure_documents' => 'required|exists:procedure_documents,id',
-            'documents.[].is_valid' => 'required|boolean',
-            'documents.[*].comment' => 'nullable|string|min:1'
+            'documents.*.procedure_document_id' => 'required|exists:procedure_documents,id',
+            'documents.*.is_valid' => 'required|boolean',
+            'documents.*.comment' => 'nullable|string|min:1'
         ]);
         foreach($request->documents as $document)
         {
