@@ -189,10 +189,30 @@ class Loan extends Model
 
     public function getSubmittedDocumentsListAttribute()
     {
-        return  [
+        $documents = [
+            'validated' => true,
             'required' => ($this->submitted_documents)->intersect($this->modality->required_documents),
-            'optional' => ($this->submitted_documents)->intersect($this->modality->optional_documents)
+            'optional' => ($this->submitted_documents)->intersect($this->modality->optional_documents),
         ];
+        $validated = true;//return $documents['required'];
+        foreach($documents['required'] as $required)
+        {
+            if($required->pivot->is_valid == false);
+            {
+                $validated = false;
+                break;
+            }
+        }
+        foreach($documents['optional'] as $optional)
+        {
+            if($optional->pivot->is_valid == false);
+            {
+                $validated = false;
+                break;
+            }
+        }
+        $documents['validated'] = $validated;
+        return $documents;
     }
 
     public function guarantors()
