@@ -476,9 +476,9 @@ public function report_amortization_ajust(Request $request){
       $initial_date = request('initial_date') ?? '';
       $final_date = request('final_date') ?? '';
       $state_pagado='Pagado';
-      $procedure_type='Complemento Económico';
+      $modality_type='Complemento Económico';
 
-      $procedure_type_fr='Amortización Fondo de Retiro';
+      $modality_type_fr='Fondo de Retiro';
       if ($initial_date != '') {
           array_push($conditions, array('view_loan_amortizations.estimated_date_loan_payment', '>=', "%{$initial_date}%"));
           array_push($conditions_fondo, array('view_loan_amortizations.estimated_date_loan_payment', '>=', "%{$initial_date}%"));
@@ -487,8 +487,8 @@ public function report_amortization_ajust(Request $request){
           array_push($conditions, array('view_loan_amortizations.estimated_date_loan_payment', '<=', "%{$final_date}%"));
           array_push($conditions_fondo, array('view_loan_amortizations.estimated_date_loan_payment', '<=', "%{$final_date}%"));
       }
-      array_push($conditions, array('view_loan_amortizations.procedure_loan_payment', 'ilike', "%{$procedure_type}%"));
-      array_push($conditions_fondo, array('view_loan_amortizations.procedure_loan_payment', 'ilike', "%{$procedure_type_fr}%"));
+      array_push($conditions, array('view_loan_amortizations.modality_loan_payment', 'ilike', "%{$modality_type}%"));
+      array_push($conditions_fondo, array('view_loan_amortizations.modality_loan_payment', 'ilike', "%{$modality_type_fr}%"));
 
 
       $list_loan = DB::table('view_loan_amortizations')
