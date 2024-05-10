@@ -72,6 +72,13 @@
     "params": {}
   },
   {
+    "href": "sismuIndex",
+    "title": "SISMU",
+    "icon": "mdi-briefcase-edit-outline",
+    "permission": "update-balance-sismu",
+    "params": {}
+  },
+  {
     "title": "Acceso",
     "icon": "mdi-key",
     "permission": "show-user",
