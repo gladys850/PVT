@@ -305,6 +305,15 @@ export default {
         type: "xls",
         permissions: 'show-report-others'
       },
+      {
+        id: 19,
+        name: "Rep. de Ingresos",
+        tab: 0,
+        criterios: ["initial_date", "final_date"],
+        service: "/report_loans_income",
+        type: "xls",
+        permissions: 'show-report-others'
+      },
     ],
     this.type_institution= [
       { value:"C", name:"Comando" },
