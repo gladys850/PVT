@@ -89,6 +89,7 @@ Route::group([
         Route::get('report_loan_vigent', 'Api\V1\LoanReportController@report_loan_vigent');
         Route::get('report_loan_state_cartera', 'Api\V1\LoanReportController@report_loan_state_cartera');
         Route::get('report_loans_mora', 'Api\V1\LoanReportController@report_loans_mora_v2');
+        Route::get('report_loans_income', 'Api\V1\LoanReportController@report_loans_income');
         //Route::get('report_loans_mora_v2', 'Api\V1\LoanReportController@report_loans_mora_v2');
         Route::get('loan_information', 'Api\V1\LoanReportController@loan_information');//reporte de nuevos prestamos desembolsados
         Route::get('loan_defaulted_guarantor', 'Api\V1\LoanReportController@loan_defaulted_guarantor');//reporte de nuevos prestamos desembolsados

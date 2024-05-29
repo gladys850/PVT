@@ -2311,4 +2311,41 @@ class LoanReportController extends Controller
     $export = new ArchivoPrimarioExport($report_process_loan);
     return Excel::download($export, $file.'.xls');
   }
+
+  public function report_loans_income(Request $request)
+  { 
+    $initial_date=request('initial_date');
+    $final_date=request('final_date');
+    $loan_state_id=3;                       //Estado del prestamo --vigente
+    
+    $loans = Loan::whereHas('loan_plan', function ($query) use ($initial_date, $final_date) {
+        $query->whereBetween('estimated_date', [$initial_date, $final_date]);
+    })
+    ->with(['loan_plan' => function ($query) use ($initial_date, $final_date) {
+        $query->whereBetween('estimated_date', [$initial_date, $final_date]);
+    }])
+    ->where('state_id',$loan_state_id)
+    ->get();
+
+    $File="IngresosSegúnPlanDePagos";
+    $data_income=array(
+        array("Número","Código de préstamo","Carnet de identidad","Nombre del prestatario","Importe capital","Importe interés","Total Cuota")
+    );
+
+    foreach($loans as $key => $loan)
+    {   
+        array_push($data_income, array(
+            $key+1,
+            $loan->code, 
+            $loan->loanBorrowers->first()->identity_card,
+            $loan->loanBorrowers->first()->first_name." ".$loan->loanBorrowers->first()->second_name." ".$loan->loanBorrowers->first()->last_name." ".$loan->loanBorrowers->first()->mothers_last_name." ".$loan->loanBorrowers->first()->surname_husband,
+            $loan->loan_plan->sum('capital'),
+            $loan->loan_plan->sum('interest'),
+            $loan->loan_plan->sum('total_amount')
+            )
+        );
+    }
+    $export = new ArchivoPrimarioExport($data_income);
+    return Excel::download($export, $File.'.xls');
+    }
 }
