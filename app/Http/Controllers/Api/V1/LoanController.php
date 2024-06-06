@@ -54,6 +54,7 @@ use App\LoanBorrower;
 use App\LoanGuarantor;
 use App\LoanProcedure;
 use App\Jobs\ProcessNotificationSMS;
+use App\Observation;
 
 /** @group Préstamos
 * Datos de los trámites de préstamos y sus relaciones
@@ -97,6 +98,7 @@ class LoanController extends Controller
         $loan->state;
         $loan->borrower = $loan->borrower;
         $loan->borrowerguarantors = $loan->borrowerguarantors;
+        $loan->paid_by_guarantors = $loan->paid_by_guarantors();
         return $loan;
     }
 
@@ -917,6 +919,21 @@ class LoanController extends Controller
         return $loan->submitted_documents;
     }
 
+    public function update_documents(Request $request, Loan $loan)
+    {
+        $request->validate([
+            'documents.*.procedure_document_id' => 'required|exists:procedure_documents,id',
+            'documents.*.is_valid' => 'required|boolean',
+            'documents.*.comment' => 'nullable|string|min:1'
+        ]);
+        foreach($request->documents as $document)
+        {
+            $loan->submitted_documents()->updateExistingPivot($document['procedure_document_id'], ['is_valid' => $document['is_valid'], 'comment' => $document['comment']]);
+        }
+        $updated_documents = $loan->submitted_documents()->get();
+        return $updated_documents;
+    }
+
     /**
     * Lista de documentos entregados
     * Obtiene la lista de los documentos presentados para el trámite
@@ -1458,14 +1475,19 @@ class LoanController extends Controller
         if($loan->balance!=0){
             $payment = $loan->next_payment2($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
             $payment->description = $request->input('description', null);
-            if(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Directo')
+            if(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Efectivo')
                 $payment->state_id = LoanPaymentState::whereName('Pendiente de Pago')->first()->id;
+            elseif(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Deposito Bancario')
+            {
+                $payment->state_id = LoanPaymentState::whereName('Pagado')->first()->id;
+                $payment->validated = true;
+            }
             else
                 $payment->state_id = LoanPaymentState::whereName('Pendiente por confirmar')->first()->id;
             $payment->role_id = Role::whereName('PRE-cobranzas')->first()->id;
             if($request->has('procedure_modality_id')){
                 $modality = ProcedureModality::findOrFail($request->procedure_modality_id)->procedure_type;
-                if($modality->name == "Amortización Directa") $payment->validated = true;
+                if($modality->name == "Amortización en Efectivo" || $modality->name == "Amortización cor Deposito en Cuenta") $payment->validated = true;
             }
             $payment->procedure_modality_id = $request->input('procedure_modality_id');
             $payment->voucher = $request->input('voucher', null);
@@ -1803,7 +1825,10 @@ class LoanController extends Controller
             $message['defaulted'] = true;
         }
         else{
-            $message['defaulted'] = false;
+            if($loan->authorize_refinancing)
+                $message['defaulted'] = true;
+            else
+                $message['defaulted'] = false;
         }
         //pagos consecutivo
         if ($loan->verify_payment_consecutive()){
@@ -1827,58 +1852,66 @@ class LoanController extends Controller
     {
         $message['validate'] = false;
         $affiliate = Affiliate::findOrFail($affiliate_id);
+        $module_id = Module::where('name', 'prestamos')->first()->id;
+        $observations = Observation::select('observables.*')
+                        ->join('observation_types as ot', 'ot.id', '=', 'observables.observation_type_id')
+                        ->where('ot.module_id', '=', $module_id)
+                        ->where('observable_type', '=', 'affiliates')
+                        ->where('observable_id', '=', $affiliate_id)
+                        ->where('type', 'ilike', '%A%')
+                        ->get();
         $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $loan_disbursement = count($affiliate->disbursement_loans);
         if($request->refinancing)
             $loan_disbursement = $loan_disbursement - 1;
         $loan_process = count($affiliate->process_loans);
-        if ($affiliate->affiliate_state){
-            if($affiliate->affiliate_state->affiliate_state_type->name != "Baja" && $affiliate->affiliate_state->affiliate_state_type->name != ""){
-                    if((!$affiliate->dead) || ($affiliate->dead && (($affiliate->spouse ? ($affiliate->spouse->dead ? false: true) : false) == true))){
-                        if($affiliate->civil_status != null){
-                                if($affiliate->birth_date != null && $affiliate->city_birth_id != null){
-                                    if($affiliate->affiliate_state->affiliate_state_type->name != 'Pasivo'){
-                                        if($loan_process < $loan_global_parameter->max_loans_process ){
-                                            if($loan_disbursement < $loan_global_parameter->max_loans_active){
-                                                $message['validate'] = true;
-                                            }else{
-                                                $message['validate'] ='El afiliado no puede tener más de ' .$loan_global_parameter->max_loans_active. ' préstamos desembolsados. Actualemnte ya tiene '. $loan_disbursement .' préstamos desembolsados.';
-                                                 } 
-                                        }else{
-                                            $message['validate'] = 'El afiliado no puede tener más de '.$loan_global_parameter->max_loans_process.' trámite en proceso. Actualmente ya tiene '.$loan_process.' préstamos en proceso.';
-                                            }
-                                    }elseif($affiliate->pension_entity_id ==  null){
-                                            $message['validate'] = 'El afiliado no tiene registrado su ente Gestor.';
-                                            }else{
+        if($observations->count() == 0)
+        {
+            if ($affiliate->affiliate_state){
+                if($affiliate->affiliate_state->affiliate_state_type->name != "Baja" && $affiliate->affiliate_state->affiliate_state_type->name != ""){
+                        if((!$affiliate->dead) || ($affiliate->dead && (($affiliate->spouse ? ($affiliate->spouse->dead ? false: true) : false) == true))){
+                            if($affiliate->civil_status != null){
+                                    if($affiliate->birth_date != null && $affiliate->city_birth_id != null){
+                                        if($affiliate->affiliate_state->affiliate_state_type->name != 'Pasivo'){
+                                            if($affiliate->unit && $affiliate->unit->breakdown->name != 'Item Cero' || $affiliate->affiliate_state->name != "Comisión")
+                                            {
                                                 if($loan_process < $loan_global_parameter->max_loans_process ){
                                                     if($loan_disbursement < $loan_global_parameter->max_loans_active){
-                                                         $message['validate'] = true;
-                                                        }else{
-                                                    $message['validate'] ='El afiliado no puede tener más de ' .$loan_global_parameter->max_loans_active. ' préstamos desembolsados. Actualemnte ya tiene '. $loan_disbursement .' préstamos desembolsados.';
-                                                    } 
-                                                }else{
+                                                        $message['validate'] = true;
+                                                    }else
+                                                        $message['validate'] ='El afiliado no puede tener más de ' .$loan_global_parameter->max_loans_active. ' préstamos desembolsados. Actualemnte ya tiene '. $loan_disbursement .' préstamos desembolsados.'; 
+                                                }else
                                                     $message['validate'] = 'El afiliado no puede tener más de '.$loan_global_parameter->max_loans_process.' trámite en proceso. Actualmente ya tiene '.$loan_process.' préstamos en proceso.';
-                                                }  
-                                            }
-                                }else{
-                                    $message['validate'] = 'El afiliado no tiene registrado su fecha de nacimiento ó ciudad de nacimiento.';
-                                }
-                        }
-                        else{
-                        $message['validate'] = 'El afiliado no tiene registrado su estado civil.';
-                        }
+                                            }else
+                                                $message['validate'] = 'El afiliado no puede acceder a un prestamos por no tener registrado su unidad o encontrarse en comision Item 0';
+                                        }elseif($affiliate->pension_entity_id ==  null){
+                                                $message['validate'] = 'El afiliado no tiene registrado su ente Gestor.';
+                                                }else{
+                                                    if($loan_process < $loan_global_parameter->max_loans_process ){
+                                                        if($loan_disbursement < $loan_global_parameter->max_loans_active){
+                                                            $message['validate'] = true;
+                                                            }else
+                                                        $message['validate'] ='El afiliado no puede tener más de ' .$loan_global_parameter->max_loans_active. ' préstamos desembolsados. Actualemnte ya tiene '. $loan_disbursement .' préstamos desembolsados.';
+                                                    }else
+                                                        $message['validate'] = 'El afiliado no puede tener más de '.$loan_global_parameter->max_loans_process.' trámite en proceso. Actualmente ya tiene '.$loan_process.' préstamos en proceso.';
+                                                }
+                                    }else
+                                        $message['validate'] = 'El afiliado no tiene registrado su fecha de nacimiento ó ciudad de nacimiento.';
+                            }
+                            else
+                            $message['validate'] = 'El afiliado no tiene registrado su estado civil.';
+                    }
+                    else
+                        $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar fallecido ó no tener registrado a un(a) conyugue.';
                 }
-                else{ 
-                    $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar fallecido ó no tener registrado a un(a) conyugue.';
-                }
+            else
+                $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar dado de baja ó no tener registrado su estado.';
             }
-           else{   
-            $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar dado de baja ó no tener registrado su estado.';
-            }
+            else
+                $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar dado de baja ó no tener registrado su estado.';
         }
-        else{   
-            $message['validate'] = 'El afiliado no puede acceder a un préstamo por estar dado de baja ó no tener registrado su estado.';
-        } 
+        else 
+            $message['validate'] = 'El afiliado esta observado por lo cual no puede acceder a un prestamo';
         return $message;
     }
     //Destruir todo el préstamo
@@ -2187,6 +2220,49 @@ class LoanController extends Controller
         }
         return $message;
    }
+
+    /**
+    * Autorizacion de refinanciamiento
+    * Devuelve el Prestamo al que se autorizo el refinanciamiento
+    * @bodyParam loan integer required ID del préstamo. Example: 6
+    * @bodyParam rol_id integer required id del rol que cambia el tipo de cobro. Example: 2
+    * @authenticated
+    * @responseFile responses/loan/authorize_refinancing.200.json
+    */
+    public function authorize_refinancing(request $request)
+    {
+         $request->validate([
+         'loan_id'=>'required|integer|exists:loans,id',
+         'role_id'=>'required|integer|exists:roles,id',
+        ]);
+        $message = [];
+        if(Loan::find($request->loan_id) != null){
+             $option = Loan::find($request->loan_id);
+             $loan = Loan::withoutEvents(function () use ($option, $request){
+                 $loan = Loan::find($option->id);
+                 if(!$loan->authorize_refinancing){
+                     $loan->authorize_refinancing = true;
+                     $loan->update();
+                     Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'autorizo el refinanciamiento al prestamo: '.$loan->code));
+                     $message = ['message' => 'Autorizacion de refinanciamiento exitoso'];
+                 }else{
+                    if(Loan::where('parent_loan_id', $loan->id)->where('parent_reason', 'REFINANCIAMIENTO')->count() == 0){
+                        $loan->authorize_refinancing = false;
+                        $loan->update();
+                        Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'quito la autorización de refinanciamiento al prestamo: '.$loan->code));
+                        $message = ['message' => 'Revocacion de autorización exitoso'];
+                    }
+                    else{
+                        $message = ['message' => 'No se puede quitar la autorizacion por que el prestamo ya se encuentra refinanciado'];
+                    }
+                 }
+             });
+         }
+         else{
+             $message['validate'] = 'prestamo y / o rol inexistente';
+         }
+         return response()->json($message);
+    }
 
    /**
     * Obtener el monto a pagar

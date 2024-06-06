@@ -273,6 +273,7 @@
                               :outlined="isNew"
                               :readonly="!isNew"
                               :disabled="show || edit"
+                              @change="checkPaymentDate"
                             ></v-text-field>
                           </v-col>
 
@@ -318,8 +319,8 @@
                               v-model="data_payment.pago_total"
                               label="Total Pagado"
                               :outlined="isNew"
-                              :readonly="!isNew"
-                              :disabled="show || edit"
+                              :readonly="liquidate_disable"
+                              :disabled="liquidate_disable"
                             ></v-text-field>
                           </v-col>
 
@@ -333,7 +334,7 @@
                             ></v-text-field>
                           </v-col>
 
-                          <v-col cols="4" class="ma-0 pb-0" v-show="edit" v-if="permissionSimpleSelected.includes('create-payment')">
+                          <!-- <v-col cols="4" class="ma-0 pb-0" v-show="edit" v-if="permissionSimpleSelected.includes('create-payment')">
                             <v-select
                               class="caption"
                               style="font-size: 10px;"
@@ -347,17 +348,7 @@
                               label="Tipo de Pago"
                               persistent-hint
                             ></v-select>
-                          </v-col>
-
-                          <v-col cols="4" v-show="edit" v-if="permissionSimpleSelected.includes('create-payment')" >
-                            <v-text-field
-                              v-model="data_payment.comprobante"
-                              :outlined="edit"
-                              :readonly="!edit"
-                              label="Nro. de Comprobante"
-                              dense
-                            ></v-text-field>
-                          </v-col>
+                          </v-col> -->
 
                           <v-col cols="4" v-show="permissionSimpleSelected.includes('create-payment')">
                             <v-text-field
@@ -501,6 +492,7 @@ export default {
         picker: false,
       }
     },
+    liquidate_disable:false
   }),
   computed: {
     //Metodo para obtener Permisos por rol
@@ -563,6 +555,15 @@ export default {
     }
   },
   methods: {
+    checkPaymentDate() {
+      const selectedDate = new Date(this.data_payment.payment_date);
+      const currentDate = new Date();
+      const limitDate = new Date();
+      limitDate.setMonth(limitDate.getMonth() + 2);
+      if (selectedDate > limitDate) {
+        this.toastr.warning('La fecha seleccionada es más de dos meses posterior a la fecha actual.')
+      }
+    },
     //Metodo para sacar todos los tipo de pago
     async OnchangeAmortization(){
       try {
@@ -587,6 +588,7 @@ export default {
           })
           this.data_payment.pago_total=res.data.suggested_amount
         }
+        this.liquidate_disable = this.data_payment.pago == 'Liquidar' ? true : false
       } catch (e) {
         console.log(e)
       } finally {
@@ -661,12 +663,14 @@ export default {
         this.data_payment.estimated_quota=this.loan_payment.estimated_quota
         this.data_payment.code=this.loan_payment.code
         this.data_payment.quota_number=this.loan_payment.quota_number
-        this.data_payment.quota_number=this.loan_payment.quota_number
-        this.data_payment.quota_number=this.loan_payment.quota_number
-        if(this.data_payment.procedure_modality_name == 'Amortización Complemento Económico' ||
-            this.data_payment.procedure_modality_name == 'Amortización Fondo de Retiro' ||
+
+        this.data_payment.voucher_amount_total = this.loan_payment.estimated_quota
+        this.data_payment.comprobante = isNaN(this.loan_payment.voucher) ? '' : this.loan_payment.voucher;
+        if(
             this.data_payment.procedure_modality_name == 'Amortización por Ajuste Contable' ||
-            this.data_payment.procedure_modality_name == 'Amortización Automática')
+            this.data_payment.procedure_modality_name == 'Amortización Automática' ||
+            this.data_payment.procedure_modality_name == 'Amortización Deposito Bancario' ||
+            this.data_payment.procedure_modality_name == 'Amortización por Beneficios')
           {
             this.data_payment.validar =true
           }else{
@@ -809,6 +813,16 @@ export default {
     //Metodo para sacar la siguiente cuota
     async Calcular(id) {
     try {
+      let res_duplicity = await axios.get(`get_duplicity_account`,{
+          params: {
+            voucher: this.data_payment.voucher,
+            date: this.data_payment.payment_date,
+            procedure_modality_id: this.data_payment.procedure_modality_id,
+          }
+        })
+      console.log(res_duplicity.data)
+      if(res_duplicity.data == 0)
+      {
         let res = await axios.patch(`loan/${id}/payment`,{
           affiliate_id:this.data_payment.affiliate_id_paid_by,
           estimated_date:this.data_payment.payment_date,
@@ -823,6 +837,9 @@ export default {
           this.payment_detail.now_date= new Date().toISOString().substr(0, 10),
           this.$forceUpdate()
           this.$emit("isCalculate",false);
+      }else{
+        this.toastr.error("Ya existe un deposito bancario con ese número de comprobante")
+      }
       }catch (e) {
         console.log(e)
       }finally {

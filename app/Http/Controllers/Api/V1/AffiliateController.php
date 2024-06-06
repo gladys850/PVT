@@ -41,6 +41,8 @@ use App\Module;
 use App\LoanBorrower;
 use App\LoanState;
 use App\LoanProcedure;
+use App\LoanPaymentState;
+use App\Observation;
 
 /** @group Afiliados
 * Datos de los afiliados y métodos para obtener y establecer sus relaciones
@@ -1449,6 +1451,14 @@ class AffiliateController extends Controller
         $message = "OK";
         $information = "";
         $id_activo = array();
+        $module_id = Module::where('name', 'prestamos')->first()->id;
+        $observations = Observation::select('observables.*')
+                        ->join('observation_types as ot', 'ot.id', '=', 'observables.observation_type_id')
+                        ->where('ot.module_id', '=', $module_id)
+                        ->where('observable_type', '=', 'affiliates')
+                        ->where('observable_id', '=', $affiliate->id)
+                        ->where('type', 'ilike', '%A%')
+                        ->get();
         foreach (ProcedureModality::where('name', 'like', '%Activo')->orWhere('name', 'like', '%Activo%')->get() as $procedure) {
             array_push($id_activo, $procedure->id);
         }
@@ -1473,7 +1483,7 @@ class AffiliateController extends Controller
             $guarantor = false;
             $message = "El afiliado no tiene registrada su categoria";
         }
-        elseif($modality->loan_modality_parameter->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= $modality->loan_modality_parameter->max_guarantor_category)
+        elseif($modality->loan_modality_parameter->min_guarantor_category <= $affiliate->category->percentage && $affiliate->category->percentage <= $modality->loan_modality_parameter->max_guarantor_category && $observations->count() == 0)
         {
             switch($request->procedure_modality_id){
                 case (in_array($request->procedure_modality_id, $id_activo)):
@@ -1598,8 +1608,12 @@ class AffiliateController extends Controller
                     break;
             }
         }
-        else
+        elseif($observations->count() > 0)
         {
+            $guarantor = false;
+            $message = "El afiliado se encuentra observado, por lo cual no puede ser garante";
+            $affiliate->observations = $affiliate->observations;
+        }else{
             $guarantor = false;
             $message = "El afiliado se encuentra con categoria 0%";
             $affiliate->category_name = $affiliate->category->name;
@@ -1675,5 +1689,23 @@ class AffiliateController extends Controller
             "guarantees"=>$data,
             "max_guarantees"=>$max_guarantees,
             );
+    }
+
+    /**
+    * Prestamos pagados por sus garantes
+    * Devuelve si el afiliado cuenta con prestamos pagados por sus garantes mediante su ID
+    * @urlParam affiliate required ID de afiliado. Example: 54
+    */
+    public function loans_paid_by_guarantors(Affiliate $affiliate)
+    {
+        $state = false;
+        foreach($affiliate->loans as $loan)
+        {
+            if($loan->payments->where('paid_by', 'G')->where('validated', true)->where('state_id', LoanPaymentState::where('name', 'Pagado')->first()->id)->count() > 0)
+                $state = true;
+            else
+                $state = false;
+        }
+        return $state;
     }
 }

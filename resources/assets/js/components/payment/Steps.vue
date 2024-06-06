@@ -21,7 +21,7 @@
                 @click="atras()"  v-show="!isNew">
                 Volver a la bandeja
               </v-btn>
-              
+
               <v-btn
                 color="primary"
                 :loading="status_click"
@@ -57,7 +57,7 @@ export default {
       payment_date:new Date().toISOString().substr(0, 10),
       voucher_date:new Date().toISOString().substr(0, 10),
       pago_total: null,
-      voucher:'REGISTRO MANUAL'
+      voucher:""
     },
   }),
   computed: {
@@ -96,7 +96,8 @@ export default {
           })
           let res = await axios.post(`loan_payment/${this.$route.query.loan_payment}/voucher`,{
 
-            voucher_type_id: this.data_payment.tipo_pago,
+            //voucher_type_id: this.data_payment.tipo_pago,
+            voucher_type_id: 2,
             bank_pay_number: this.data_payment.comprobante,
             voucher_amount_total:this.data_payment.voucher_amount_total,
             voucher_payment_date: this.data_payment.voucher_date,
@@ -214,7 +215,7 @@ export default {
           {
             this.data_payment.validar =true
           }else{
-            if(this.data_payment.procedure_modality_name == 'Amortización Directa')
+            if(this.data_payment.procedure_modality_name == 'Amortización en Efectivo')
             {
               this.data_payment.validar =false
             }
@@ -276,7 +277,7 @@ export default {
             {
               this.validatePayment()
             }else{
-              if(this.data_payment.procedure_modality_name == 'Amortización Directa' && this.permissionSimpleSelected.includes('create-payment') )
+              if(this.data_payment.procedure_modality_name == 'Amortización en Efectivo' && this.permissionSimpleSelected.includes('create-payment') )
               {
                 this.savePaymentTreasury()
               }else{

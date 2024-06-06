@@ -11,6 +11,10 @@
           top
           right
           absolute
+          v-if="
+            !trashed &&
+            permissionSimpleSelected.includes('create-observation-affiliate')
+          "
           style="margin-right: 80px; margin-top: 20px"
         >
           <v-icon>mdi-plus</v-icon>

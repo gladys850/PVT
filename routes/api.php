@@ -12,10 +12,11 @@ Route::group([
     Route::apiResource('record', 'Api\V1\RecordController')->only('index');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
-    Route::post('evaluate_garantor2', 'Api\V1\CalculatorController@evaluate_guarantor2');
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
     Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
+    //ruta para saber si un afiliado cuenta con prestamos que hayan sido pagados por sus garantes
+    Route::get('loans_paid_by_guarantors/{affiliate}', 'Api\V1\AffiliateController@loans_paid_by_guarantors');
     // Autenticado con token
     Route::group([
         'middleware' => 'auth'
@@ -63,6 +64,7 @@ Route::group([
         Route::apiResource('voucher_type', 'Api\V1\VoucherTypeController')->only('index', 'show');
         Route::apiResource('financial_entity', 'Api\V1\FinancialEntityController')->only('index', 'show');
         Route::post('evaluate_garantor', 'Api\V1\CalculatorController@evaluate_guarantor');
+        Route::post('evaluate_garantor2', 'Api\V1\CalculatorController@evaluate_guarantor2');
         Route::get('affiliate_record', 'Api\V1\AffiliateController@affiliate_record');
         Route::post('affiliate_guarantor', 'Api\V1\AffiliateController@test_guarantor');
         //evaluacion de garantes
@@ -87,16 +89,20 @@ Route::group([
         Route::get('report_loan_vigent', 'Api\V1\LoanReportController@report_loan_vigent');
         Route::get('report_loan_state_cartera', 'Api\V1\LoanReportController@report_loan_state_cartera');
         Route::get('report_loans_mora', 'Api\V1\LoanReportController@report_loans_mora_v2');
+        Route::get('report_loans_income', 'Api\V1\LoanReportController@report_loans_income');
         //Route::get('report_loans_mora_v2', 'Api\V1\LoanReportController@report_loans_mora_v2');
         Route::get('loan_information', 'Api\V1\LoanReportController@loan_information');//reporte de nuevos prestamos desembolsados
         Route::get('loan_defaulted_guarantor', 'Api\V1\LoanReportController@loan_defaulted_guarantor');//reporte de nuevos prestamos desembolsados
         Route::get('loan_pvt_sismu_report', 'Api\V1\LoanReportController@loan_pvt_sismu_report');//reporte de prestamos PVT y sismu simultaneos
         Route::get('request_state_report', 'Api\V1\LoanReportController@request_state_report');
         Route::get('loan_application_status', 'Api\V1\LoanReportController@loan_application_status');
+        Route::get('loans_days_amortization', 'Api\V1\LoanReportController@loans_days_amortization');// reporte dias transcurridos desde ultima amortización
+        Route::get('processed_loan_report', 'Api\V1\LoanReportController@processed_loan_report');// Reporte de tramites procesados
             //loanPaymentReport
         Route::get('list_loan_payments_generate', 'Api\V1\LoanPaymentReportController@list_loan_payments_generate');
         Route::get('report_amortization_discount_months', 'Api\V1\LoanPaymentReportController@report_amortization_discount_months');
-        Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit');
+        //Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit');
+        Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit_discount_type');
         Route::get('report_amortization_ajust', 'Api\V1\LoanPaymentReportController@report_amortization_ajust');
         Route::get('report_amortization_pending_confirmation', 'Api\V1\LoanPaymentReportController@report_amortization_pending_confirmation');
         Route::get('report_amortization_fondo_complement', 'Api\V1\LoanPaymentReportController@report_amortization_fondo_complement');
@@ -120,11 +126,14 @@ Route::group([
         Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
         Route::post('committee_session/{loan}', 'Api\V1\LoanController@committee_session');
         Route::get('record_affiliate_history', 'Api\V1\RecordController@record_affiliate_history');
+        Route::Post('loan_sismu', 'Api\V1\SismuController@getLoanSismu');
+        Route::Post('update_balance_sismu', 'Api\V1\SismuController@update_balance');
         /*Seguimiento de mora de prestamo*/
         Route::group([
             'middleware' => 'permission:print-delay-tracking'
         ], function () {
             Route::get('loan/{loan}/print/delay_tracking', 'Api\V1\LoanTrackingController@print_delay_tracking');
+            Route::get('loan/{loan}/print/download_delay_tracking', 'Api\V1\LoanTrackingController@download_delay_tracking');
         });
 
         Route::group([
@@ -271,9 +280,11 @@ Route::group([
         ], function () {
             Route::apiResource('loan', 'Api\V1\LoanController')->only('update');
             Route::patch('loan/{loan}/document/{document}', 'Api\V1\LoanController@update_document');
+            Route::patch('loan/{loan}/documents', 'Api\V1\LoanController@update_documents');
             Route::patch('loan/{loan}/sismu', 'Api\V1\LoanController@update_sismu');
             Route::post('switch_guarantor_lender', 'Api\V1\LoanController@switch_guarantor_lender');
             Route::post('update_number_payment_type', 'Api\V1\LoanController@update_number_payment_type');
+            Route::post('authorize_refinancing', 'Api\V1\LoanController@authorize_refinancing');
         });
         Route::group([
             'middleware' => 'permission:delete-loan'
@@ -304,6 +315,7 @@ Route::group([
         Route::group([
             'middleware' => 'permission:create-payment-loan'
         ], function () {
+            Route::get('get_duplicity_account', 'Api\V1\LoanPaymentController@get_duplicity_account');
             Route::get('get_amount_payment', 'Api\V1\LoanController@get_amount_payment');
             Route::patch('loan/{loan}/payment','Api\V1\LoanController@get_next_payment');
             Route::post('loan/{loan}/payment','Api\V1\LoanController@set_payment');

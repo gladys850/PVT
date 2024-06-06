@@ -23,6 +23,7 @@ import Reports from '@/components/reports/Reports'
 import ListTracingLoans from '@/components/tracing/ListTracingLoans'
 import TracingAdd from '@/components/tracing/Add'
 import FundRotaryList from '@/components/fund_rotary/ListEntry'
+import SismuIndex from '@/components/sismu/Index'
 
 export const routes = [
   {
@@ -68,7 +69,16 @@ export const routes = [
     meta: {
       requiresAuth: true
     }
-  }, {
+  },
+  {
+    path: '/sismu',
+    name: 'sismuIndex',
+    component: SismuIndex,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/user',
     name: 'userIndex',
     component: UserIndex,

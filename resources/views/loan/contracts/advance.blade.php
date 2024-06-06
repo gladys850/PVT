@@ -159,13 +159,13 @@
         <span>
             PRESTATARI{{ $lender->gender == 'M' ? 'O' : 'A' }} {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }} de generales ya señaladas;
             <?php
-            if($modality->name == 'Anticipo Sector Pasivo AFP'){ ?>
+            if($modality->name == 'Anticipo Sector Pasivo AFP' || $modality->name == 'Anticipo Sector Pasivo Gestora Pública'){ ?>
             asimismo en calidad de garante personal
             @if (count($guarantors) == 1)
                 @php ($guarantor = $guarantors[0])
                 @php ($male_female_guarantor = Util::male_female($guarantor->gender))
                 <span>
-                {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }};
+                {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }},
                 </span>
             @endif
             <?php }?>

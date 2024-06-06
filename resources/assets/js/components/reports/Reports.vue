@@ -33,8 +33,8 @@
                     </v-select>
                     <!-- SOLAMENTE SE MOSTRARA CUANDO HAYA UN REPORTE SELECCIONADO -->
                     <template v-if="report_selected && visible == true">
-                      <template v-if="report_selected.criterios.includes('initial_date') || 
-                                      report_selected.criterios.includes('final_date') || 
+                      <template v-if="report_selected.criterios.includes('initial_date') ||
+                                      report_selected.criterios.includes('final_date') ||
                                       report_selected.criterios.includes('date')">
                         <v-toolbar-title>
                           <b>Criterios de búsqueda</b>
@@ -131,7 +131,7 @@ export default {
     this.reports_items = [
       {
         id: 1,
-        name: "Rep. Amortizaciones de descuentos Titular - Garante",
+        name: "Rep. Amortizaciones de descuentos por entidad",
         tab: 1,
         criterios: ["initial_date", "final_date"],
         service: "/report_amortization_discount_months",
@@ -181,7 +181,7 @@ export default {
         criterios: ["initial_date", "final_date"],
         service: "/report_loan_vigent",
         type: "xls",
-        permissions: 'show-report-collections'
+        permissions: 'show-report-loans-consult'
       },
       {
         id: 7,
@@ -190,7 +190,7 @@ export default {
         criterios: ["initial_date", "final_date"],
         service: "/report_loan_state_cartera",
         type: "xls",
-        permissions: 'show-report-collections'
+        permissions: 'show-report-loans'
       },
       {
         id: 8,
@@ -200,7 +200,7 @@ export default {
         service: "/report_loans_mora",
         label: "Fecha final",
         type: "xls",
-        permissions: 'show-report-collections'
+        permissions: 'show-report-loans-consult'
       },
       {
         id: 9,
@@ -209,7 +209,7 @@ export default {
         criterios: [],
         service: "/loan_defaulted_guarantor",
         type: "xls",
-        permissions: 'show-report-collections'
+        permissions: 'show-report-loans'
       },
       {
         id: 10,
@@ -219,7 +219,7 @@ export default {
         service: "/loan_pvt_sismu_report",
         label: "Fecha final",
         type: "xls",
-        permissions: 'show-report-collections'
+        permissions: 'show-report-loans'
       },
       {
         id: 11,
@@ -229,7 +229,7 @@ export default {
         service: "/loan_information",
         label:"Periódo (Seleccione el último dia del mes)",
         type: "xls",
-        permissions: 'show-report-collections'
+        permissions: 'show-report-loans'
       },
       {
         id: 12,
@@ -284,6 +284,33 @@ export default {
         tab: 2,
         criterios: ["initial_date","final_date"],
         service: "/loan_application_status",
+        type: "xls",
+        permissions: 'show-report-others'
+      },
+      {
+        id: 17,
+        name: "Rep. Dias transcurridos desde la ultima Amortización",
+        tab: 0,
+        criterios: ["final_date"],
+        service: "/loans_days_amortization",
+        type: "xls",
+        permissions: 'show-report-others'
+      },
+      {
+        id: 18,
+        name: "Rep. de tramites procesados",
+        tab: 0,
+        criterios: ["initial_date", "final_date"],
+        service: "/processed_loan_report",
+        type: "xls",
+        permissions: 'show-report-others'
+      },
+      {
+        id: 19,
+        name: "Rep. de Ingresos",
+        tab: 0,
+        criterios: ["initial_date", "final_date"],
+        service: "/report_loans_income",
         type: "xls",
         permissions: 'show-report-others'
       },
@@ -413,6 +440,9 @@ export default {
       let reports_items_collections =[]
       let reports_items_treasury =[]
       let reports_items_others =[]
+      let reports_items_loans =[]
+      let reports_items_loans_consult =[]
+
       if (this.permissionSimpleSelected.includes("show-report-collections")){
          reports_items_collections = this.reports_items.filter((item) => item.permissions == 'show-report-collections');
       }
@@ -421,13 +451,19 @@ export default {
        }
       if (this.permissionSimpleSelected.includes("show-report-others")){
          reports_items_others = this.reports_items.filter((item) => item.permissions == 'show-report-others');
+      }
+      if (this.permissionSimpleSelected.includes("show-report-loans-consult")){
+         reports_items_loans_consult = this.reports_items.filter((item) => item.permissions == 'show-report-loans-consult');
+      }
+      if (this.permissionSimpleSelected.includes("show-report-loans")){
+         reports_items_loans = this.reports_items.filter((item) => item.permissions == 'show-report-loans');
       }else{
         reports_items
       }
-      reports_items = reports_items_collections.concat(reports_items_treasury.concat(reports_items_others))
+      reports_items = reports_items_collections.concat(reports_items_loans_consult.concat(reports_items_loans.concat(reports_items_treasury.concat(reports_items_others))))
       reports_items = reports_items.filter((item) => item.tab == this.tab)
       return reports_items
-       
+
     },
   },
 };
