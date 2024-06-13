@@ -713,7 +713,7 @@ class LoanReportController extends Controller
     $loans_mora = json_decode($datos_mora[0]->loans_mora_data);
 
     $File = "PrestamosMora";
-    $data_head = array("NUP","MATRICULA AFILIADO","CI AFILIADO", "EXP","NOMBRE COMPLETO AFILIADO", "***","MATRICULA","CI","EXP","NOMBRE COMPLETO","NRO DE CEL.1","NRO DE CEL.2","NRO FIJO","CIUDAD","DIRECCIÓN","PTMO","FECHA DESEMBOLSO",
+    $data_head = array("NUP","MATRICULA AFILIADO","CI AFILIADO", "EXP","NOMBRE COMPLETO AFILIADO", "***","MATRICULA","CI","EXP","NOMBRE COMPLETO","CATEGORÍA","GRADO","NRO DE CEL.1","NRO DE CEL.2","NRO FIJO","CIUDAD","DIRECCIÓN","PTMO","FECHA DESEMBOLSO",
     "NRO DE CUOTAS","TASA ANUAL","FECHA DEL ÚLTIMO PAGO","TIPO DE PAGO","CUOTA MENSUAL","SALDO ACTUAL","ÉSTADO DEL AFILIADO","MODALIDAD","SUB MODALIDAD","DÍAS MORA",
     "*","NOMBRE COMPLETO (Ref. Personal)","NRO DE TEL. FIJO (Ref. Personal)","NRO DE CEL (Ref. Personal)","DIRECCIÓN(Ref. Personal)",
     "**","MATRICULA AFILIADO (GARANTE 1)", "CI AFILIADO (GARANTE 1)", "EXP (GARANTE 1)", "NOMBRE COMPLETO AFILIADO (GARANTE 1)", "*-->*","MATRICULA (GARANTE TITULAR 1)","CI (GARANTE TITULAR 1)","EXP (GARANTE TITULAR 1)","NOMBRE COMPLETO (GARANTE TITULAR 1)","NRO DE TEL. FIJO","NRO DE CEL1","NRO DE CEL2","ESTADO DEL AFILIADO",
@@ -738,6 +738,8 @@ class LoanReportController extends Controller
             $loans_mora[$row]->identity_card_borrower ? $loans_mora[$row]->identity_card_borrower : '',
             $loans_mora[$row]->city_exp_first_shortened_borrower ? $loans_mora[$row]->city_exp_first_shortened_borrower : '',
             $loans_mora[$row]->full_name_borrower,
+            $loans_mora[$row]->category_name ? $loans_mora[$row]->category_name : '',
+            $loans_mora[$row]->shortened_degree ? $loans_mora[$row]->shortened_degree : '',
             isset($loans_mora[$row]->cell_phone->number[0]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->cell_phone->number[0]) : 'S/R',
             isset($loans_mora[$row]->cell_phone->number[1]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->cell_phone->number[1]) : 'S/R',
             isset($loans_mora[$row]->phone->number[0]) ? str_replace(array("(", ")", "-"), '',$loans_mora[$row]->phone->number[0]) : 'S/R',
