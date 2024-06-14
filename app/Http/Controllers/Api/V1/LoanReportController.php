@@ -84,7 +84,7 @@ class LoanReportController extends Controller
                    array( "NUP", "CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***","COD PRESTAMO", "FECHA DE SOLICITUD", "FECHA DE DESEMBOLSO",
                    "DPTO","TIPO ESTADO","ESTADO AFILIADO","MODALIDAD","SUB MODALIDAD",
                    "CEDULA DE IDENTIDAD","EXP","MATRICULA",
-                   "PRIMER NOMBRE","SEGUNDO NOMBRE","PATERNO","MATERNO","APELLIDO CASADA","CELULAR","***",
+                   "PRIMER NOMBRE","SEGUNDO NOMBRE","PATERNO","MATERNO","APELLIDO CASADA","CATEGORÍA","GRADO","CELULAR","***",
                    "NRO CBTE CONTABLE","SALDO ACTUAL","AMPLIACIÓN","MONTO DESEMBOLSADO","MONTO REFINANCIADO","LIQUIDO DESEMBOLSADO",
                    "PLAZO","ESTÁDO PRÉSTAMO","DESTINO CREDITO", "SIGEP")
                );
@@ -116,6 +116,8 @@ class LoanReportController extends Controller
                     $lender->last_name_borrower,
                     $lender->mothers_last_name_borrower,
                     $lender->surname_husband_borrower,
+                    $lender->category_name,
+                    $lender->shortened_degree,
                     $cel[0],'***',
                     $loan->num_accounting_voucher,
                     Util::money_format($loan->balance),//SALDO ACTUAL
