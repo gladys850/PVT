@@ -84,7 +84,7 @@ class LoanReportController extends Controller
                    array( "NUP", "CI AFILIADO","MATRICULA AFILIADO","NOMBRE COMPLETO AFILIADO","***","COD PRESTAMO", "FECHA DE SOLICITUD", "FECHA DE DESEMBOLSO",
                    "DPTO","TIPO ESTADO","ESTADO AFILIADO","MODALIDAD","SUB MODALIDAD",
                    "CEDULA DE IDENTIDAD","EXP","MATRICULA",
-                   "PRIMER NOMBRE","SEGUNDO NOMBRE","PATERNO","MATERNO","APELLIDO CASADA","CELULAR","***",
+                   "PRIMER NOMBRE","SEGUNDO NOMBRE","PATERNO","MATERNO","APELLIDO CASADA","CATEGORÍA","GRADO","CELULAR","***",
                    "NRO CBTE CONTABLE","SALDO ACTUAL","AMPLIACIÓN","MONTO DESEMBOLSADO","MONTO REFINANCIADO","LIQUIDO DESEMBOLSADO",
                    "PLAZO","ESTÁDO PRÉSTAMO","DESTINO CREDITO", "SIGEP")
                );
@@ -116,6 +116,8 @@ class LoanReportController extends Controller
                     $lender->last_name_borrower,
                     $lender->mothers_last_name_borrower,
                     $lender->surname_husband_borrower,
+                    $lender->category_name,
+                    $lender->shortened_degree,
                     $cel[0],'***',
                     $loan->num_accounting_voucher,
                     Util::money_format($loan->balance),//SALDO ACTUAL
@@ -713,7 +715,7 @@ class LoanReportController extends Controller
     $loans_mora = json_decode($datos_mora[0]->loans_mora_data);
 
     $File = "PrestamosMora";
-    $data_head = array("NUP","MATRICULA AFILIADO","CI AFILIADO", "EXP","NOMBRE COMPLETO AFILIADO", "***","MATRICULA","CI","EXP","NOMBRE COMPLETO","NRO DE CEL.1","NRO DE CEL.2","NRO FIJO","CIUDAD","DIRECCIÓN","PTMO","FECHA DESEMBOLSO",
+    $data_head = array("NUP","MATRICULA AFILIADO","CI AFILIADO", "EXP","NOMBRE COMPLETO AFILIADO", "***","MATRICULA","CI","EXP","NOMBRE COMPLETO","CATEGORÍA","GRADO","NRO DE CEL.1","NRO DE CEL.2","NRO FIJO","CIUDAD","DIRECCIÓN","PTMO","FECHA DESEMBOLSO",
     "NRO DE CUOTAS","TASA ANUAL","FECHA DEL ÚLTIMO PAGO","TIPO DE PAGO","CUOTA MENSUAL","SALDO ACTUAL","ÉSTADO DEL AFILIADO","MODALIDAD","SUB MODALIDAD","DÍAS MORA",
     "*","NOMBRE COMPLETO (Ref. Personal)","NRO DE TEL. FIJO (Ref. Personal)","NRO DE CEL (Ref. Personal)","DIRECCIÓN(Ref. Personal)",
     "**","MATRICULA AFILIADO (GARANTE 1)", "CI AFILIADO (GARANTE 1)", "EXP (GARANTE 1)", "NOMBRE COMPLETO AFILIADO (GARANTE 1)", "*-->*","MATRICULA (GARANTE TITULAR 1)","CI (GARANTE TITULAR 1)","EXP (GARANTE TITULAR 1)","NOMBRE COMPLETO (GARANTE TITULAR 1)","NRO DE TEL. FIJO","NRO DE CEL1","NRO DE CEL2","ESTADO DEL AFILIADO",
@@ -738,6 +740,8 @@ class LoanReportController extends Controller
             $loans_mora[$row]->identity_card_borrower ? $loans_mora[$row]->identity_card_borrower : '',
             $loans_mora[$row]->city_exp_first_shortened_borrower ? $loans_mora[$row]->city_exp_first_shortened_borrower : '',
             $loans_mora[$row]->full_name_borrower,
+            $loans_mora[$row]->category_name ? $loans_mora[$row]->category_name : '',
+            $loans_mora[$row]->shortened_degree ? $loans_mora[$row]->shortened_degree : '',
             isset($loans_mora[$row]->cell_phone->number[0]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->cell_phone->number[0]) : 'S/R',
             isset($loans_mora[$row]->cell_phone->number[1]) ? str_replace(array("(", ")", "-"), '', $loans_mora[$row]->cell_phone->number[1]) : 'S/R',
             isset($loans_mora[$row]->phone->number[0]) ? str_replace(array("(", ")", "-"), '',$loans_mora[$row]->phone->number[0]) : 'S/R',
@@ -2143,12 +2147,15 @@ class LoanReportController extends Controller
                             and r.action like '%$ubication'
                             order by r.created_at";
         $derivation = DB::select($query_derivation);
+        $borrower_view = $loan->getBorrowers()->first();
         $loans_collect->push([
                'code' => $loan->code,
                'request_date' => $loan->request_date,
                'modality' => $loan->modality->procedure_type->name,
                'sub_modality' => $loan->modality->name,
                'type' => $loan->borrower->first()->state->affiliate_state_type->name,
+               'category_name' => $borrower_view->category_name ? $borrower_view->category_name : '',
+               'shortened_degree' => $borrower_view->shortened_degree ? $borrower_view->shortened_degree : '',
                'borrower' => $loan->borrower->first()->full_name,
                'ci_borrower' => $loan->borrower->first()->identity_card,
                'user' => $loan->user ? $loan->user->username : '',
@@ -2188,17 +2195,19 @@ class LoanReportController extends Controller
     elseif($request->type == "xls")
     {
         $loan_sheets = array(
-                array("Nro","Nro de Tramite", "Modalidad", "Sub Modalidad", "Sector", "Nombre Completo", "C. I.", "Usuario", "Area", "Procedencia", "Fecha de Derivación", "Monto Solicitado", "Refinanciado", "Monto Desembolsado")
+                array("Nro","Nro de Tramite", "Modalidad", "Sub Modalidad", "Sector","Categoría","Grado", "Nombre Completo", "C. I.", "Usuario", "Area", "Procedencia", "Fecha de Derivación", "Monto Solicitado", "Refinanciado", "Monto Desembolsado")
         );
-        $c = 1;
-        foreach($loans as $loan)
+        foreach($loans as $key => $loan)
         {
+            $borrower_view = $loan->getBorrowers()->first();
             array_push($loan_sheets, array(
-                $c,
+                $key+1,
                 $loan->code,
                 $loan->modality->procedure_type->name,
                 $loan->modality->name,
                 $loan->borrower->first()->state->affiliate_state_type->name,
+                $borrower_view->category_name ? $borrower_view->category_name : '',
+                $borrower_view->shortened_degree ? $borrower_view->shortened_degree : '',
                 $loan->borrower->first()->full_name,
                 $loan->borrower->first()->identity_card,
                 $loan->user ? $loan->user->username : '',
