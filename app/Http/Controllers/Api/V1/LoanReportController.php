@@ -2147,12 +2147,15 @@ class LoanReportController extends Controller
                             and r.action like '%$ubication'
                             order by r.created_at";
         $derivation = DB::select($query_derivation);
+        $borrower_view = $loan->getBorrowers()->first();
         $loans_collect->push([
                'code' => $loan->code,
                'request_date' => $loan->request_date,
                'modality' => $loan->modality->procedure_type->name,
                'sub_modality' => $loan->modality->name,
                'type' => $loan->borrower->first()->state->affiliate_state_type->name,
+               'category_name' => $borrower_view->category_name ? $borrower_view->category_name : '',
+               'shortened_degree' => $borrower_view->shortened_degree ? $borrower_view->shortened_degree : '',
                'borrower' => $loan->borrower->first()->full_name,
                'ci_borrower' => $loan->borrower->first()->identity_card,
                'user' => $loan->user ? $loan->user->username : '',
@@ -2192,17 +2195,19 @@ class LoanReportController extends Controller
     elseif($request->type == "xls")
     {
         $loan_sheets = array(
-                array("Nro","Nro de Tramite", "Modalidad", "Sub Modalidad", "Sector", "Nombre Completo", "C. I.", "Usuario", "Area", "Procedencia", "Fecha de Derivación", "Monto Solicitado", "Refinanciado", "Monto Desembolsado")
+                array("Nro","Nro de Tramite", "Modalidad", "Sub Modalidad", "Sector","Categoría","Grado", "Nombre Completo", "C. I.", "Usuario", "Area", "Procedencia", "Fecha de Derivación", "Monto Solicitado", "Refinanciado", "Monto Desembolsado")
         );
-        $c = 1;
-        foreach($loans as $loan)
+        foreach($loans as $key => $loan)
         {
+            $borrower_view = $loan->getBorrowers()->first();
             array_push($loan_sheets, array(
-                $c,
+                $key+1,
                 $loan->code,
                 $loan->modality->procedure_type->name,
                 $loan->modality->name,
                 $loan->borrower->first()->state->affiliate_state_type->name,
+                $borrower_view->category_name ? $borrower_view->category_name : '',
+                $borrower_view->shortened_degree ? $borrower_view->shortened_degree : '',
                 $loan->borrower->first()->full_name,
                 $loan->borrower->first()->identity_card,
                 $loan->user ? $loan->user->username : '',

@@ -26,8 +26,10 @@
                 <td style="font-size:80%;font-weight: bold;">Fecha de Solicitud</td>
                 <td style="font-size:80%;font-weight: bold;">Modalidad</td>
                 <td style="font-size:80%;font-weight: bold;">Sub Modalidad</td>
+                <td style="font-size:80%;font-weight: bold;">Cat.</td>
+                <td style="font-size:80%;font-weight: bold;">Grado</td>
                 <td style="font-size:80%;font-weight: bold;">Nombre Completo</td>
-                <td style="font-size:80%;font-weight: bold;">C. I.</td>
+                <td style="font-size:80%;font-weight: bold;">C.I.</td>
                 <td style="font-size:80%;font-weight: bold;">Usuario</td>
                 <td style="font-size:80%;font-weight: bold;">Regional</td>
                 <td style="font-size:80%;font-weight: bold;">Fecha de Derivación</td>
@@ -42,6 +44,8 @@
                     <td>{{ Carbon::parse($loans[$c]['request_date'])->format('d-m-Y') }}</td>
                     <td>{{ $loans[$c]['modality'] }}</td>
                     <td>{{ $loans[$c]['sub_modality'] }}</td>
+                    <td>{{ $loans[$c]['category_name'] }}</td>
+                    <td>{{ $loans[$c]['shortened_degree'] }}</td>
                     <td>{{ $loans[$c]['borrower'] }}</td>
                     <td>{{ $loans[$c]['ci_borrower'] }}</td>
                     <td>{{ $loans[$c]['user'] }}</td>
