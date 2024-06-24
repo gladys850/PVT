@@ -165,7 +165,7 @@
           </ValidationObserver>
 
           <!--Referencia personal-->
-          <ValidationObserver ref="observerPerRef">
+          <!-- <ValidationObserver ref="observerPerRef">
             <v-form>
               <v-container class="py-0" v-show="modalidad_personal_reference">
                 <v-row>
@@ -273,8 +273,12 @@
                 </v-row>
               </v-container>
             </v-form>
-          </ValidationObserver>
+          </ValidationObserver> -->
         </v-col>
+          <ReferencePerson
+          v-show="modalidad_personal_reference"
+            :reference_person="reference_person"
+          />
           <CoDebtor
             v-show="this.modalidad_max_cosigner > 0"
             :personal_codebtor="personal_codebtor"
@@ -300,10 +304,12 @@
 </template>
 <script>
 import CoDebtor from "@/components/loan/CoDebtor";
+import ReferencePerson from "@/components/loan/ReferencePerson";
 export default {
   name: "loan-information",
   components: {
-    CoDebtor
+    CoDebtor,
+    ReferencePerson
   },
   props: {
     loan_detail: {
@@ -356,10 +362,11 @@ export default {
     personal_reference:{},
     val_destiny: false,
     val_per_ref: false,
-    reference: [],
+    //reference: [],
     cosigners:[],
     editable: false,
-    aux: {}
+    aux: {},
+    reference_person:[]
   }),
   watch: {
     modalidad_id(newVal, oldVal){
@@ -498,45 +505,72 @@ export default {
         this.loading = false;
       }
     },
-    async savePersonalReference()
-    {
-      try{
-        if (this.modalidad_personal_reference) {
-          this.reference = []
-          if (this.editedIndexPerRef == -1){
+    // async savePersonalReference1()
+    // {
+    //   try{
+    //     if (this.modalidad_personal_reference) {
+    //       this.reference = []
+    //       if (this.editedIndexPerRef == -1){
+    //         let res = await axios.post(`personal_reference`, {
+    //           city_identity_card_id:this.personal_reference.city_identity_card_id,
+    //           identity_card:this.personal_reference.identity_card,
+    //           last_name:this.personal_reference.last_name,
+    //           mothers_last_name:this.personal_reference.mothers_last_name,
+    //           first_name:this.personal_reference.first_name,
+    //           second_name:this.personal_reference.second_name,
+    //           phone_number:this.personal_reference.phone_number,
+    //           cell_phone_number:this.personal_reference.cell_phone_number,
+    //           address:this.personal_reference.address
+    //         })
+    //         this.editedIndexPerRef = res.data.id
+    //         this.reference.push(res.data.id)
+    //       }else{
+    //         let res = await axios.patch(`personal_reference/${this.editedIndexPerRef}`,
+    //         {
+    //           city_identity_card_id:this.personal_reference.city_identity_card_id,
+    //           identity_card:this.personal_reference.identity_card,
+    //           last_name:this.personal_reference.last_name,
+    //           mothers_last_name:this.personal_reference.mothers_last_name,
+    //           first_name:this.personal_reference.first_name,
+    //           second_name:this.personal_reference.second_name,
+    //           phone_number:this.personal_reference.phone_number,
+    //           cell_phone_number:this.personal_reference.cell_phone_number,
+    //           address:this.personal_reference.address
+    //         })
+    //         this.reference.push(res.data.id)
+    //       }
+    //       this.loan_detail.reference = this.reference
+    //     }
+    //   } catch (e) {
+    //     console.log(e)
+    //      this.$refs.observer.setErrors(e)
+    //   } finally {
+    //     this.loading = false
+    //   }
+    // },
+    async savePersonalReference() {
+      try {
+        let ids_reference = []
+        if(this.modalidad_personal_reference){
+          for (let i = 0; i < this.reference_person.length; i++) {
             let res = await axios.post(`personal_reference`, {
-              city_identity_card_id:this.personal_reference.city_identity_card_id,
-              identity_card:this.personal_reference.identity_card,
-              last_name:this.personal_reference.last_name,
-              mothers_last_name:this.personal_reference.mothers_last_name,
-              first_name:this.personal_reference.first_name,
-              second_name:this.personal_reference.second_name,
-              phone_number:this.personal_reference.phone_number,
-              cell_phone_number:this.personal_reference.cell_phone_number,
-              address:this.personal_reference.address
-            })
-            this.editedIndexPerRef = res.data.id
-            this.reference.push(res.data.id)
-          }else{
-            let res = await axios.patch(`personal_reference/${this.editedIndexPerRef}`,
-            {
-              city_identity_card_id:this.personal_reference.city_identity_card_id,
-              identity_card:this.personal_reference.identity_card,
-              last_name:this.personal_reference.last_name,
-              mothers_last_name:this.personal_reference.mothers_last_name,
-              first_name:this.personal_reference.first_name,
-              second_name:this.personal_reference.second_name,
-              phone_number:this.personal_reference.phone_number,
-              cell_phone_number:this.personal_reference.cell_phone_number,
-              address:this.personal_reference.address
-            })
-            this.reference.push(res.data.id)
-          }
-          this.loan_detail.reference = this.reference
+              last_name: this.reference_person[i].last_name,
+              mothers_last_name: this.reference_person[i].mothers_last_name,
+              first_name: this.reference_person[i].first_name,
+              second_name: this.reference_person[i].second_name,
+              phone_number: this.reference_person[i].phone_number,
+              cell_phone_number: this.reference_person[i].cell_phone_number,
+              address: this.reference_person[i].address
+          })
+          ids_reference.push(res.data.id)
+          console.log(this.reference_person.length)
+        }
+        this.loan_detail.reference = ids_reference
+        console.log(this.loan_detail.reference)
         }
       } catch (e) {
+        this.dialog = false
         console.log(e)
-         this.$refs.observer.setErrors(e)
       } finally {
         this.loading = false
       }
@@ -611,13 +645,17 @@ export default {
           this.val_destiny = await this.$refs.observerDestiny.validate();
           if (this.val_destiny ) {
             if(this.modalidad_personal_reference){
-              this.val_per_ref = await this.$refs.observerPerRef.validate();
-              if(this.val_per_ref){
+              if(this.reference_person.length >=1){
+              // this.val_per_ref = await this.$refs.observerPerRef.validate();
+              // if(this.val_per_ref){
                   this.savePersonalReference()
                   this.savePCosigner()
                   this.nextStepBus(5)
-              }else{
-                  console.log("no pasa")
+              // }else{
+              //     console.log("no pasa")
+              // }
+              }else {
+                this.toastr.error("Registre por lo menos una persona de referencia")
               }
             }else{
               this.savePersonalReference()
