@@ -220,33 +220,29 @@
     </div>
 
     <div class="block">
-    @foreach ($loan->personal_references as $personal_reference)
         <table style="font-size:11px;" class="table-info w-100 text-center uppercase my-10">
             <tr class="bg-grey-darker text-white">
-                <td class="w-70">Referencia</td>
+                <td class="w-40">Referencia</td>
+                <td class="w-45">Domicilio</td>
                 <td class="w-15">Teléfono(s)</td>
             </tr>
+            @foreach ($loan->personal_references as $personal_reference)
             <tr>
                 <td class="data-row py-5">{{ $personal_reference->full_name }}</td>
+                <td class="data-row py-5">{{ $personal_reference->address ? $personal_reference->address : '' }}</td>
                 <td class="data-row py-5">
-                @if ($personal_reference->phone_number != "" && $personal_reference->phone_number != null)
-                    <div>{{ $personal_reference->phone_number }}</div>
-                @endif
-                @if ($personal_reference->cell_phone_number != "" && $personal_reference->cell_phone_number != null)
-                    @foreach(explode(',', $personal_reference->cell_phone_number) as $phone)
-                        <div>{{ $phone }}</div>
-                    @endforeach
-                @endif
-                </td>
+                    @if ($personal_reference->phone_number != "" && $personal_reference->phone_number != null)
+                        <div>{{ $personal_reference->phone_number }}</div>
+                    @endif
+                    @if ($personal_reference->cell_phone_number != "" && $personal_reference->cell_phone_number != null)
+                        @foreach(explode(',', $personal_reference->cell_phone_number) as $phone)
+                            <div>{{ $phone }}</div>
+                        @endforeach
+                    @endif
+                    </td>
             </tr>
-            <tr class="bg-grey-darker text-white">
-                <td colspan="2">Domicilio actual</td>
-            </tr>
-            <tr>
-                 <td colspan="2" width="100%">{{ $personal_reference->address ? $personal_reference->address : '' }}</td>
-            </tr>
+            @endforeach
         </table>
-        @endforeach
     </div>
     @endif
 
