@@ -264,7 +264,8 @@ class CalculatorController extends Controller
     }
     // funcion para sacar la cuota estimada con la calculadora---
     public static function quota_calculator($procedure_modality, $months_term, $amount_requested){
-        $interest_rate = $procedure_modality->current_interest->monthly_current_interest;
+        $parameter = (LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->numerator)/(LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->denominator);
+        $interest_rate = $procedure_modality->current_interest->monthly_current_interest($parameter);
         return Util::round2(((($interest_rate)/(1-(1/pow((1+$interest_rate),$months_term))))*$amount_requested));
     }
     // liquido para calificacion
@@ -279,7 +280,8 @@ class CalculatorController extends Controller
     }
     // monto maximo---
     public static function maximum_amount($procedure_modality,$months_term,$liquid_qualification_calculated){
-        $interest_rate = $procedure_modality->current_interest->monthly_current_interest;
+        $parameter = (LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->numerator)/(LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->denominator);
+        $interest_rate = $procedure_modality->current_interest->monthly_current_interest($parameter);
         $loan_interval = $procedure_modality->loan_modality_parameter;
         $debt_index = $procedure_modality->loan_modality_parameter->decimal_index;
         $maximum_qualified_amount = intval((1-(1/pow((1+$interest_rate),$months_term)))*($debt_index*$liquid_qualification_calculated)/$interest_rate);
