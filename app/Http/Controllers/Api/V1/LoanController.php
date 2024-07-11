@@ -534,7 +534,7 @@ class LoanController extends Controller
                     $this->get_plan_payments($loan, $loan['disbursement_date']);
                     $loan_id = $loan->id;
                     $cell_phone_number = $loan->affiliate->cell_phone_number;
-                    if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
+                    /*if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
                         $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
                         if($loan->city_id === 4) {
                             $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS POR EL AREA DE COBRANZAS.";
@@ -543,7 +543,7 @@ class LoanController extends Controller
                         }
                         $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
                         ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
-                    }
+                    }*/
                 }
             }else{
                 if($request->date_signal == false){
@@ -2277,6 +2277,7 @@ class LoanController extends Controller
 
     
     // almacenamiento del plan de pagos
+
     public function get_plan_payments(Loan $loan)
     {
         DB::beginTransaction();
@@ -2291,34 +2292,81 @@ class LoanController extends Controller
                 $days_aux = 0;
                 $interest_rest = 0;
                 $estimated_quota = $loan->estimated_quota;
+                $month_term = $loan->modality->loan_modality_parameter->minimum_term_modality * $loan->modality->loan_modality_parameter->loan_month_term;
                 for($i = 1 ;$i<= $loan->loan_term; $i++){
                     if($i == 1){
-                        $date_ini = Carbon::parse($loan->disbursement_date)->format('d-m-Y');
-                        if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
-                            $date_fin = Carbon::parse($date_ini)->endOfMonth();
-                            $days = $date_fin->diffInDays($date_ini);
+                        if(strstr($loan->modality->shortened, 'EST-PAS'))
+                        {
+                            if(Carbon::parse($loan->disbursement_date)->quarter == 1)
+                            {
+                                $date_fin = Carbon::parse($loan->disbursement_date)->month($month_term)->endOfMonth()->endOfDay();
+                                $date_ini = clone($date_fin);
+                                $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1);
+                            }
+                            elseif(Carbon::parse($loan->disbursement_date)->quarter == 4)
+                            {
+                                $date_fin = Carbon::parse($loan->disbursement_date)->addYear()->month($month_term)->endOfMonth()->endOfDay();
+                                $date_ini = clone($date_fin);
+                                $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1);
+                            }
+                            else
+                            {
+                                $date_fin = Carbon::parse($loan->disbursement_date)->month($month_term * 2)->endOfMonth()->endOfDay();
+                                $date_ini = clone($date_fin);
+                                $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1);
+                            }
+                            if($date_ini->greaterThan(Carbon::parse($loan->disbursement_date)))
+                                $extra_days = Carbon::parse($loan->disbursement_date)->startOfDay()->diffInDays($date_ini);
+                            else
+                                $extra_days = 0;
+                            $date_ini = $date_ini->format('d-m-Y');
+                            $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
                             $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
                             $capital = $estimated_quota - $interest;
                             $payment = $capital + $interest;
-                        }
-                        else{
-                            $date_ini = Carbon::parse($loan->disbursement_date)->startOfDay()->format('d');
-                            $date_pay = Carbon::parse($loan->disbursement_date)->endOfMonth()->endOfDay()->format('d');
-                            $extra_days = $date_pay - $date_ini;
-                            $extra_interest = LoanPayment::interest_by_days($extra_days, $loan->interest->annual_interest, $balance);
+                            $extra_interest = LoanPayment::interest_by_days($extra_days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
                             $payment = $loan->estimated_quota + $extra_interest;
-                            $date_fin = Carbon::parse($loan->disbursement_date)->startOfMonth()->addMonth()->endOfMonth()->endOfDay();
-                            $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
-                            $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
-                            $capital = $payment - $interest;
+                        }
+                        else
+                        {
+                            $date_ini = Carbon::parse($loan->disbursement_date)->format('d-m-Y');
+                            if(Carbon::parse($date_ini)->format('d') <= $loan_global_parameter->offset_interest_day){
+                                $date_fin = Carbon::parse($date_ini)->endOfMonth();
+                                $days = $date_fin->diffInDays($date_ini);
+                                $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
+                                $capital = $estimated_quota - $interest;
+                                $payment = $capital + $interest;
+                            }
+                            else{
+                                $date_ini = Carbon::parse($loan->disbursement_date)->startOfDay()->format('d');
+                                $date_pay = Carbon::parse($loan->disbursement_date)->endOfMonth()->endOfDay()->format('d');
+                                $extra_days = $date_pay - $date_ini;
+                                $extra_interest = LoanPayment::interest_by_days($extra_days, $loan->interest->annual_interest, $balance);
+                                $payment = $loan->estimated_quota + $extra_interest;
+                                $date_fin = Carbon::parse($loan->disbursement_date)->startOfMonth()->addMonth()->endOfMonth()->endOfDay();
+                                $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
+                                $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator, $loan->loan_procedure->loan_global_parameter->denominator);
+                                $capital = $payment - $interest;
+                            }
                         }
                     }
                     else{
-                        $date_fin = Carbon::parse($date_ini)->endOfMonth();
-                        $days = $date_fin->diffInDays($date_ini)+1;
-                        $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
-                        $capital = $estimated_quota - $interest;
-                        $payment = $estimated_quota;
+                        if(strstr($loan->modality->shortened, 'EST-PAS'))
+                        {
+                            $date_fin = Carbon::parse($date_ini)->addMonth($month_term - 1)->endOfMonth()->endOfDay();
+                            $days = $date_fin->diffInDays($date_ini) + 1;
+                            $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
+                            $capital = $estimated_quota - $interest;
+                            $payment = $estimated_quota;
+                        }
+                        else
+                        {
+                            $date_fin = Carbon::parse($date_ini)->endOfMonth();
+                            $days = $date_fin->diffInDays($date_ini)+1;
+                            $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
+                            $capital = $estimated_quota - $interest;
+                            $payment = $estimated_quota;
+                        }
                     }
                     $balance = $balance - $capital;
                     if($i == 1){
@@ -2372,25 +2420,6 @@ class LoanController extends Controller
         }
         catch (\Exception $e){
             DB::rollback();
-            return $e;
-        }
-    }
-
-    public function generate_plans()
-    {
-        try{
-            $loans = Loan::whereNotNull('disbursement_date')->get();
-            $c=0;
-            foreach($loans as $loan)
-            {
-                if($loan->loan_plan->count() == 0)
-                {
-                    $this->get_plan_payments($loan, $loan->disbursement_date);
-                    $c++;
-                }
-            }
-            return $c;
-        }catch(\Exception $e){
             return $e;
         }
     }

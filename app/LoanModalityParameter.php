@@ -30,6 +30,7 @@ class LoanModalityParameter extends Model
         'print_receipt_fund_rotary',
         'print_form_qualification_platform',
         'loan_procedure_id',
+        'loan_month_term'
     ];
 
     public function getDecimalIndexAttribute()
