@@ -104,7 +104,7 @@ class LoanController extends Controller
 
     public static function append_data_index(Loan $loan){
         $loan->borrower = $loan->borrower;
-        $loan->modality=$loan->modality->procedure_type;
+        $loan->modality = $loan->modality->procedure_type;
         $loan->estimated_quota = $loan->estimated_quota;
         return $loan;
     }
