@@ -26,7 +26,7 @@ class AffiliateForm extends FormRequest
     public function rules()
     {
         $rules = [
-            'first_name' => 'alpha_spaces|min:3',
+            'first_name' => 'min:3',
             'gender' => 'in:M,F',
             'birth_date' => 'date_format:"Y-m-d"',
             'city_birth_id' => 'exists:cities,id',
@@ -35,14 +35,14 @@ class AffiliateForm extends FormRequest
             'affiliate_state_id' => 'nullable|exists:affiliate_states,id',
             'degree_id' => 'nullable|exists:degrees,id',
             'pension_entity_id' => 'nullable|required_if:affiliate_state_id,4,5,6|exists:pension_entities,id',
-            'last_name' => 'sometimes|required_without:mothers_last_name|nullable|alpha_spaces|min:3',
-            'mothers_last_name' =>'sometimes|required_without:last_name|nullable|alpha_spaces|min:3',
-            'second_name' =>'nullable|alpha_spaces|min:3',
+            'last_name' => 'sometimes|required_without:mothers_last_name|nullable|min:3',
+            'mothers_last_name' =>'sometimes|required_without:last_name|nullable|min:3',
+            'second_name' =>'nullable|min:3',
             'date_death' => 'nullable|date_format:"Y-m-d"',
             'date_entry' => 'nullable|date_format:"Y-m-d"',
             'date_derelict' => 'nullable|date_format:"Y-m-d"',
             'due_date' => 'nullable|date_format:"Y-m-d"',
-            'surname_husband' => 'nullable|alpha_spaces|min:3',
+            'surname_husband' => 'nullable|min:3',
             'financial_entity_id' => 'nullable|exists:financial_entities,id',
             'account_number' => 'nullable|integer',
             'service_years' => 'nullable|integer|min:0',
