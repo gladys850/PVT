@@ -1708,4 +1708,91 @@ class AffiliateController extends Controller
         }
         return $state;
     }
+
+    /**
+    * Sub Modalidad del Afiliado 
+    * Devuelve las sub modalidades a la que el afiliado puede acceder según la modalidad seleccionada
+    * @urlParam affiliate required ID del afiliado. Example: 41064
+    * @urlParam procedure_type required ID de la modalidad. Example: 12
+    * @authenticated
+    */
+    public function get_sub_modality_affiliate(Affiliate $affiliate,ProcedureType $procedure_type){
+
+        $affiliate_state = $affiliate->affiliate_state;                      //Estado   del Afiliado en la Policia
+        $affiliate_state_type = $affiliate_state->affiliate_state_type;      //Tipo del Estado del Afiliado
+
+        foreach($affiliate->loans as $loan)                                                                     //pregunta si es un prestamo vigente y si existe otro préstamos de la misma modalidad
+            if($loan->state->id === 3 && $loan->modality->procedure_type->id === $procedure_type->id)          
+                abort(403, 'El affiliado tiene préstamos activos en la modalidad: ' . $procedure_type->name);
+        
+        $a = 'procedure_type_id';
+        $b = 'procedure_modality_id';
+
+        $sector_active = collect([              //Colección de prestamos para afiliados al sector activo
+            [$a => 9, $b => 32],                    //Anticipo Sector Activo
+            [$a => 10, $b => 36],                   //Corto Plazo Sector Activo
+            [$a => 12, $b => 81],                   //Largo Plazo con Garantía Personal Sector Activo con un Garante
+            [$a => 12, $b => 43],                   //Largo Plazo con Garantía Personal Sector Activo con dos Garantes
+            [$a => 12, $b => 46],                   //Largo Plazo con Pago Oportuno
+            [$a => 28, $b => 93],                   //Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor
+            [$a => 28, $b => 94],                   //Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor
+        ]);
+
+        $sector_availability = collect([        //Coleción de préstamos para afiliados en disponibilidad
+            [$a => 9, $b => 33],                    //Anticipo en Disponibilidad
+            [$a => 10, $b => 37],                   //Corto Plazo en Disponibilidad
+            [$a => 12, $b => 97],                   //Largo Plazo con Garantía Personal en Disponibilidad con un Garante
+            [$a => 12, $b => 65],                   //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
+        ]);
+
+        $sector_pasive_senasir = collect([      //Coleción de préstamos para afiliados al sector pasivo senasir
+            [$a => 9, $b => 35],                    //Anticipo Sector Pasivo SENASIR
+            [$a => 10, $b => 39],                   //Corto Plazo Sector Pasivo SENASIR
+            [$a => 12, $b => 45],                   //Largo Plazo con Garantía Personal Sector Pasivo SENASIR
+            [$a => 29, $b => 96],                   //Préstamo Estacional para el Sector Pasivo de la Policía Boliviana
+            [$a => 29, $b => 95],                   //Préstamo Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge
+        ]);
+
+        $sector_pasive_gestora = collect([      //Coleción de préstamos para afiliados al sector pasivo gestora
+            [$a => 9, $b => 67],                    //Anticipo Sector Pasivo Gestora Pública
+            [$a => 10, $b => 68],                   //Corto Plazo Sector Pasivo Gestora Pública
+            [$a => 12, $b => 70],                   //Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
+            [$a => 29, $b => 96],                   //Préstamo Estacional para el Sector Pasivo de la Policía Boliviana
+            [$a => 29, $b => 95],                   //Préstamo Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge
+        ]);
+
+        $data = collect();
+
+        if ($affiliate_state->id === 1)                                                         //Affiliado esta en estado Activo - Servicio
+            $data = $sector_active;
+        elseif ($affiliate_state->id === 3)                                                     //Affiliado esta en estado Activo - Disponibilidad
+            $data = $sector_availability;
+        elseif ($affiliate_state_type->id === 2){                                               //Affiliado esta en estado Pasivo - Senasir
+            if ($affiliate->pension_entity->id === 5)
+                $data = $sector_pasive_senasir;
+            elseif ($affiliate->pension_entity->id === 8)                                       //Affiliado esta en estado Pasivo - Gestora
+                $data = $sector_pasive_gestora;
+        }
+        $data->filter(function ($loan) use ($procedure_type){                                   //Filtra las submodalidades del sector por la modalidad recibida como parametro
+            return $loan['procedure_type_id'] === $procedure_type->id;
+        });
+
+        $sub_modalities = collect(json_decode($procedure_type->procedure_modalities, true));    
+        $sub_modalities_and_parameters = [];
+
+        $sub_modalities->each(function ($item1) use ($data, &$sub_modalities_and_parameters) {  //Realiza la intersección entre las submodalidades de la modalidad recibida por las submodalidades del sector
+            $exists = $data->contains(function ($item2) use ($item1) {
+                return $item2['procedure_modality_id'] === $item1['id'];
+            });
+        
+            if ($exists) {
+                $sub_modality = ProcedureModality::find($item1['id']);
+                $sub_modality->loan_modality_parameter = $sub_modality->loan_modality_parameter;
+                $sub_modality->procedure_type;
+                $sub_modalities_and_parameters[] = $sub_modality;
+            }
+        });
+
+        return $sub_modalities_and_parameters;
+    }
 }
