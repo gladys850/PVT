@@ -131,4 +131,23 @@ class ProcedureTypeController extends Controller
     {
         return $procedure_type->procedure_modalities;
     }
+
+    /**
+     * Obtener Modalidades de Préstamos
+     * Obtiene la lista de modalidades de préstamos excepto por las Amortizaciones de
+     * Refinanciamientos y Reprogramaciones
+     * @authenticated
+     */
+    public function get_modality_loan()
+    {   
+        $data = ProcedureType::where('module_id', 6)                
+        ->where(function ($query) {
+            $query->where('name', 'not like', '%Amortización%')
+                ->where('name', 'not like', '%Reprogramación%')
+                ->where('name', 'not like', '%Refinanciamiento%');
+        })
+        ->get();
+
+        return $data;
+    }
 }
