@@ -134,8 +134,7 @@ class ProcedureTypeController extends Controller
 
     /**
      * Obtener Modalidades de Préstamos
-     * Obtiene la lista de modalidades de préstamos excepto por las Amortizaciones de
-     * Refinanciamientos y Reprogramaciones
+     * Obtiene la lista de modalidades de préstamos según sismu o reprogramación
      * @bodyParam sismu bool required Es SISMU?. Example: false
      * @bodyParam reprogramming bool required Es Reprogramacion?. Example: false
      * @authenticated
@@ -166,13 +165,13 @@ class ProcedureTypeController extends Controller
         if ($request->reprogramming && $request->sismu === false) 
             $conditions = $modules_reprogramming;
     
-        $data = ProcedureType::where('module_id', 6)
+        $modules = ProcedureType::where('module_id', 6)
             ->where(function ($query) use ($conditions) {
                 foreach ($conditions as $condition) {
                     call_user_func_array([$query, 'where'], $condition);
                 }
             })
             ->get();
-        return $data;
+        return $modules;
     }
 }
