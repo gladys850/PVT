@@ -134,20 +134,44 @@ class ProcedureTypeController extends Controller
 
     /**
      * Obtener Modalidades de Préstamos
-     * Obtiene la lista de modalidades de préstamos excepto por las Amortizaciones de
-     * Refinanciamientos y Reprogramaciones
+     * Obtiene la lista de modalidades de préstamos según sismu o reprogramación
+     * @bodyParam sismu bool required Es SISMU?. Example: false
+     * @bodyParam reprogramming bool required Es Reprogramacion?. Example: false
      * @authenticated
      */
-    public function get_modality_loan()
+    public function get_modality_loan(Request $request)
     {   
-        $data = ProcedureType::where('module_id', 6)                
-        ->where(function ($query) {
-            $query->where('name', 'not like', '%Amortización%')
-                ->where('name', 'not like', '%Reprogramación%')
-                ->where('name', 'not like', '%Refinanciamiento%');
-        })
-        ->get();
+        $modules_default = [
+            ['name', 'not like', '%Amortización%'],
+            ['name', 'not like', '%Reprogramación%'],
+            ['name', 'not like', '%Refinanciamiento%']
+        ];
 
-        return $data;
+        $modules_sismu = [
+            ['name', 'like', '%Refinanciamiento%'],
+            ['name', 'not like', '%Reprogramación%'],
+            ['name', 'not like', '%Hipotecario%']
+        ];
+
+        $modules_reprogramming = [
+            ['name', 'like', '%Reprogramación%']
+        ];
+    
+        $conditions = $modules_default;
+
+        if ($request->sismu && $request->reprogramming === false) 
+            $conditions = $modules_sismu;
+
+        if ($request->reprogramming && $request->sismu === false) 
+            $conditions = $modules_reprogramming;
+    
+        $modules = ProcedureType::where('module_id', 6)
+            ->where(function ($query) use ($conditions) {
+                foreach ($conditions as $condition) {
+                    call_user_func_array([$query, 'where'], $condition);
+                }
+            })
+            ->get();
+        return $modules;
     }
 }
