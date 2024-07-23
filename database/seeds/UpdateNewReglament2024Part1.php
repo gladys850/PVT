@@ -132,11 +132,11 @@ class UpdateNewReglament2024Part1 extends Seeder
             ]);
             //Largo Plazo con un Solo Garante Sector Activo  -->  Con Pago Oportuno
             DB::table('procedure_modalities')->where('id', '46')->update([
-                'name' => 'Largo Plazo con Pago Oportuno',                                      //aun no definido
+                'name' => 'Largo Plazo con Pago Oportuno',
             ]);
             //Largo Plazo con Garantía Personal en Disponibilidad  -->  Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
             DB::table('procedure_modalities')->where('id', '65')->update([
-                'name' => 'Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes',                                      //aun no definido
+                'name' => 'Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes',
             ]);
             //Refinanciamiento Largo Plazo con Garantía Personal Sector Activo  -->  Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes
             DB::table('procedure_modalities')->where('id', '47')->update([
@@ -144,7 +144,7 @@ class UpdateNewReglament2024Part1 extends Seeder
             ]);
             //Refinanciamiento Largo Plazo con un Solo Garante Sector Activo  -->  Refinanciamiento Con Pago Oportuno
             DB::table('procedure_modalities')->where('id', '50')->update([
-                'name' => 'Refinanciamiento Largo Plazo con Pago Oportuno',                                      //aun no definido
+                'name' => 'Refinanciamiento Largo Plazo con Pago Oportuno',
             ]);
 
             //CREACIÓN NUEVOS
@@ -153,238 +153,161 @@ class UpdateNewReglament2024Part1 extends Seeder
                 [
                     'procedure_type_id' => 24,
                     'name' => 'Reprogramación Corto Plazo Sector Activo',
-                    'shortened' => 'REP-COR-ACT',                                   //aun no definido
+                    'shortened' => 'REP-COR-ACT',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 24,
                     'name' => 'Reprogramación Corto Plazo en Disponibilidad',
-                    'shortened' => 'REP-COR-DIS',                                   //aun no definido
+                    'shortened' => 'REP-COR-DIS',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 24,
                     'name' => 'Reprogramación Corto Plazo Sector Pasivo Gestora Pública',
-                    'shortened' => 'REP-COR-GES',                                   //aun no definido
+                    'shortened' => 'REP-COR-GES',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 24,
                     'name' => 'Reprogramación Corto Plazo Sector Pasivo SENASIR',
-                    'shortened' => 'REP-COR-SEN',                                   //aun no definido
+                    'shortened' => 'REP-COR-SEN',
                     'is_valid' => true,
                 ],
                 //id = 25 --> Reprogramación Refinanciamiento Préstamo a Corto Plazo                            //NUEVO
                 [
                     'procedure_type_id' => 25,
                     'name' => 'Reprogramación del Refinanciamiento Corto Plazo Sector Activo',
-                    'shortened' => 'REP-REF-COR-ACT',                               //aun no definido
+                    'shortened' => 'REP-REF-COR-ACT',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 25,
                     'name' => 'Reprogramación del Refinanciamiento Corto Plazo en Disponibilidad',
-                    'shortened' => 'REP-REF-COR-DIS',                               //aun no definido
+                    'shortened' => 'REP-REF-COR-DIS',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 25,
                     'name' => 'Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo Gestora Pública',
-                    'shortened' => 'REP-REF-COR-GES',                               //aun no definido
+                    'shortened' => 'REP-REF-COR-GES',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 25,
                     'name' => 'Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo SENASIR',
-                    'shortened' => 'REP-REF-COR-SEN',                               //aun no definido
+                    'shortened' => 'REP-REF-COR-SEN',
                     'is_valid' => true,
                 ],
                 //id = 12 --> Préstamo a Largo Plazo
                 [
                     'procedure_type_id' => 12,
                     'name' => 'Largo Plazo con Garantía Personal Sector Activo con un Garante',
-                    'shortened' => 'LAR-ACT-1G',                               //aun no definido
+                    'shortened' => 'LAR-ACT-1G',
                     'is_valid' => true,
                 ],
                 //id = 13 --> Refinanciamiento Préstamo a Largo Plazo
                 [
                     'procedure_type_id' => 13,
                     'name' => 'Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con un Garante',
-                    'shortened' => 'REF-LAR-ACT-1G',                               //aun no definido
+                    'shortened' => 'REF-LAR-ACT-1G',
                     'is_valid' => true,
                 ],
                 //id = 26 --> Reprogramación Préstamo a Largo Plazo                                               //NUEVO
                 [
                     'procedure_type_id' => 26,
                     'name' => 'Reprogramación Largo Plazo con Garantía Personal Sector Activo con un Garante',
-                    'shortened' => 'REP-LAR-ACT-1G',                               //aun no definido
+                    'shortened' => 'REP-LAR-ACT-1G',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 26,
                     'name' => 'Reprogramación Largo Plazo con Garantía Personal Sector Activo con dos Garantes',
-                    'shortened' => 'REP-LAR-ACT-2G',                               //aun no definido
+                    'shortened' => 'REP-LAR-ACT-2G',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 26,
                     'name' => 'Reprogramación Largo Plazo con Pago Oportuno',
-                    'shortened' => 'REP-LAR-1G',                                   //aun no definido
+                    'shortened' => 'REP-LAR-1G',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 26,
                     'name' => 'Reprogramación Largo Plazo Sector Pasivo Gestora Pública',
-                    'shortened' => 'REP-LAR-GES',                                   //aun no definido
+                    'shortened' => 'REP-LAR-GES',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 26,
                     'name' => 'Reprogramación Largo Plazo Sector Pasivo SENASIR',
-                    'shortened' => 'REP-LAR-SEN',                                   //aun no definido
+                    'shortened' => 'REP-LAR-SEN',
                     'is_valid' => true,
                 ],
                 //id = 27 --> Reprogramación Refinanciamiento Préstamo a Largo Plazo                                               //NUEVO
                 [
                     'procedure_type_id' => 27,
                     'name' => 'Reprogramación del Refinanciamiento Largo Plazo Sector Activo con un Garante',
-                    'shortened' => 'REP-REF-LAR-ACT-1G',                              //aun no definido
+                    'shortened' => 'REP-REF-LAR-ACT-1G',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 27,
                     'name' => 'Reprogramación del Refinanciamiento Largo Plazo Sector Activo con dos Garantes',
-                    'shortened' => 'REP-REF-LAR-ACT-2G',                               //aun no definido
+                    'shortened' => 'REP-REF-LAR-ACT-2G',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 27,
                     'name' => 'Reprogramación del Refinanciamiento Largo Plazo con Pago Oportuno',
-                    'shortened' => 'REP-REF-LAR-1G',                                    //aun no definido
+                    'shortened' => 'REP-REF-LAR-1G',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 27,
                     'name' => 'Reprogramación del Refinanciamiento Largo Plazo Sector Pasivo Gestora Pública',
-                    'shortened' => 'REP-REF-LAR-GES',                               //aun no definido
+                    'shortened' => 'REP-REF-LAR-GES',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 27,
                     'name' => 'Reprogramación del Refinanciamiento Largo Plazo Sector Pasivo SENASIR',
-                    'shortened' => 'REP-REF-LAR-SEN',                               //aun no definido
+                    'shortened' => 'REP-REF-LAR-SEN',
                     'is_valid' => true,
                 ],
                 //id = 28 --> Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario               //NUEVO
                 [
                     'procedure_type_id' => 28,
                     'name' => 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor',
-                    'shortened' => 'FON-MEN',                                           //aun no definido
+                    'shortened' => 'FON-MEN',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 28,
                     'name' => 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor',
-                    'shortened' => 'FON-MAY',                                           //aun no definido
+                    'shortened' => 'FON-MAY',
                     'is_valid' => true,
                 ],
                 //id = 29 --> Préstamo Estacional para el Sector Pasivo de la Policía Boliviana                                     //NUEVO
                 [
                     'procedure_type_id' => 29,
                     'name' => 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge',
-                    'shortened' => 'EST-PAS-CON',                                         //aun no definido
+                    'shortened' => 'EST-PAS-CON',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 29,
                     'name' => 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana',
-                    'shortened' => 'EST-PAS',                                               //aun no definido
+                    'shortened' => 'EST-PAS',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 12,
                     'name' => 'Largo Plazo con Garantía Personal en Disponibilidad con un Garante',
-                    'shortened' => 'LAR-DIS-1G',                                               //aun no definido
+                    'shortened' => 'LAR-DIS-1G',
                     'is_valid' => true,
-                ],
-                [
-                    'procedure_type_id' => 13,
-                    'name' => 'Refinanciamiento Largo Plazo con Garantía Personal en Disponibilidad con un Garante',
-                    'shortened' => 'REF-LAR-DIS-1G',                                               //aun no definido
-                    'is_valid' => true,
-                ],
-                [
-                    'procedure_type_id' => 13,
-                    'name' => 'Refinanciamiento Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes',
-                    'shortened' => 'REF-LAR-DIS-2G',                                               //aun no definido
-                    'is_valid' => true,
-                ],
+                ]
             ]);
-            //Creación de parámetros por modalidad a las modalidades creadas
-            /*
-                id  procedure_type_id   name
-            ANTICIPOS
-                32	9	Anticipo Sector Activo
-                33	9	Anticipo en Disponibilidad
-                67	9	Anticipo Sector Pasivo Gestora Pública
-                35	9	Anticipo Sector Pasivo SENASIR
-            CORTO PLAZO
-                36	10	Corto Plazo Sector Activo
-                37	10	Corto Plazo en Disponibilidad
-                68	10	Corto Plazo Sector Pasivo Gestora Pública
-                39	10	Corto Plazo Sector Pasivo SENASIR
-            REFINANCIAMIENTO CORTO PLAZO
-                40	11	Refinanciamiento de Préstamo a Corto Plazo Sector Activo
-                66	11	Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
-                69	11	Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública
-                42	11	Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR
-            REPROGRAMACIÓN CORTO PLAZO
-                73	24	Reprogramación Corto Plazo Sector Activo
-                74	24	Reprogramación Corto Plazo en Disponibilidad
-                75	24	Reprogramación Corto Plazo Sector Pasivo Gestora Pública
-                76	24	Reprogramación Corto Plazo Sector Pasivo SENASIR
-            REPROGRAMACIÓN DEL REFINANCIAMIENTO CORTO PLAZO  
-                77	25	Reprogramación del Refinanciamiento Corto Plazo Sector Activo
-                78	25	Reprogramación del Refinanciamiento Corto Plazo en Disponibilidad
-                79	25	Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo Gestora Pública
-                80	25	Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo SENASIR
-            LARGO PLAZO
-                81	12	Largo Plazo con Garantía Personal Sector Activo con un Garante
-                43	12	Largo Plazo con Garantía Personal Sector Activo con dos Garantes
-                46	12	Largo Plazo con Pago Oportuno
-                70	12	Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
-                45	12	Largo Plazo con Garantía Personal Sector Pasivo SENASIR
-                97	12	Largo Plazo con Garantía Personal en Disponibilidad con un Garante
-                65	12	Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
-                64	12	Largo Plazo con Garantía Personal en Comisión
-            REFINANCIAMIENTO LARGO PLAZO
-                82	13	Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con un Garante
-                47	13	Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes
-                50	13	Refinanciamiento Largo Plazo con Pago Oportuno
-                71	13	Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública
-                49	13	Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR
-                98	13	Refinanciamiento Largo Plazo con Garantía Personal en Disponibilidad con un Garante
-                99	13	Refinanciamiento Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
-            REPROGRAMACIÓN LARGO PLAZO
-                83	26	Reprogramación Largo Plazo con Garantía Personal Sector Activo con un Garante
-                84	26	Reprogramación Largo Plazo con Garantía Personal Sector Activo con dos Garantes
-                85	26	Reprogramación Largo Plazo con Pago Oportuno
-                86	26	Reprogramación Largo Plazo Sector Pasivo Gestora Pública
-                87	26	Reprogramación Largo Plazo Sector Pasivo SENASIR
-            REPROGRAMACIÓN DEL REFINANCIAMIENTO LARGO PLAZO
-                88	27	Reprogramación del Refinanciamiento Largo Plazo Sector Activo con un Garante
-                89	27	Reprogramación del Refinanciamiento Largo Plazo Sector Activo con dos Garantes
-                90	27	Reprogramación del Refinanciamiento Largo Plazo con Pago Oportuno
-                91	27	Reprogramación del Refinanciamiento Largo Plazo Sector Pasivo Gestora Pública
-                92	27	Reprogramación del Refinanciamiento Largo Plazo Sector Pasivo SENASIR
-            POR BENEFICIO DEL FONDO DE RETIRO
-                93	28	Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor
-                94	28	Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor
-            ESTACIONAL             
-                95	29	Préstamo Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge
-                96	29	Préstamo Estacional para el Sector Pasivo de la Policía Boliviana
-        */
-
             //ACTUALIZACIÓN
             //Largo Plazo con Garantía Personal Sector Activo con dos Garantes
             DB::table('loan_modality_parameters')->where('procedure_modality_id', '43')->update([
@@ -392,7 +315,7 @@ class UpdateNewReglament2024Part1 extends Seeder
             ]);
             //Largo Plazo con Pago Oportuno
             DB::table('loan_modality_parameters')->where('procedure_modality_id', '46')->update([
-                'maximum_term_modality' => 72,                                      //aun no definido
+                'maximum_term_modality' => 72,
             ]);
             //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
             DB::table('loan_modality_parameters')->where('procedure_modality_id', '65')->update([
@@ -404,7 +327,7 @@ class UpdateNewReglament2024Part1 extends Seeder
             ]);
             //Refinanciamiento Largo Plazo Con Pago Oportuno
             DB::table('loan_modality_parameters')->where('procedure_modality_id', '50')->update([
-                'maximum_term_modality' => 72,                                      //aun no definido
+                'maximum_term_modality' => 72,
             ]);
 
             DB::table('loan_modality_parameters')->insert([
@@ -704,10 +627,10 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'procedure_modality_id' => 73,      //73	24	Reprogramación Corto Plazo Sector Activo
                     'debt_index' => 70,                 //Limite de endeudamiento de 50% al 70%
                     'quantity_ballots' => 1,
-                    'guarantors' => 1,
+                    'guarantors' => 0,
                     'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
+                    'min_guarantor_category' => null,
+                    'max_guarantor_category' => null,
                     'min_lender_category' => null,
                     'max_lender_category' => null,
                     'max_cosigner' => 0,
@@ -728,10 +651,10 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'procedure_modality_id' => 74,      //74	24	Reprogramación Corto Plazo en Disponibilidad
                     'debt_index' => 70,                 //Limite de endeudamiento de 50% al 70%
                     'quantity_ballots' => 1,
-                    'guarantors' => 1,
+                    'guarantors' => 0,
                     'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
+                    'min_guarantor_category' => null,
+                    'max_guarantor_category' => null,
                     'min_lender_category' => null,
                     'max_lender_category' => null,
                     'max_cosigner' => 0,
@@ -776,10 +699,10 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'procedure_modality_id' => 76,      //76	24	Reprogramación Corto Plazo Sector Pasivo SENASIR
                     'debt_index' => 70,                 //Limite de endeudamiento de 50% al 70%
                     'quantity_ballots' => 1,
-                    'guarantors' => 1,
+                    'guarantors' => 0,
                     'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
+                    'min_guarantor_category' => null,
+                    'max_guarantor_category' => null,
                     'min_lender_category' => null,
                     'max_lender_category' => null,
                     'max_cosigner' => 0,
@@ -801,10 +724,10 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'procedure_modality_id' => 77,      //77	25	Reprogramación del Refinanciamiento Corto Plazo Sector Activo
                     'debt_index' => 70,                 //Limite de endeudamiento de 50% al 70%
                     'quantity_ballots' => 1,
-                    'guarantors' => 1,
+                    'guarantors' => 0,
                     'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
+                    'min_guarantor_category' => null,
+                    'max_guarantor_category' => null,
                     'min_lender_category' => null,
                     'max_lender_category' => null,
                     'max_cosigner' => 0,
@@ -825,10 +748,10 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'procedure_modality_id' => 78,      //78	25	Reprogramación del Refinanciamiento Corto Plazo en Disponibilidad
                     'debt_index' => 70,                 //Limite de endeudamiento de 50% al 70%
                     'quantity_ballots' => 1,
-                    'guarantors' => 1,
+                    'guarantors' => 0,
                     'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
+                    'min_guarantor_category' => null,
+                    'max_guarantor_category' => null,
                     'min_lender_category' => null,
                     'max_lender_category' => null,
                     'max_cosigner' => 0,
@@ -873,10 +796,10 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'procedure_modality_id' => 80,      //80	25	Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo SENASIR
                     'debt_index' => 70,                 //Limite de endeudamiento de 50% al 70%
                     'quantity_ballots' => 1,
-                    'guarantors' => 1,
+                    'guarantors' => 0,
                     'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
+                    'min_guarantor_category' => null,
+                    'max_guarantor_category' => null,
                     'min_lender_category' => null,
                     'max_lender_category' => null,
                     'max_cosigner' => 0,
@@ -1028,30 +951,6 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'personal_reference' => true,
                     'maximum_amount_modality' => 300000,
                     'minimum_amount_modality' => 70001,
-                    'maximum_term_modality' => 60,
-                    'minimum_term_modality' => 1,
-                    'print_contract_platform' => false,
-                    'print_receipt_fund_rotary' => false,
-                    'print_form_qualification_platform' => false,
-                    'loan_procedure_id' => 3,
-                    'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
-                    'loan_month_term' => 1,
-                ],
-                [
-                    'procedure_modality_id' => 64,      // 64	12	Largo Plazo con Garantía Personal en Comisión
-                    'debt_index' => 70,                 // Limite de endeudamiento de 40% al 70%
-                    'quantity_ballots' => 1,
-                    'guarantors' => 2,
-                    'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
-                    'min_lender_category' => null,
-                    'max_lender_category' => null,
-                    'max_cosigner' => 0,
-                    'personal_reference' => true,
-                    'maximum_amount_modality' => 300000,
-                    'minimum_amount_modality' => 1,
                     'maximum_term_modality' => 60,
                     'minimum_term_modality' => 1,
                     'print_contract_platform' => false,
@@ -1477,7 +1376,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                 //ESTACIONAL  
                 [
                     'procedure_modality_id' => 95,      // 95	29	Préstamo Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge
-                    'debt_index' => 80,                 // Limite de endeudamiento de 40% al 70%
+                    'debt_index' => 70,                 // Limite de endeudamiento de 40% al 70%
                     'quantity_ballots' => 1,
                     'guarantors' => 0,
                     'max_lenders' => 1,
@@ -1501,7 +1400,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                 ],
                 [
                     'procedure_modality_id' => 96,      // 96	29	Préstamo Estacional para el Sector Pasivo de la Policía Boliviana
-                    'debt_index' => 80,                 // Limite de endeudamiento de 40% al 70%
+                    'debt_index' => 70,                 // Limite de endeudamiento de 40% al 70%
                     'quantity_ballots' => 1,
                     'guarantors' => 0,
                     'max_lenders' => 1,
@@ -1537,54 +1436,6 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'personal_reference' => true,
                     'maximum_amount_modality' => 70000,
                     'minimum_amount_modality' => 1,
-                    'maximum_term_modality' => 60,
-                    'minimum_term_modality' => 1,
-                    'print_contract_platform' => false,
-                    'print_receipt_fund_rotary' => false,
-                    'print_form_qualification_platform' => false,
-                    'loan_procedure_id' => 3,
-                    'max_approved_amount' => null,
-                    'guarantor_debt_index' => null,
-                    'loan_month_term' => 1,
-                ],
-                [
-                    'procedure_modality_id' => 98,      // 98	13 Refinanciamiento Largo Plazo con Garantía Personal en Disponibilidad con un Garante
-                    'debt_index' => 70,                 // Limite de endeudamiento de 40% al 70%
-                    'quantity_ballots' => 1,
-                    'guarantors' => 1,
-                    'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
-                    'min_lender_category' => null,
-                    'max_lender_category' => null,
-                    'max_cosigner' => 0,
-                    'personal_reference' => true,
-                    'maximum_amount_modality' => 70000,
-                    'minimum_amount_modality' => 1,
-                    'maximum_term_modality' => 60,
-                    'minimum_term_modality' => 1,
-                    'print_contract_platform' => false,
-                    'print_receipt_fund_rotary' => false,
-                    'print_form_qualification_platform' => false,
-                    'loan_procedure_id' => 3,
-                    'max_approved_amount' => null,
-                    'guarantor_debt_index' => null,
-                    'loan_month_term' => 1,
-                ],
-                [
-                    'procedure_modality_id' => 99,      // 99	13 Refinanciamiento Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
-                    'debt_index' => 70,                 // Limite de endeudamiento de 40% al 70%
-                    'quantity_ballots' => 1,
-                    'guarantors' => 2,
-                    'max_lenders' => 1,
-                    'min_guarantor_category' => 0.35,
-                    'max_guarantor_category' => 1,
-                    'min_lender_category' => null,
-                    'max_lender_category' => null,
-                    'max_cosigner' => 0,
-                    'personal_reference' => true,
-                    'maximum_amount_modality' => 300000,
-                    'minimum_amount_modality' => 70001,
                     'maximum_term_modality' => 60,
                     'minimum_term_modality' => 1,
                     'print_contract_platform' => false,
@@ -1830,25 +1681,6 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'updated_at' => now()
                 ]
             ]);
-            DB::table('loan_interests')->insert([
-                [
-                    'procedure_modality_id' => 98,       //98	13	Refinanciamiento Largo Plazo con Garantía Personal en Disponibilidad con un Garante
-                    'annual_interest' => 13.2,
-                    'penal_interest' => 6,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]
-            ]);
-            DB::table('loan_interests')->insert([
-                [
-                    'procedure_modality_id' => 99,       //99	13	Refinanciamiento Largo Plazo con Garantía Personal en Disponibilidad con dos Garante
-                    'annual_interest' => 13.2,
-                    'penal_interest' => 6,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]
-            ]);
-
             DB::commit();
         } catch (\Exception $e) {
             // Revertir todas las operaciones en caso de error
