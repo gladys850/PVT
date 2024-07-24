@@ -2305,16 +2305,16 @@ class LoanController extends Controller
                                 $date_fin = Carbon::parse($loan->disbursement_date)->startOfYear()->addYear()->addMonth($month_term)->subDay()->endOfDay();
                                 $date_ini = clone($date_fin);
                                 $date_ini = $date_ini->startOfMonth()->subMonth($month_term - 1)->startOfDay();
-                                $days = $date_fin->diffInDays(Carbon::parse($date_ini)->endOfDay()) + 1;
+                                $days = $date_fin->diffInDays(Carbon::parse($date_fin)->endOfDay()) + 1;
                             }
                             else
                             {
                                 $date_fin = Carbon::parse($loan->disbursement_date)->month($month_term * 2)->endOfMonth()->endOfDay();
                                 $date_ini = clone($date_fin);
                                 $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1)->endOfDay()->subDay();
-                                $days = $date_ini->diffInDays(Carbon::parse($date_fin)->endOfDay());
+                                $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
                             }
-                            if($date_ini->greaterThan(Carbon::parse($loan->disbursement_date)))
+                            if(Carbon::parse($loan->disbursement_date)->quarter == 2 || Carbon::parse($loan->disbursement_date)->quarter == 4)
                                 $extra_days = Carbon::parse($loan->disbursement_date)->endOfDay()->diffInDays($date_ini);
                             else
                                 $extra_days = 0;
