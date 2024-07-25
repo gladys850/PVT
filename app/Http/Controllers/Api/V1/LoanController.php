@@ -531,7 +531,7 @@ class LoanController extends Controller
                     $state_id = LoanState::whereName('Vigente')->first()->id;
                     $loan['state_id'] = $state_id;
                     $loan->save();
-                    return $this->get_plan_payments($loan, $loan['disbursement_date']);
+                    $this->get_plan_payments($loan, $loan['disbursement_date']);
                     $loan_id = $loan->id;
                     $cell_phone_number = $loan->affiliate->cell_phone_number;
                 }
