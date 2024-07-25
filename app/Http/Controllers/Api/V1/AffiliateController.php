@@ -1741,13 +1741,9 @@ class AffiliateController extends Controller
             [$a => 13, $b => 47],                   //Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes
             [$a => 13, $b => 50],                   //Refinanciamiento Largo Plazo con Pago Oportuno
             [$a => 24, $b => 73],                   //Reprogramación Corto Plazo Sector Activo
-            [$a => 25, $b => 77],                   //Reprogramación del Refinanciamiento Corto Plazo Sector Activo
             [$a => 26, $b => 83],                   //Reprogramación Largo Plazo con Garantía Personal Sector Activo con un Garante
             [$a => 26, $b => 84],                   //Reprogramación Largo Plazo con Garantía Personal Sector Activo con dos Garantes
             [$a => 26, $b => 85],                   //Reprogramación Largo Plazo con Pago Oportuno
-            [$a => 27, $b => 88],                   //Reprogramación Largo Plazo con Garantía Personal Sector Activo con un Garante
-            [$a => 27, $b => 89],                   //Reprogramación Largo Plazo con Garantía Personal Sector Activo con dos Garantes
-            [$a => 27, $b => 90],                   //Reprogramación Largo Plazo con Pago Oportuno
         ]);
 
         $sector_availability = collect([        //Coleción de préstamos para afiliados en disponibilidad
@@ -1757,7 +1753,6 @@ class AffiliateController extends Controller
             [$a => 12, $b => 65],                   //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
             [$a => 11, $b => 66],                   //Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
             [$a => 24, $b => 73],                   //Reprogramación Corto Plazo en Disponibilidad
-            [$a => 25, $b => 78],                   //Reprogramación del Refinanciamiento Corto Plazo en Disponibilidad
         ]);
 
         $sector_pasive_senasir = collect([      //Coleción de préstamos para afiliados al sector pasivo senasir
@@ -1769,9 +1764,7 @@ class AffiliateController extends Controller
             [$a => 11, $b => 42],                   //Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR
             [$a => 13, $b => 49],                   //Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR
             [$a => 24, $b => 76],                   //Reprogramación Corto Plazo Sector Pasivo SENASIR
-            [$a => 25, $b => 80],                   //Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo SENASIR
             [$a => 26, $b => 87],                   //Reprogramación Largo Plazo Sector Pasivo SENASIR
-            [$a => 27, $b => 92],                   //Reprogramación del Refinanciamiento Largo Plazo Sector Pasivo SENASIR
         ]);
 
         $sector_pasive_gestora = collect([      //Coleción de préstamos para afiliados al sector pasivo gestora
@@ -1783,9 +1776,7 @@ class AffiliateController extends Controller
             [$a => 11, $b => 69],                   //Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública
             [$a => 13, $b => 71],                   //Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública
             [$a => 24, $b => 75],                   //Reprogramación Corto Plazo Sector Pasivo Gestora Pública
-            [$a => 25, $b => 79],                   //Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo Gestora Pública
             [$a => 26, $b => 86],                   //Reprogramación Largo Plazo Sector Pasivo Gestora Pública
-            [$a => 27, $b => 91],                   //Reprogramación del Refinanciamiento Largo Plazo Sector Pasivo Gestora Pública
         ]);
 
         $data = collect();
@@ -1813,7 +1804,7 @@ class AffiliateController extends Controller
             });
         
             if ($exists) {
-                $sub_modality = ProcedureModality::find($item1['id']);
+                $sub_modality = ProcedureModality::findOrFail($item1['id']);
                 $sub_modality->loan_modality_parameter = $sub_modality->loan_modality_parameter;
                 $sub_modality->procedure_type;
                 $sub_modalities_and_parameters[] = $sub_modality;
