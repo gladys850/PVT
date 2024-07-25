@@ -1954,32 +1954,60 @@ class LoanController extends Controller
 
     }
     /**
-    * Obtener relacion de procedure hermano 
-    * Obtiene la relacion entre procedures, ejemplo en el caso de Refinanciamiento
-    * @bodyParam id_loan integer required Devuelve el objeto del procedure, en el caso de acticipo devuelve un array vacio Example: 1
+    * Obtener la submodalidad de refinanciamiento o reprogramacion segun submodalidad hermano/referencia
+    * Obtiene segun la submodalidad mandada su refinanciamiento o reprogramacion y tambien validad si lo tiene o no // ejemplo corto plazo sector activo
+    * @bodyParam procedure_modality_id integer required id del préstamo de refencia de la que se require su refinanciamiento o reprogramación Example: 36
+    * @bodyParam type string required tipo de entrada "refinancing" ó "reprogramming" para diferenciar entre refinanciamiento o reprogramación Example: refinancing
     * @authenticated
-    * @responseFile responses/loan/get_procedure_relation.200.json
     */
     public function procedure_brother(Request $request){
-        $request->validate([
-            'id_loan' => 'required|exists:loans,id'
+       
+        $procedure_modality_id = $request->reference_modality_id;
+        $type = $request->type;
+
+        $a = 'procedure_modality_id'; //columna id submodalidad referencia
+        $b = 'refinancing';           //columna id submodalidead de refinanciamiento de la submodalidad de referencia
+        $c = 'reprogramming';         //columna id submodalidead de reprogramación de la submodalidad de referencia
+
+        $data_references = collect([        //PRESTAMO REFERENCIA
+            [$a => 36, $b => 40, $c =>73],  //Corto Plazo Sector Activo
+            [$a => 37, $b => 66, $c =>74],  //Corto Plazo en Disponibilidad
+            [$a => 39, $b => 42, $c =>76],  //Corto Plazo Sector Pasivo SENASIR
+            [$a => 68, $b => 69, $c =>75],  //Corto Plazo Sector Pasivo Gestora Pública
+            [$a => 40, $b => 40, $c =>77],  //Refinanciamiento de Préstamo a Corto Plazo Sector Activo
+            [$a => 66, $b => 66, $c =>78],  //Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
+            [$a => 42, $b => 42, $c =>80],  //Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR
+            [$a => 69, $b => 69, $c =>79],  //Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública
+            [$a => 81, $b => 82, $c =>83],  //Largo Plazo con Garantía Personal Sector Activo con un Garante
+            [$a => 43, $b => 47, $c =>84],  //Largo Plazo con Garantía Personal Sector Activo con dos Garantes
+            [$a => 46, $b => 50, $c =>85],  //Largo Plazo con Pago Oportuno
+            [$a => 45, $b => 49, $c =>87],  //Largo Plazo con Garantía Personal Sector Pasivo SENASIR
+            [$a => 70, $b => 71, $c =>86],  //Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
+            [$a => 97, $b => 0, $c =>0],    //Largo Plazo con Garantía Personal en Disponibilidad con un Garante
+            [$a => 65, $b => 0, $c =>0],    //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
+            [$a => 82, $b => 82, $c =>88],  //Refinanciamiento de Préstamo con Largo Plazo con Garantía Personal Sector Activo con un Garante
+            [$a => 47, $b => 47, $c =>89],  //Refinanciamiento de Préstamo con Largo Plazo con Garantía Personal Sector Activo con dos Garantes
+            [$a => 50, $b => 50, $c =>90],  //Refinanciamiento Largo Plazo con Largo Plazo con Pago Oportuno
+            [$a => 49, $b => 49, $c =>92],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo SENASIR
+            [$a => 71, $b => 71, $c =>91],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
         ]);
-        $loan = Loan::findOrFail($request->id_loan);
-        $procedure=$loan->modality->procedure_type;
-        $procedure_ref=[];
-    
-        if($procedure->name=='Préstamo a Corto Plazo' || $procedure->name=='Refinanciamiento Préstamo a Corto Plazo'){
-            $procedure_ref = ProcedureType::where('name','=','Refinanciamiento Préstamo a Corto Plazo')->first();
-        }else{
-            if($procedure->name=='Préstamo a Largo Plazo' || $procedure->name=='Refinanciamiento Préstamo a Largo Plazo'){
-                $procedure_ref = ProcedureType::where('name','=','Refinanciamiento Préstamo a Largo Plazo')->first();
-            }else{
-                if($procedure->name=='Préstamo Hipotecario' || $procedure->name=='Refinanciamiento Préstamo Hipotecario'){
-                    $procedure_ref = ProcedureType::where('name','=','Refinanciamiento Préstamo Hipotecario')->first();
-                }
-            }
-        }
-        return  $procedure_ref;
+
+        $reference = $data_references->first(function ($item) use ($procedure_modality_id, $a) {    //Busca la la submodalidad, su refiannciamiento y reprogramación
+            return $item[$a] === $procedure_modality_id;
+        });
+
+        if (!$reference)                    //si no encuentra la submodalidad
+            abort(403, 'Esta submodalidad no admite refinanciamiento ni reprogramación');
+
+        if ($reference[$type] === 0)        //verifica si tiene refinanciamiento o reprogramación
+            abort(403, 'Esta submodalidad no admite ' . ($type === 'refinancing' ? 'refinanciamiento' : 'reprogramaciones'));
+        
+        $sub_modalities_and_parameters = [];
+        $sub_modality = ProcedureModality::findOrFail($reference[$type]); //Obtiene la submodalidad requerida de refinanciamiento o reprogramaci
+        $sub_modality->loan_modality_parameter = $sub_modality->loan_modality_parameter;  //Obtiene sus parametros
+        $sub_modality->procedure_type;                                                    //Obtiene el modulo al que pertenece
+        $sub_modalities_and_parameters[] = $sub_modality;
+        return  $sub_modalities_and_parameters;
     }
 
     public function get_balance_sismu($ci){
