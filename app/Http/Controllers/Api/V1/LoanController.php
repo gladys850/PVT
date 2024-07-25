@@ -1073,6 +1073,7 @@ class LoanController extends Controller
         if($loan->parent_loan_id) $parent_loan = Loan::findOrFail($loan->parent_loan_id);
         $lenders = [];
         $guarantors = $loan->borrowerguarantors;
+        $spouses = $loan->affiliate->spouses;
         $lenders = $loan->borrower;
         $employees = [
             ['position' => 'Director General Ejecutivo','name'=>'CNL. MSc. CAD. LUCIO ENRIQUE RENÉ JIMÉNEZ VARGAS','identity_card'=>'3475563'],
@@ -1089,6 +1090,7 @@ class LoanController extends Controller
             'loan' => $loan,
             'lenders' => collect($lenders),
             'guarantors' => collect($guarantors),
+            'spouses' => collect($spouses),
             'parent_loan' => $parent_loan,
             'file_title' => $file_title,
             'is_refinancing'=>$is_refinancing,
@@ -1115,11 +1117,11 @@ class LoanController extends Controller
             case 'Refinanciamiento Préstamo a Largo Plazo':
                 $view_type = 'long';
                 break;
-            case 'Préstamo Hipotecario':
-                $view_type = 'hypothecary';
+            case 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario':
+                $view_type = 'retirement_fund';
                 break;
-            case 'Refinanciamiento Préstamo Hipotecario':
-                $view_type = 'hypothecary';
+            case 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana':
+                $view_type = 'seasonal';
                 break;
         }
         $information_loan= $this->get_information_loan($loan);

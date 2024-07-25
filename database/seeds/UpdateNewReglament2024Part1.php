@@ -278,26 +278,26 @@ class UpdateNewReglament2024Part1 extends Seeder
                 //id = 28 --> Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario               //NUEVO
                 [
                     'procedure_type_id' => 28,
-                    'name' => 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor',
+                    'name' => 'Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor',
                     'shortened' => 'FON-MEN',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 28,
-                    'name' => 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor',
+                    'name' => 'Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor',
                     'shortened' => 'FON-MAY',
                     'is_valid' => true,
                 ],
                 //id = 29 --> Préstamo Estacional para el Sector Pasivo de la Policía Boliviana                                     //NUEVO
                 [
                     'procedure_type_id' => 29,
-                    'name' => 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge',
+                    'name' => 'Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge',
                     'shortened' => 'EST-PAS-CON',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 29,
-                    'name' => 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana',
+                    'name' => 'Estacional para el Sector Pasivo de la Policía Boliviana',
                     'shortened' => 'EST-PAS',
                     'is_valid' => true,
                 ],
