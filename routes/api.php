@@ -49,6 +49,7 @@ Route::group([
         Route::get('procedure_type/{procedure_type}/flow', 'Api\V1\ProcedureTypeController@get_flow');
         Route::post('procedure_type/modality/loan', 'Api\V1\ProcedureTypeController@get_modality_loan');//Mostrar Todas las modalidades de Préstamos Según Reglamento
         Route::get('affiliate_loan_modality/{affiliate}/{procedure_type}','Api\V1\AffiliateController@get_sub_modality_affiliate');//Mostrar las sub modalidades a las que el afiliado puede acceder
+        Route::get('procedure_modality_parameters/{procedure_modality}', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter_remake'); //obtiene los parametros para rehacer tramite
         Route::apiResource('payment_type', 'Api\V1\PaymentTypeController')->only('index', 'show');
         Route::apiResource('procedure_modality', 'Api\V1\ProcedureModalityController')->only('index', 'show');
         Route::get('procedure_modality/{procedure_modality}/loan_modality_parameter', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter');
