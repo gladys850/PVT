@@ -69,4 +69,19 @@ class ProcedureModalityController extends Controller
         if(!$procedure_modality->loan_modality_parameter) abort(403, 'Parametro de préstamo no encontrado');
         return $procedure_modality->loan_modality_parameter;
     }
+
+    /**
+    * Parametros para obtener los parametros y padre de la submodalidad recibida (para rehacer tramites)
+    * Devuelve los parametros para cada modalidad
+    * @urlParam procedure_modality required ID de la modalidad. Example: 32
+    * @authenticated
+    */
+    public function get_loan_modality_parameter_remake(ProcedureModality $procedure_modality) {
+        $sub_modalities_and_parameters = [];
+        $procedure_modality->loan_modality_parameter = $procedure_modality->loan_modality_parameter;  //Obtiene sus parametros
+        $procedure_modality->procedure_type;                                                          //Obtiene el modulo al que pertenece
+        $sub_modalities_and_parameters[] = $procedure_modality;
+        return  $sub_modalities_and_parameters;
+    }
+    
 }
