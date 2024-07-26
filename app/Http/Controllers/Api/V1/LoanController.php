@@ -2325,24 +2325,27 @@ class LoanController extends Controller
                         {
                             if(Carbon::parse($loan->disbursement_date)->quarter == 1)
                             {
-                                $date_fin = Carbon::parse($loan->disbursement_date)->month($month_term)->endOfMonth()->endOfDay();
+                                $date_fin = Carbon::parse($loan->disbursement_date)->startOfYear()->addmonth($month_term)->subDay()->endOfDay();
+                                $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
+                            }
+                            elseif(Carbon::parse($loan->disbursement_date)->quarter == 2)
+                            {
+                                $date_fin = Carbon::parse($loan->disbursement_date)->endOfYear()->endOfDay();
                                 $date_ini = clone($date_fin);
-                                $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1);
-                                return $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
+                                $date_ini = $date_ini->startOfYear()->addMonth($month_term)->startOfDay();
+                                $days = $date_ini->diffInDays($date_fin) + 1;
+                            }
+                            elseif(Carbon::parse($loan->disbursement_date)->quarter == 3)
+                            {
+                                $date_fin = Carbon::parse($loan->disbursement_date)->startOfYear()->addmonth($month_term * 2)->subDay()->endOfDay();
+                                $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
                             }
                             elseif(Carbon::parse($loan->disbursement_date)->quarter == 4)
                             {
-                                $date_fin = Carbon::parse($loan->disbursement_date)->startOfYear()->addYear()->addMonth($month_term)->subDay()->endOfDay();
+                                $date_fin = Carbon::parse($loan->disbursement_date)->endOfYear()->startOfMonth()->addMonth($month_term)->endOfMonth()->endOfDay();
                                 $date_ini = clone($date_fin);
-                                $date_ini = $date_ini->startOfMonth()->subMonth($month_term - 1)->startOfDay();
-                                $days = $date_fin->diffInDays(Carbon::parse($date_ini)->endOfDay()) + 1;
-                            }
-                            else
-                            {
-                                $date_fin = Carbon::parse($loan->disbursement_date)->month($month_term * 2)->endOfMonth()->endOfDay();
-                                $date_ini = clone($date_fin);
-                                $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1)->endOfDay()->subDay();
-                                $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
+                                $date_ini = $date_ini->startOfYear()->startOfDay();
+                                $days = $date_ini->diffInDays($date_fin) + 1;
                             }
                             if(Carbon::parse($loan->disbursement_date)->quarter == 2 || Carbon::parse($loan->disbursement_date)->quarter == 4)
                                 $extra_days = Carbon::parse($loan->disbursement_date)->endOfDay()->diffInDays($date_ini);
