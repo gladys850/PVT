@@ -54,6 +54,7 @@ use App\LoanBorrower;
 use App\LoanGuarantor;
 use App\LoanProcedure;
 use App\Jobs\ProcessNotificationSMS;
+use App\LoanGuaranteeRetirementFund;
 use App\Observation;
 
 /** @group Préstamos
@@ -880,6 +881,18 @@ class LoanController extends Controller
                 }
             }
             if (count($persons) > 0) $loan->loan_persons()->sync($persons);
+        }
+        /** Guardar datos garantía si es préstamo por fondo de retiro*/
+        if($request->has('guarantee_retirement_fund')){
+            $guaranteeRetirementFund = $request->input('guarantee_retirement_fund');
+            $data = [
+                "loan_id" => $loan->id,
+                "total_retirement_fund" => $guaranteeRetirementFund['total_retirement_fund'] ?? null,
+                "warranty_coverage" => $guaranteeRetirementFund['warranty_coverage'] ?? null
+            ];
+            if (!empty($data['total_retirement_fund']) && !empty($data['warranty_coverage'])){
+                LoanGuaranteeRetirementFund::created($data);
+            }
         } 
         return (object)[
             'request' => $request,
