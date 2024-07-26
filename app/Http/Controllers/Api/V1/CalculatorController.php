@@ -298,11 +298,13 @@ class CalculatorController extends Controller
     private function loan_percent(request $request){
         $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $procedure_modality = ProcedureModality::findOrFail($request->procedure_modality_id);
+        $month_term = $procedure_modality->loan_modality_parameter->loan_month_term;
+        $parameter = (LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->numerator)/(LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->denominator);
         $debt_index = $procedure_modality->loan_modality_parameter->debt_index;
         $lc = $request->liquid_calculated;
         $ms = $request->amount_requested;
         $plm = $request->months_term;
-        $ticm = $procedure_modality->current_interest->monthly_current_interest;
+        $ticm = $procedure_modality->current_interest->monthly_current_interest($parameter, $month_term);
         $ce = Util::round($this->quota_calculator($procedure_modality, $plm, $ms));
         $liquid_qualification_calculated = 0;
         foreach($lc as $obj){
