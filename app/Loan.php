@@ -709,6 +709,7 @@ class Loan extends Model
 
     public function next_payment($estimated_date = null, $amount = null, $liquidate = false)
     {
+        $parameter = (LoanProcedure::where('id', $this->loan_procedure_id)->first()->loan_global_parameter->numerator)/(LoanProcedure::where('id', $this->loan_procedure_id)->first()->loan_global_parameter->denominator);
         do {
             if ($liquidate) {
                 $amount = $this->amount_requested * $this->amount_requested;
@@ -742,7 +743,7 @@ class Loan extends Model
             // Interés acumulado
             do {
                 $total_interests -= $quota->accumulated_payment;
-                $quota->accumulated_payment = Util::round2($quota->balance * $interest->daily_current_interest * $quota->paid_days->accumulated);
+                $quota->accumulated_payment = Util::round2($quota->balance * $interest->daily_current_interest($parameter) * $quota->paid_days->accumulated);
                 $total_interests += $quota->accumulated_payment;
                 if ($total_interests > $amount) {
                     $quota->paid_days->accumulated = intval(($amount - $quota->penal_payment) * $quota->paid_days->accumulated / $quota->accumulated_payment);
@@ -752,7 +753,7 @@ class Loan extends Model
             // Interés corriente
             do {
                 $total_interests -= $quota->interest_payment;
-                $quota->interest_payment = Util::round2($quota->balance * $interest->daily_current_interest * $quota->paid_days->current);
+                $quota->interest_payment = Util::round2($quota->balance * $interest->daily_current_interest($parameter) * $quota->paid_days->current);
                 $total_interests += $quota->interest_payment;
                 if ($total_interests > $amount) {
                     $quota->paid_days->current = intval(($amount - $quota->penal_payment - $quota->accumulated_payment) * $quota->paid_days->current / $quota->interest_payment);
