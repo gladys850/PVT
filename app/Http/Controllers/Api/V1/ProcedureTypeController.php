@@ -140,7 +140,7 @@ class ProcedureTypeController extends Controller
      * @authenticated
      */
     public function get_modality_loan(Request $request)
-    {   
+    {
         $modules_default = [
             ['name', 'not like', '%Amortización%'],
             ['name', 'not like', '%Reprogramación%'],
@@ -154,17 +154,18 @@ class ProcedureTypeController extends Controller
         ];
 
         $modules_reprogramming = [
-            ['name', 'like', '%Reprogramación%']
+            ['name', 'like', '%Reprogramación%'],
+            ['name', 'not like', '%Refinanciamiento%'],
         ];
-    
+
         $conditions = $modules_default;
 
-        if ($request->sismu && $request->reprogramming === false) 
+        if ($request->refinancing && $request->reprogramming === false) 
             $conditions = $modules_sismu;
 
-        if ($request->reprogramming && $request->sismu === false) 
+        if ($request->reprogramming && $request->refinancing === false) 
             $conditions = $modules_reprogramming;
-    
+
         $modules = ProcedureType::where('module_id', 6)
             ->where(function ($query) use ($conditions) {
                 foreach ($conditions as $condition) {

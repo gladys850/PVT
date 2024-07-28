@@ -129,14 +129,14 @@
         <v-stepper-content :key="`${3}-content`" :step="3" >
           <v-card color="grey lighten-1">
             <h3 class="text-uppercase text-center">{{modalidad.name}}</h3>
-            <HipotecaryData ref="HipotecaryData"
-              v-show="modalidad.procedure_type_name=='Préstamo Hipotecario' || modalidad.procedure_type_name=='Refinanciamiento Préstamo Hipotecario'"
+            <GuaranteeRetirementFund ref="GuaranteeRetirementFund"
+              v-show="modalidad.procedure_type_name=='Préstamo Estacional para el Sector Pasivo de la Policía Boliviana'"
               :loan_detail.sync="loan_detail"
               :loan_property="loan_property"
               :bus="bus"
             />
             <Guarantor
-            v-show="modalidad.procedure_type_name != 'Préstamo Hipotecario' && modalidad.procedure_type_name != 'Refinanciamiento Préstamo Hipotecario'"
+            v-show="modalidad.procedure_type_name != 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana'"
             :modalidad_guarantors.sync="modalidad.guarantors"
             :modalidad.sync="modalidad"
             :loan_detail.sync="loan_detail"
@@ -210,7 +210,6 @@
             :lenders.sync="lenders"
             :modalidad.sync="modalidad"
             :modalidad_id.sync="modalidad.id"
-            :loan_property_id.sync ="loan_property.id"
             :data_loan_parent.sync="data_loan_parent"
             :data_loan_parent_aux.sync="data_loan_parent_aux"/>
         </v-card>
@@ -235,7 +234,7 @@ import PersonalInformation from '@/components/affiliate/PersonalInformation'
 import FormInformation from '@/components/loan/FormInformation'
 import Guarantor from '@/components/loan/Guarantor'
 import CoDebtor from '@/components/loan/CoDebtor'
-import HipotecaryData from '@/components/loan/HipotecaryData'
+import GuaranteeRetirementFund from '@/components/loan/GuaranteeRetirementFund'
 import BallotsResultHipotecary from '@/components/loan/BallotsResultHipotecary'
 export default {
   name: "loan-steps",
@@ -266,7 +265,7 @@ export default {
     BallotsResultHipotecary,
     Guarantor,
     CoDebtor,
-    HipotecaryData
+    GuaranteeRetirementFund
   },
   data: () => ({
     bus: new Vue(),
@@ -302,7 +301,8 @@ export default {
     amount_requested:0,
     edit_refi_repro: false,
     loanTypeSelected: {
-      id: 0
+      id: 0,
+      submodality: []
     },
     data_sismu:{
       type_sismu: false,
@@ -349,7 +349,12 @@ export default {
     },
   },
   beforeMount(){
+    if(this.isNew || this.type_sismu){
     this.getProcedureType()
+    }else{
+
+    }
+
     this.bus.$on('beforeStepBus', (val) => {
       this.beforeStep(val)
     })
@@ -365,11 +370,6 @@ export default {
       this.getLoan(this.$route.query.loan_id)
     }else{
       this.edit_refi_repro = false
-    // if(this.remake)
-    //   {
-    //     this.getLoan(this.$route.query.loan_id)
-    //   }
-      //alert("Es nuevo")
     }
   },
   methods: {
@@ -380,7 +380,7 @@ export default {
       else {
         if(n==1)
         {
-         this.$refs.ballotsComponent.getLoanModalityAffiliate(this.$route.query.affiliate_id)
+         this.$refs.ballotsComponent.Onchange()
           }
         if(n==2)
         {
@@ -411,55 +411,11 @@ export default {
     async getProcedureType(){
       try {
         this.is_loading=true
-        let resp = await axios.get(`module`,{
-          params: {
-            name: 'prestamos',
-            sortBy: ['name'],
-            sortDesc: ['false'],
-            per_page: 10,
-            page: 1
-          }
+        let res = await axios.post(`procedure_type/modality/loan`,{
+          refinancing: this.refinancing?true:false, //T casos sismu F nuevo 
+          reprogramming: this.reprogramming?true:false //T casos sismu F nuevo 
         })
-        this.modulo= resp.data.data[0].id
-        let res = await axios.get(`module/${this.modulo}/modality_loan`)
         this.modalities = res.data
-        //Verifica si es refinaciamiento o reprogramación para no mostrar Anticipo
-        if(this.isNew){
-          let modalities_aux=[]
-          for(let i = 0; i < this.modalities.length; i++ ){
-            if(this.modalities[i].name == "Préstamo Anticipo" ||
-              this.modalities[i].name == "Préstamo a Corto Plazo" ||
-              this.modalities[i].name == "Préstamo a Largo Plazo" ){
-              modalities_aux.push(this.modalities[i])
-            }
-          }
-          this.modalities = modalities_aux
-        }
-        else if(this.refinancing){
-          let modalities_aux=[]
-          for(let i = 0; i < this.modalities.length; i++ ){
-            if(this.modalities[i].name == "Refinanciamiento Préstamo a Corto Plazo" ||
-              this.modalities[i].name == "Refinanciamiento Préstamo a Largo Plazo" ){
-              modalities_aux.push(this.modalities[i])
-            }
-          }
-          this.modalities = modalities_aux
-        }
-        else if(this.reprogramming){
-          let modalities_aux=[]
-          for(let i = 0; i < this.modalities.length; i++ ){
-            if(this.modalities[i].name != "Préstamo Anticipo" &&
-              this.modalities[i].name != 'Préstamo a Corto Plazo' &&
-              this.modalities[i].name != 'Refinanciamiento Préstamo a Corto Plazo' ){
-              modalities_aux.push(this.modalities[i])
-            }
-          }
-           this.modalities = modalities_aux
-        }else if(this.remake){
-          this.modalities
-        }else{
-          this.toastr.error('Ocurrio un error al obtener la modadlidad')
-        }
         this.is_loading=false
       } catch (e) {
         console.log(e)
@@ -740,24 +696,25 @@ export default {
           this.data_loan_parent_aux.balance = res.data.data_loan.balance
           this.data_loan_parent_aux.estimated_quota = res.data.data_loan.estimated_quota
         }
-          //Si es refinanciamiento existe un cambio en el id de modalidad
-        if(this.refinancing){
-          let res3 = await axios.post(`procedure_brother`,{
-            id_loan: id
+          //Si es PVT refinanciamiento existe un cambio en el id de modalidad
+        if(this.refinancing || this.reprogramming){
+          let res3 = await axios.post(`procedure_brother/`,{
+            reference_modality_id: res.data.modality.id,    //submodalidad PVT Corto Plazo Sector Activo
+            type: this.refinancing? 'refinancing' : 'reprogramming'
           })
-          this.modalidad_refi_repro_remake = res3.data.id
+          this.modalities = [res3.data[0].procedure_type]
+          this.loanTypeSelected.id = res3.data[0].procedure_type_id
+          this.loanTypeSelected.submodality = res3.data
+        }else if(this.remake){
+          //rehacer
+          let res4 = await axios.get(`procedure_modality_parameters/${this.data_loan.modality.id}`)
+          this.modalities = [res4.data[0].procedure_type]
+          this.loanTypeSelected.id = this.data_loan.modality.procedure_type_id //revisar
+          this.loanTypeSelected.submodality = res4.data
         }else{
-          this.modalidad_refi_repro_remake = this.data_loan.modality.procedure_type_id
+          this.toastr.error("Existe un error para obtener la modalidad")
         }
-        this.loanTypeSelected.id =this.modalidad_refi_repro_remake
         this.edit_refi_repro = true
-        this.is_loading = false
-
-        //En el caso de rehacer hipotecario recuperar el VNR
-        if(this.data_loan.property_id != null){
-          let res3 = await axios.get(`loan_property/${this.data_loan.property_id}`)
-          this.loan_detail.net_realizable_value = res3.data.net_realizable_value
-        }
         this.is_loading = false
       } catch (e) {
         console.log(e)
