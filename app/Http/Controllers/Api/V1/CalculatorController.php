@@ -228,7 +228,11 @@ class CalculatorController extends Controller
         }
         else{
             $modality = ProcedureModality::findOrFail($request->procedure_modality_id);
-            if($modality->procedure_type->name == 'Préstamo Anticipo' || $modality->procedure_type->name == 'Préstamo a Corto Plazo' || $modality->procedure_type->name == 'Préstamo a Largo Plazo'){
+            if($modality->procedure_type->name == 'Préstamo Anticipo' || 
+               $modality->procedure_type->name == 'Préstamo a Corto Plazo' || 
+               $modality->procedure_type->name == 'Préstamo a Largo Plazo' ||
+               $modality->procedure_type->name == 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario' ||
+               $modality->procedure_type->name == 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana'){
                 if(count($liquid_calculated)>$modality->loan_modality_parameter->max_lenders)abort(403, 'La cantidad de titulares no corresponde a la modalidad');
                 foreach($liquid_calculated as $liquid){
                     $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_requested);
