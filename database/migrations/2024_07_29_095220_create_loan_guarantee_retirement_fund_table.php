@@ -13,12 +13,11 @@ class CreateLoanGuaranteeRetirementFundTable extends Migration
      */
     public function up()
     {
-        Schema::create('loan_guarantee_retirement_fund', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('loan_guarantee_retirement_funds', function (Blueprint $table) {
             $table->unsignedBigInteger('loan_id');
-            $table->float('total_retirement_fund');
-            $table->float('warranty_coverage');
+            $table->unsignedBigInteger('retirement_fund_average_id');
             $table->foreign('loan_id')->references('id')->on('loans')->onDelete('cascade');
+            $table->foreign('retirement_fund_average_id')->references('id')->on('retirement_fund_averages')->onDelete('cascade');
         });
     }
 
@@ -29,6 +28,6 @@ class CreateLoanGuaranteeRetirementFundTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('loan_guarantee_retirement_fund');
+        Schema::dropIfExists('loan_guarantee_retirement_funds');
     }
 }
