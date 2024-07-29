@@ -15,7 +15,7 @@
 </div>
 <div class="block text-justify">
     <div>
-        Conste en el presente contrato de préstamo de {{ $title }}, que al solo reconocimiento de firmas y rúbricas será elevado a Instrumento Público, 
+        Conste en el presente contrato de préstamo al {{ $title }}, que al solo reconocimiento de firmas y rúbricas será elevado a Instrumento Público, 
         por lo que las partes que intervienen lo suscriben al tenor y contenido de las siguientes cláusulas y condiciones:
     </div>
     <div>
@@ -67,6 +67,10 @@
         cumplir con la cuota de amortización mediante pago directo en la Oficina Central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta 
         fiscal de la MUSERPOL y enviar la boleta de depósito original a la Oficina Central inmediatamente. Caso contrario el PRESTATARIO se hará pasible al recargo 
         correspondiente a los intereses que se generen al día de pago por la deuda contraída.
+        <br>
+        Asimismo, el PRESTATARIO se compromete hacer conocer oportunamente a la MUSERPOL sobre la omisión del descuento mensual que se hubiera dado a efectos de 
+        solicitar al Comando General de la Policía Boliviana se regularice este descuento, sin perjuicio que realice el depósito directo del mes omitido, de acuerdo 
+        a lo estipulado en el párrafo precedente.
     </div>
     <br>
     <div>
@@ -119,6 +123,7 @@
         manera voluntaria y directa la liquidación total del préstamo.
         
     </div>
+    <br>
     <div>
         <b>DÉCIMA PRIMERA.- (DE LA MORA):</b> El PRESTATARIO se constituirá en mora automática sin intimación o requerimiento alguno, de acuerdo a lo establecido por el 
         artículo 341, Núm. 1) del Código Civil, al incumplimiento del pago de cualquier amortización de capital o intereses, sin necesidad de intimación o requerimiento 
