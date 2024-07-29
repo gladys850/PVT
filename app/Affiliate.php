@@ -13,6 +13,7 @@ use Util;
 use App\LoanState;
 use Illuminate\Support\Facades\DB;
 use App\LoanProcedure;
+use App\RetirementFundAverage;
 
 class Affiliate extends Model
 {
@@ -558,4 +559,8 @@ class Affiliate extends Model
     return $new_current_date;
    }
 
+   public function retirement_fund_average()
+   {
+    return RetirementFundAverage::where('degree_id', $this->degree_id)->where('category_id', $this->category_id)->where('is_active', true)->first();
+   }
 }

@@ -207,6 +207,7 @@ Route::group([
             Route::get('affiliate/{affiliate}/maximum_loans','Api\V1\AffiliateController@evaluate_maximum_loans');
             Route::post('affiliate_loans_guarantees', 'Api\V1\AffiliateController@loans_guarantees');
             Route::get('affiliate/{affiliate}/verify_affiliate_spouse','Api\V1\AffiliateController@verify_affiliate_spouse');
+            Route::get('affiliate/get_retirement_fund_average','Api\V1\AffiliateController@get_retirement_fund_average');
 
         });
         Route::group([

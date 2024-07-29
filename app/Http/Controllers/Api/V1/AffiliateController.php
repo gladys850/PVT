@@ -60,6 +60,7 @@ class AffiliateController extends Controller
         $affiliate->defaulted_lender = $affiliate->defaulted_lender;
         //$affiliate->defaulted_guarantor = $affiliate->defaulted_guarantor;
         $affiliate->cpop = $affiliate->cpop;
+        $affiliate->retirement_fund_average = $affiliate->retirement_fund_average();
         $affiliate->default_alert_date_import = $affiliate->default_alert_date_import();
         if($affiliate->spouse){
             $affiliate->spouse = $affiliate->spouse;
@@ -1812,5 +1813,26 @@ class AffiliateController extends Controller
         });
 
         return $sub_modalities_and_parameters;
+    }
+
+    /**
+    * Promedio de fondo de retiro
+    * devuelve el promedio del fondo de retiro correspondiente al afiliado
+    * @urlParam affiliate required ID del afiliado. Example: 100
+    * @authenticated
+    */
+    public function get_retirement_fund_average(Affiliate $affiliate)
+    {
+        if($affiliate->retirement_fund_average())
+            $data = array(
+                "state" => true,
+                "message" => $affiliate->retirement_fund_average()->retirement_fund_average
+                );
+        else
+            $data = array(
+                "state" => false,
+                "message" => "no tiene la categoria necesaria"
+                );
+        return $data;
     }
 }
