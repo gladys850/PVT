@@ -1663,4 +1663,9 @@ class Loan extends Model
     {
         return $this->hasMany(LoanBorrower::class, 'loan_id');
     }
+
+    public function loanGuaranteeRetirementFund()
+    {
+        return $this->hasOne(LoanGuaranteeRetirementFund::class,'loan_id');
+    }
 }
