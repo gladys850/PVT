@@ -228,28 +228,6 @@ class UpdateRequirementsReglament2024 extends Seeder
                 ]
             ]);
 
-            //REFINANCIAMIENTO LARGO PLAZO CGP EN DISPONIBILIDAD CON UN GARANTE
-            DB::table('procedure_requirements')->insert([
-                [
-                    'procedure_modality_id' => 98,
-                    'procedure_document_id' => 430,
-                    'number' => 2,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]
-            ]);
-
-            //REFINANCIAMIENTO LARGO PLAZO CGP EN DISPONIBILIDAD CON DOS GARANTES
-            DB::table('procedure_requirements')->insert([
-                [
-                    'procedure_modality_id' => 99,
-                    'procedure_document_id' => 430,
-                    'number' => 2,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]
-            ]);
-
             //REPROGRAMACIÓN LARGO PLAZO CGP SECTOR ACTIVO CON UN GARANTE
             DB::table('procedure_requirements')->insert([
                 [
@@ -336,6 +314,14 @@ class UpdateRequirementsReglament2024 extends Seeder
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
+            ]);
+            //ACTUALIZACIÓN DE COBERTURA PARA LA SUBMODALIDAD DE FONDO DE RETIRO
+            DB::table('loan_modality_parameters')->where('procedure_modality_id', '93')->update([
+                'coverage_percentage' => 0.8,
+            ]);
+
+            DB::table('loan_modality_parameters')->where('procedure_modality_id', '94')->update([
+                'coverage_percentage' => 0.8,
             ]);
 
             DB::commit();

@@ -97,7 +97,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                 ],
                 [
                     'module_id' => 6,
-                    'name' => 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario',
+                    'name' => 'Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario',
                     'created_at' => now(),
                     'updated_at' => now(),
                     'second_name' => 'Fondo de Retiro',                         // no se tiene registro de este dato
@@ -278,13 +278,13 @@ class UpdateNewReglament2024Part1 extends Seeder
                 //id = 28 --> Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario               //NUEVO
                 [
                     'procedure_type_id' => 28,
-                    'name' => 'Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor',
+                    'name' => 'Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario Menor',
                     'shortened' => 'FON-MEN',
                     'is_valid' => true,
                 ],
                 [
                     'procedure_type_id' => 28,
-                    'name' => 'Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor',
+                    'name' => 'Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario Mayor',
                     'shortened' => 'FON-MAY',
                     'is_valid' => true,
                 ],
