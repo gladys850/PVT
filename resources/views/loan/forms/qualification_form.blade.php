@@ -240,7 +240,7 @@
             <td class="w-50 text-left px-10">{{ Util::money_format($loan->estimated_quota) }}</td>
             </tr>
             <tr  class="w-100">
-            <td class="w-50 text-left px-10">ÍNDICE DE ENDEUDAMIENTO</td>
+            <td class="w-50 text-left px-10">LÍMITE DE ENDEUDAMIENTO</td>
             <td class="w-50 text-left px-10">{{ Util::money_format($loan->indebtedness_calculated) }} %</td>
             </tr>      
         </table>
@@ -271,6 +271,29 @@
             </tr>
         </table>
         @endforeach
+    </div>
+    @endif
+    @if($loan->modality->procedure_type->name == 'Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario')
+    <div class="block">
+        <div class="font-semibold leading-tight text-left m-b-10 text-sm">{{ $n++ }}. DATOS DE EVALUACIÓN DE LA GARANTÍA</div>
+    </div>
+    <div class="block">
+        <table style="font-size:12px;" class="table-info w-100 text-center uppercase my-10">
+            <tr class="bg-grey-darker text-white">
+                <td colspan="2">GARANTÍA DEL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO</td>
+            </tr>
+            <tr class="w-100">
+            <td class="w-55 text-left px-10">TOTAL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO</td>
+            <td class="w-45 text-center px-10">{{ Util::money_format($loan->loanGuaranteeRetirementFund->retirementFundAverage->retirement_fund_average) }}</td>
+            </tr>
+            <tr  class="w-100">
+            <td class="w-55 text-left px-10">COBERTURA DEL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO</td>
+            <td class="w-45 text-center px-10">{{Util::money_format($loan->loanGuaranteeRetirementFund->retirementFundAverage->retirement_fund_average*$loan->modality->loan_modality_parameter->coverage_percentage)}}</td>
+            </tr>
+            <tr  class="w-100">
+            <td class="w-55 text-left px-10">PORCENTAJE CALCULADO</td>
+            <td class="w-45 text-center px-10">{{$loan->modality->loan_modality_parameter->coverage_percentage*100}}%</td>
+        </table>
     </div>
     @endif
     <table class="text-center">
