@@ -1849,11 +1849,11 @@ class AffiliateController extends Controller
         $maxLenderCategory = $procedure_modality->loan_modality_parameter->max_lender_category;
 
         if(!($percentage >= $minLenderCategory && $percentage <= $maxLenderCategory))
-            return response()->json(['status' => false, 'message' => 'El afiliado no tiene la categoria suficiente para esta modalidad'], 400);
+            abort(403, 'El afiliado no tiene la categoria suficiente para esta modalidad');
 
         if(str_contains($procedure_modality->shortened,'EST-PAS-CON'))
-            if($affiliate->spouses)
-                return response()->json(['status' => false, 'message' => 'El afiliado no tiene esposa registrada'], 400);
+            if(!$affiliate->spouses)
+                abort(403, 'El afiliado no tiene esposa registrada');
 
         return response()->json(['status' => true, 'message' => 'Validations passed successfully'], 200);
     }
