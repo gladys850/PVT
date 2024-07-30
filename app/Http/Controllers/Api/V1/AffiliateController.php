@@ -1722,9 +1722,13 @@ class AffiliateController extends Controller
         $affiliate_state = $affiliate->affiliate_state;                      //Estado   del Afiliado en la Policia
         $affiliate_state_type = $affiliate_state->affiliate_state_type;      //Tipo del Estado del Afiliado
 
+        if (str_contains($procedure_type->name, "Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario"))
+            if(!($affiliate->retirement_fund_average() && (str_contains($affiliate->category->name, "85%") || str_contains($affiliate->category->name, "100%"))) ) //pregunta si el afilido tiene categoria al 85 o 100 y si existe promedio de fondo de retiro para el afiliado
+                abort(403, 'El afiliado no tiene la categoria suficiente para esta modalidad');
+
         foreach($affiliate->loans as $loan)                                                                     //pregunta si es un prestamo vigente y si existe otro préstamos de la misma modalidad
             if($loan->state->id === 3 && $loan->modality->procedure_type->id === $procedure_type->id)          
-                abort(403, 'El affiliado tiene préstamos activos en la modalidad: ' . $procedure_type->name);
+                abort(403, 'El afiliado tiene préstamos activos en la modalidad: ' . $procedure_type->name);
         
         $a = 'procedure_type_id';
         $b = 'procedure_modality_id';
