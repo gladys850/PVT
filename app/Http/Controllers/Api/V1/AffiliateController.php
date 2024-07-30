@@ -1722,10 +1722,6 @@ class AffiliateController extends Controller
         $affiliate_state = $affiliate->affiliate_state;                      //Estado   del Afiliado en la Policia
         $affiliate_state_type = $affiliate_state->affiliate_state_type;      //Tipo del Estado del Afiliado
 
-        if (str_contains($procedure_type->name, "Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario"))
-            if(!($affiliate->retirement_fund_average() && (str_contains($affiliate->category->name, "85%") || str_contains($affiliate->category->name, "100%"))) ) //pregunta si el afilido tiene categoria al 85 o 100 y si existe promedio de fondo de retiro para el afiliado
-                abort(403, 'El afiliado no tiene la categoria suficiente para esta modalidad');
-
         foreach($affiliate->loans as $loan)                                                                     //pregunta si es un prestamo vigente y si existe otro préstamos de la misma modalidad
             if($loan->state->id === 3 && $loan->modality->procedure_type->id === $procedure_type->id)          
                 abort(403, 'El afiliado tiene préstamos activos en la modalidad: ' . $procedure_type->name);
@@ -1838,5 +1834,27 @@ class AffiliateController extends Controller
                 "message" => "no tiene la categoria necesaria"
                 );
         return $data;
+    }
+
+    /**
+    * Validación de parametros de la Sub Modalidad selecionada con el Afiliado 
+    * @urlParam affiliate required ID del afiliado. Example: 41064
+    * @urlParam procedure_modality required ID de la sub modalidad. Example: 93
+    * @authenticated
+    */
+    public function validate_affiliate_modality(Affiliate $affiliate,ProcedureModality $procedure_modality)
+    {   
+        $percentage = $affiliate->category->percentage;
+        $minLenderCategory = $procedure_modality->loan_modality_parameter->min_lender_category;
+        $maxLenderCategory = $procedure_modality->loan_modality_parameter->max_lender_category;
+
+        if(!($percentage >= $minLenderCategory && $percentage <= $maxLenderCategory))
+            abort(403, 'El afiliado no tiene la categoria suficiente para esta modalidad');
+
+        if(str_contains($procedure_modality->shortened,'EST-PAS-CON'))
+            if(!$affiliate->spouses->count()>0)
+                abort(403, 'El afiliado no tiene esposa registrada');
+
+        return response()->json(['status' => true, 'message' => 'Validations passed successfully'], 200);
     }
 }
