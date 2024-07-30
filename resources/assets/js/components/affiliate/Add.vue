@@ -442,21 +442,21 @@ export default {
             //Despues de actualizar, obtener datos del afiliado para renderizado
             this.getAffiliate(this.$route.params.id)
             //Preguntar si afiliado esta fallecido
-            if(this.affiliate.affiliate_state_id == 4){
+            //if(this.affiliate.affiliate_state_id == 4){
               if(this.spouse.id){
                 await axios.patch(`spouse/${this.spouse.id}`, this.spouse)
               } else if(Object.entries(this.spouse).length !== 0){
                 this.spouse.affiliate_id=this.affiliate.id
                 let res = await axios.post(`spouse`, this.spouse)
                 this.getAffiliate(this.$route.params.id)
-              } else if(Object.entries(this.spouse).length === 0){
+              } else if(Object.entries(this.spouse).length === 0){//para actualizar solo afiliado
                 this.toastr.success("Se Actualizó los datos del afiliado...")
-              } else {
-                this.toastr.error("Solo puede registrar a la conyugue si el estado del afilaidos es 'Fallecido'")
-              }
-            } else{
-              this.toastr.success("Se Actualizó los datos del afiliado")
-            }
+              }//else {
+              //   this.toastr.error("Solo puede registrar a la conyugue si el estado del afilaidos es 'Fallecido'")
+              // }
+            // } else{
+            //   this.toastr.success("Se Actualizó los datos del afiliado")
+            // }
             this.editable = false
           }
 
