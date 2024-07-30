@@ -883,16 +883,14 @@ class LoanController extends Controller
             if (count($persons) > 0) $loan->loan_persons()->sync($persons);
         }
         /** Guardar datos garantía si es préstamo por fondo de retiro*/
-        if($request->has('guarantee_retirement_fund')){
-            $guaranteeRetirementFund = $request->input('guarantee_retirement_fund');
+        if (str_contains($loan->modality->procedure_type->name, "Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario")) {
+            $retirement_fund = $loan->affiliate->retirement_fund_average();
             $data = [
                 "loan_id" => $loan->id,
-                "total_retirement_fund" => $guaranteeRetirementFund['total_retirement_fund'] ?? null,
-                "warranty_coverage" => $guaranteeRetirementFund['warranty_coverage'] ?? null
+                "retirement_fund_average_id" => $retirement_fund->id,
             ];
-            if (!empty($data['total_retirement_fund']) && !empty($data['warranty_coverage'])){
-                LoanGuaranteeRetirementFund::created($data);
-            }
+            if (!empty($data['retirement_fund_average_id']))
+                LoanGuaranteeRetirementFund::create($data);
         } 
         return (object)[
             'request' => $request,
