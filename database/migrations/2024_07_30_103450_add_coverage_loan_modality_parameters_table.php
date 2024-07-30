@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddIsActiveDegreeTable extends Migration
+class AddCoverageLoanModalityParametersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddIsActiveDegreeTable extends Migration
      */
     public function up()
     {
-        Schema::table('degrees', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true);
+        Schema::table('loan_modality_parameters', function (Blueprint $table) {
+            $table->float('coverage_percentage')->default(1);
         });
     }
 
@@ -25,6 +25,6 @@ class AddIsActiveDegreeTable extends Migration
      */
     public function down()
     {
-        $table->dropColumn('is_active');
+        $table->dropColumn('coverage_percentage');
     }
 }
