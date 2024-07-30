@@ -6,16 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class LoanGuaranteeRetirementFund extends Model
 {
-    public $fillable = 
-    ['
-        id,
-        loan_id
-        total_retirement_fund
-        warranty_coverage'
+    public $timestamps = false;
+    public $incrementing = false;
+    public $fillable = [
+        'loan_id',
+        'retirement_fund_average_id'
     ];
-
-    public function loans()
+    public function loan()
     {
-        return $this->hasOne(Loan::class);
+        return $this->belongsTo(Loan::class,'loan_id');
+    }
+
+    public function retirementFundAverage()
+    {
+        return $this->belongsTo(RetirementFundAverage::class, 'retirement_fund_average_id');
     }
 }
