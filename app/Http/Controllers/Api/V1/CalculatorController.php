@@ -71,7 +71,7 @@ class CalculatorController extends Controller
                     if (!$parent_loan) abort(404);
                     $parent_lender = $parent_loan->borrower->first();
                     if(!$parent_lender) abort(403,'El afiliado no es titular del préstamo');
-                        $parent_quota = $parent_loan->next_payment()->estimated_quota *$parent_lender->payment_percentage/100;
+                        $parent_quota = $parent_loan->next_payment()->estimated_quota * $parent_lender->payment_percentage/100;
                 }else{
                     if (array_key_exists('sismu', $liq)) {
                         if($liq['sismu']){
@@ -154,12 +154,12 @@ class CalculatorController extends Controller
     * @authenticated
     * @responseFile responses/calculator/simulator.200.json
     */
-    public function simulator(SimulatorForm $request){
+    public function simulator(SimulatorForm $request)
+    {
         $modality = ProcedureModality::findOrFail($request->procedure_modality_id);
         $amount_requested = $request->amount_requested;
         $liquid_calculated = collect($request->liquid_calculated);
         $calculated_data = collect([]);
-        $affiliate_average_rf = Affiliate::find($request->liquid_calculated[0]['affiliate_id'])->retirement_fund_average()->retirement_fund_average;
         if($request->guarantor)
         {
             if(count($liquid_calculated) != $modality->loan_modality_parameter->guarantors)abort(403, 'La cantidad de garantes no corresponde a la modalidad');
@@ -240,8 +240,19 @@ class CalculatorController extends Controller
                     $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_requested);
                     $amount_maximum_suggested = $this->maximum_amount($modality,$request->months_term,$liquid['liquid_qualification_calculated']);
                     // para prestamos con garantia delñ fondo de retiro
-                    if(strpos($modality->procedure_type->name, 'Fondo de Retiro Policial Solidario') && $amount_maximum_suggested > $affiliate_average_rf)
-                        $amount_maximum_suggested = $affiliate_average_rf * $modality->loan_modality_parameter->coverage_percentage;
+                    if(strpos($modality->procedure_type->name, 'Fondo de Retiro Policial Solidario'))
+                    {
+                        $affiliate = Affiliate::find($request->liquid_calculated[0]['affiliate_id']);
+                        if($affiliate->category->percentage >= $modality->loan_modality_parameter->min_lender_category && $affiliate->retirement_fund_average())
+                        {
+                            $affiliate_average_rf = Affiliate::find($request->liquid_calculated[0]['affiliate_id'])->retirement_fund_average()->retirement_fund_average;
+                            if($amount_maximum_suggested > $affiliate_average_rf)
+                                $amount_maximum_suggested = $affiliate_average_rf * $modality->loan_modality_parameter->coverage_percentage;
+                        }
+                        else
+                            return abort(403, 'no corresponde a esta modalidad');
+
+                    }
                     //
                     if($amount_requested > $amount_maximum_suggested){
                         $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_maximum_suggested);
