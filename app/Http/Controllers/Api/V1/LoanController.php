@@ -1206,6 +1206,16 @@ class LoanController extends Controller
             ]);
             $lender->loans_balance = $loans;
         }
+        // préstamos estacionales con cónyuge
+        if($loan->modality->shortened == "EST-PAS-CON"){
+            $persons->push([
+                'id' => $loan->affiliate->spouse->first()->id,
+                'full_name' => implode(' ', [$loan->affiliate->spouse->first()->full_name ?? '']),
+                'identity_card' => $loan->affiliate->spouse->first()->identity_card,
+                'position' => 'CÓNYUGE ANUENTE',
+            ]);
+        }
+        // garantes          
         $guarantors = [];
         foreach ($loan->borrowerguarantors as $guarantor) {
             $guarantor_loan = $guarantor;
