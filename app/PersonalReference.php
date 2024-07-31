@@ -49,4 +49,8 @@ class PersonalReference extends Model
     {
         return Util::get_civil_status($this->civil_status, $this->gender);
     }
+    public function kinship()
+    {
+        return $this->belongsTo(Kinship::class, 'kinship_id', 'id');
+    }
 }
