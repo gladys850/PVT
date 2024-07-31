@@ -1128,7 +1128,7 @@ class LoanController extends Controller
             case 'Refinanciamiento Préstamo a Largo Plazo':
                 $view_type = 'long';
                 break;
-            case 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario':
+            case 'Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario':
                 $view_type = 'retirement_fund';
                 break;
             case 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana':
