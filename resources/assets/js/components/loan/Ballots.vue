@@ -50,13 +50,22 @@
                             </v-col>
                           </v-row>
                         </v-col>
+                        <template v-if="loan_modality.procedure_type.second_name === 'Fondo de Retiro'">
+                          <v-col cols="12" md="2" class="py-0 my-0 text-center">
+                            <strong>FONDO DE RETIRO (Promedio Bs.)</strong><br>
+                            <span v-if="affiliate.retirement_fund_average">{{ affiliate.retirement_fund_average.retirement_fund_average | money }}</span>
+                            <span v-else class="red--text">No existe un monto promedio para la categoria</span>
+                          </v-col>
+                        </template>
+                        <template v-else>
+                          <v-col cols="12" md="2" class="py-0 my-0 text-center">
+                            <strong>INTERVALO MONTOS</strong><br>
+                            {{ monto }}
+                          </v-col>
+                        </template>                    
                         <v-col cols="12" md="2" class="py-0 my-0 text-center">
-                          <strong>INTERVALO MONTOS </strong><br>
-                          {{monto}}
-                        </v-col>
-                        <v-col cols="12" md="2"  class="py-0 my-0 text-center">
-                          <strong> PLAZO EN MESES</strong><br>
-                          {{plazo}}
+                          <strong>PLAZO EN MESES</strong><br>
+                          {{ plazo }}
                         </v-col>
                       </v-row>
                     </v-container>
@@ -282,7 +291,12 @@ export default {
     //hipotecario:false,
     //window_size:4,
     //see_field:false,
-    loan_modality: {},
+    loan_modality: {
+      procedure_type:
+        {
+          second_name:null
+        }
+    },
     data_ballots: [],
     contribution: [],
     choose_diff_month: false,
@@ -395,18 +409,17 @@ export default {
    //muestra los intervalos de acuerdo a una modalidad
     async Onchange(){
       //cargamos la sumodalidad
+        this.loan_modality.id=0
       this.choose_diff_month = false
       this.number_diff_month = 1
       if(this.isNew || this.type_sismu){
-
         for (let i = 0; i< this.modalities.length; i++) {
           if(this.loanTypeSelected.id == this.modalities[i].id){
             this.getLoanModalityAffiliate(this.$route.query.affiliate_id)
         } 
       }
       }else{
-        if(this.loanTypeSelected.submodality[0].id != 0){  
-          console.log("bbbbbb")      
+        if(this.loanTypeSelected.submodality[0].id != 0){      
           this.loan_modality = this.loanTypeSelected.submodality[0]
           this.submodalities = this.loanTypeSelected.submodality          
           this.onchangeSubmodality()
@@ -452,7 +465,7 @@ export default {
         this.modalidad.minimum_term= this.loan_modality.loan_modality_parameter.minimum_term_modality
         this.procedureLoan.procedure_id= this.loanTypeSelected.id
 
-        this.modalidad.id = this.loan_modality.id
+        this.modalidad.id = this.loan_modality.id //id submodalidad
         this.modalidad.procedure_type_id = this.loan_modality.procedure_type_id
         this.modalidad.procedure_type_name = this.loan_modality.procedure_type.name
         this.modalidad.name = this.loan_modality.name
@@ -466,9 +479,7 @@ export default {
 
         this.loan_detail.min_guarantor_category = this.loan_modality.loan_modality_parameter.min_guarantor_category
         this.loan_detail.max_guarantor_category = this.loan_modality.loan_modality_parameter.max_guarantor_category
-
-        this.getBallots(this.$route.query.affiliate_id)
-        this.generateContributions()
+        this.validateAffiliateModality()
         
       }catch (e) {
         console.log(e)
@@ -477,7 +488,19 @@ export default {
         this.loading = false
       }
     },
-
+    //Validar afiliado con submodalidad
+    async validateAffiliateModality(){
+      try {
+        let res = await axios.get(`validate_affiliate_modality/${this.$route.query.affiliate_id}/${this.loan_modality.id}`) 
+        this.loan_detail.not_exist_modality = false
+        this.getBallots(this.$route.query.affiliate_id)
+        this.generateContributions()
+      } catch (e) {
+        console.log(e)
+        this.toastr.error(e.type)
+        this.loan_detail.not_exist_modality = true
+      }  
+    },
     //Metodo para sacar boleta de un afiliado
     async getBallots(id) {
       try {

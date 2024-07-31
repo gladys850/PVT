@@ -740,7 +740,7 @@ export default {
         this.contributions = this.$refs.ballotsComponent.getContributions()
       }
 
-      if(this.loanTypeSelected.id > 0){
+      if(this.loanTypeSelected.id > 0 && this.modalidad.id > 0){
         if(this.loan_detail.not_exist_modality==false){
           //validaciones de todas las contribuciones
           for(let i = 0; i < this.contributions.length; i++){
