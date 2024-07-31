@@ -6,7 +6,7 @@
           <v-col cols="12" md="6" class="v-card-profile">
             <v-row>
               <v-col cols="12">
-                <v-toolbar-title>INFORMACION CONYUGE</v-toolbar-title>
+                <v-toolbar-title>INFORMACIÓN CONYUGE</v-toolbar-title>
               </v-col>
               <v-col cols="12" md="4">
                 <ValidationProvider
@@ -118,7 +118,7 @@
                   v-slot="{ errors }"
                   vid="identity_card"
                   name="matrícula"
-                  rules="required|min:1|max:50"
+                  rules="min:1|max:50"
                 >
                   <v-text-field
                     :error-messages="errors"
