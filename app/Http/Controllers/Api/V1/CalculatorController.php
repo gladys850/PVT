@@ -159,6 +159,7 @@ class CalculatorController extends Controller
         $amount_requested = $request->amount_requested;
         $liquid_calculated = collect($request->liquid_calculated);
         $calculated_data = collect([]);
+        $affiliate_average_rf = Affiliate::find($request->liquid_calculated[0]['affiliate_id'])->retirement_fund_average()->retirement_fund_average;
         if($request->guarantor)
         {
             if(count($liquid_calculated) != $modality->loan_modality_parameter->guarantors)abort(403, 'La cantidad de garantes no corresponde a la modalidad');
@@ -205,8 +206,6 @@ class CalculatorController extends Controller
                     }
                 }
                 $livelihood_amount = 0; $valuate_affiliate = true;
-                /*$livelihood_amount = $liquid['liquid_qualification_calculated'] - $quota_calculated; // liquido para calificacion menos la cuota estimada debe ser menor igual al monto de subsistencia
-                if(($indebtedness_calculated) <= ($modality->loan_modality_parameter->decimal_index)*100) $valuate_affiliate = true; // validar Indice de endeudamiento y monto de subsistencia*/
                 $calculated_data->push([
                     'affiliate_id' => $liquid['affiliate_id'],
                     'quota_calculated' => Util::round2($quota_calculated),
@@ -228,16 +227,23 @@ class CalculatorController extends Controller
         }
         else{
             $modality = ProcedureModality::findOrFail($request->procedure_modality_id);
-            if($modality->procedure_type->name == 'Préstamo Anticipo' || 
-               $modality->procedure_type->name == 'Préstamo a Corto Plazo' || 
-               $modality->procedure_type->name == 'Préstamo a Largo Plazo' ||
-               $modality->procedure_type->name == 'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario' ||
-               $modality->procedure_type->name == 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana'){
+            $allowedTypes = [
+                'Préstamo Anticipo', 
+                'Préstamo a Corto Plazo', 
+                'Préstamo a Largo Plazo', 
+                'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario', 
+                'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana'
+            ];
+            if(in_array($modality->procedure_type->name, $allowedTypes)){
                 if(count($liquid_calculated)>$modality->loan_modality_parameter->max_lenders)abort(403, 'La cantidad de titulares no corresponde a la modalidad');
                 foreach($liquid_calculated as $liquid){
                     $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_requested);
                     $amount_maximum_suggested = $this->maximum_amount($modality,$request->months_term,$liquid['liquid_qualification_calculated']);
-                    if($amount_requested>$amount_maximum_suggested){
+                    // para prestamos con garantia delñ fondo de retiro
+                    if(strpos($modality->procedure_type->name, 'Fondo de Retiro Policial Solidario') && $amount_maximum_suggested > $affiliate_average_rf)
+                        $amount_maximum_suggested = $affiliate_average_rf;
+                    //
+                    if($amount_requested > $amount_maximum_suggested){
                         $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_maximum_suggested);
                         $amount_requested = $amount_maximum_suggested;
                     }
@@ -291,11 +297,10 @@ class CalculatorController extends Controller
         $maximum_qualified_amount = intval((1-(1/pow((1+$interest_rate),$months_term)))*($debt_index*$liquid_qualification_calculated)/$interest_rate);
         if ($maximum_qualified_amount > ($loan_interval->maximum_amount_modality)){
             $maximum_qualified_amount = $loan_interval->maximum_amount_modality;
-        } else {
+        }else{
             $maximum_qualified_amount = $maximum_qualified_amount;
         }
         return $maximum_qualified_amount;
-        //return intval(round(floor($maximum_qualified_amount))/100)*100;
     }
 
     //division porcentual de las cuotas de los codeudores
