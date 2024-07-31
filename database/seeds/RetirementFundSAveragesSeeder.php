@@ -27,10 +27,12 @@ class RetirementFundSAveragesSeeder extends Seeder
                 'degree_id' => 2,
                 'category_id' => 7,
                 'retirement_fund_average' => 228065.76,
+                'is_active' => false
             ],[// INSPECTOR GENERAL 100%
                 'degree_id' => 2,
                 'category_id' => 8,
                 'retirement_fund_average' => 285082.20,
+                'is_active' => false
             ],[// GENERAL SUPERIOR 85%
                 'degree_id' => 3,
                 'category_id' => 7,
@@ -258,35 +260,35 @@ class RetirementFundSAveragesSeeder extends Seeder
             ],[// SARGENTO MAYOR DE SERVICIOS 85%
                 'degree_id' => 31,
                 'category_id' => 7,
-                'retirement_fund_average' => 0.00,
+                'retirement_fund_average' => 100039.68,
             ],[// SARGENTO MAYOR DE SERVICIOS 100%
                 'degree_id' => 31,
                 'category_id' => 8,
-                'retirement_fund_average' => 0.00,
+                'retirement_fund_average' => 125049.60,
             ],[// SARGENTO PRIMERO DE SERVICIOS 85%
                 'degree_id' => 32,
                 'category_id' => 7,
-                'retirement_fund_average' => 100039.68,
+                'retirement_fund_average' => 97036.80,
             ],[// SARGENTO PRIMERO DE SERVICIOS 100%
                 'degree_id' => 32,
                 'category_id' => 8,
-                'retirement_fund_average' => 125049.60,
+                'retirement_fund_average' => 121296.00,
             ],[// SARGENTO SEGUNDO DE SERVICIOS 85%
                 'degree_id' => 33,
                 'category_id' => 7,
-                'retirement_fund_average' => 97036.80,
+                'retirement_fund_average' => 96545.28,
             ],[// SARGENTO SEGUNDO DE SERVICIOS 100%
                 'degree_id' => 33,
                 'category_id' => 8,
-                'retirement_fund_average' => 121294.00,
+                'retirement_fund_average' => 120681.60,
             ],[// SARGENTO DE SERVICIOS 85%
                 'degree_id' => 34,
                 'category_id' => 7,
-                'retirement_fund_average' => 0.00,
+                'retirement_fund_average' => 95953.92,
             ],[// SARGENTO DE SERVICIOS 100%
                 'degree_id' => 34,
                 'category_id' => 8,
-                'retirement_fund_average' => 0.00,
+                'retirement_fund_average' => 119942.40,
             ]
         ];
         foreach ($averages as $average) {

@@ -235,13 +235,13 @@ class CalculatorController extends Controller
                 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana'
             ];
             if(in_array($modality->procedure_type->name, $allowedTypes)){
-                if(count($liquid_calculated)>$modality->loan_modality_parameter->max_lenders)abort(403, 'La cantidad de titulares no corresponde a la modalidad');
+                if(count($liquid_calculated) > $modality->loan_modality_parameter->max_lenders)abort(403, 'La cantidad de titulares no corresponde a la modalidad');
                 foreach($liquid_calculated as $liquid){
                     $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_requested);
                     $amount_maximum_suggested = $this->maximum_amount($modality,$request->months_term,$liquid['liquid_qualification_calculated']);
                     // para prestamos con garantia delñ fondo de retiro
                     if(strpos($modality->procedure_type->name, 'Fondo de Retiro Policial Solidario') && $amount_maximum_suggested > $affiliate_average_rf)
-                        $amount_maximum_suggested = $affiliate_average_rf;
+                        $amount_maximum_suggested = $affiliate_average_rf * $modality->loan_modality_parameter->coverage_percentage;
                     //
                     if($amount_requested > $amount_maximum_suggested){
                         $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_maximum_suggested);
