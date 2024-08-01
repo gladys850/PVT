@@ -43,7 +43,8 @@
             </tr>
             <tr>
                 <td class="data-row py-5">{{ Util::money_format($loan->amount_approved) }} <span class="capitalize">Bs.</span></td>
-                <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">Meses</span></td>
+                @php($term_text = $loan->modality->procedure_type_id != 29 ? 'Meses' : 'Semestres')
+                <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">{{ $term_text }}</span></td>
                 <td class="data-row py-5">
                     @if($loan->payment_type->name=='Deposito Bancario')
                         <div class="font-bold">Cuenta Banco Union</div>
@@ -79,10 +80,12 @@
             </tr> 
         </table>
         @endif
+    <!-- Boleta o C.E. -->
+    @if($loan->modality->procedure_type_id != 29)
     <div class="block">
         <div class="font-semibold leading-tight text-left m-b-10 text-sm">{{ $n++ }}. DATOS DE BOLETA</div>
     </div>
-<div class="block">
+    <div class="block">
     <table style="font-size:12px;" class="table-info w-100 text-center uppercase my-10">        
         @php ($sum_prom_payable_liquid_calculated = 0)
         @php ($sum_prom_bonus_calculated = 0)
@@ -201,8 +204,25 @@
             </tr>
         </table>
     </div>
-   </div>
-   <div class="block">
+    @else
+        <div class="block">
+            <div class="font-semibold leading-tight text-left m-b-10 text-sm">{{ $n++ }}. DATOS DEL BENEFICIO DE COMPLEMENTO ECONÓMICO</div>
+        </div>
+        <div class="block">
+            <table style="font-size:12px;" class="table-info w-100 text-center uppercase my-10">
+                <tr class="bg-grey-darker text-white">
+                    <td colspan="2"> COMPLEMENTO ECONÓMICO </td>
+                </tr>
+                <tr  class="w-100">
+                    <td class="w-50 text-left px-10">TOTAL LIQUIDO PAGABLE - ÚLTIMO SEMESTRE VENCIDO</td>
+                    <td class="w-50 text-left px-10">{{ Util::money_format($loan->loan_contribution_adjusts->first()->amount) }}</td>
+                </tr>
+            </table>
+        </div>
+    @endif
+    </div>
+
+    <div class="block">
         <div class="font-semibold leading-tight text-left m-b-10 text-sm">{{ $n++ }}. DATOS DE EVALUACIÓN AL PRESTATARIO</div>
     </div>
     <div class="block">
@@ -225,22 +245,37 @@
             </tr>
             <tr  class="w-100">
             <td class="w-50 text-left px-10">LÍQUIDO PARA CALIFICACIÓN</td>
-            <td class="w-50 text-left px-10">{{ Util::money_format($loan->liquid_qualification_calculated) }}</td>
+            @if($loan->modality->procedure_type_id != 29)
+                <td class="w-50 text-left px-10">{{ Util::money_format($loan->liquid_qualification_calculated) }}</td>
+            @else
+                <td class="w-50 text-left px-10">{{ Util::money_format($loan->loan_contribution_adjusts->first()->amount) }}</td>
+            @endif
             </tr>
             <tr  class="w-100">
             <td class="w-50 text-left px-10">MONTO DEL PRÉSTAMO AUTORIZADO</td>
             <td class="w-50 text-left px-10">{{ Util::money_format($loan->amount_approved) }}</td>
             </tr>
+            @if($loan->modality->procedure_type_id != 29)
+                <tr  class="w-100">
+                    <td class="w-50 text-left px-10">PLAZO EN MESES</td>
+                    <td class="w-50 text-left px-10">{{ $loan->loan_term }}</td>
+                </tr>
+                <tr  class="w-100">
+                    <td class="w-50 text-left px-10">CUOTA MENSUAL</td>
+                    <td class="w-50 text-left px-10">{{ Util::money_format($loan->estimated_quota) }}</td>
+                </tr>
+            @else
+                <tr  class="w-100">
+                    <td class="w-50 text-left px-10">PLAZO EN SEMESTRES</td>
+                    <td class="w-50 text-left px-10">{{ $loan->loan_term }}</td>
+                </tr>
+                <tr  class="w-100">
+                    <td class="w-50 text-left px-10">CUOTA SEMESTRAL</td>
+                    <td class="w-50 text-left px-10">{{ Util::money_format($loan->estimated_quota) }}</td>
+                </tr>
+            @endif
             <tr  class="w-100">
-            <td class="w-50 text-left px-10">PLAZO EN MESES</td>
-            <td class="w-50 text-left px-10">{{ $loan->loan_term }}</td>
-            </tr>
-            <tr  class="w-100">
-            <td class="w-50 text-left px-10">CUOTA MENSUAL</td>
-            <td class="w-50 text-left px-10">{{ Util::money_format($loan->estimated_quota) }}</td>
-            </tr>
-            <tr  class="w-100">
-            <td class="w-50 text-left px-10">ÍNDICE DE ENDEUDAMIENTO</td>
+            <td class="w-50 text-left px-10">LÍMITE DE ENDEUDAMIENTO</td>
             <td class="w-50 text-left px-10">{{ Util::money_format($loan->indebtedness_calculated) }} %</td>
             </tr>      
         </table>
@@ -271,6 +306,29 @@
             </tr>
         </table>
         @endforeach
+    </div>
+    @endif
+    @if($loan->modality->procedure_type->name == 'Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario')
+    <div class="block">
+        <div class="font-semibold leading-tight text-left m-b-10 text-sm">{{ $n++ }}. DATOS DE EVALUACIÓN DE LA GARANTÍA</div>
+    </div>
+    <div class="block">
+        <table style="font-size:12px;" class="table-info w-100 text-center uppercase my-10">
+            <tr class="bg-grey-darker text-white">
+                <td colspan="2">GARANTÍA DEL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO</td>
+            </tr>
+            <tr class="w-100">
+            <td class="w-55 text-left px-10">TOTAL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO</td>
+            <td class="w-45 text-center px-10">{{ Util::money_format($loan->loanGuaranteeRetirementFund->retirementFundAverage->retirement_fund_average) }}</td>
+            </tr>
+            <tr  class="w-100">
+            <td class="w-55 text-left px-10">COBERTURA DEL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO</td>
+            <td class="w-45 text-center px-10">{{Util::money_format($loan->loanGuaranteeRetirementFund->retirementFundAverage->retirement_fund_average*$loan->modality->loan_modality_parameter->coverage_percentage)}}</td>
+            </tr>
+            <tr  class="w-100">
+            <td class="w-55 text-left px-10">PORCENTAJE CALCULADO</td>
+            <td class="w-45 text-center px-10">{{$loan->modality->loan_modality_parameter->coverage_percentage*100}}%</td>
+        </table>
     </div>
     @endif
     <table class="text-center">

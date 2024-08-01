@@ -19,7 +19,7 @@ class DegreeController extends Controller
     */
     public function index()
     {
-        return Degree::orderBy('name')->get();
+        return Degree::orderBy('name')->where('is_active', true)->get();
     }
 
     /**

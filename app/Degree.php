@@ -10,7 +10,8 @@ class Degree extends Model
         'hierarchy_id',
         'code',
         'name',
-        'shortened'
+        'shortened',
+        'is_active'
     ];
 
     public function affiliates()

@@ -60,6 +60,7 @@ class AffiliateController extends Controller
         $affiliate->defaulted_lender = $affiliate->defaulted_lender;
         //$affiliate->defaulted_guarantor = $affiliate->defaulted_guarantor;
         $affiliate->cpop = $affiliate->cpop;
+        $affiliate->retirement_fund_average = $affiliate->retirement_fund_average();
         $affiliate->default_alert_date_import = $affiliate->default_alert_date_import();
         if($affiliate->spouse){
             $affiliate->spouse = $affiliate->spouse;
@@ -1723,7 +1724,7 @@ class AffiliateController extends Controller
 
         foreach($affiliate->loans as $loan)                                                                     //pregunta si es un prestamo vigente y si existe otro préstamos de la misma modalidad
             if($loan->state->id === 3 && $loan->modality->procedure_type->id === $procedure_type->id)          
-                abort(403, 'El affiliado tiene préstamos activos en la modalidad: ' . $procedure_type->name);
+                abort(403, 'El afiliado tiene préstamos activos en la modalidad: ' . $procedure_type->name);
         
         $a = 'procedure_type_id';
         $b = 'procedure_modality_id';
@@ -1736,6 +1737,14 @@ class AffiliateController extends Controller
             [$a => 12, $b => 46],                   //Largo Plazo con Pago Oportuno
             [$a => 28, $b => 93],                   //Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor
             [$a => 28, $b => 94],                   //Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor
+            [$a => 11, $b => 40],                   //Refinanciamiento de Préstamo a Corto Plazo Sector Activo
+            [$a => 13, $b => 82],                   //Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con un Garante
+            [$a => 13, $b => 47],                   //Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes
+            [$a => 13, $b => 50],                   //Refinanciamiento Largo Plazo con Pago Oportuno
+            [$a => 24, $b => 73],                   //Reprogramación Corto Plazo Sector Activo
+            [$a => 26, $b => 83],                   //Reprogramación Largo Plazo con Garantía Personal Sector Activo con un Garante
+            [$a => 26, $b => 84],                   //Reprogramación Largo Plazo con Garantía Personal Sector Activo con dos Garantes
+            [$a => 26, $b => 85],                   //Reprogramación Largo Plazo con Pago Oportuno
         ]);
 
         $sector_availability = collect([        //Coleción de préstamos para afiliados en disponibilidad
@@ -1743,6 +1752,8 @@ class AffiliateController extends Controller
             [$a => 10, $b => 37],                   //Corto Plazo en Disponibilidad
             [$a => 12, $b => 97],                   //Largo Plazo con Garantía Personal en Disponibilidad con un Garante
             [$a => 12, $b => 65],                   //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
+            [$a => 11, $b => 66],                   //Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
+            [$a => 24, $b => 73],                   //Reprogramación Corto Plazo en Disponibilidad
         ]);
 
         $sector_pasive_senasir = collect([      //Coleción de préstamos para afiliados al sector pasivo senasir
@@ -1751,6 +1762,10 @@ class AffiliateController extends Controller
             [$a => 12, $b => 45],                   //Largo Plazo con Garantía Personal Sector Pasivo SENASIR
             [$a => 29, $b => 96],                   //Préstamo Estacional para el Sector Pasivo de la Policía Boliviana
             [$a => 29, $b => 95],                   //Préstamo Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge
+            [$a => 11, $b => 42],                   //Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR
+            [$a => 13, $b => 49],                   //Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR
+            [$a => 24, $b => 76],                   //Reprogramación Corto Plazo Sector Pasivo SENASIR
+            [$a => 26, $b => 87],                   //Reprogramación Largo Plazo Sector Pasivo SENASIR
         ]);
 
         $sector_pasive_gestora = collect([      //Coleción de préstamos para afiliados al sector pasivo gestora
@@ -1759,6 +1774,10 @@ class AffiliateController extends Controller
             [$a => 12, $b => 70],                   //Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
             [$a => 29, $b => 96],                   //Préstamo Estacional para el Sector Pasivo de la Policía Boliviana
             [$a => 29, $b => 95],                   //Préstamo Estacional para el Sector Pasivo de la Policía Boliviana con Cónyuge
+            [$a => 11, $b => 69],                   //Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública
+            [$a => 13, $b => 71],                   //Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública
+            [$a => 24, $b => 75],                   //Reprogramación Corto Plazo Sector Pasivo Gestora Pública
+            [$a => 26, $b => 86],                   //Reprogramación Largo Plazo Sector Pasivo Gestora Pública
         ]);
 
         $data = collect();
@@ -1786,7 +1805,7 @@ class AffiliateController extends Controller
             });
         
             if ($exists) {
-                $sub_modality = ProcedureModality::find($item1['id']);
+                $sub_modality = ProcedureModality::findOrFail($item1['id']);
                 $sub_modality->loan_modality_parameter = $sub_modality->loan_modality_parameter;
                 $sub_modality->procedure_type;
                 $sub_modalities_and_parameters[] = $sub_modality;
@@ -1794,5 +1813,48 @@ class AffiliateController extends Controller
         });
 
         return $sub_modalities_and_parameters;
+    }
+
+    /**
+    * Promedio de fondo de retiro
+    * devuelve el promedio del fondo de retiro correspondiente al afiliado
+    * @urlParam affiliate required ID del afiliado. Example: 100
+    * @authenticated
+    */
+    public function get_retirement_fund_average(Affiliate $affiliate)
+    {
+        if($affiliate->retirement_fund_average())
+            $data = array(
+                "state" => true,
+                "message" => $affiliate->retirement_fund_average()->retirement_fund_average
+                );
+        else
+            $data = array(
+                "state" => false,
+                "message" => "no tiene la categoria necesaria"
+                );
+        return $data;
+    }
+
+    /**
+    * Validación de parametros de la Sub Modalidad selecionada con el Afiliado 
+    * @urlParam affiliate required ID del afiliado. Example: 41064
+    * @urlParam procedure_modality required ID de la sub modalidad. Example: 93
+    * @authenticated
+    */
+    public function validate_affiliate_modality(Affiliate $affiliate,ProcedureModality $procedure_modality)
+    {   
+        $percentage = $affiliate->category->percentage;
+        $minLenderCategory = $procedure_modality->loan_modality_parameter->min_lender_category;
+        $maxLenderCategory = $procedure_modality->loan_modality_parameter->max_lender_category;
+
+        if(!($percentage >= $minLenderCategory && $percentage <= $maxLenderCategory))
+            abort(403, 'El afiliado no tiene la categoria suficiente para esta modalidad');
+
+        if(str_contains($procedure_modality->shortened,'EST-PAS-CON'))
+            if(!$affiliate->spouses->count()>0)
+                abort(403, 'El afiliado no tiene esposa registrada');
+
+        return response()->json(['status' => true, 'message' => 'Validations passed successfully'], 200);
     }
 }

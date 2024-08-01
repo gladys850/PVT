@@ -54,6 +54,7 @@ use App\LoanBorrower;
 use App\LoanGuarantor;
 use App\LoanProcedure;
 use App\Jobs\ProcessNotificationSMS;
+use App\LoanGuaranteeRetirementFund;
 use App\Observation;
 
 /** @group Préstamos
@@ -534,16 +535,6 @@ class LoanController extends Controller
                     $this->get_plan_payments($loan, $loan['disbursement_date']);
                     $loan_id = $loan->id;
                     $cell_phone_number = $loan->affiliate->cell_phone_number;
-                    /*if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
-                        $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
-                        if($loan->city_id === 4) {
-                            $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS POR EL AREA DE COBRANZAS.";
-                        } else {
-                            $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS PASADO LOS 5 DIAS HABILES POR LA REGIONAL.";
-                        }
-                        $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
-                        ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
-                    }*/
                 }
             }else{
                 if($request->date_signal == false){
@@ -890,6 +881,16 @@ class LoanController extends Controller
                 }
             }
             if (count($persons) > 0) $loan->loan_persons()->sync($persons);
+        }
+        /** Guardar datos garantía si es préstamo por fondo de retiro*/
+        if (str_contains($loan->modality->procedure_type->name, "Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario")) {
+            $retirement_fund = $loan->affiliate->retirement_fund_average();
+            $data = [
+                "loan_id" => $loan->id,
+                "retirement_fund_average_id" => $retirement_fund->id,
+            ];
+            if (!empty($data['retirement_fund_average_id']))
+                LoanGuaranteeRetirementFund::create($data);
         } 
         return (object)[
             'request' => $request,
@@ -1083,6 +1084,7 @@ class LoanController extends Controller
         if($loan->parent_loan_id) $parent_loan = Loan::findOrFail($loan->parent_loan_id);
         $lenders = [];
         $guarantors = $loan->borrowerguarantors;
+        $spouses = $loan->affiliate->spouses;
         $lenders = $loan->borrower;
         $employees = [
             ['position' => 'Director General Ejecutivo','name'=>'CNL. MSc. CAD. LUCIO ENRIQUE RENÉ JIMÉNEZ VARGAS','identity_card'=>'3475563'],
@@ -1099,6 +1101,7 @@ class LoanController extends Controller
             'loan' => $loan,
             'lenders' => collect($lenders),
             'guarantors' => collect($guarantors),
+            'spouses' => collect($spouses),
             'parent_loan' => $parent_loan,
             'file_title' => $file_title,
             'is_refinancing'=>$is_refinancing,
@@ -1125,11 +1128,11 @@ class LoanController extends Controller
             case 'Refinanciamiento Préstamo a Largo Plazo':
                 $view_type = 'long';
                 break;
-            case 'Préstamo Hipotecario':
-                $view_type = 'hypothecary';
+            case 'Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario':
+                $view_type = 'retirement_fund';
                 break;
-            case 'Refinanciamiento Préstamo Hipotecario':
-                $view_type = 'hypothecary';
+            case 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana':
+                $view_type = 'seasonal';
                 break;
         }
         $information_loan= $this->get_information_loan($loan);
@@ -1203,6 +1206,16 @@ class LoanController extends Controller
             ]);
             $lender->loans_balance = $loans;
         }
+        // préstamos estacionales con cónyuge
+        if($loan->modality->shortened == "EST-PAS-CON"){
+            $persons->push([
+                'id' => $loan->affiliate->spouse->first()->id,
+                'full_name' => implode(' ', [$loan->affiliate->spouse->first()->full_name ?? '']),
+                'identity_card' => $loan->affiliate->spouse->first()->identity_card,
+                'position' => 'CÓNYUGE ANUENTE',
+            ]);
+        }
+        // garantes          
         $guarantors = [];
         foreach ($loan->borrowerguarantors as $guarantor) {
             $guarantor_loan = $guarantor;
@@ -1444,7 +1457,10 @@ class LoanController extends Controller
     */
     public function get_next_payment(LoanPaymentForm $request, Loan $loan)
     {
-        return $loan->next_payment2($request->input('affiliate_id'),$request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
+        if(strpos($loan->modality->name, 'Estacional'))        
+            return $loan->next_payment_season($request->input('affiliate_id'),$request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
+        else
+            return $loan->next_payment2($request->input('affiliate_id'),$request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
     }
 
     /** @group Cobranzas
@@ -1467,7 +1483,10 @@ class LoanController extends Controller
     public function set_payment(LoanPaymentForm $request, Loan $loan)
     {
         if($loan->balance!=0){
-            $payment = $loan->next_payment2($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
+            if(strpos($loan->modality->name, 'Estacional'))
+                $payment = $loan->next_payment_season($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
+            else
+                $payment = $loan->next_payment2($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
             $payment->description = $request->input('description', null);
             if(ProcedureModality::where('id', $request->procedure_modality_id)->first()->name == 'Efectivo')
                 $payment->state_id = LoanPaymentState::whereName('Pendiente de Pago')->first()->id;
@@ -1958,32 +1977,60 @@ class LoanController extends Controller
 
     }
     /**
-    * Obtener relacion de procedure hermano 
-    * Obtiene la relacion entre procedures, ejemplo en el caso de Refinanciamiento
-    * @bodyParam id_loan integer required Devuelve el objeto del procedure, en el caso de acticipo devuelve un array vacio Example: 1
+    * Obtener la submodalidad de refinanciamiento o reprogramacion segun submodalidad hermano/referencia
+    * Obtiene segun la submodalidad mandada su refinanciamiento o reprogramacion y tambien validad si lo tiene o no // ejemplo corto plazo sector activo
+    * @bodyParam procedure_modality_id integer required id del préstamo de refencia de la que se require su refinanciamiento o reprogramación Example: 36
+    * @bodyParam type string required tipo de entrada "refinancing" ó "reprogramming" para diferenciar entre refinanciamiento o reprogramación Example: refinancing
     * @authenticated
-    * @responseFile responses/loan/get_procedure_relation.200.json
     */
     public function procedure_brother(Request $request){
-        $request->validate([
-            'id_loan' => 'required|exists:loans,id'
+       
+        $procedure_modality_id = $request->reference_modality_id;
+        $type = $request->type;
+
+        $a = 'procedure_modality_id'; //columna id submodalidad referencia
+        $b = 'refinancing';           //columna id submodalidead de refinanciamiento de la submodalidad de referencia
+        $c = 'reprogramming';         //columna id submodalidead de reprogramación de la submodalidad de referencia
+
+        $data_references = collect([        //PRESTAMO REFERENCIA
+            [$a => 36, $b => 40, $c =>73],  //Corto Plazo Sector Activo
+            [$a => 37, $b => 66, $c =>74],  //Corto Plazo en Disponibilidad
+            [$a => 39, $b => 42, $c =>76],  //Corto Plazo Sector Pasivo SENASIR
+            [$a => 68, $b => 69, $c =>75],  //Corto Plazo Sector Pasivo Gestora Pública
+            [$a => 40, $b => 40, $c =>77],  //Refinanciamiento de Préstamo a Corto Plazo Sector Activo
+            [$a => 66, $b => 66, $c =>78],  //Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
+            [$a => 42, $b => 42, $c =>80],  //Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR
+            [$a => 69, $b => 69, $c =>79],  //Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública
+            [$a => 81, $b => 82, $c =>83],  //Largo Plazo con Garantía Personal Sector Activo con un Garante
+            [$a => 43, $b => 47, $c =>84],  //Largo Plazo con Garantía Personal Sector Activo con dos Garantes
+            [$a => 46, $b => 50, $c =>85],  //Largo Plazo con Pago Oportuno
+            [$a => 45, $b => 49, $c =>87],  //Largo Plazo con Garantía Personal Sector Pasivo SENASIR
+            [$a => 70, $b => 71, $c =>86],  //Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
+            [$a => 97, $b => 0, $c =>0],    //Largo Plazo con Garantía Personal en Disponibilidad con un Garante
+            [$a => 65, $b => 0, $c =>0],    //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
+            [$a => 82, $b => 82, $c =>88],  //Refinanciamiento de Préstamo con Largo Plazo con Garantía Personal Sector Activo con un Garante
+            [$a => 47, $b => 47, $c =>89],  //Refinanciamiento de Préstamo con Largo Plazo con Garantía Personal Sector Activo con dos Garantes
+            [$a => 50, $b => 50, $c =>90],  //Refinanciamiento Largo Plazo con Largo Plazo con Pago Oportuno
+            [$a => 49, $b => 49, $c =>92],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo SENASIR
+            [$a => 71, $b => 71, $c =>91],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
         ]);
-        $loan = Loan::findOrFail($request->id_loan);
-        $procedure=$loan->modality->procedure_type;
-        $procedure_ref=[];
-    
-        if($procedure->name=='Préstamo a Corto Plazo' || $procedure->name=='Refinanciamiento Préstamo a Corto Plazo'){
-            $procedure_ref = ProcedureType::where('name','=','Refinanciamiento Préstamo a Corto Plazo')->first();
-        }else{
-            if($procedure->name=='Préstamo a Largo Plazo' || $procedure->name=='Refinanciamiento Préstamo a Largo Plazo'){
-                $procedure_ref = ProcedureType::where('name','=','Refinanciamiento Préstamo a Largo Plazo')->first();
-            }else{
-                if($procedure->name=='Préstamo Hipotecario' || $procedure->name=='Refinanciamiento Préstamo Hipotecario'){
-                    $procedure_ref = ProcedureType::where('name','=','Refinanciamiento Préstamo Hipotecario')->first();
-                }
-            }
-        }
-        return  $procedure_ref;
+
+        $reference = $data_references->first(function ($item) use ($procedure_modality_id, $a) {    //Busca la la submodalidad, su refiannciamiento y reprogramación
+            return $item[$a] === $procedure_modality_id;
+        });
+
+        if (!$reference)                    //si no encuentra la submodalidad
+            abort(403, 'Esta submodalidad no admite refinanciamiento ni reprogramación');
+
+        if ($reference[$type] === 0)        //verifica si tiene refinanciamiento o reprogramación
+            abort(403, 'Esta submodalidad no admite ' . ($type === 'refinancing' ? 'refinanciamiento' : 'reprogramaciones'));
+        
+        $sub_modalities_and_parameters = [];
+        $sub_modality = ProcedureModality::findOrFail($reference[$type]); //Obtiene la submodalidad requerida de refinanciamiento o reprogramaci
+        $sub_modality->loan_modality_parameter = $sub_modality->loan_modality_parameter;  //Obtiene sus parametros
+        $sub_modality->procedure_type;                                                    //Obtiene el modulo al que pertenece
+        $sub_modalities_and_parameters[] = $sub_modality;
+        return  $sub_modalities_and_parameters;
     }
 
     public function get_balance_sismu($ci){
@@ -2299,33 +2346,37 @@ class LoanController extends Controller
                         {
                             if(Carbon::parse($loan->disbursement_date)->quarter == 1)
                             {
-                                $date_fin = Carbon::parse($loan->disbursement_date)->month($month_term)->endOfMonth()->endOfDay();
+                                $date_fin = Carbon::parse($loan->disbursement_date)->startOfYear()->addmonth($month_term)->subDay()->endOfDay();
+                                $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
+                            }
+                            elseif(Carbon::parse($loan->disbursement_date)->quarter == 2)
+                            {
+                                $date_fin = Carbon::parse($loan->disbursement_date)->endOfYear()->endOfDay();
                                 $date_ini = clone($date_fin);
-                                $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1);
+                                $date_ini = $date_ini->startOfYear()->addMonth($month_term)->startOfDay();
+                                $days = $date_ini->diffInDays($date_fin) + 1;
+                            }
+                            elseif(Carbon::parse($loan->disbursement_date)->quarter == 3)
+                            {
+                                $date_fin = Carbon::parse($loan->disbursement_date)->startOfYear()->addmonth($month_term * 2)->subDay()->endOfDay();
+                                $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
                             }
                             elseif(Carbon::parse($loan->disbursement_date)->quarter == 4)
                             {
-                                $date_fin = Carbon::parse($loan->disbursement_date)->addYear()->month($month_term)->endOfMonth()->endOfDay();
+                                $date_fin = Carbon::parse($loan->disbursement_date)->endOfYear()->startOfMonth()->addMonth($month_term)->endOfMonth()->endOfDay();
                                 $date_ini = clone($date_fin);
-                                $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1);
+                                $date_ini = $date_ini->startOfYear()->startOfDay();
+                                $days = $date_ini->diffInDays($date_fin) + 1;
                             }
-                            else
-                            {
-                                $date_fin = Carbon::parse($loan->disbursement_date)->month($month_term * 2)->endOfMonth()->endOfDay();
-                                $date_ini = clone($date_fin);
-                                $date_ini = $date_ini->startOfMonth()->startOfDay()->subMonth($month_term - 1);
-                            }
-                            if($date_ini->greaterThan(Carbon::parse($loan->disbursement_date)))
+                            if(Carbon::parse($loan->disbursement_date)->quarter == 2 || Carbon::parse($loan->disbursement_date)->quarter == 4)
                                 $extra_days = Carbon::parse($loan->disbursement_date)->endOfDay()->diffInDays($date_ini);
                             else
                                 $extra_days = 0;
-                            $date_ini = $date_ini->format('d-m-Y');
-                            $days = $date_fin->diffInDays(Carbon::parse($loan->disbursement_date)->endOfDay());
-                            $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
-                            $capital = $estimated_quota - $interest;
-                            $payment = $capital + $interest;
                             $extra_interest = LoanPayment::interest_by_days($extra_days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
                             $payment = $loan->estimated_quota + $extra_interest;
+                            $interest = LoanPayment::interest_by_days($days + $extra_days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
+                            $days = $days + $extra_days;
+                            $capital = $payment - $interest;
                         }
                         else
                         {
