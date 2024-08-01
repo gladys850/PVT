@@ -18,6 +18,7 @@ use App\LoanGuarantor;
 use Illuminate\Support\Str;
 use App\LoanProcedure;
 use App\LoanPaymentState;
+use App\LoanModalityParameter;
 
 class Loan extends Model
 {
@@ -373,9 +374,10 @@ class Loan extends Model
     public function getEstimatedQuotaAttribute()
     {
         $parameter = $this->loan_procedure->loan_global_parameter->numerator/$this->loan_procedure->loan_global_parameter->denominator;
-        $monthly_interest = $this->interest->monthly_current_interest($parameter, $this->loan_month_term);
+        
+        $monthly_interest = $this->interest->monthly_current_interest($parameter, $this->loan_term);
         unset($this->interest);
-        return Util::round2($monthly_interest * $this->amount_approved / (1 - 1 / pow((1 + $monthly_interest), $this->loan_term)));
+        return Util::round2($monthly_interest * $this->amount_approved / (1 - 1 / pow((1 + $monthly_interest), LoanModalityParameter::where('procedure_modality_id',$this->procedure_modality_id)->first()->loan_month_term)));
     }
 
     public function next_payment2($affiliate_id, $estimated_date, $paid_by, $procedure_modality_id, $estimated_quota, $liquidate = false)
