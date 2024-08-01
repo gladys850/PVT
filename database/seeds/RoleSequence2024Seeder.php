@@ -14,8 +14,6 @@ class RoleSequence2024Seeder extends Seeder
      */
     public function run()
     {
-        //Flujo de Prestamo anticipo
-        RoleSequence::flushEventListeners();
         // Flujo de Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario
         RoleSequence::flushEventListeners();
         $sequences = [
