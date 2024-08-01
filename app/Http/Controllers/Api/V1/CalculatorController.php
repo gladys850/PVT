@@ -231,27 +231,22 @@ class CalculatorController extends Controller
                 'Préstamo Anticipo', 
                 'Préstamo a Corto Plazo', 
                 'Préstamo a Largo Plazo', 
-                'Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario', 
+                'Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario', 
                 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana'
             ];
             if(in_array($modality->procedure_type->name, $allowedTypes)){
                 if(count($liquid_calculated) > $modality->loan_modality_parameter->max_lenders)abort(403, 'La cantidad de titulares no corresponde a la modalidad');
                 foreach($liquid_calculated as $liquid){
                     $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_requested);
+
                     $amount_maximum_suggested = $this->maximum_amount($modality,$request->months_term,$liquid['liquid_qualification_calculated']);
                     // para prestamos con garantia delñ fondo de retiro
                     if(strpos($modality->procedure_type->name, 'Fondo de Retiro Policial Solidario'))
                     {
                         $affiliate = Affiliate::find($request->liquid_calculated[0]['affiliate_id']);
-                        if($affiliate->category->percentage >= $modality->loan_modality_parameter->min_lender_category && $affiliate->retirement_fund_average())
-                        {
-                            $affiliate_average_rf = Affiliate::find($request->liquid_calculated[0]['affiliate_id'])->retirement_fund_average()->retirement_fund_average;
-                            if($amount_maximum_suggested > $affiliate_average_rf)
-                                $amount_maximum_suggested = $affiliate_average_rf * $modality->loan_modality_parameter->coverage_percentage;
-                        }
-                        else
-                            return abort(403, 'no corresponde a esta modalidad');
-
+                        $affiliate_average_rf = intval($affiliate->retirement_fund_average()->retirement_fund_average * $modality->loan_modality_parameter->coverage_percentage);
+                        if($amount_maximum_suggested > $affiliate_average_rf)
+                            $amount_maximum_suggested = $affiliate_average_rf;
                     }
                     //
                     if($amount_requested > $amount_maximum_suggested){
@@ -346,7 +341,7 @@ class CalculatorController extends Controller
         }else{
             $evaluate = false;
         }
-        //$ams = $this->maximum_amount($procedure_modality,$plm,$liquid_qualification_calculated);
+
         $cosigners=array();
         $top_debt_index = $liquid_qualification_calculated * ($debt_index / 100);
         $percentage_change = (1 - ($ce / $top_debt_index));
