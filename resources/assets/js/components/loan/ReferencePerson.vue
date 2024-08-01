@@ -155,9 +155,7 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:[`item.kinship_id`]="{ item }">
-        {{ kinships.find(o => o.id == item.kinship_id).name }}
-      </template>
+
       <template v-slot:[`item.actions`]="{ item }">
         <v-icon small class="mr-2" color="success" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small color="error" @click="deleteItem(item)">mdi-delete</v-icon>

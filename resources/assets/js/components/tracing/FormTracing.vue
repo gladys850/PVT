@@ -389,8 +389,10 @@
                                 :items="loan.personal_references"
                                 hide-default-footer
                                 >
+                                <template v-slot:[`item.kinship_id`]="{ item }">
+                                  {{item.kinship_id != null? kinships.find(o => o.id == item.kinship_id).name:'' }}
+                                </template>
                               </v-data-table>
-
                               <p v-if="loan.personal_references.length==0"> <b>NO TIENE PERSONA DE REFERENCIA</b></p>
 
                             </v-card-text>
@@ -622,15 +624,18 @@ export default {
         { text: 'SEGUNDO APELLIDO ', value: 'mothers_last_name', class: ['normal', 'white--text','text-md-center'] },
         { text: 'TELÉFONO', value: 'phone_number', class: ['normal', 'white--text','text-md-center'] },
         { text: 'CELULAR', value: 'cell_phone_number', class: ['normal', 'white--text','text-md-center'] },
+        { text: 'PARENTESCO', value: 'kinship_id', class: ['normal', 'white--text','text-md-center'] },
         { text: 'DIRECCION ', value: 'address', class: ['normal', 'white--text','text-md-center'] },
       ],
     city: [],
     entity: [],
     entities:null,
+    kinships:[]
   }),
   beforeMount(){
     this.getCity()
     this.getEntity()
+    this.getKinship()
   },
   computed: {
       cuenta() {
@@ -682,6 +687,15 @@ export default {
         return ''
       }
     },
+    async getKinship(){
+      try {
+        let res = await axios.get('kinship')
+        this.kinships = res.data
+        console.log(this.kinships)
+      } catch (e) {
+        console.log(e)
+      }
+    }
   }
 }
 </script>
