@@ -806,28 +806,28 @@
                                                   label="Primer Nombre"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4" >
+                                              <v-col cols="12" sm="6" md="3" >
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.second_name"
                                                   label="Segundo Nombre"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4" >
+                                              <v-col cols="12" sm="6" md="3" >
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.last_name"
                                                   label="Primer Apellido"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4">
+                                              <v-col cols="12" sm="6" md="3">
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.mothers_last_name"
                                                   label="Segundo Apellido"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4" >
+                                              <v-col cols="12" sm="6" md="3" >
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.phone_number"
@@ -835,7 +835,7 @@
                                                   v-mask="'(#) ###-###'"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4" >
+                                              <v-col cols="12" sm="6" md="3" >
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.cell_phone_number"
@@ -843,6 +843,18 @@
                                                   v-mask="'(###)-#####'"
                                                 ></v-text-field>
                                               </v-col>
+                                              <v-col cols="12" sm="6" md="3">
+                                                <v-select
+                                                  :error-messages="errors"
+                                                  dense
+                                                  :items="kinships"
+                                                  item-text="name"
+                                                  item-value="id"
+                                                  v-model="editedItem.kinship_id"
+                                                  label="Parentesco"
+                                                >
+                                                </v-select>
+                                              </v-col> 
                                               <v-col cols="12" sm="6" md="12">
                                                 <v-text-field
                                                   dense
@@ -872,6 +884,9 @@
                                         </v-card-actions>
                                       </v-card>
                                     </v-dialog>
+                                </template>
+                                <template v-slot:[`item.kinship_id`]="{ item }">
+                                  {{item.kinship_id != null? kinships.find(o => o.id == item.kinship_id).name:'' }}
                                 </template>
                                 <template v-slot:[`item.actions`]="{ item }" v-if="permissionSimpleSelected.includes('update-reference-cosigner') && $route.query.workTray != 'tracingLoans'">
                                   <v-icon
@@ -1325,18 +1340,22 @@ export default {
         { text: 'TELÉFONO', value: 'phone_number' },
         { text: 'CELULAR', value: 'cell_phone_number' },
         { text: 'DIRECCION ', value: 'address' },
+        { text: "Partentesco", value: "kinship_id"
+      },
         {
       text: "Actions",
       value: "actions",
       sortable: false
     }
       ],
-    edit_number_payment_type: false
+    edit_number_payment_type: false,
+    kinships: []
   }),
   beforeMount(){
     this.getPaymentTypes()
     this.getCity()
     this.getEntity()
+    this.getKinship()
   },
   computed: {
       //Metodo para obtener Permisos por rol
@@ -1374,7 +1393,9 @@ created(){
         mothers_last_name:this.editedItem.mothers_last_name,
         phone_number:this.editedItem.phone_number,
         cell_phone_number:this.editedItem.cell_phone_number,
-        address:this.editedItem.address})
+        address:this.editedItem.address,
+        kinship_id: this.editedItem.kinship_id
+        })
         this.toastr.success('Se registró correctamente.')
     this.close()
     this.$forceUpdate()
@@ -1771,6 +1792,15 @@ created(){
           })
         this.edit_number_payment_type = false
         }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async getKinship(){
+      try {
+        let res = await axios.get('kinship')
+        this.kinships = res.data
+        console.log(this.kinships)
       } catch (e) {
         console.log(e)
       }
