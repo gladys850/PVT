@@ -295,7 +295,7 @@ class CalculatorController extends Controller
         return $liquid_qualification_calculated;
     }
     // monto maximo---
-    public static function maximum_amount($procedure_modality,$months_term,$liquid_qualification_calculated, $max_fr = 0){
+    public static function maximum_amount($procedure_modality,$months_term,$liquid_qualification_calculated){
         $parameter = (LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->numerator)/(LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->denominator);
         $interest_rate = $procedure_modality->current_interest->monthly_current_interest($parameter, $procedure_modality->loan_modality_parameter->loan_month_term);
         $loan_interval = $procedure_modality->loan_modality_parameter;
