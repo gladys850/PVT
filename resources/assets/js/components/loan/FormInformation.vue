@@ -560,7 +560,8 @@ export default {
               second_name: this.reference_person[i].second_name,
               phone_number: this.reference_person[i].phone_number,
               cell_phone_number: this.reference_person[i].cell_phone_number,
-              address: this.reference_person[i].address
+              address: this.reference_person[i].address,
+              kinship_id: this.reference_person[i].kinship_id
           })
           ids_reference.push(res.data.id)
           console.log(this.reference_person.length)

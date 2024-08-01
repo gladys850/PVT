@@ -22,7 +22,8 @@ class PersonalReference extends Model
         'phone_number',
         'cell_phone_number',
         'city_birth_id',
-        'address'
+        'address',
+        'kinship_id'
     ];
 
     public function getIdentityCardExtAttribute()
