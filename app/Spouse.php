@@ -32,6 +32,8 @@ class Spouse extends Model
         'book',
         'departure',
         'marriage_date',
+        'marriage_issue_date',
+        'cell_phone_number'
     ];
 
     public function getCivilStatusGenderAttribute()
@@ -75,10 +77,10 @@ class Spouse extends Model
         return $this->affiliate->address;
     }
 
-    public function getCellPhoneNumberAttribute()
-    {
-        return $this->affiliate->cell_phone_number;
-    }
+    // public function getCellPhoneNumberAttribute()
+    // {
+    //     return $this->affiliate->cell_phone_number;
+    // }
 
     public function affiliate()
     {
