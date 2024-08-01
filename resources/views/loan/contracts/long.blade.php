@@ -19,7 +19,7 @@
     </div>
 </div>
 <?php $modality = $loan->modality;
-if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP'|| $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública')){ ?>
+if(($modality->name == 'Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP'|| $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'|| $modality->name == 'Refinanciamiento Largo Plazo con Pago Oportuno' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública')){ ?>
 <div class="block text-justify">
     <div>
         Conste en el presente contrato de {{ $title }}, que al solo reconocimiento de firmas y rúbricas será elevado a Instrumento Público, por lo que las partes que intervienen lo suscriben al tenor y contenido de las siguientes cláusulas y condiciones:
@@ -71,7 +71,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         <b>SEPTIMA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oficina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oficina central inmediatamente; caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída y consecuentemente se procedera al descuento del garante personal incluidos los intereses penales pasados los 30 dias de incumplimiento sin necesidad de previo aviso.
         <?php }
         else{
-            if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo'|| $modality->name =='Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo'){
+            if($modality->name == 'Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes'|| $modality->name =='Refinanciamiento Largo Plazo con Pago Oportuno'){
                 $septima = 'Comando General de la Policía Boliviana';
             }
             if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'){
@@ -117,7 +117,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         <b>DECIMA.- (DE LA GARANTÍA):</b>El PRESTATARIO y {{ count($guarantors)>1 ? 'GARANTES':'GARANTE' }}, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme lo determina el artículo 1335 del Código Civil, además el PRESTATARIO, con los beneficios otorgados por la MUSERPOL.
         <br> Asimismo se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
         <?php }
-        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo'){ ?>
+        if($modality->name == 'Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Refinanciamiento Largo Plazo con Pago Oportuno'){ ?>
         <b>DECIMA.- (DE LA GARANTÍA):</b>El PRESTATARIO y {{ count($guarantors)>1 ? 'GARANTES':'GARANTE' }}, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme lo determina el artículo 1335 del Código Civil, además el PRESTATARIO con los beneﬁcios otorgados por la MUSERPOL.
         <br> Asimismo se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
         <?php }?>
@@ -136,7 +136,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR')){ ?>
          {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL {{ count($guarantors) > 1 ? 'garantizan' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan' : 'autoriza' }} el descuento mensual de su renta en curso de pago y/o haberes en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }} bajo las mismas condiciones en las que se procedería a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que {{ count($guarantors) > 1 ? 'estos puedan' : 'este pueda' }}  iniciar las acciones legales correspondientes en contra del PRESTATARIO.
         <?php } else{
-        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo'){ ?>
+        if($modality->name == 'Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Refinanciamiento Largo Plazo con Pago Oportuno'){ ?>
          {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} {{$is_active? 'en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL':''}} {{ count($guarantors) > 1 ? 'garantizaran' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan el descuento mensual de sus haberes' : 'autoriza el descuento mensual de sus haberes' }} en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }} bajo las mismas condiciones en las que se procedería a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que {{ count($guarantors) > 1 ? 'estos puedan' : 'este pueda' }} iniciar las acciones legales correspondientes en contra del PRESTATARIO.
         <?php }
         if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública'){ ?>
@@ -152,7 +152,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         </div>
         <?php }
             else{
-                if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo'){ ?>
+                if($modality->name == 'Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Refinanciamiento Largo Plazo con Pago Oportuno'){ ?>
                  <div>
                     <b>DECIMA PRIMERA.- (MODIFICACIÓN DE LA SITUACIÓN DEL PRESTATARIO):</b> El PRESTATARIO en caso de fallecimiento, retiro voluntario o retiro forzoso garantiza el cumplimiento efectivo de la presente obligación con la totalidad del beneﬁcio de  Fondo de Retiro Policial Solidario  otorgado por la MUSERPOL; por cuanto la liquidación de dicho beneﬁcio pasará a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, previas las formalidades de ley.
                 </div>
@@ -175,7 +175,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         <b>DÉCIMA TERCERA.- (DE LOS EFECTOS DEL INCUMPLIMIENTO Y DE LA ACCIÓN EJECUTIVA):</b> El incumplimiento de pago mensual por parte del PRESTATARIO, dará lugar a que la totalidad de la obligación, incluidos los intereses moratorios, se determinen líquidos, exigibles y de plazo vencido quedando la MUSERPOL facultada de iniciar las acciones legales correspondientes al amparo de los artículos 519 y 1465 del Código Civil así como de los artículos 378 y 379, Núm. 2) del Código Procesal Civil, que otorgan a este documento la calidad de Título Ejecutivo, demandando el pago de la totalidad de la obligación contraída, más la cancelación de intereses convencionales y penales, incluyendo los relacionados y emergentes de la cobranza judicial, honorarios, derechos, costas y otros, sin excepción por efecto de la acción legal que la MUSERPOL  instaure para lograr el cumplimiento total de la obligación.
     </div>
     <?php $modality = $loan->modality;
-        if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo con un Solo Garante Sector Activo'){ ?>
+        if($modality->name == 'Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Refinanciamiento Largo Plazo con Pago Oportuno'){ ?>
           <div>
           {{ count($guarantors) > 1 ? 'Los GARANTES están facultados' : 'El GARANTE esta facultado' }} a realizar el trámite de recuperación de los montos que se le hubieran sido descontados en función a la obligación objeto del presente contrato pudiendo recaer sobre él Beneficio de Fondo de Retiro Policial Solidario otorgado por la MUSERPOL y reconocidos al PRESTATARIO, conforme al artículo 64 del Reglamento de Préstamos.
         </div>
@@ -324,7 +324,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
             </div>
             <?php }
             else{
-                if($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activo' || $modality->name=='Largo Plazo con Garantía Personal Sector Activo' || $modality->name=='Refinanciamiento de Préstamo a largo Plazo con un Solo Garante Sector Activo' || $modality->name == 'Largo Plazo con un Solo Garante Sector Activo' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad'){
+                if($modality->name == 'Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name=='Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name=='Refinanciamiento Largo Plazo con Pago Oportuno' || $modality->name == 'Largo Plazo con Pago Oportuno' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes'){
                     $sexta = 'Comando General de la Policía Boliviana';
                 }
                 if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo SENASIR' || $modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'){
@@ -373,12 +373,12 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
             <b>NOVENA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTES, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme lo determina el artículo 1335 del Código Civil, además el PRESTATARIO con los beneficios otorgados por la MUSERPOL
             <br>Asimismo se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
             <?php }
-            if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad'){ ?>
+            if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes'){ ?>
             <b>NOVENA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTES, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme lo determina el artículo 1335 del Código Civil y además el PRESTATARIO con los beneficios otorgados por la MUSERPOL.
             <br> Asimismo se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
         <?php } ?>
         <?php 
-            if($modality->name == 'Largo Plazo con un Solo Garante Sector Activo'){ ?>
+            if($modality->name == 'Largo Plazo con Pago Oportuno'){ ?>
             <b>NOVENA.- (DE LA GARANTÍA):</b>El PRESTATARIO y GARANTE, garantizan el pago de lo adeudado con la generalidad de sus bienes, derechos y acciones habidos y por haber, presentes y futuros conforme lo determina el artículo 1335 del Código Civil y además el PRESTATARIO con los beneficios otorgados por la MUSERPOL.
             <br> Asimismo se {{ count($guarantors) > 1 ? 'constituyen como garantes personales, solidarios, mancomunados, e indivisibles' : 'constituye como garante personal, solidario, mancomunado e indivisible' }}:
         <?php } ?>
@@ -396,7 +396,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         if(($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo SENASIR')){ ?>
          {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL {{ count($guarantors) > 1 ? 'garantizan' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan el descuento mensual de sus haberes' : 'autoriza el descuento mensual de su renta en curso de pago y/o haberes' }} en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }} bajo las mismas condiciones en las que se procedería a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que {{ count($guarantors) > 1 ? 'estos puedan' : 'este pueda' }}  iniciar las acciones legales correspondientes en contra del PRESTATARIO.
         <?php } else{
-        if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo' || $modality->name == 'Largo Plazo con un Solo Garante Sector Activo' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad'){ ?>
+        if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Largo Plazo con Pago Oportuno' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes'){ ?>
          {{ count($guarantors) > 1 ? 'quienes' : 'quien' }} en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL {{ count($guarantors) > 1 ? 'garantizan' : 'garantiza' }} el cumplimiento de la obligación y en caso que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas de amortización, {{ count($guarantors) > 1 ? 'autorizan el descuento mensual de sus haberes' : 'autoriza el descuento mensual de sus haberes' }} en calidad de {{ count($guarantors) > 1 ? 'GARANTES' : 'GARANTE' }} bajo las mismas condiciones en las que se procedería a descontar al PRESTATARIO, hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL de toda responsabilidad o reclamo posterior, sin perjuicio de que {{ count($guarantors) > 1 ? 'estos puedan' : 'este pueda' }} iniciar las acciones legales correspondientes en contra del PRESTATARIO.
         <?php }
          if($modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo AFP' || $modality->name == 'Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública'){ ?>
@@ -412,7 +412,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         </div>
         <?php }
             else{
-                if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad' || $modality->name == 'Largo Plazo con un Solo Garante Sector Activo'){ ?>
+                if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes' || $modality->name == 'Largo Plazo con Garantía Personal Sector Activo con dos Garantes'){ ?>
                  <div>
                     <b>DECIMA.- (MODIFICACIÓN DE LA SITUACIÓN DEL PRESTATARIO):</b> El PRESTATARIO en caso de fallecimiento, retiro voluntario o retiro forzoso garantiza el cumplimiento efectivo de la presente obligación con la totalidad del beneficio de Fondo de Retiro Policial Solidario otorgado por la MUSERPOL; por cuanto la liquidación de dicho beneficio pasará a cubrir el monto total de la obligación que resulte adeudada, más los intereses devengados a la fecha, previas las formalidades de ley.
                 </div>
@@ -435,7 +435,7 @@ if(($modality->name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Activ
         <b>DÉCIMA SEGUNDA.- (DE LOS EFECTOS DEL INCUMPLIMIENTO Y DE LA ACCIÓN EJECUTIVA):</b> El incumplimiento de pago mensual por parte del PRESTATARIO dará lugar a que la totalidad de la obligación, incluidos los intereses moratorios, se determinen líquidos, exigibles y de plazo vencido quedando la MUSERPOL facultada de iniciar las acciones legales correspondientes al amparo de los artículos 519 y 1465 del Código Civil así como de los artículos 378 y 379, Núm. 2) del Código Procesal Civil, que otorgan a este documento la calidad de Título Ejecutivo, demandando el pago de la totalidad de la obligación contraída, más la cancelación de intereses convencionales y penales, incluyendo los relacionados y emergentes de la cobranza judicial, honorarios, derechos costas y otros, sin excepción por efecto de la acción legal que la MUSERPOL instaure para lograr el cumplimiento total de la obligación.
     </div>
     <?php $modality = $loan->modality;
-        if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo' || $modality->name == 'Largo Plazo con un Solo Garante Sector Activo' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad'){ ?>
+        if($modality->name == 'Largo Plazo con Garantía Personal Sector Activo con dos Garantes' || $modality->name == 'Largo Plazo con Pago Oportuno' || $modality->name == 'Largo Plazo con Garantía Personal en Comisión' || $modality->name == 'Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes'){ ?>
           <div>
           {{ count($guarantors) > 1 ? 'Los GARANTES están facultados' : 'El GARANTE esta facultado' }} a realizar el trámite de recuperación de los montos que se le hubieran sido descontados en función a la obligación objeto del presente contrato pudiendo recaer sobre él Beneficio de Fondo de Retiro Policial Solidario otorgado por la MUSERPOL y reconocidos al PRESTATARIO, conforme al artículo 64 del Reglamento de Préstamos.
         </div>
