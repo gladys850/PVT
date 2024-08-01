@@ -49,7 +49,7 @@
                           ></v-select>
                             </v-col>
                           </v-row>
-                        </v-col>
+                        </v-col> 
                         <template v-if="loan_modality.procedure_type.second_name === 'Fondo de Retiro'">
                           <v-col cols="12" md="2" class="py-0 my-0 text-center">
                             <strong>FONDO DE RETIRO (Promedio Bs.)</strong><br>
@@ -409,7 +409,7 @@ export default {
    //muestra los intervalos de acuerdo a una modalidad
     async Onchange(){
       //cargamos la sumodalidad
-        this.loan_modality.id=0
+      this.loan_modality.id = 0 //cuando cambie la modalidad la submodalidad se colca en 0
       this.choose_diff_month = false
       this.number_diff_month = 1
       if(this.isNew || this.type_sismu){
@@ -433,6 +433,9 @@ export default {
         let resp =await axios.get(`affiliate_loan_modality/${id}/${this.loanTypeSelected.id}`)
         if(resp.data ==''){
           this.loan_detail.not_exist_modality = true
+          this.submodalities = []
+          this.monto = null
+          this.plazo = null
           this.toastr.error("El afiliado no puede ser evaluado en esta modalidad")
         }else{
           this.submodalities = resp.data
