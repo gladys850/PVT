@@ -252,11 +252,41 @@ class UpdateNewReglament2024Part2 extends Seeder
             ProcedureRequirement::where('procedure_document_id', 284)->delete();
             //Memorándum de asignación a la letra en copia simple.
             ProcedureRequirement::where('procedure_document_id', 280)->delete();
-
+            //ACTUALIZACION DE NOMBRE DE DOCUMENTOS "en copia simple" al final.
+            DB::table('procedure_documents')->where('id', '297')->update([
+                'name' => 'Cédula de identidad del Solicitante en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '300')->update([
+                'name' => 'Cédula de Identidad del Garante uno en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '301')->update([
+                'name' => 'Última boleta de pago del Garante uno en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '303')->update([
+                'name' => 'Cédula de Identidad del Garante dos en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '304')->update([
+                'name' => 'Última boleta de pago del Garante dos en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '308')->update([
+                'name' => 'Cédula de Identidad del Garante en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '309')->update([
+                'name' => 'Última boleta de pago del Garante en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '369')->update([
+                'name' => 'Certificado de haberes del Garante en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '371')->update([
+                'name' => 'Certificado de haberes Garante uno en copia simple.',
+            ]);
+            DB::table('procedure_documents')->where('id', '372')->update([
+                'name' => 'Certificado de haberes Garante dos en copia simple.',
+            ]);
             //CREACIÓN DE NUEVOS DOCUMENTOS
             DB::table('procedure_documents')->insert([
                 [
-                    'name' => 'Cédula de identidad en copia simple del cónyuge.',
+                    'name' => 'Cédula de identidad del cónyuge en copia simple.',
                     'created_at' => now(),
 
                     'updated_at' => now()
