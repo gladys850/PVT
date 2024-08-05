@@ -1460,7 +1460,7 @@ class AffiliateController extends Controller
                         ->where('observable_id', '=', $affiliate->id)
                         ->where('type', 'ilike', '%A%')
                         ->get();
-        foreach (ProcedureModality::where('name', 'like', '%Activo')->orWhere('name', 'like', '%Activo%')->get() as $procedure) {
+        foreach (ProcedureModality::where('name', 'like', '%Activo%')->orWhere('name', 'like', '%Oportuno%')->get() as $procedure) {
             array_push($id_activo, $procedure->id);
         }
         $id_senasir = array();
@@ -1476,7 +1476,7 @@ class AffiliateController extends Controller
             array_push($id_gestora, $procedure->id);
         }
         $id_com_disp = array();
-        foreach (ProcedureModality::where('name', 'like', '%Comisión')->orWhere('name', 'like', '%Disponibilidad')->get() as $procedure) {
+        foreach (ProcedureModality::where('name', 'like', '%Disponibilidad%')->get() as $procedure) {
             array_push($id_com_disp, $procedure->id);
         }
         if($affiliate->category_id == null)
