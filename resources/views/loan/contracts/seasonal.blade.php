@@ -206,7 +206,7 @@
                 @if (count($spouses) == 1)
                     @php $male_female_spouse = Util::male_female($spouse_gender); @endphp
                     <span>
-                    {{ $spouse_gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }},
+                    {{ $spouse_gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $spouse->full_name }},
                     </span>
                 @endif
                 de generales ya señaladas, 
