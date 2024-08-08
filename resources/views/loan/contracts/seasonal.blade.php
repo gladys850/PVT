@@ -238,8 +238,8 @@
             @if(str_contains($title,'con Cónyuge'))
                 <td width="50%">
                 @include('partials.signature_box', [
-                    'full_name' => $lender->full_name,
-                    'identity_card' => $lender->identity_card,
+                    'full_name' => $spouse->full_name,
+                    'identity_card' => $spouse->identity_card,
                     'position' => 'CÓNYUGE ANUENTE'
                 ])
                 </td>
