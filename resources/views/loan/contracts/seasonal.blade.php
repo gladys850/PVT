@@ -7,6 +7,7 @@
 </head>
 @include('partials.header', $header)
 <body>
+@php $modality = $loan->modality @endphp
 <div class="block">
     <div class="font-semibold leading-tight text-center m-b-10 text-base">
         CONTRATO DE PRÉSTAMO <font style="text-transform: uppercase;">{{ $title }}</font>
@@ -15,7 +16,7 @@
 </div>
 <div class="block text-justify">
     <div>
-        Conste en el presente contrato de préstamo de {{ $title }}, que al solo reconocimiento de firmas y rúbricas será elevado a Instrumento Público, 
+        Conste en el presente contrato de préstamo {{ $title }}, que al solo reconocimiento de firmas y rúbricas será elevado a Instrumento Público, 
         por lo que las partes que intervienen lo suscriben al tenor y contenido de las siguientes cláusulas y condiciones:
     </div>
     <br>
@@ -30,8 +31,10 @@
             <br>
             <li>
                 @if (count($lenders) == 1)
-                @php ($lender = $lenders[0])
-                @php ($male_female = Util::male_female($lender->gender))
+                @php
+                    $lender = $lenders[0];
+                    $male_female = Util::male_female($lender->gender);
+                @endphp
                 <span>
                     {{ $lender->gender == 'M' ? 'Sr.' : 'Sra.' }} {{ $lender->full_name }}, con C.I. {{ $lender->identity_card }}, {{ $lender->civil_status_gender }}, mayor de edad, 
                     hábil por derecho, natural de {{ $lender->city_birth->name }}, vecin{{ $male_female }} de {{ $lender->address->cityName() }} y con domicilio 
@@ -39,25 +42,30 @@
                 </span>
                 @endif
             </li>
+            @if(str_contains($title,'con Cónyuge'))
             <br>
             <li>
                 @if (count($spouses) == 1)
-                    @php ($spouse = $spouses[0])
-                    @if($lender->gender == 'M') 
-                        @php ($spouse_gender='F')
-                        @php ($male_female_spouse = Util::male_female($spouse_gender))
-                    @else
-                        @php ($spouse_gender='M')
-                        @php ($male_female_spouse = Util::male_female($spouse_gender))
-                    @endif
+                    @php 
+                        $spouse = $spouses[0];
+                        if($lender->gender == 'M'){
+                            $spouse_gender='F';
+                            $male_female_spouse = Util::male_female($spouse_gender);
+                        }else{
+                            $spouse_gender='M';
+                            $male_female_spouse = Util::male_female($spouse_gender);
+                        }
+                    @endphp
                     <span>
                         {{ $spouse_gender == 'F' ? 'Sra.' : 'Sr.' }} {{ $spouse->full_name}}, 
-                        con C.I. {{ $lender->identity_card }}, {{ Util::get_civil_status($spouse->civil_status,$spouse_gender) }}, 
-                        mayor de edad, hábil por derecho, natural de {{ $spouse->city_birth->name }}, vecin{{ $male_female_spouse }} de {{ $lender->address->cityName() }} y con domicilio 
-                        en {{ $lender->address->full_address }}, en adelante denominad{{ $male_female_spouse }} CONYUGE ANUENTE.
+                        con C.I. {{ $spouse->identity_card }}, {{ Util::get_civil_status($spouse->civil_status,$spouse_gender) }}, 
+                        mayor de edad, hábil por derecho, natural de {{ $spouse->city_birth->name }}, vecin{{ $male_female_spouse }} 
+                        de {{ $spouse->address->cityName() }} y con domicilio en {{ $spouse->address->full_address }}, en adelante 
+                        denominad{{ $male_female_spouse }} CONYUGE ANUENTE.
                     </span>
                 @endif
             </li>
+            @endif
         </ol>
     </div>
     <br>
@@ -89,9 +97,9 @@
     <br>
     <div>
         <b>SEXTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación (capital e intereses) el PRESTATARIO, autoriza 
-        expresamente a la MUSERPOL practicar el descuento del Beneficio de Complemento Económico otorgado por la MUSERPOL, por lo que el PRESTATARIO, se compromete 
-        de forma plena y expresa a realizar su trámite del Benefició del Complemento Económico en tiempo oportuno según las formalidades establecidas; por cuanto 
-        la liquidación de dicho beneficio pasará a cubrir el monto de la cuota semestral de la obligación.
+        expresamente a la MUSERPOL practicar el descuento del Beneficio de Complemento Económico a través de la Dirección de Beneficios Económicos, por lo que el 
+        PRESTATARIO, se compromete de forma plena y expresa a realizar su trámite del Benefició del Complemento Económico en tiempo oportuno según las formalidades 
+        establecidas; por cuanto la liquidación de dicho beneficio pasará a cubrir el monto de la cuota semestral de la obligación.
         <br>
         Si por cualquier motivo la MUSERPOL estuviera imposibilitada de realizar el descuento por el medio precedentemente señalado, el PRESTATARIO se obliga a 
         cumplir con la cuota de amortización mediante pago directo en la Oficina Central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta 
@@ -119,14 +127,18 @@
         <br>
     </div>
     <div>
-        <b>OCTAVA.- (OBLIGACIONES DEL PRESTATARIO):</b> Conforme al Artículo 11 del Reglamento de Préstamos, las partes reconocen expresamente como obligaciones del PRESTATARIO, lo siguiente:
+        <b>OCTAVA.- (OBLIGACIONES DEL PRESTATARIO):</b> Conforme al Artículo 11 del Reglamento de Préstamos, las partes reconocen expresamente como obligaciones del PRESTATARIO, 
+        lo siguiente:
     </div>
     <div>
         <ol type="a" style="margin:0;">
             <li>Proporcionar información y documentación veraz y legítima para la correcta tramitación del préstamo;</li>
             <li>Cumplir con los requisitos, condiciones y lineamientos del préstamo;</li>
             <li>Cumplir con el Contrato de Préstamo suscrito entre la MUSERPOL y el afiliado;</li>
-            <li>Amortizar semestralmente la deuda contraída con la MUSERPOL, hasta cubrir el capital adeudado además de los intereses correspondientes según contrato de préstamo suscrito;</li>
+            <li>
+                Amortizar semestralmente la deuda contraída con la MUSERPOL, hasta cubrir el capital adeudado además de 
+                los intereses correspondientes según contrato de préstamo suscrito;
+            </li>
             <li>El trato a los funcionarios de la MUSERPOL debe ser con respeto y sin discriminación.</li>
         </ol>
     </div>
@@ -137,23 +149,36 @@
     </div>
     <br>
     <div>
-        <b>DÉCIMA.- (CONTINGENCIAS POR FALLECIMIENTO):</b> En caso de incumplimiento en el pago efectivo de las obligaciones por causa de fallecimiento del PRESTATARIO, 
-        la CONYUGE ANUENTE se obliga a cumplir con el pago de las amortizaciones de capital o intereses pendientes de pago asumidas en el presente contrato, consiguientemente, 
-        la MUSERPOL se reserva el derecho de realizar la compensación de la suma adeudada con el Beneficio del Complemento Económico, que por derecho le corresponde a la Viuda 
-        por vía sucesión hereditaria, que serán pagados de acuerdo a lo establecido en la cláusula cuarta del presente contrato, manifestando a este efecto su plena y expresa 
-        aceptación y consentimiento, firmando en constancia de ello.
+        <b>DÉCIMA.- (CONTINGENCIAS POR FALLECIMIENTO):</b> En caso de incumplimiento en el pago efectivo de las obligaciones por causa de fallecimiento del PRESTATARIO,
+        @if(str_contains($title,'con Cónyuge'))
+            la CONYUGE ANUENTE se obliga
+        @else
+            los herederos se obligan
+        @endif
+        a cumplir con el pago de las amortizaciones de capital o intereses pendientes de pago asumidas en el presente contrato, consiguientemente, 
+        la MUSERPOL se reserva el derecho de realizar la compensación de la suma adeudada con el Beneficio del Complemento Económico, que por derecho le corresponde 
+        @if(str_contains($title,'con Cónyuge'))
+            a la Viuda 
+        @else
+            a los herederos
+        @endif
+        por vía sucesión hereditaria, que serán pagados de acuerdo a lo establecido en la cláusula cuarta del presente contrato.
     </div>
     <div>
         <b>DÉCIMA PRIMERA.- (DE LA MORA):</b> El PRESTATARIO se constituirá en mora automática sin intimación o requerimiento alguno, de acuerdo a lo establecido por el 
         artículo 341, Núm. 1) del Código Civil, al incumplimiento del pago de cualquier amortización de capital o intereses, sin necesidad de intimación o requerimiento 
         alguno, o acto equivalente por parte de la MUSERPOL.
         <br>
-        Además del interés acordado contractualmente, el préstamo generará en caso de mora un interés moratorio anual del {{ round($loan->interest->penal_interest) }}% sobre saldos de capital de las cuotas impagas, 
+        Además del interés acordado contractualmente, el préstamo generará en caso de mora un interés moratorio anual del 
+        {{ round($loan->interest->penal_interest) }}% sobre saldos de capital de las cuotas impagas, 
         aún cuando fuere exigible todo el capital del préstamo.  
     </div>
     <br>
     <div>
-        <b>DÉCIMA SEGUNDA.- (DE LOS EFECTOS DEL INCUMPLIMIENTO Y DE LA ACCIÓN EJECUTIVA):</b> El incumplimiento de pago semestral por parte del PRESTATARIO o la CÓNYUGE ANUENTE 
+        <b>DÉCIMA SEGUNDA.- (DE LOS EFECTOS DEL INCUMPLIMIENTO Y DE LA ACCIÓN EJECUTIVA):</b> El incumplimiento de pago semestral por parte del PRESTATARIO 
+        @if(str_contains($title,'con Cónyuge'))
+            o la CÓNYUGE ANUENTE 
+        @endif
         dará lugar a que la totalidad de la obligación, incluidos los intereses moratorios, se determinen líquidos, exigibles y de plazo vencido quedando la MUSERPOL facultada 
         de iniciar las acciones legales correspondientes al amparo de los artículos 519 y 1465 del Código Civil así como de los artículos 378 y 379, Núm. 2) del Código Procesal 
         Civil, que otorgan a este documento la calidad de Título Ejecutivo, demandando el pago de la totalidad de la obligación contraída, más la cancelación de intereses 
@@ -171,20 +196,24 @@
     </div>
     <br>
     <div>
-    <?php $modality = $loan->modality;?>
-
-        <b>DÉCIMA CUARTA.- (DE LA CONFORMIDAD Y ACEPTACIÓN):</b> Por una parte en calidad de ACREEDOR la Mutual de Servicios al Policía (MUSERPOL), representada por su {{ $employees[0]['position'] }} {{ $employees[0]['name'] }} y su {{ $employees[1]['position'] }} {{ $employees[1]['name'] }} y por otra parte en calidad de
+        <b>DÉCIMA CUARTA.- (DE LA CONFORMIDAD Y ACEPTACIÓN):</b> Por una parte en calidad de ACREEDOR la Mutual de Servicios al Policía (MUSERPOL), representada por su 
+        {{ $employees[0]['position'] }} {{ $employees[0]['name'] }} y su {{ $employees[1]['position'] }} {{ $employees[1]['name'] }} y por otra parte en calidad de
         @if (count($lenders) == 1)
         <span>
             PRESTATARI{{ $lender->gender == 'M' ? 'O' : 'A' }} {{ $lender->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }} de generales ya señaladas;
-            y por otra en calidad de CONYUGE ANUENTE
-            @if (count($spouses) == 1)
-                @php ($male_female_spouse = Util::male_female($spouse_gender))
-                <span>
-                {{ $spouse_gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }},
-                </span>
+            @if(str_contains($title,'con Cónyuge'))
+                y por otra en calidad de CONYUGE ANUENTE
+                @if (count($spouses) == 1)
+                    @php $male_female_spouse = Util::male_female($spouse_gender); @endphp
+                    <span>
+                    {{ $spouse_gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $lender->full_name }},
+                    </span>
+                @endif
+                de generales ya señaladas, 
+                damos nuestra plena conformidad con todas y cada una de las cláusulas precedentes, obligándonos a su fiel y estricto cumplimiento. 
+            @else
+                doy plena conformidad con todas y cada una de las cláusulas precedentes, obligándonos a su fiel y estricto cumplimiento. 
             @endif
-            de generales ya señaladas, damos nuestra plena conformidad con todas y cada una de las cláusulas precedentes, obligándonos a su fiel y estricto cumplimiento. 
             En señal de lo cual suscribimos el presente contrato de préstamo de dinero en manifestación de nuestra libre y espontánea voluntad y sin que medie vicio de 
             consentimiento alguno.
         </span>
@@ -192,7 +221,7 @@
     </div>
     <div class="text-center">
         <p class="center">
-        La Paz, {{ Carbon::now()->isoFormat('LL') }}
+            La Paz, {{ Carbon::now()->isoFormat('LL') }}
         </p>
     </div>
 </div>
@@ -201,25 +230,27 @@
         <tr class="align-top">
             <td width="50%">
             @include('partials.signature_box', [
-            'full_name' => $lender->full_name,
-            'identity_card' => $lender->identity_card,
-            'position' => 'PRESTATARIO'
+                'full_name' => $lender->full_name,
+                'identity_card' => $lender->identity_card,
+                'position' => 'PRESTATARIO'
             ])
             </td>
-            <td width="50%">
-            @include('partials.signature_box', [
-            'full_name' => $lender->full_name,
-            'identity_card' => $lender->identity_card,
-            'position' => 'CÓNYUGE ANUENTE'
-            ])
-            </td>
+            @if(str_contains($title,'con Cónyuge'))
+                <td width="50%">
+                @include('partials.signature_box', [
+                    'full_name' => $lender->full_name,
+                    'identity_card' => $lender->identity_card,
+                    'position' => 'CÓNYUGE ANUENTE'
+                ])
+                </td>
+            @endif
         </tr>
     </table>
 
     <table>
         <tr>
             @foreach ($employees as $key => $employee)
-            <td width="50%">
+                <td width="50%">
                 @include('partials.signature_box', [
                     'full_name' => $employee['name'],
                     'identity_card' => $employee['identity_card'],
