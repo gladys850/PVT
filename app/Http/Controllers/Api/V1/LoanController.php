@@ -1073,12 +1073,6 @@ class LoanController extends Controller
     public function print_contract(Request $request, Loan $loan, $standalone = true)
     {
         $procedure_modality = $loan->modality;
-        $is_refinancing=false;$is_afp=false;$is_senasir=false;$is_active=false;$is_gestora=false;
-        if(strpos($procedure_modality->name, 'Refinanciamiento') !== false ) $is_refinancing = true;
-        if(strpos($procedure_modality->name, 'AFP') !== false ) $is_afp = true;
-        if(strpos($procedure_modality->name, 'Gestora') !== false ) $is_gestora = true;
-        if(strpos($procedure_modality->name, 'SENASIR') !== false ) $is_senasir = true;
-        if(strpos($procedure_modality->name, 'Activo') || strpos($procedure_modality->name, 'Disponibilidad') !== false ) $is_active = true;
         $parent_loan = "";
         $file_title = implode('_', ['CONTRATO', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
         if($loan->parent_loan_id) $parent_loan = Loan::findOrFail($loan->parent_loan_id);
@@ -1104,11 +1098,6 @@ class LoanController extends Controller
             'spouses' => collect($spouses),
             'parent_loan' => $parent_loan,
             'file_title' => $file_title,
-            'is_refinancing'=>$is_refinancing,
-            'is_afp'=>$is_afp,
-            'is_gestora'=>$is_gestora,
-            'is_senasir'=>$is_senasir,
-            'is_active'=>$is_active
         ];
         $file_name = implode('_', ['contrato', $procedure_modality->shortened, $loan->code]) . '.pdf';
         $modality_type = $procedure_modality->procedure_type->name;
