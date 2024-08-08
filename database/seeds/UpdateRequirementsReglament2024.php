@@ -22,7 +22,7 @@ class UpdateRequirementsReglament2024 extends Seeder
             //CREACIÓN DEL NUEVO DOCUMENTO
             DB::table('procedure_documents')->insert([
                 [
-                    'name' => 'Última boleta de pago cargada en el sistema PVT.',
+                    'name' => 'Última boleta de pago cargada en la herramienta informática PVT.',
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
