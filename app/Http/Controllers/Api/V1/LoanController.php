@@ -394,6 +394,7 @@ class LoanController extends Controller
             foreach($loan->guarantors as $guarantor){
                 $guarantor->type_initials = "G-".$guarantor->initials;
             }
+            $loan->retirement=$loan->retirement;
             return $loan;
         } else {
             abort(403);
