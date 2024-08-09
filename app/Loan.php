@@ -1650,15 +1650,22 @@ class Loan extends Model
 
     public function getRetirementAttribute()
     {   
-        $loan=Loan::find($this->id);
-        $retirement=[];
-        $average = $loan->loanGuaranteeRetirementFund->retirementFundAverage->retirement_fund_average;
-        $percentage = $loan->modality->loan_modality_parameter->coverage_percentage;
-        $retirement = [
-            'average' => $average,
-            'coverage' => $average*$percentage,
-            'percentage' => $percentage
-        ];
+        $loan = Loan::find($this->id);
+        $retirement = [];
+
+        if ($loan) {
+            $average = $loan->loanGuaranteeRetirementFund->retirementFundAverage->retirement_fund_average ?? null;
+            $percentage = $loan->modality->loan_modality_parameter->coverage_percentage ?? null;
+
+            if ($average !== null && $percentage !== null) {
+                $retirement = [
+                    'average' => $average,
+                    'coverage' => $average * $percentage,
+                    'percentage' => $percentage
+                ];
+            }
+        }
+
         return $retirement;
     }
 
