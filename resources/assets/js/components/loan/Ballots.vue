@@ -64,9 +64,13 @@
                           </v-col>
                         </template>                    
                         <v-col cols="12" md="2" class="py-0 my-0 text-center">
-                          <strong>PLAZO EN MESES</strong><br>
+                          <strong>PLAZO</strong><br>
                           {{ plazo }}
                         </v-col>
+                        <!-- <v-btn
+                        @click.stop="getSemesterDate(fec)"
+                        >
+                        </v-btn> -->
                       </v-row>
                     </v-container>
                   </v-col>
@@ -92,11 +96,11 @@
                 <v-row v-for="(contrib,i) in contribution" :key="i" class="py-0 my-0">
                   <v-col cols="12" md="7" class="py-0 my-0">
                     <v-row>
-                      <v-col cols="12" md="12" class="py-0 my-0 pb-1 uppercase"> BOLETAS DE PAGO <b>{{contribution[i].month}}</b></v-col>
-                      <v-col cols="12" md="3" class="py-0 my-0" v-if="lender_contribution.state_affiliate != 'Comisión'">
+                      <v-col cols="12" md="12" class="py-0 my-0 pb-1 uppercase"> COMPROBANTE DE PAGO <b>{{contribution[i].month}}</b></v-col>
+                      <v-col cols="12" md="3" class="py-0 my-0" v-if="lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29">
                         <ValidationProvider
                           v-slot="{ errors }"
-                          name="Boleta de pago"
+                          name="Comprobante de pago"
                           :rules="'required|min_value:' + global_parameters.livelihood_amount"
                           mode="aggressive"
                         >
@@ -111,7 +115,7 @@
                           ></v-text-field>
                         </ValidationProvider>
                       </v-col>
-                      <v-col cols="12" class="py-0 my-0"  :md="lender_contribution.state_affiliate == 'Comisión' ? 4 : 2">
+                      <v-col cols="12" class="py-0 my-0"  :md="lender_contribution.state_affiliate == 'Comisión' || loanTypeSelected.id == 29 ? 4 : 2">
                         <ValidationProvider
                           v-slot="{ errors }"
                           name="Monto ajuste"
@@ -123,13 +127,13 @@
                             :error-messages="errors"
                             dense
                             v-model="contribution[i].adjustment_amount"
-                            :label= "lender_contribution.state_affiliate == 'Comisión' ? 'Liquido pagable' :  'Monto ajuste'"
-                            :outlined = "!(contribution[i].payable_liquid == 0 && lender_contribution.state_affiliate != 'Comisión')? true : false"
-                            :disabled = "!(contribution[i].payable_liquid == 0 && lender_contribution.state_affiliate != 'Comisión')? false : true"
+                            :label= "lender_contribution.state_affiliate == 'Comisión' ? 'Liquido pagable' : loanTypeSelected.id == 29 ? 'Liquido pagable último CE' :  'Monto ajuste'"
+                            :outlined = "!(contribution[i].payable_liquid == 0 && lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29) ? true : false"
+                            :disabled = "!(contribution[i].payable_liquid == 0 && lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29) ? false : true"
                           ></v-text-field>
                         </ValidationProvider>
                       </v-col>
-                      <template v-if="lender_contribution.state_affiliate != 'Comisión'">
+                      <template v-if="lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29">
                         <v-col cols="12" md="2" class="py-0 my-0" >
                           <b style="text-align: center">= {{(parseFloat(contribution[i].adjustment_amount) + parseFloat(contribution[i].payable_liquid)) | money}}</b>
                         </v-col>
@@ -158,7 +162,7 @@
 
                   <v-col cols="12" md="5" class="py-0 my-0">
                     <v-row class="py-0 my-0">
-                      <v-col cols="12" md="12" class="py-0 my-0" v-if="lender_contribution.state_affiliate != 'Comisión'"> BONOS </v-col>
+                      <v-col cols="12" md="12" class="py-0 my-0" v-if="lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29"> BONOS </v-col>
                       <template v-if="lender_contribution.state_affiliate == 'Activo'">
                         <v-col cols="12" md="3" class="py-0 my-0">
                           <ValidationProvider
@@ -229,7 +233,7 @@
                           </ValidationProvider>
                         </v-col>
                      </template> 
-                      <v-col cols="12" :md="lender_contribution.state_affiliate == 'Pasivo' ? 4 : 3" class="py-0 my-0" v-if="lender_contribution.state_affiliate == 'Pasivo'">
+                      <v-col cols="12" :md="lender_contribution.state_affiliate == 'Pasivo' && loanTypeSelected.id != 29 ? 4 : 3" class="py-0 my-0" v-if="lender_contribution.state_affiliate == 'Pasivo' && loanTypeSelected.id != 29">
                         <ValidationProvider
                           v-slot="{ errors }"
                           name="Renta dignidad"
@@ -282,6 +286,7 @@ import BallotsHipotecary from '@/components/loan/BallotsHipotecary'
 export default {
   name: "ballots",
   data: () => ({
+    fec:'2024-08-02',
     bus: new Vue(),
     enabled: false,
     editar:true,
@@ -482,6 +487,8 @@ export default {
 
         this.loan_detail.min_guarantor_category = this.loan_modality.loan_modality_parameter.min_guarantor_category
         this.loan_detail.max_guarantor_category = this.loan_modality.loan_modality_parameter.max_guarantor_category
+
+        this.modalidad.loan_month_term = this.loan_modality.loan_modality_parameter.loan_month_term
         this.validateAffiliateModality()
         
       }catch (e) {
@@ -552,7 +559,7 @@ export default {
               this.contribution[i].period = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('YYYY-MM-DD')
               this.contribution[i].month = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('MMMM')
 
-          } else if(this.lender_contribution.valid && this.lender_contribution.state_affiliate =='Pasivo'){
+          } else if(this.lender_contribution.valid && this.lender_contribution.state_affiliate =='Pasivo' && this.loanTypeSelected.id != 29){
               this.enabled = true
               this.editar = true
               if(this.data_ballots[i]){
@@ -569,7 +576,7 @@ export default {
                 this.contribution[i].month = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('MMMM')
                 }
 
-          } else if(!this.lender_contribution.valid && this.lender_contribution.state_affiliate =='Pasivo'){
+          } else if(!this.lender_contribution.valid && this.lender_contribution.state_affiliate =='Pasivo' && this.loanTypeSelected.id != 29){
               this.enabled = true
               this.editar  = true
               this.contribution[i].contributionable_id = 0
@@ -583,6 +590,19 @@ export default {
               this.contribution[i].payable_liquid = 0
               this.contribution[i].period = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('YYYY-MM-DD')
               this.contribution[i].month = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('MMMM')
+
+          } 
+          else if(this.lender_contribution.state_affiliate == 'Pasivo' && this.loanTypeSelected.id == 29){
+            console.log("estacional")
+              this.contribution[i].contributionable_id = 0
+              this.contribution[i].payable_liquid = 0
+              let month_semester = this.$moment(this.lender_contribution.current_date).subtract((this.number_diff_month-this.modalidad.quantity_ballots-i) * this.loan_modality.loan_modality_parameter.loan_month_term,'months').format('YYYY-MM-DD')
+              //obtener ultima fecha del semestre
+              this.contribution[i].period = this.getSemesterDate(month_semester)
+              //armar periodo
+              let semester_date = this.$moment(this.getSemesterDate(month_semester));
+              let semester_label = semester_date.month() + 1 <= 6 ? 'PRIMER SEMESTRE' : 'SEGUNDO SEMESTRE';
+              this.contribution[i].month = `${semester_label} ${semester_date.year()}`;
 
           } else {
             this.toastr.error("Ocurrio caso especial de afiliado que no fue considerado.")}
@@ -616,18 +636,45 @@ export default {
     },
     appendIconCallback () {
       if(this.number_diff_month < this.global_parameters.max_months_go_back){
-        this.number_diff_month++
+        this.number_diff_month = this.number_diff_month+1
         this.choose_diff_month = true
         this.getBallots(this.$route.query.affiliate_id)
       }
     },
     prependIconCallback () {
       if(this.number_diff_month > 1){
-        this.number_diff_month--
+        this.number_diff_month = this.number_diff_month-1
         this.choose_diff_month = true
         this.getBallots(this.$route.query.affiliate_id)
       }
     },
+    getSemesterDate(dateInput) {
+      // Convierte la fecha de entrada en un objeto Moment
+      let date_input = this.$moment(dateInput);
+
+      // Obtener el año de la fecha de entrada
+      let year_input_date = date_input.year();
+
+      // Construye las fechas de referencia para los semestres usando el año de la fecha de entrada
+      let first_semester_end = this.$moment(year_input_date + '-06-30');
+      let second_semester_end = this.$moment(year_input_date + '-12-31');
+
+      let result;
+
+      if (date_input.isBefore(first_semester_end)) {
+          // Si estamos en el primer semestre (del 1 de enero al 30 de junio)
+          console.log('Primer semestre');
+          result = first_semester_end.format('YYYY-MM-DD');
+      } else if (date_input.isBefore(second_semester_end)) {
+          // Si estamos en el segundo semestre (del 1 de julio al 31 de diciembre)
+          console.log('Segundo semestre');
+          result = second_semester_end.format('YYYY-MM-DD');
+      } else {
+          console.log('Fecha fuera de rango');
+      }
+      console.log(result);
+      return result;
+    }
   }
 }
 </script>

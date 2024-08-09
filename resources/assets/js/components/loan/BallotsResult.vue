@@ -85,7 +85,7 @@
                          <ValidationProvider v-slot="{ errors }" name="plazo" :rules="'numeric|min_value:'+loan_detail.minimum_term+'|max_value:'+loan_detail.maximum_term" mode="aggressive">
                           <v-text-field
                             :error-messages="errors"
-                            label="Plazo en Meses"
+                            label="Plazo"
                             v-model="calculator_result.months_term"
                             v-on:keyup.enter="simulator()"
                           ></v-text-field>
