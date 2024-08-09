@@ -84,6 +84,7 @@ Route::group([
         Route::post('aid_contribution/updateOrCreate', 'Api\V1\AidContributionController@updateOrCreate');
         Route::apiResource('contributions_affiliate', 'Api\V1\ContributionController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('affiliate/{affiliate}/contributions_affiliate', 'Api\V1\ContributionController@get_all_contribution_affiliate');
+        Route::get('contribution/{contribution}/print/contribution','Api\V1\ContributionController@print_contribution');
         //Conceptos de movimientos
         Route::apiResource('movement_concept', 'Api\V1\MovementConceptController')->only('index', 'show', 'store', 'update', 'destroy');
         //REPORTS
