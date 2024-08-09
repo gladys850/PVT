@@ -455,7 +455,7 @@ export default {
           this.contributionable_type = 'contributions'
         }
         else if(this.affiliate_contribution.state_affiliate == 'Comisión' || 
-               (this.affiliate_contribution.state_affiliate == 'Pasivo' && this.loanTypeSelected == 29)) {
+               (this.affiliate_contribution.state_affiliate == 'Pasivo' && this.loanTypeSelected.id == 29)) {
           this.contributionable_type = 'loan_contribution_adjusts'
         }
 
