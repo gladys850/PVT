@@ -85,12 +85,12 @@
                                     <p><b>LIQUIDO PARA CALIFICACION: </b> {{loan.liquid_qualification_calculated | moneyString}} Bs.</p>
                                   </v-col>
                                   <v-col cols="12" md="4" v-show="!qualification_edit" class="py-0">
-                                    <p><b>PLAZO EN MESES:</b>{{' '+loan.loan_term}}</p>
+                                    <p><b>PLAZO:</b>{{' '+loan.loan_term}}</p>
                                   </v-col>
                                   <v-col cols="12" md="4" v-show="qualification_edit" class="py-0" >
                                     <v-text-field
                                       dense
-                                      label="PLAZO EN MESES"
+                                      label="PLAZO"
                                       v-model="loan.loan_term"
                                       v-on:keyup.enter="simulator()"
                                       :outlined="true"

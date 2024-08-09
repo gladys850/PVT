@@ -3,6 +3,9 @@
     <ValidationObserver ref="observer">
       <v-form>
         <v-row justify="center">
+          <v-col cols="12">
+            <v-toolbar-title>INFORMACIÓN ADICIONAL DEL PRESTATARIO</v-toolbar-title>
+          </v-col>
           <v-col cols="12" md="6">
             <v-col cols="12">
               <v-toolbar-title>DOMICILIO</v-toolbar-title>

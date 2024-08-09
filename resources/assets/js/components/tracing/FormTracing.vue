@@ -96,7 +96,7 @@
                                 </v-col>
 
                                 <v-col class="py-0">
-                                  <p><b>PLAZO EN MESES:</b>{{' '+loan.loan_term}}</p>
+                                  <p><b>PLAZO:</b>{{' '+loan.loan_term}}</p>
                                 </v-col>
 
                                 <v-col cols="12" md="4" class="py-0">
