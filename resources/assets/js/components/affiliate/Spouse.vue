@@ -202,6 +202,47 @@
                   :disabled="(editable && !permission.secondary)"
                 ></v-select>
               </v-col>
+            <v-col cols="12" md="12">
+              <v-toolbar-title>INFORMACIÓN DE CONTACTO (Conyuge Anuente)</v-toolbar-title>
+            </v-col>
+              <v-col cols="12" md="6">
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="celular1"
+                  rules="min:11|max:11"
+                >
+                  <v-text-field
+                    :error-messages="errors"
+                    dense
+                    v-model="cel[0]"
+                    label="Celular1"
+                    :readonly="!editable || !permission.secondary"
+                    :outlined="editable && permission.secondary"
+                    :disabled="editable && !permission.secondary"
+                    @change="updateCelular()"
+                    v-mask="'(###)-#####'"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+              <v-col cols="12" md="6">
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  name="celular2"
+                  rules="min:11|max:11"
+                >
+                  <v-text-field
+                    :error-messages="errors"
+                    dense
+                    v-model="cel[1]"
+                    label="Celular2"
+                    :readonly="!editable || !permission.secondary"
+                    :outlined="editable && permission.secondary"
+                    :disabled="editable && !permission.secondary"
+                    @change="updateCelular()"
+                    v-mask="'(###)-#####'"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
             </v-row>
           </v-col>
           <v-col cols="12" md="3" class="v-card-profile" >
@@ -373,6 +414,7 @@ export default {
 
     },
     visible: false,
+    cel: [null, null],
   }),
   beforeMount() {
     this.getCities();
@@ -429,6 +471,31 @@ export default {
         this.visible = true;
       } else {
         this.visible = false;
+      }
+    },
+    updateCelular() {
+      let count = 0;
+      let val = 0;
+      if (this.cel[0]) {
+        if (this.cel[0].trim() !== "") {
+          this.cel[0] = this.cel[0].trim();
+          count++;
+          val = 0;
+        }
+      }
+      if (this.cel[1]) {
+        if (this.cel[1].trim() !== "") {
+          this.cel[1] = this.cel[1].trim();
+          count++;
+          val = 1;
+        }
+      }
+      if (count == 0) {
+        this.spouse.cell_phone_number = null;
+      } else if (count == 1) {
+        this.spouse.cell_phone_number = this.cel[val];
+      } else {
+        this.spouse.cell_phone_number = this.cel.join(",");
       }
     },
   },
