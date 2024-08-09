@@ -55,4 +55,16 @@ class Contribution extends Model
     {
         return $this->belongsTo(Breakdown::class,'breakdown_id','id');
     }
+    public function degree()
+    {
+        return $this->belongsTo(Degree::class,'degree_id','id');
+    }
+    public function category()
+    {
+        return $this->belongsTo(Category::class,'category_id','id');
+    }
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class,'unit_id','id');
+    }
 }
