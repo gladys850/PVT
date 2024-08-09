@@ -380,7 +380,7 @@ class LoanController extends Controller
     * @responseFile responses/loan/show.200.json
     */
     public function show(Loan $loan)
-    {
+    {   
         if (Auth::user()->can('show-all-loan') || Auth::user()->can('show-loan') || Auth::user()->can('show-payment-loan') || Auth::user()->roles()->whereHas('module', function($query) {
             return $query->whereName('prestamos');
         })->pluck('id')->contains($loan->role_id)) {
@@ -399,7 +399,7 @@ class LoanController extends Controller
             abort(403);
         }
     }
-
+    
     /**
     * Actualizar préstamo
     * Actualizar datos principales de préstamo
@@ -1100,7 +1100,12 @@ class LoanController extends Controller
             'file_title' => $file_title,
         ];
         $file_name = implode('_', ['contrato', $procedure_modality->shortened, $loan->code]) . '.pdf';
-        $modality_type = $procedure_modality->procedure_type->name;
+
+        if(str_contains($procedure_modality->procedure_type->name, 'Reprogramación')) 
+            $modality_type = 'Reprogramación';
+        else
+            $modality_type = $procedure_modality->procedure_type->name;
+        
         switch($modality_type){
             case 'Préstamo Anticipo':
                 $view_type = 'advance';
@@ -1123,10 +1128,11 @@ class LoanController extends Controller
             case 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana':
                 $view_type = 'seasonal';
                 break;
+            case 'Reprogramación':
+                $view_type = 'reprogramming';
+                break;
         }
         $information_loan= $this->get_information_loan($loan);
-        if($loan->parent_loan_id != null && $loan->parent_reason == "REPROGRAMACIÓN" || $loan->parent_loan_id ==null && $loan->parent_reason == "REPROGRAMACIÓN")
-        $view_type = 'reprogramming';
         $view = view()->make('loan.contracts.' . $view_type)->with($data)->render();
         if ($standalone) return Util::pdf_to_base64contract([$view], $file_name,$information_loan,$loan,'legal', $request->copies ?? 1);
         return $view;
@@ -1361,7 +1367,7 @@ class LoanController extends Controller
         $guarantors = $loan->borrowerguarantors;
         $hight_amount = false;
         if($loan->modality->loan_modality_parameter->max_approved_amount != null && $loan->amount_requested >= $loan->modality->loan_modality_parameter->max_approved_amount)
-        $hight_amount = true;
+            $hight_amount = true;
         $data = [
            'header' => [
                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
