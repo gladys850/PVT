@@ -235,7 +235,7 @@ class LoanBorrower extends Model
       if($contributions_type == "loan_contribution_adjusts")
       {
         $contribution_type = "loan_contribution_adjusts";
-        $liquid_ids= LoanContributionAdjust::where('loan_id',$this->loan_id)->where('type_adjust',"liquid")->get()->pluck('id');
+        $liquid_ids= LoanContributionAdjust::where('loan_id',$this->loan_id)->where('type_adjust',"liquid")->orwhere('type_adjust','last_eco_com')->get()->pluck('id');
         $adjust_ids= LoanContributionAdjust::where('loan_id',$this->loan_id)->where('type_adjust',"adjust")->get()->pluck('id');
         foreach($liquid_ids as $liquid_id)
         {
