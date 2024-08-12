@@ -9,7 +9,7 @@
         <v-card>
           <v-container class="py-0">
             <v-col class="text-center">
-              <h2 class="success--text">ESTA MODALIDAD NO NECESITA GARANTE</h2>
+              <h2 class="success--text">ESTA MODALIDAD NO REQUIERE GARANTÍA PERSONAL</h2>
             </v-col>
           </v-container>
         </v-card>
