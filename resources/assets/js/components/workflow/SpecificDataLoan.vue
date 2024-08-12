@@ -495,13 +495,14 @@
                             <v-col cols="12" class="mb-0 py-0">
                               <v-col cols="12" md="12" class="mb-0 py-0">
                                 <v-card-text class="pa-0 mb-0">
-                                  <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
-                                    <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo Anticipo'">
+                                  <div >
+                                    <v-col cols="12" md="12">
+                                    <ul style="list-style: none" class="pa-0" v-if="loan.modality.procedure_type.name== 'Préstamo a Largo Plazo' || loan.modality.procedure_type.name == 'Préstamo a Corto Plazo'|| loan.modality.procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || loan.modality.procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo' || loan.modality.procedure_type.name == 'Préstamo Anticipo'">
                                       <li v-for="(guarantor) in loan.borrowerguarantors" :key="guarantor.id">
                                         <v-col cols="12" md="12" class="pa-0 mb-0">
                                           <v-row class="pa-2">
                                             <v-col cols="12" md="12" class="py-0">
-                                              <p style="color:teal"><b>GARANTE
+                                              <p style="color:teal"><b>GARANTE {{loan.modality.procedure_type.name}}
                                                 <v-tooltip top v-if="permissionSimpleSelected.includes('show-affiliate')">
                                                   <template v-slot:activator="{ on }">
                                                     <v-btn
@@ -620,7 +621,8 @@
                                       <br>
                                       <p v-if="loan.guarantors.length==0" style="color:teal"><b> NO TIENE GARANTES </b></p>
                                     </ul>
-                                    <v-col cols="12" md="12" v-if="procedure_type.name == 'Préstamo Hipotecario' || procedure_type.name == 'Refinanciamiento Préstamo Hipotecario'">
+                                    </v-col>
+                                    <v-col cols="12" md="12" v-if="loan.modality.procedure_type.name == 'Préstamo Hipotecario' || loan.modality.procedure_type.name == 'Refinanciamiento Préstamo Hipotecario'">
                                       <p style="color:teal"><b>GARANTIA HIPOTECARIA </b></p>
                                       <v-tooltip >
                                         <template v-slot:activator="{ on }">
@@ -769,11 +771,29 @@
                                         ></v-text-field>
                                       </v-col>
                                     </v-row>
+                                    </v-col>
+                                    <v-col cols="12" md="12" v-if="loan.modality.procedure_type.second_name == 'Fondo de Retiro'">
+                                      <v-row>
+                                        <p style="color:teal"><b>GARANTIA DEL FONDO DE RETIRO POLICIAL SOLIDARIO</b> </p>
+                                        <v-progress-linear></v-progress-linear><br>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>TOTAL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO: </b>{{loan.retirement.average | moneyString}} </p>
+                                      </v-col>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>COBERTURA DEL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIOS: </b>{{loan.retirement.coverage | moneyString}} </p>
+                                      </v-col>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>PORCENTAJE CALCULADO: </b>{{loan.retirement.percentage * 100}} % </p>
+                                      </v-col>
+                                      </v-row>
+                                    </v-col>
+                                  <v-col>
+                                    <p style="color:teal"><b> NO TIENE GARANTES </b></p>
                                   </v-col>
-                                </div>
-                              </v-card-text>
+                                  </div>
+                                </v-card-text>
+                              </v-col>
                             </v-col>
-                          </v-col>
                           </v-card-text>
                         </v-card>
                       </v-tab-item>
