@@ -89,8 +89,8 @@ class ContributionController extends Controller
                     ['Hora', Carbon::now()->format('h:m:s a')]
                 ]
             ],
-            'title' => 'COMPROBANTE DE PAGO',
-            'subtitle' => '(SEGÚN IMPORTACIÓN DE PLANILLA DE HABERES - COMANDO GENERAL DE LA POLICÍA BOLIVIANA)',
+            'title' => 'COMPROBANTE DE BOLETA DE PAGO',
+            'subtitle' => 'SEGÚN IMPORTACIÓN PLANILLA DE HABERES - COMANDO GENERAL DE LA POLICÍA BOLIVIANA',
             'period' => $period,
             'affiliate' => $affiliate,
             'contribution' => $contribution
