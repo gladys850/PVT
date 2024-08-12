@@ -468,9 +468,7 @@ class UpdateNewReglament2024Part2 extends Seeder
                 'number' => 6,
             ]);
             ProcedureRequirement::where('id', 2007)->delete();
-            DB::table('procedure_requirements')->where('id', '1998')->update([
-                'number' => 6,
-            ]);
+            ProcedureRequirement::where('id', 1998)->delete();
             DB::table('procedure_requirements')->insert([
                 [
                     'procedure_modality_id' => 68,
@@ -484,7 +482,7 @@ class UpdateNewReglament2024Part2 extends Seeder
                 [
                     'procedure_modality_id' => 68,
                     'procedure_document_id' => 425,
-                    'number' => 2,
+                    'number' => 4,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
@@ -1637,7 +1635,7 @@ class UpdateNewReglament2024Part2 extends Seeder
                 [
                     'procedure_modality_id' => 45,
                     'procedure_document_id' => 425,
-                    'number' => 7,
+                    'number' => 4,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
