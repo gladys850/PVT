@@ -401,7 +401,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => true,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,        //Limite de endeudamiento del garante de 50 a 25
                 ],
                 [
@@ -498,7 +498,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => 50,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -595,7 +595,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => null,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -692,7 +692,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => null,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -716,7 +716,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
                 ],
                 //REPROGRAMACIÓN DEL REFINANCIAMIENTO CORTO PLAZO
@@ -741,7 +741,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -789,7 +789,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => null,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -813,7 +813,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
                 ],
                 //LARGO PLAZO
@@ -838,7 +838,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -862,7 +862,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -886,7 +886,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -910,7 +910,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -934,7 +934,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -958,7 +958,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 //REFINANCIAMIENTO LARGO PLAZO
@@ -983,7 +983,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1007,7 +1007,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1031,7 +1031,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1055,7 +1055,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1079,7 +1079,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 //REPROGRAMACIÓN LARGO PLAZO
@@ -1104,7 +1104,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1128,7 +1128,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1152,7 +1152,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1176,7 +1176,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1200,7 +1200,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 //REPROGRAMACIÓN DEL REFINANCIAMIENTO LARGO PLAZO
@@ -1225,7 +1225,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1249,7 +1249,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1273,7 +1273,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1297,7 +1297,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 [
@@ -1321,7 +1321,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => 80000,
-                    'guarantor_debt_index' => 25,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
                 //POR BENEFICIO DEL FONDO DE RETIRO
@@ -1443,7 +1443,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
-                    'guarantor_debt_index' => null,
+                    'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
                 ],
             ]);
