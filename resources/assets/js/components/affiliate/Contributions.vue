@@ -39,10 +39,25 @@
         {{ item.position_bonus | money }}
       </template>
       <template v-slot:[`item.public_security_bonus`]="{ item }">
-        {{ item.public_security_bonus | money }}
+        {{ (item.public_security_bonus != null ? item.public_security_bonus : 0.00) | money }}
       </template>
       <template v-slot:[`item.payable_liquid`]="{ item }">
         {{ item.payable_liquid || 0 | money }}
+      </template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-tooltip top>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              small
+              v-on="on"
+              color="primary"
+              @click.stop="printContribution(item.id)"
+              ><v-icon>mdi-printer</v-icon>
+            </v-btn>
+          </template>
+          <span>Ver información</span>
+        </v-tooltip>
       </template>
     </v-data-table>
   </div>
@@ -133,6 +148,13 @@ export default {
         sortable: false,
         width: "8%",
       },
+      {
+        text: "Acciones",
+        value: "actions",
+        class: ["normal", "white--text"],
+        sortable: false,
+        width: "8%"
+      }
     ],
     state: [],
     category: [],
@@ -147,25 +169,25 @@ export default {
         newVal.sortBy != oldVal.sortBy ||
         newVal.sortDesc != oldVal.sortDesc
       ) {
-        this.getContributions();
+        this.getContributionsAffiliate();
       }
     },
     search: function (newVal, oldVal) {
       if (newVal != oldVal) {
         this.options.page = 1;
-        this.getContributions();
+        this.getContributionsAffiliate();
       }
     },
   },
   mounted() {
-    this.getContributions();
+    this.getContributionsAffiliate();
     this.getCategory();
     this.getDegree();
     this.getUnit();
     //this.getAffiliateState()
   },
   methods: {
-    async getContributions(params) {
+    async getContributionsAffiliate() {
       try {
         this.loading = true;
         let res = await axios.get(
@@ -191,6 +213,20 @@ export default {
         console.log(e);
       } finally {
         this.loading = false;
+      }
+    },
+    async printContribution(contribution_id) {
+      try {
+          let res = await axios.get(`contribution/${contribution_id}/print/contribution`)
+            printJS({
+              printable: res.data.content,
+              type: res.data.type,
+              file_name: res.data.file_name,
+              base64: true
+            })
+      } catch (e) {
+        this.toastr.error("Ocurrió un error en la impresión.")
+        console.log(e)
       }
     },
     async getCategory(id) {
