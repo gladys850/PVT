@@ -12,7 +12,7 @@
     <div class="block">
         
         <div class="font-semibold leading-tight text-center m-b-5 text-2xl"> {{ $title }} </div>
-        <div class="font-semibold leading-tight text-center m-b-5"> {{ $subtitle }} </div>
+        <div class="font-semibold leading-tight text-center m-b-5 text-xs"> {{ $subtitle }} </div>
         <br>
         <div class="font-semibold leading-tight text-center m-b-5 text-xl"> Periodo: {{ $period }} </div>
         <br>
