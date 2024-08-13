@@ -1418,7 +1418,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'print_receipt_fund_rotary' => false,
                     'print_form_qualification_platform' => false,
                     'loan_procedure_id' => 3,
-                    'max_approved_amount' => null,
+                    'max_approved_amount' => 80000,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 6,
                 ],
