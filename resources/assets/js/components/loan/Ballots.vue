@@ -50,7 +50,7 @@
                             </v-col>
                           </v-row>
                         </v-col> 
-                        <template v-if="loan_modality.procedure_type.second_name === 'Fondo de Retiro'">
+                        <template v-if="loan_modality.id === 93 || loan_modality.id === 94">
                           <v-col cols="12" md="2" class="py-0 my-0 text-center">
                             <strong>FONDO DE RETIRO (Promedio Bs.)</strong><br>
                             <span v-if="affiliate.retirement_fund_average">{{ affiliate.retirement_fund_average.retirement_fund_average | money }}</span>
@@ -67,10 +67,6 @@
                           <strong>PLAZO</strong><br>
                           {{ plazo }}
                         </v-col>
-                        <!-- <v-btn
-                        @click.stop="getSemesterDate(fec)"
-                        >
-                        </v-btn> -->
                       </v-row>
                     </v-container>
                   </v-col>
@@ -296,12 +292,7 @@ export default {
     //hipotecario:false,
     //window_size:4,
     //see_field:false,
-    loan_modality: {
-      procedure_type:
-        {
-          second_name:null
-        }
-    },
+    loan_modality: {},
     data_ballots: [],
     contribution: [],
     choose_diff_month: false,
@@ -435,6 +426,7 @@ export default {
       try {
         this.choose_diff_month = false
         this.number_diff_month = 1
+        this.loan_modality.id = 0
         let resp =await axios.get(`affiliate_loan_modality/${id}/${this.loanTypeSelected.id}`)
         if(resp.data ==''){
           this.loan_detail.not_exist_modality = true
@@ -445,6 +437,7 @@ export default {
         }else{
           this.submodalities = resp.data
           this.loan_detail.not_exist_modality = false
+          this.modalidad.id = this.loan_modality.id
           if(this.submodalities.length == 1){//si se obtiene una sola modalidad
             this.loan_modality = resp.data[0]
             this.onchangeSubmodality()

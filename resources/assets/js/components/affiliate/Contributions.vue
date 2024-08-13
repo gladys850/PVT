@@ -56,7 +56,7 @@
               ><v-icon>mdi-printer</v-icon>
             </v-btn>
           </template>
-          <span>Ver información</span>
+          <span>Imprimir comprobante de pago</span>
         </v-tooltip>
       </template>
     </v-data-table>
