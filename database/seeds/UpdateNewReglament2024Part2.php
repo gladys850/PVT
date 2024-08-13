@@ -3697,7 +3697,7 @@ class UpdateNewReglament2024Part2 extends Seeder
                 [
                     'procedure_modality_id' => 95,
                     'procedure_document_id' => 418,
-                    'number' => 6,
+                    'number' => 7,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
