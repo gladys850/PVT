@@ -133,7 +133,7 @@ class UpdateNewReglament2024Part1 extends Seeder
             //Largo Plazo con un Solo Garante Sector Activo  -->  Con Pago Oportuno
             DB::table('procedure_modalities')->where('id', '46')->update([
                 'name' => 'Largo Plazo con Pago Oportuno',
-                'shortened' => 'LAR-PO'
+                'shortened' => 'LAR-PO',
             ]);
             //Largo Plazo con Garantía Personal en Disponibilidad  -->  Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
             DB::table('procedure_modalities')->where('id', '65')->update([
@@ -146,7 +146,7 @@ class UpdateNewReglament2024Part1 extends Seeder
             //Refinanciamiento Largo Plazo con un Solo Garante Sector Activo  -->  Refinanciamiento Con Pago Oportuno
             DB::table('procedure_modalities')->where('id', '50')->update([
                 'name' => 'Refinanciamiento Largo Plazo con Pago Oportuno',
-                'shortened' => 'REF-LAR-PO'
+                'shortened' => 'REF-LAR-PO',
             ]);
 
             //CREACIÓN NUEVOS
