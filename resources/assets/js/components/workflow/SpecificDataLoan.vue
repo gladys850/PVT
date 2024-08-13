@@ -502,7 +502,7 @@
                                         <v-col cols="12" md="12" class="pa-0 mb-0">
                                           <v-row class="pa-2">
                                             <v-col cols="12" md="12" class="py-0">
-                                              <p style="color:teal"><b>GARANTE {{loan.modality.procedure_type.name}}
+                                              <p style="color:teal"><b>GARANTE
                                                 <v-tooltip top v-if="permissionSimpleSelected.includes('show-affiliate')">
                                                   <template v-slot:activator="{ on }">
                                                     <v-btn
@@ -787,9 +787,6 @@
                                       </v-col>
                                       </v-row>
                                     </v-col>
-                                  <v-col>
-                                    <p style="color:teal"><b> NO TIENE GARANTES </b></p>
-                                  </v-col>
                                   </div>
                                 </v-card-text>
                               </v-col>
