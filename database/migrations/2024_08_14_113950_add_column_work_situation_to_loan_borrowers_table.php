@@ -14,7 +14,7 @@ class AddColumnWorkSituationToLoanBorrowersTable extends Migration
     public function up()
     {
         Schema::table('loan_borrowers', function (Blueprint $table) {
-            $table->string('work_situation')->nullable();
+            $table->string('availability_info')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddColumnWorkSituationToLoanBorrowersTable extends Migration
     public function down()
     {
         Schema::table('loan_borrowers', function (Blueprint $table) {
-            $table->dropColumn('work_situation');
+            $table->dropColumn('availability_info');
         });
     }
 }

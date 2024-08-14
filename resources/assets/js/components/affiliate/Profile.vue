@@ -416,14 +416,14 @@
               <v-col cols="12" md="12">
                 <ValidationProvider
                   v-slot="{ errors }"
-                  vid="work_situation"
-                  name="Situación Laboral"
+                  vid="availability_info"
+                  name="Información de Disponibilidad"
                 >
                   <v-text-field
                     :error-messages="errors"
                     dense
-                    v-model="affiliate.work_situation"
-                    label="Situación Laboral"
+                    v-model="affiliate.availability_info"
+                    label="Información de Disponibilidad"
                     :readonly="!editable || !permission.secondary"
                     :outlined="editable && permission.secondary"
                     :disabled="editable && !permission.secondary"

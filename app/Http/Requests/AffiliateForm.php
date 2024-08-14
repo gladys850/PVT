@@ -48,7 +48,7 @@ class AffiliateForm extends FormRequest
             'service_years' => 'nullable|integer|min:0',
             'service_months' => 'nullable|integer|min:0|max:11',
             'unit_police_description' =>'nullable|min:3',
-            'work_situation' => 'nullable|min:3'
+            'availability_info' => 'nullable|min:3'
         ];
         switch ($this->method()) {
             case 'POST': {

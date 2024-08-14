@@ -65,7 +65,7 @@ class Affiliate extends Model
         'sigep_status',
         'unit_police_description',
         'user_id',
-        'work_situation'
+        'availability_info'
       ];
 
     public function getTitleAttribute()
