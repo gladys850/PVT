@@ -65,9 +65,8 @@
         fiscal de la MUSERPOL. Caso contrario el PRESTATARIO se hará pasible al recargo 
         correspondiente a los intereses que se generen al día de pago por la deuda contraída.
         <br>
-        Asimismo, el PRESTATARIO se compromete hacer conocer oportunamente a la MUSERPOL sobre la omisión del descuento mensual que se hubiera dado a efectos de 
-        solicitar al Comando General de la Policía Boliviana se regularice este descuento, sin perjuicio que realice el depósito directo del mes omitido, de acuerdo 
-        a lo estipulado en el párrafo precedente.
+        Asimismo, el PRESTATARIO se compromete hacer conocer oportunamente a la MUSERPOL sobre la omisión del descuento mensual que se hubiera dado, sin perjuicio 
+        que realice el depósito directo del mes omitido, de acuerdo a lo estipulado en el párrafo precedente.
     </div>
     <div>
         <b>SÉPTIMA.- (DERECHOS DEL PRESTATARIO):</b> Conforme al Artículo 10 del Reglamento de Préstamos las partes reconocen expresamente como derechos del 
