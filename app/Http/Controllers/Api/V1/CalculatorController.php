@@ -515,7 +515,8 @@ class CalculatorController extends Controller
                 "indebtnes_calculated" => Util::round($total_debt_index),
                 "quota_calculated" => Util::round2($quota_calculated),
                 'payment_percentage' => Util::round2(100/$quantity_guarantors),
-                "is_valid" => $total_debt_index > $debt_index ? false : true,
+                //"is_valid" => $total_debt_index > $debt_index ? false : true,
+                "is_valid" => true, // solo por la modificacion de reglamento 2024
                 "liquid_rest" => Util::round2($liquid_rest)
             );
             return $response;
