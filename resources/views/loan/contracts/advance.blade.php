@@ -99,8 +99,7 @@
             </div>
             <div>
             Asimismo, el PRESTATARIO se compromete hacer conocer oportunamente a la MUSERPOL sobre la omisión del descuento mensual que se 
-            hubiera dado a efectos de solicitar al {{ $discount_entity }} se regularice este descuento, sin perjuicio que realice el depósito 
-            directo del mes omitido, de acuerdo a lo estipulado en el párrafo precedente.
+            hubiera dado, sin perjuicio que realice el depósito directo del mes omitido, de acuerdo a lo estipulado en el párrafo precedente.
             </div>
         @endif
     </div>
@@ -126,7 +125,7 @@
         <ol type="a" style="margin:0;">
             <li>Proporcionar información y documentación veraz y legítima para la correcta tramitación del préstamo.</li>
             <li>Cumplir con los requisitos, condiciones y lineamientos del préstamo.</li>
-            <li>Cumplir con el Contrato de Préstamo suscrito entre la MUSERPOL y el afiliado.</li>
+            <li>Cumplir con el Contrato de Préstamo suscrito entre la MUSERPOL y el Prestatario.</li>
             <li>
                 Amortizar mensualmente y/o semestralmente la deuda contraída con la MUSERPOL, hasta cubrir el capital adeudado además de los intereses 
                 correspondientes según contrato de préstamo suscrito.
@@ -147,7 +146,7 @@
                     {{ $guarantor->gender == 'M' ? 'el Sr.' : 'la Sra' }} {{ $guarantor->full_name }}, con C.I. {{ $guarantor->identity_card }}, 
                     {{ $guarantor->civil_status_gender }}, mayor de edad, hábil por derecho, natural de {{ $guarantor->city_birth->name }}, 
                     vecin{{ Util::male_female($guarantor->gender) }} de {{ $guarantor->address->cityName() }} y con domicilio en {{ $guarantor->address->full_address }}, 
-                    quien en amparo del artículo 16 del Reglamento de Préstamos de la MUSERPOL garantiza el cumplimiento de la obligación y en caso 
+                    quien en amparo del artículo 17 del Reglamento de Préstamos de la MUSERPOL garantiza el cumplimiento de la obligación y en caso 
                     que el PRESTATARIO, incumpliera con el pago de sus obligaciones o se constituyera en mora al incumplimiento de una o más cuotas 
                     de amortización, autoriza el descuento mensual de sus haberes en su calidad de GARANTE, bajo las mismas condiciones en las que 
                     procedería a descontar al PRESTATARIO hasta cubrir el pago total de la obligación pendiente de cumplimiento. Excluyendo a la MUSERPOL 
