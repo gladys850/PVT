@@ -126,7 +126,7 @@
             el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual mediante pago directo en la oficina central de 
             la MUSERPOL de la ciudad de La Paz o efectuar el depósito en la cuenta fiscal de la MUSERPOL. Caso contrario el PRESTATARIO se hará 
             pasible al recargo correspondiente a los intereses que se generen al día de pago por la deuda contraída y consecuentemente se 
-            procedera al descuento del garante personal incluidos los intereses penales pasados los 30 dias de incumplimiento sin necesidad de previo aviso.
+            procedera al descuento del garante personal incluidos los intereses penales una vez transcurrido dos cuotas impagas, sin necesidad de previo aviso.
         @else
             @php
                 if($modality_name == 'Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR'){
@@ -148,8 +148,8 @@
             </div>
             <div>
                 Asimismo, el PRESTATARIO se compromete a hacer conocer oportunamente a la MUSERPOL sobre la omisión del descuento mensual que 
-                se hubiera dado a efectos de solicitar al {{ $septima }} regularice este descuento sin perjuicio que realice el depósito 
-                directo del mes omitido de acuerdo a lo estipulado en el párrafo precedente. Caso contrario se procedera al descuento 
+                se hubiera dado, sin perjuicio que realice el depósito directo del mes omitido de acuerdo a lo estipulado en el párrafo 
+                precedente. Caso contrario se procedera al descuento 
                 {{count($guarantors)>1 ? 'a los garantes personales':'del garante personal'}} incluido los intereses penales una vez 
                 transcurrido dos cuotas impagas sin necesidad de previo aviso.
             </div>
@@ -164,7 +164,7 @@
             <li>
                 Recibir buena atención, trato equitativo y digno por parte de los funcionarios de la MUSERPOL sin discriminación de 
                 ninguna naturaleza, asimismo recibir información y orientación precisa, comprensible, oportuna y accesible con 
-                relación a requisitos, características y condiciones del préstamo con calidad y calidez.
+                relación a requisitos, características y condiciones del préstamo.
             </li>
             <li>
                 A la confidencialidad, información detallada y precisa concerniente a los préstamos bajo su titularidad en el 
@@ -179,10 +179,10 @@
         <ol type="a" style="margin:0;">
             <li>Proporcionar información y documentación veraz y legítima para la correcta tramitación del préstamo.</li>
             <li>Cumplir con los requisitos, condiciones y lineamientos del préstamo.</li>
-            <li>Cumplir con el contrato de préstamo suscrito entre la MUSERPOL y el afiliado.</li>
+            <li>Cumplir con el contrato de préstamo suscrito entre la MUSERPOL y el Prestatario.</li>
             <li>
                 Amortizar mensualmente y/o semestralmente la deuda contraída con la MUSERPOL, hasta cubrir el capital adeudado y los intereses 
-                correspondientes Según contrato de préstamo suscrito.
+                correspondientes según contrato de préstamo suscrito.
             </li>
         </ol>
     </div>
@@ -285,7 +285,7 @@
             {{ count($guarantors) > 1 ? 'Los GARANTES están facultados' : 'El GARANTE esta facultado' }} a realizar el 
             trámite de recuperación de los montos que se le hubieran sido descontados en función a la obligación objeto 
             del presente contrato pudiendo recaer sobre él Beneficio de Fondo de Retiro Policial Solidario otorgado por 
-            la MUSERPOL y reconocidos al PRESTATARIO, conforme al artículo 64 del Reglamento de Préstamos.
+            la MUSERPOL y reconocidos al PRESTATARIO, conforme al artículo 70 del Reglamento de Préstamos.
             </div>
         @endif
     <div>
@@ -462,10 +462,10 @@
                 <b>SEXTA.- (DE LA FORMA DE PAGO Y OTRAS CONTINGENCIAS):</b> Para el cumplimiento estricto de la obligación 
                 (capital e intereses) el PRESTATARIO, se obliga a cumplir con la cuota de amortización en forma mensual 
                 mediante pago directo en la oﬁcina central de la MUSERPOL de la ciudad de La Paz o efectuar el depósito 
-                en la cuenta fiscal de la MUSERPOL y enviar la boleta de depósito original a la oﬁcina central inmediatamente; 
-                caso contrario el PRESTATARIO se hará pasible al recargo correspondiente a los intereses que se generen 
-                al día de pago por la deuda contraída y consecuentemente se procederá al descuento al garante personal 
-                incluido los intereses penales pasados los 30 días de incumplimiento sin necesidad de previo aviso.
+                en la cuenta fiscal de la MUSERPOL. Caso contrario el PRESTATARIO se hará pasible al recargo correspondiente 
+                a los intereses que se generen al día de pago por la deuda contraída y consecuentemente se procederá al 
+                descuento al garante personal incluido los intereses penales una vez transcurrido dos cuotas impagas, 
+                sin necesidad de previo aviso.
         @else
             @php  
                 if($modality_name == 'Largo Plazo con Garantía Personal Sector Pasivo SENASIR'){
@@ -488,8 +488,7 @@
             </div>
             <div>
                 Asimismo, el PRESTATARIO se compromete hacer conocer oportunamente a la MUSERPOL sobre la omisión del descuento 
-                mensual que se hubiera dado a efectos de solicitar al {{ $sexta }} regularice este descuento, sin perjuicio 
-                que realice el depósito directo del mes omitido, de acuerdo a lo estipulado en el párrafo precedente. 
+                mensual que se hubiera dado, sin perjuicio que realice el depósito directo del mes omitido, de acuerdo a lo estipulado en el párrafo precedente. 
                 Caso contrario se procedera al descuento {{ count($guarantors) > 1 ? 'de los garantes personales' : 'del garante personal' }} 
                 incluido los intereses penales una vez transcurrido dos cuotas impagas, sin necesidad de previo aviso.
             </div>   
@@ -521,7 +520,7 @@
         <ol type="a" style="margin:0;">
             <li>Proporcionar información y documentación veraz y legítima para la correcta tramitación del préstamo.</li>
             <li>Cumplir con los requisitos, condiciones y lineamientos del préstamo.</li>
-            <li>Cumplir con el Contrato de Préstamo suscrito entre la MUSERPOL y el afiliado.</li>
+            <li>Cumplir con el Contrato de Préstamo suscrito entre la MUSERPOL y el Prestatario.</li>
             <li>
                 Amortizar mensualmente y/o semestralmente la deuda contraída con la MUSERPOL, hasta cubrir el capital adeudado y los intereses 
                 correspondientes según contrato de préstamo suscrito.
@@ -637,7 +636,7 @@
                 {{ count($guarantors) > 1 ? 'Los GARANTES están facultados' : 'El GARANTE esta facultado' }} a 
                 realizar el trámite de recuperación de los montos que se le hubieran sido descontados en función 
                 a la obligación objeto del presente contrato pudiendo recaer sobre él Beneficio de Fondo de Retiro 
-                Policial Solidario otorgado por la MUSERPOL y reconocidos al PRESTATARIO, conforme al artículo 64 
+                Policial Solidario otorgado por la MUSERPOL y reconocidos al PRESTATARIO, conforme al artículo 70 
                 del Reglamento de Préstamos.
             </div>
         @endif
