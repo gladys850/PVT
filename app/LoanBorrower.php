@@ -45,7 +45,8 @@ class LoanBorrower extends Model
         'liquid_qualification_calculated',
         'contributionable_ids',
         'contributionable_type',
-        'type'
+        'type',
+        'work_situation'
       ];
 
     public function getFullNameAttribute()

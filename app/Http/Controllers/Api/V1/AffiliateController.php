@@ -278,6 +278,7 @@ class AffiliateController extends Controller
                         $request->has('gender') ? $borrower->gender = $request['gender']:'';
                         $borrower->civil_status = $request['civil_status'];
                         $borrower->pension_entity_id = $request['pension_entity_id'];
+                        $borrower->work_situation = $request['work_situation'];
                     }
                     $loan->number_payment_type = $request['account_number'];
                     $loan->save();
