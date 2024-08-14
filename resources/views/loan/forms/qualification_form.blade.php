@@ -300,10 +300,12 @@
                 <td class="w-50 text-left px-10">LÍQUIDO PARA CALIFICACIÓN</td>
                 <td class="w-50 text-left px-10">{{ Util::money_format($guarantor->liquid_qualification_calculated) }}</td> 
             </tr>
+            {{-- Agregar en caso se requiera denuevo, porcentaje del monto de pago segun la cantidad de garantes de la modalidad
             <tr class="w-100">
                 <td class="w-50 text-left px-10">PORCENTAJE DE PAGO</td>
                 <td class="w-50 text-left px-10">{{ $guarantor->payment_percentage }} %</td> 
             </tr>
+            --}}
         </table>
         @endforeach
     </div>
