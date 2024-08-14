@@ -787,7 +787,7 @@ class LoanController extends Controller
                     'contributionable_type' => $affiliate['contributionable_type'],
                     'contributionable_ids' => json_encode($affiliate['contributionable_ids']),
                     'type' => $affiliate_lender->dead ? 'spouses':'affiliates',
-                    'work_situation' => $affiliate->work_situation,
+                    'availability_info' => $affiliate_lender->availability_info,
                 ]);
                 $loan_borrower->save();
                 if(array_key_exists('loan_contributions_adjust_ids', $affiliate)){

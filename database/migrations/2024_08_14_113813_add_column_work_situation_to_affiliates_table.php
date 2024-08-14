@@ -14,7 +14,7 @@ class AddColumnWorkSituationToAffiliatesTable extends Migration
     public function up()
     {
         Schema::table('affiliates', function (Blueprint $table) {
-            $table->string('work_situation')->nullable();
+            $table->string('availability_info')->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddColumnWorkSituationToAffiliatesTable extends Migration
     public function down()
     {
         Schema::table('affiliates', function (Blueprint $table) {
-            $table->dropColumn('work_situation');
+            $table->dropColumn('availability_info');
         });
     }
 }
