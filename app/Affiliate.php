@@ -64,7 +64,8 @@ class Affiliate extends Model
         'financial_entity_id',
         'sigep_status',
         'unit_police_description',
-        'user_id'
+        'user_id',
+        'work_situation'
       ];
 
     public function getTitleAttribute()
