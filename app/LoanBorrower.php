@@ -261,11 +261,14 @@ class LoanBorrower extends Model
                         ]); 
           $sum_payable_liquid = $sum_payable_liquid + $ballot->amount;
           $sum_mount_adjust = $sum_mount_adjust + $mount_adjust; 
-        }            
-        $average_ballot_adjust->push([
-                        'average_payable_liquid' => $sum_payable_liquid/$count_records,
-                        'average_mount_adjust' => $sum_mount_adjust/$count_records,
-                    ]);         
+        }
+        if($count_records > 0)
+        {
+            $average_ballot_adjust->push([
+                'average_payable_liquid' => $sum_payable_liquid/$count_records,
+                'average_mount_adjust' => $sum_mount_adjust/$count_records,
+            ]);         
+        }
       }       
       $data = [
             'contribution_type' =>$contribution_type,
