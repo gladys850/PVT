@@ -139,24 +139,6 @@
                     ></v-text-field>
                   </ValidationProvider>
                 </v-col>
-                <v-col cols="12" md="4">
-                  <ValidationProvider
-                    v-slot="{ errors }"
-                    vid="registration"
-                    name="matrícula"
-                    rules="required|alpha_dash|min:5|max:15"
-                  >
-                    <v-text-field
-                      :error-messages="errors"
-                      dense
-                      v-model="affiliate.registration"
-                      label="Matrícula"
-                      :readonly="!editable || !permission.primary"
-                      :outlined="editable && permission.primary"
-                      :disabled="editable && !permission.primary"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-col>
                 <v-col
                   cols="12"
                   md="5"

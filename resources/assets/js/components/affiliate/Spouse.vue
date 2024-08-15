@@ -113,25 +113,6 @@
                   ></v-text-field>
                 </ValidationProvider>
               </v-col>
-              <v-col cols="12" md="4">
-                <ValidationProvider
-                  v-slot="{ errors }"
-                  vid="identity_card"
-                  name="matrícula"
-                  rules="min:1|max:50"
-                >
-                  <v-text-field
-                    :error-messages="errors"
-                    dense
-                    v-model="spouse.registration"
-                    class="purple-input"
-                    label="Matrícula"
-                    :readonly="!editable || !permission.secondary"
-                    :outlined="editable && permission.secondary"
-                    :disabled="(editable && !permission.secondary)"
-                  ></v-text-field>
-                </ValidationProvider>
-              </v-col>
               <v-col
                 cols="12"
                 md="4"
