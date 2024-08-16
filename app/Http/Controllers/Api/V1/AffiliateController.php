@@ -1644,6 +1644,8 @@ class AffiliateController extends Controller
                     "quota_loan" => $loan->estimated_quota,
                     "state" => $loan->state->name,
                     "type" => "PVT",
+                    "eval_quota" => $loan->borrowerguarantors->where('affiliate_id',$affiliate->id)->first()->eval_quota,
+                    "modality" => $loan->modality->name
                 );
                 array_push($data, $loans_pvt);
             }
@@ -1658,6 +1660,8 @@ class AffiliateController extends Controller
                 "quota_loan" => $loan->PresCuotaMensual,
                 "state" => $loan->PresEstPtmo == "V" ? "Vigente" : "Pendiente",
                 "type" => "SISMU",
+                "eval_quota" => Util::round2($loan->PresCuotaMensual / $loan->quantity_guarantors),
+                "modality" => $loan->PrdDsc
             );
             array_push($data, $loans_pvt);
         }
