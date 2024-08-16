@@ -44,7 +44,7 @@
       <template v-slot:[`item.payable_liquid`]="{ item }">
         {{ item.payable_liquid || 0 | money }}
       </template>
-      <!-- <template v-slot:[`item.actions`]="{ item }">
+      <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip top>
           <template v-slot:activator="{ on }">
             <v-btn
@@ -58,7 +58,7 @@
           </template>
           <span>Imprimir comprobante de pago</span>
         </v-tooltip>
-      </template> -->
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -148,13 +148,13 @@ export default {
         sortable: false,
         width: "8%",
       },
-      // {
-      //   text: "Acciones",
-      //   value: "actions",
-      //   class: ["normal", "white--text"],
-      //   sortable: false,
-      //   width: "8%"
-      // }
+      {
+        text: "Acciones",
+        value: "actions",
+        class: ["normal", "white--text"],
+        sortable: false,
+        width: "8%"
+      }
     ],
     state: [],
     category: [],
