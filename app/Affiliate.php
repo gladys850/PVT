@@ -484,11 +484,12 @@ class Affiliate extends Model
    }
 
    public function active_guarantees_sismu(){
-    $query = "SELECT Prestamos.IdPrestamo as IdPrestamo, trim(p2.PadNombres) as PadNombres, trim(p2.PadPaterno) as PadPaterno, trim(p2.PadMaterno) as PadMaterno, trim(p2.PadApellidoCasada) as PadApellidoCasada, Prestamos.IdPrestamo, Prestamos.PresNumero, Prestamos.IdPadron, Prestamos.PresCuotaMensual, Prestamos.PresEstPtmo, Prestamos.PresMeses, Prestamos.PresFechaDesembolso, Prestamos.PresFechaPrestamo, Prestamos.PresSaldoAct, Prestamos.PresMntDesembolso
+    $query = "SELECT Prestamos.IdPrestamo as IdPrestamo, trim(p2.PadNombres) as PadNombres, trim(p2.PadPaterno) as PadPaterno, trim(p2.PadMaterno) as PadMaterno, trim(p2.PadApellidoCasada) as PadApellidoCasada, Prestamos.IdPrestamo, Prestamos.PresNumero, Prestamos.IdPadron, Prestamos.PresCuotaMensual, Prestamos.PresEstPtmo, Prestamos.PresMeses, Prestamos.PresFechaDesembolso, Prestamos.PresFechaPrestamo, Prestamos.PresSaldoAct, Prestamos.PresMntDesembolso, p3.PrdDsc
     FROM Padron
     join PrestamosLevel1 on PrestamosLevel1.IdPadronGar = Padron.IdPadron
     join Prestamos on PrestamosLevel1.IdPrestamo = prestamos.IdPrestamo
     join Padron p2 on p2.IdPadron = Prestamos.IdPadron
+    join Producto p3 on p3.PrdCod = Prestamos.PrdCod
     where Padron.PadCedulaIdentidad = '$this->identity_card'
     and Prestamos.PresEstPtmo = 'V'";
     $loans = DB::connection('sqlsrv')->select($query);
