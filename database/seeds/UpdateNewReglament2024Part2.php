@@ -250,6 +250,12 @@ class UpdateNewReglament2024Part2 extends Seeder
             ProcedureRequirement::where('procedure_document_id', 279)->delete();
             //Certificado de aportes para el Auxilio Mortuorio de los 3 últimos meses.
             ProcedureRequirement::where('procedure_document_id', 284)->delete();
+            DB::table('procedure_requirements')->where('id', '1630')->update([
+                'deleted_at' => null,
+            ]);
+            DB::table('procedure_requirements')->where('id', '1634')->update([
+                'deleted_at' => null,
+            ]);
             //Memorándum de asignación a la letra en copia simple.
             ProcedureRequirement::where('procedure_document_id', 280)->delete();
             //ACTUALIZACION DE NOMBRE DE DOCUMENTOS "en copia simple" al final.

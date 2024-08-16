@@ -357,6 +357,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 33,      //33	9	Anticipo en Disponibilidad
@@ -381,6 +382,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 67,      //67	9	Anticipo Sector Pasivo Gestora Pública
@@ -404,7 +406,8 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'loan_procedure_id' => 3,
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => 30,
-                    'loan_month_term' => 1,        //Limite de endeudamiento del garante de 50 a 25
+                    'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 35,      //35	9	Anticipo Sector Pasivo SENASIR
@@ -429,6 +432,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 //CORTO PLAZO
                 [
@@ -454,6 +458,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 37,      //37	10	Corto Plazo en Disponibilidad
@@ -478,6 +483,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 68,      //68	10	Corto Plazo Sector Pasivo Gestora Pública
@@ -502,6 +508,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 39,      //39	10	Corto Plazo Sector Pasivo SENASIR
@@ -526,6 +533,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null, 
                 ],
                 //REFINANCIAMIENTO CORTO PLAZO
                 [
@@ -551,6 +559,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 66,      //66	11	Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
@@ -575,6 +584,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 69,      //69	11	Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública
@@ -599,6 +609,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 42,      //42	11	Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR
@@ -623,6 +634,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => 25,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 //REPROGRAMACIÓN CORTO PLAZO
                 [
@@ -648,6 +660,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 74,      //74	24	Reprogramación Corto Plazo en Disponibilidad
@@ -672,6 +685,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 75,      //75	24	Reprogramación Corto Plazo Sector Pasivo Gestora Pública
@@ -696,6 +710,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 76,      //76	24	Reprogramación Corto Plazo Sector Pasivo SENASIR
@@ -720,6 +735,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 //REPROGRAMACIÓN DEL REFINANCIAMIENTO CORTO PLAZO
                 [
@@ -745,6 +761,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 78,      //78	25	Reprogramación del Refinanciamiento Corto Plazo en Disponibilidad
@@ -769,6 +786,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 79,      //79	25	Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo Gestora Pública
@@ -793,6 +811,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 80,      //80	25	Reprogramación del Refinanciamiento Corto Plazo Sector Pasivo SENASIR
@@ -817,6 +836,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 //LARGO PLAZO
                 [
@@ -842,6 +862,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 43,      //43	12	Largo Plazo con Garantía Personal Sector Activo con dos Garantes
@@ -866,6 +887,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 46,      //46	12	Con Pago Oportuno
@@ -890,6 +912,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 70,      // 70	12	Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
@@ -914,6 +937,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 45,      // 45	12	Largo Plazo con Garantía Personal Sector Pasivo SENASIR
@@ -938,6 +962,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 65,      // 65	12	Largo Plazo con Garantía Personal en Disponibilidad con dos garantes
@@ -962,6 +987,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 //REFINANCIAMIENTO LARGO PLAZO
                 [
@@ -987,6 +1013,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 47,      // 47	13	Refinanciamiento Largo Plazo con Garantía Personal Sector Activo con dos Garantes
@@ -1011,6 +1038,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 50,      // 50	13	Refinanciamiento Con Pago Oportuno
@@ -1035,6 +1063,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 71,      // 71	13	Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo Gestora Pública
@@ -1059,6 +1088,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 49,      // 49	13	Refinanciamiento de Préstamo a Largo Plazo Sector Pasivo SENASIR
@@ -1083,6 +1113,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 //REPROGRAMACIÓN LARGO PLAZO
                 [
@@ -1108,6 +1139,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 84,      // 84	26	Reprogramación Largo Plazo con Garantía Personal Sector Activo con dos Garantes
@@ -1132,6 +1164,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 85,      //85	26	Reprogramación Con Pago Oportuno
@@ -1156,6 +1189,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 86,      // 86	26	Reprogramación Largo Plazo Sector Pasivo Gestora Pública
@@ -1180,6 +1214,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 87,      // 87	26	Reprogramación Largo Plazo Sector Pasivo SENASIR
@@ -1204,6 +1239,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 //REPROGRAMACIÓN DEL REFINANCIAMIENTO LARGO PLAZO
                 [
@@ -1229,6 +1265,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 89,      // 89	27	Reprogramación del Refinanciamiento Largo Plazo Sector Activo con dos Garantes
@@ -1253,6 +1290,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 90,      // 90	27	Reprogramación del Refinanciamiento Con Pago Oportuno
@@ -1277,6 +1315,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 91,      // 91	27	Reprogramación del Refinanciamiento Largo Plazo Sector Pasivo Gestora Pública
@@ -1301,6 +1340,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 [
                     'procedure_modality_id' => 92,      // 92	27	Reprogramación del Refinanciamiento Largo Plazo Sector Pasivo SENASIR
@@ -1325,6 +1365,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
                 //POR BENEFICIO DEL FONDO DE RETIRO
                 [
@@ -1350,6 +1391,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 94,      // 94	28	Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor
@@ -1374,6 +1416,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 1,
+                    'eval_percentage' => null,
                 ],
                 //ESTACIONAL  
                 [
@@ -1399,6 +1442,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 6,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 96,      // 96	29	Préstamo Estacional para el Sector Pasivo de la Policía Boliviana
@@ -1423,6 +1467,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => 80000,
                     'guarantor_debt_index' => null,
                     'loan_month_term' => 6,
+                    'eval_percentage' => null,
                 ],
                 [
                     'procedure_modality_id' => 97,      // 97	12	Largo Plazo con Garantía Personal en Disponibilidad con un Garante
@@ -1447,6 +1492,7 @@ class UpdateNewReglament2024Part1 extends Seeder
                     'max_approved_amount' => null,
                     'guarantor_debt_index' => 30,
                     'loan_month_term' => 1,
+                    'eval_percentage' => 0.25,
                 ],
             ]);
             //CREACION DE INTERES NUEVAS SUBMODALIDAD EN LA TABLA loan_interests
