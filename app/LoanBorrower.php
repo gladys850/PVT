@@ -46,7 +46,8 @@ class LoanBorrower extends Model
         'contributionable_ids',
         'contributionable_type',
         'type',
-        'availability_info'
+        'availability_info',
+        'eval_quota'
       ];
 
     public function getFullNameAttribute()

@@ -111,7 +111,7 @@
                     CANTIDAD DE GARANTES QUE NECESITA ESTA MODALIDAD:{{
                       modalidad_guarantors
                     }}<br />
-                    EL GARANTE DEBE ESTAR ENTRE UNA CATEGORIA DE {{loan_detail.min_guarantor_category * 100}}% A {{loan_detail.max_guarantor_category * 100}}% 
+                    EL GARANTE DEBE ESTAR ENTRE UNA CATEGORIA DE {{loan_detail.min_guarantor_category * 100}}% A {{loan_detail.max_guarantor_category * 100}}%
                   </h4>
                 </v-col>
               </v-row>
@@ -242,8 +242,8 @@
               <template v-slot:[`item.data-table-select`]="{ isSelected, select }">
                 <v-simple-checkbox color="success" :value="isSelected" @input="select($event)"></v-simple-checkbox>
               </template>
-              <template v-slot:[`item.quota`]="{ item }">
-                {{ item.quota | money}}
+              <template v-slot:[`item.eval_quota`]="{ item }">
+                {{ item.eval_quota | money}}
               </template>
             </v-data-table>
 
@@ -580,7 +580,7 @@
         text: "Cuota garante",
         class: ["normal", "white--text"],
         align: "left",
-        value: "quota"
+        value: "eval_quota"
       },
       {
         text: "Tipo Trámite",
@@ -913,7 +913,7 @@
     },
 
     async evaluateGuarantor(){
-      try { 
+      try {
           //Evaluar al garante
           let res = await axios.post(`evaluate_garantor2`,{
             procedure_modality_id: this.modalidad_id,
@@ -985,7 +985,7 @@
 
       this.contributions = this.contribution
 
- 
+
         //Verificar si el afiliado es pasivo para introducir su contribución
         if(this.affiliate_contribution.state_affiliate == 'Pasivo'){
           let res = await axios.post(`aid_contribution/updateOrCreate`,{
