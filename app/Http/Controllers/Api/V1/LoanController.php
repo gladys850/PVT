@@ -839,7 +839,8 @@ class LoanController extends Controller
                         'liquid_qualification_calculated' => $affiliate['liquid_qualification_calculated'],
                         'contributionable_type' => $affiliate['contributionable_type'],
                         'contributionable_ids' => json_encode($affiliate['contributionable_ids']),
-                        'type' =>$affiliate_guarantor->dead ? 'spouses':'affiliates',
+                        'type' => $affiliate_guarantor->dead ? 'spouses':'affiliates',
+                        'eval_quota' => $affiliate['eval_quota'],
                     ]);
                     $loan_guarantor->save();
                     if(array_key_exists('loan_contributions_adjust_ids', $affiliate)){

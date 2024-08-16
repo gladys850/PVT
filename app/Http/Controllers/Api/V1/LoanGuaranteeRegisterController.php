@@ -41,7 +41,7 @@ class LoanGuaranteeRegisterController extends Controller
               $loan_guarantee_register->guarantable_id = $loan_guarantee['id'];
               $loan_guarantee_register->guarantable_type = $loan_guarantee['type']=="SISMU" ? "prestamos":"loans";
               $loan_guarantee_register->affiliate_id = $request->affiliate_id;
-              $loan_guarantee_register->amount = $loan_guarantee['quota'];
+              $loan_guarantee_register->amount = $loan_guarantee['eval_quota'];
               $loan_guarantee_register->loan_code_guarantee = $loan_guarantee['code'];
               $loan_guarantee_register->period_date = Carbon::now()->format('Y-m-d');
               $loan_guarantee_register->database_name = $guarantee_type;
