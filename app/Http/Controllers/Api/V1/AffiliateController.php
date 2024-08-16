@@ -278,6 +278,7 @@ class AffiliateController extends Controller
                         $request->has('gender') ? $borrower->gender = $request['gender']:'';
                         $borrower->civil_status = $request['civil_status'];
                         $borrower->pension_entity_id = $request['pension_entity_id'];
+                        $borrower->availability_info = $request['availability_info'];
                     }
                     $loan->number_payment_type = $request['account_number'];
                     $loan->save();
@@ -1643,6 +1644,8 @@ class AffiliateController extends Controller
                     "quota_loan" => $loan->estimated_quota,
                     "state" => $loan->state->name,
                     "type" => "PVT",
+                    "eval_quota" => $loan->borrowerguarantors->where('affiliate_id',$affiliate->id)->first()->eval_quota,
+                    "modality" => $loan->modality->name
                 );
                 array_push($data, $loans_pvt);
             }
@@ -1657,6 +1660,8 @@ class AffiliateController extends Controller
                 "quota_loan" => $loan->PresCuotaMensual,
                 "state" => $loan->PresEstPtmo == "V" ? "Vigente" : "Pendiente",
                 "type" => "SISMU",
+                "eval_quota" => Util::round2($loan->PresCuotaMensual / $loan->quantity_guarantors),
+                "modality" => $loan->PrdDsc
             );
             array_push($data, $loans_pvt);
         }

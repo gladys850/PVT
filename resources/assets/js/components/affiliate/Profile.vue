@@ -139,24 +139,6 @@
                     ></v-text-field>
                   </ValidationProvider>
                 </v-col>
-                <v-col cols="12" md="4">
-                  <ValidationProvider
-                    v-slot="{ errors }"
-                    vid="registration"
-                    name="matrícula"
-                    rules="required|alpha_dash|min:5|max:15"
-                  >
-                    <v-text-field
-                      :error-messages="errors"
-                      dense
-                      v-model="affiliate.registration"
-                      label="Matrícula"
-                      :readonly="!editable || !permission.primary"
-                      :outlined="editable && permission.primary"
-                      :disabled="editable && !permission.primary"
-                    ></v-text-field>
-                  </ValidationProvider>
-                </v-col>
                 <v-col
                   cols="12"
                   md="5"
@@ -407,6 +389,23 @@
                     dense
                     v-model="affiliate.unit_police_description"
                     label="Descripcion de Unidad"
+                    :readonly="!editable || !permission.secondary"
+                    :outlined="editable && permission.secondary"
+                    :disabled="editable && !permission.secondary"
+                  ></v-text-field>
+                </ValidationProvider>
+              </v-col>
+              <v-col cols="12" md="12">
+                <ValidationProvider
+                  v-slot="{ errors }"
+                  vid="availability_info"
+                  name="Información de Disponibilidad"
+                >
+                  <v-text-field
+                    :error-messages="errors"
+                    dense
+                    v-model="affiliate.availability_info"
+                    label="Información de Disponibilidad"
                     :readonly="!editable || !permission.secondary"
                     :outlined="editable && permission.secondary"
                     :disabled="editable && !permission.secondary"
