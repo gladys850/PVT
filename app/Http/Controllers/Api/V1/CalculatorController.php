@@ -476,7 +476,7 @@ class CalculatorController extends Controller
         if($quantity_guarantors > 0){
             $type = false;
             $procedure_modality = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter;
-            $debt_index = $procedure_modality->guarantor_debt_index; // solo para garantias se evalua al 50%
+            $debt_index = $procedure_modality->guarantor_debt_index;
             $eval_percentage = $procedure_modality->eval_percentage;
             $affiliate = Affiliate::findOrFail($request->affiliate_id);
             $contributions = collect($request->contributions);
@@ -486,7 +486,6 @@ class CalculatorController extends Controller
             $total_bonuses = $contribution_first['position_bonus']+$contribution_first['border_bonus']+$contribution_first['public_security_bonus']+$contribution_first['east_bonus'];
             $liquid_qualification_calculated = $this->liquid_qualification($type, $payable_liquid_average, $total_bonuses, $affiliate);
             $total_guarantees = 0;
-            // quota para evaluacion al 25% de la cuota
             $eval_quota = $request->quota_calculated_total_lender * $eval_percentage;
             $personal_debt_index = $eval_quota / $liquid_qualification_calculated;
             $total_debt_index = 0;
@@ -498,11 +497,11 @@ class CalculatorController extends Controller
             }
             if($liquid_qualification_calculated > 0)
             {
-                $total_debt_index = Util::round2((($eval_quota + $quota_eval_guarantees)/$payable_liquid_average) * 100);
+                $total_debt_index = Util::round2((($eval_quota + $quota_eval_guarantees)/$liquid_qualification_calculated) * 100);
                 if($total_debt_index <= $debt_index)
                     $liquid_rest = $liquid_qualification_calculated - $eval_quota - $quota_eval_guarantees;
                 else
-                    $liquid_rest = $eval_quota - $quota_eval_guarantees;
+                    $liquid_rest = 0;
             }else{
                 $indebtedness_calculated = 100;
                 $liquid_rest = 0;
