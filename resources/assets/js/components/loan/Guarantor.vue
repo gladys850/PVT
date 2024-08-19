@@ -27,18 +27,18 @@
                 <li v-for="(garantes_detalle_loan,i) in data_loan_parent_aux.guarantors" :key="i" >
                   <v-progress-linear></v-progress-linear>
                     <v-row>
-                    <v-col cols="12" md="5" >
-                      Nombre del Afiliado: {{garantes_detalle_loan.first_name +' '+ garantes_detalle_loan.last_name }}
+                    <v-col cols="12" md="9" >
+                      Nombre del Afiliado:  <pre>{{$options.filters.fullName(garantes_detalle_loan.affiliate, true)}}</pre>
                     </v-col>
-                    <v-col cols="12" md="2" >
+                    <v-col cols="12" md="3" >
                       C.I.: {{garantes_detalle_loan.identity_card}}
                     </v-col>
-                      <v-col cols="12" md="2">
+                      <!-- <v-col cols="12" md="2">
                       Sigep: {{garantes_detalle_loan.sigep_status}}
                     </v-col>
                       <v-col cols="12" md="3" >
                       Porcentaje de Pago: {{garantes_detalle_loan.payment_percentage}}
-                    </v-col>
+                    </v-col> -->
                   </v-row>
                   </li>
               </ul>
@@ -453,7 +453,7 @@
               Liquido para Calificacion: {{ evaluate_garantor.liquid_qualification_calculated | moneyString }}
             </p>
             <p class="py-0 mb-0 " >
-              Indice de Endeudamiento: {{ evaluate_garantor.indebtnes_calculated | percentage }}%<br />
+              Límite de Endeudamiento: {{ evaluate_garantor.indebtnes_calculated | percentage }}%<br />
               Liquido Restante para garantias: {{ evaluate_garantor.liquid_rest | moneyString }}<br />
             </p>
             <p v-if="evaluate_garantor.is_valid">
@@ -494,9 +494,9 @@
                 >X</v-btn
               ><br />
               Liquido para Calificacion: {{guarantor.liquid_qualification_calculated | moneyString }}<br />
-              Indice de Endeudamiento: {{ guarantor.indebtedness_calculated | percentage }}%<br />
-              Porcentaje de Pago: {{ guarantor.payment_percentage | moneyString }}<br />
-              Cuota: {{guarantor.quota_treat}}
+              Limite de Endeudamiento: {{ guarantor.indebtedness_calculated | percentage }}%<br />
+              <!-- Porcentaje de Pago: {{ guarantor.payment_percentage | moneyString }}<br />
+              Cuota: {{guarantor.quota_treat}} -->
               <v-divider></v-divider>
             </div>
           </v-card>
@@ -577,7 +577,7 @@
         width: "35%"
       },
       {
-        text: "Cuota garante",
+        text: "Monto de Evaluación a Garante",
         class: ["normal", "white--text"],
         align: "left",
         value: "eval_quota"

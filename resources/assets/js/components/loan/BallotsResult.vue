@@ -138,7 +138,7 @@
                       <v-flex xs12 class="px-2">
                         <fieldset class="pa-3">
                           <p>CALCULO DE CUOTA: {{ calculator_result.quota_calculated_estimated_total | money}}</p>
-                          <p>INDICE DE ENDEUDAMIENTO: {{calculator_result.indebtedness_calculated_total|percentage }}%</p>
+                          <p>LÍMITE DE ENDEUDAMIENTO: {{calculator_result.indebtedness_calculated_total|percentage }}%</p>
                           <p>MONTO SOLICITADO: {{calculator_result.amount_requested | money}}</p>
                           <p v-show="calculator_result.maximum_suggested_valid" class="success--text font-weight-black">MONTO MAXIMO SUGERIDO : {{calculator_result.amount_maximum_suggested | money}}</p>
                           <p v-show="!calculator_result.maximum_suggested_valid" class="error--text font-weight-black">MONTO MAXIMO SUGERIDO : {{calculator_result.amount_maximum_suggested | money}}</p>
