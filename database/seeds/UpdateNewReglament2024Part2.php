@@ -280,7 +280,7 @@ class UpdateNewReglament2024Part2 extends Seeder
             DB::table('procedure_documents')->where('id', '309')->update([
                 'name' => 'Última boleta de pago del Garante en copia simple.',
             ]);
-            DB::table('procedure_documents')->where('id', '369')->update([
+            DB::table('procedure_documents')->where('id', '368')->update([
                 'name' => 'Certificado de haberes del Garante en copia simple.',
             ]);
             DB::table('procedure_documents')->where('id', '371')->update([
@@ -899,8 +899,8 @@ class UpdateNewReglament2024Part2 extends Seeder
             DB::table('procedure_requirements')->insert([
                 [
                     'procedure_modality_id' => 75,
-                    'procedure_document_id' => 368,
-                    'number' => 425,
+                    'procedure_document_id' => 425,
+                    'number' => 4,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
