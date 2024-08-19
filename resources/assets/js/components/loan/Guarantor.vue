@@ -28,7 +28,7 @@
                   <v-progress-linear></v-progress-linear>
                     <v-row>
                     <v-col cols="12" md="9" >
-                      Nombre del Afiliado:  <pre>{{$options.filters.fullName(garantes_detalle_loan.affiliate, true)}}</pre>
+                      Nombre del Afiliado: {{$options.filters.fullName(garantes_detalle_loan.affiliate, true)}}
                     </v-col>
                     <v-col cols="12" md="3" >
                       C.I.: {{garantes_detalle_loan.identity_card}}
@@ -241,6 +241,9 @@
               </template>
               <template v-slot:[`item.data-table-select`]="{ isSelected, select }">
                 <v-simple-checkbox color="success" :value="isSelected" @input="select($event)"></v-simple-checkbox>
+              </template>
+              <template v-slot:[`item.quota_loan`]="{ item }">
+                {{ item.quota_loan | money}}
               </template>
               <template v-slot:[`item.eval_quota`]="{ item }">
                 {{ item.eval_quota | money}}
@@ -577,7 +580,13 @@
         width: "35%"
       },
       {
-        text: "Monto de Evaluación a Garante",
+        text: "Cuota del Préstamo",
+        class: ["normal", "white--text"],
+        align: "left",
+        value: "quota_loan"
+      },
+      {
+        text: "Monto de Evaluación",
         class: ["normal", "white--text"],
         align: "left",
         value: "eval_quota"
