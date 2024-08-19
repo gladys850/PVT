@@ -161,7 +161,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.payment_percentage|percentage }}%</p>
+                                              <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.payment_percentage | percentage }}%</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
@@ -169,7 +169,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>PROMEDIO DE BONOS:</b> {{guarantor.bonus_calculated| moneyString }}</p>
+                                              <p><b>PROMEDIO DE BONOS:</b> {{guarantor.bonus_calculated | moneyString }}</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
@@ -177,7 +177,11 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated|percentage }}%</p>
+                                              <p><b>MONTO DE EVALUACIÓN A GARANTE:</b> {{guarantor.eval_quota | moneyString }}%</p>
+                                            </v-col>
+
+                                            <v-col cols="12" md="3">
+                                              <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated | percentage }}%</p>
                                             </v-col>
                                           </v-row>
 
