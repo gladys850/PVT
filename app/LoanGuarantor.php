@@ -47,7 +47,8 @@ class LoanGuarantor extends Model
         'liquid_qualification_calculated',
         'contributionable_ids',
         'contributionable_type',
-        'type'
+        'type',
+        'eval_quota'
       ];
 
   public function Affiliate()
