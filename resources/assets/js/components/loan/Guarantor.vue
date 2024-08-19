@@ -1052,6 +1052,7 @@
         this.guarantor.payable_liquid_calculated = this.evaluate_garantor.payable_liquid_calculated,
         this.guarantor.payment_percentage = this.evaluate_garantor.payment_percentage,
         this.guarantor.quota_treat = this.evaluate_garantor.quota_calculated
+        this.guarantor.eval_quota = this.evaluate_garantor.eval_quota
 
 
         if (this.type_affiliate || (this.existence_garantor.type == 'spouse')){
