@@ -112,7 +112,7 @@
                                 </v-col>
 
                                 <v-col cols="12" md="4" class="py-0">
-                                   <p><b>INDICE DE ENDEUDAMIENTO:</b> {{loan.borrower[0].indebtedness_calculated|percentage }}% </p>
+                                   <p><b>LÍMITE DE ENDEUDAMIENTO:</b> {{loan.borrower[0].indebtedness_calculated|percentage }}% </p>
                                 </v-col>
 
                                 <v-col cols="12" md="4" class="py-0">
@@ -181,7 +181,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated | percentage }}%</p>
+                                              <p><b>LÍMITE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated | percentage }}%</p>
                                             </v-col>
                                           </v-row>
 
@@ -442,7 +442,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="4" class="py-0">
-                                              <p><b>INDICE DE ENDEUDAMIENTO:</b> {{loan.borrower[i].pivot.indebtedness_calculated|percentage }}% </p>
+                                              <p><b>LÍMITE DE ENDEUDAMIENTO:</b> {{loan.borrower[i].pivot.indebtedness_calculated|percentage }}% </p>
                                             </v-col>
 
                                             <v-col cols="12" md="4" class="py-0">

@@ -100,7 +100,7 @@
                                     <p><b>TOTAL BONOS:</b> {{loan.borrower[0].bonus_calculated | moneyString}}</p>
                                   </v-col>
                                    <v-col cols="12" md="4" class="py-0">
-                                    <p><b>INDICE DE ENDEUDAMIENTO:</b> {{loan.indebtedness_calculated|percentage }}% </p>
+                                    <p><b>LÍMITE DE ENDEUDAMIENTO:</b> {{loan.indebtedness_calculated|percentage }}% </p>
                                   </v-col>
                                   <v-col cols="12" md="4" v-show="qualification_edit" class="py-0">
                                     <center>
@@ -558,7 +558,7 @@
                                                     </v-btn>
                                                   </template>
                                                   <div>
-                                                    <span v-if="edit_update_loan_affiliates">Guardar Indice Garante</span>
+                                                    <span v-if="edit_update_loan_affiliates">Guardar Límite Garante</span>
                                                     <span v-else>Editar </span>
                                                   </div>
                                                 </v-tooltip>
@@ -603,7 +603,7 @@
                                               ></v-text-field>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
-                                              <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated | percentage }}%</p>
+                                              <p><b>LÍMITE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated | percentage }}%</p>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
                                               <p><b>MONTO DE EVALUACIÓN A GARANTE:</b> {{guarantor.eval_quota | moneyString }}%</p>
@@ -611,7 +611,7 @@
                                             <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
                                               <v-text-field
                                                 dense
-                                                label="INDICE DE ENDEUDAMIENTO CALCULADO"
+                                                label="LÍMITE DE ENDEUDAMIENTO CALCULADO"
                                                 v-model="guarantor.indebtedness_calculated"
                                                 :outlined="true"
                                               ></v-text-field>

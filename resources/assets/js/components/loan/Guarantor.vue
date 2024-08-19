@@ -453,7 +453,7 @@
               Liquido para Calificacion: {{ evaluate_garantor.liquid_qualification_calculated | moneyString }}
             </p>
             <p class="py-0 mb-0 " >
-              Indice de Endeudamiento: {{ evaluate_garantor.indebtnes_calculated | percentage }}%<br />
+              Límite de Endeudamiento: {{ evaluate_garantor.indebtnes_calculated | percentage }}%<br />
               Liquido Restante para garantias: {{ evaluate_garantor.liquid_rest | moneyString }}<br />
             </p>
             <p v-if="evaluate_garantor.is_valid">
@@ -494,7 +494,7 @@
                 >X</v-btn
               ><br />
               Liquido para Calificacion: {{guarantor.liquid_qualification_calculated | moneyString }}<br />
-              Indice de Endeudamiento: {{ guarantor.indebtedness_calculated | percentage }}%<br />
+              Limite de Endeudamiento: {{ guarantor.indebtedness_calculated | percentage }}%<br />
               <!-- Porcentaje de Pago: {{ guarantor.payment_percentage | moneyString }}<br />
               Cuota: {{guarantor.quota_treat}} -->
               <v-divider></v-divider>
