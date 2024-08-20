@@ -27,18 +27,18 @@
                 <li v-for="(garantes_detalle_loan,i) in data_loan_parent_aux.guarantors" :key="i" >
                   <v-progress-linear></v-progress-linear>
                     <v-row>
-                    <v-col cols="12" md="5" >
-                      Nombre del Afiliado: {{garantes_detalle_loan.first_name +' '+ garantes_detalle_loan.last_name }}
+                    <v-col cols="12" md="9" >
+                      Nombre del Afiliado: {{$options.filters.fullName(garantes_detalle_loan.affiliate, true)}}
                     </v-col>
-                    <v-col cols="12" md="2" >
+                    <v-col cols="12" md="3" >
                       C.I.: {{garantes_detalle_loan.identity_card}}
                     </v-col>
-                      <v-col cols="12" md="2">
+                      <!-- <v-col cols="12" md="2">
                       Sigep: {{garantes_detalle_loan.sigep_status}}
                     </v-col>
                       <v-col cols="12" md="3" >
                       Porcentaje de Pago: {{garantes_detalle_loan.payment_percentage}}
-                    </v-col>
+                    </v-col> -->
                   </v-row>
                   </li>
               </ul>
@@ -111,7 +111,7 @@
                     CANTIDAD DE GARANTES QUE NECESITA ESTA MODALIDAD:{{
                       modalidad_guarantors
                     }}<br />
-                    EL GARANTE DEBE ESTAR ENTRE UNA CATEGORIA DE {{loan_detail.min_guarantor_category * 100}}% A {{loan_detail.max_guarantor_category * 100}}% 
+                    EL GARANTE DEBE ESTAR ENTRE UNA CATEGORIA DE {{loan_detail.min_guarantor_category * 100}}% A {{loan_detail.max_guarantor_category * 100}}%
                   </h4>
                 </v-col>
               </v-row>
@@ -242,8 +242,11 @@
               <template v-slot:[`item.data-table-select`]="{ isSelected, select }">
                 <v-simple-checkbox color="success" :value="isSelected" @input="select($event)"></v-simple-checkbox>
               </template>
-              <template v-slot:[`item.quota`]="{ item }">
-                {{ item.quota | money}}
+              <template v-slot:[`item.quota_loan`]="{ item }">
+                {{ item.quota_loan | money}}
+              </template>
+              <template v-slot:[`item.eval_quota`]="{ item }">
+                {{ item.eval_quota | money}}
               </template>
             </v-data-table>
 
@@ -453,7 +456,7 @@
               Liquido para Calificacion: {{ evaluate_garantor.liquid_qualification_calculated | moneyString }}
             </p>
             <p class="py-0 mb-0 " >
-              Indice de Endeudamiento: {{ evaluate_garantor.indebtnes_calculated | percentage }}%<br />
+              Límite de Endeudamiento: {{ evaluate_garantor.indebtnes_calculated | percentage }}%<br />
               Liquido Restante para garantias: {{ evaluate_garantor.liquid_rest | moneyString }}<br />
             </p>
             <p v-if="evaluate_garantor.is_valid">
@@ -494,9 +497,9 @@
                 >X</v-btn
               ><br />
               Liquido para Calificacion: {{guarantor.liquid_qualification_calculated | moneyString }}<br />
-              Indice de Endeudamiento: {{ guarantor.indebtedness_calculated | percentage }}%<br />
-              Porcentaje de Pago: {{ guarantor.payment_percentage | moneyString }}<br />
-              Cuota: {{guarantor.quota_treat}}
+              Limite de Endeudamiento: {{ guarantor.indebtedness_calculated | percentage }}%<br />
+              <!-- Porcentaje de Pago: {{ guarantor.payment_percentage | moneyString }}<br />
+              Cuota: {{guarantor.quota_treat}} -->
               <v-divider></v-divider>
             </div>
           </v-card>
@@ -577,10 +580,16 @@
         width: "35%"
       },
       {
-        text: "Cuota garante",
+        text: "Cuota del Préstamo",
         class: ["normal", "white--text"],
         align: "left",
-        value: "quota"
+        value: "quota_loan"
+      },
+      {
+        text: "Monto de Evaluación",
+        class: ["normal", "white--text"],
+        align: "left",
+        value: "eval_quota"
       },
       {
         text: "Tipo Trámite",
@@ -913,7 +922,7 @@
     },
 
     async evaluateGuarantor(){
-      try { 
+      try {
           //Evaluar al garante
           let res = await axios.post(`evaluate_garantor2`,{
             procedure_modality_id: this.modalidad_id,
@@ -985,7 +994,7 @@
 
       this.contributions = this.contribution
 
- 
+
         //Verificar si el afiliado es pasivo para introducir su contribución
         if(this.affiliate_contribution.state_affiliate == 'Pasivo'){
           let res = await axios.post(`aid_contribution/updateOrCreate`,{
@@ -1052,6 +1061,7 @@
         this.guarantor.payable_liquid_calculated = this.evaluate_garantor.payable_liquid_calculated,
         this.guarantor.payment_percentage = this.evaluate_garantor.payment_percentage,
         this.guarantor.quota_treat = this.evaluate_garantor.quota_calculated
+        this.guarantor.eval_quota = this.evaluate_garantor.eval_quota
 
 
         if (this.type_affiliate || (this.existence_garantor.type == 'spouse')){

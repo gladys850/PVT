@@ -475,7 +475,9 @@ class CalculatorController extends Controller
         $quantity_guarantors = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter->guarantors;
         if($quantity_guarantors > 0){
             $type = false;
-            $debt_index = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter->guarantor_debt_index; // solo para garantias se evalua al 50%
+            $procedure_modality = ProcedureModality::find($request->procedure_modality_id)->loan_modality_parameter;
+            $debt_index = $procedure_modality->guarantor_debt_index;
+            $eval_percentage = $procedure_modality->eval_percentage;
             $affiliate = Affiliate::findOrFail($request->affiliate_id);
             $contributions = collect($request->contributions);
             $payable_liquid_average = $contributions->avg('payable_liquid');
@@ -484,25 +486,22 @@ class CalculatorController extends Controller
             $total_bonuses = $contribution_first['position_bonus']+$contribution_first['border_bonus']+$contribution_first['public_security_bonus']+$contribution_first['east_bonus'];
             $liquid_qualification_calculated = $this->liquid_qualification($type, $payable_liquid_average, $total_bonuses, $affiliate);
             $total_guarantees = 0;
-            // quota para evaluacion al 25% de la cuota
-            $quota_for_evaluation = $request->quota_calculated_total_lender * 0.25;
-            $personal_debt_index = $quota_for_evaluation / $liquid_qualification_calculated;
+            $eval_quota = $request->quota_calculated_total_lender * $eval_percentage;
+            $personal_debt_index = $eval_quota / $liquid_qualification_calculated;
             $total_debt_index = 0;
+            $quota_eval_guarantees = 0;
             //
             foreach($request->guarantees as $guarantees)
             {
-                //$loan_guarantor = LoanGuarantor::where('loan_id',$guarantees['id'])->where('affiliate_id', $affiliate->id)->first();
-                $quota = $guarantees['quota_loan'] * 0.25;
-                $total_debt_index += $quota / $liquid_qualification_calculated;
-                $total_guarantees += $quota;
+                $quota_eval_guarantees += $guarantees['eval_quota'];
             }
             if($liquid_qualification_calculated > 0)
             {
-                $total_debt_index = Util::round2((($quota_for_evaluation/$payable_liquid_average) + $total_debt_index)*100);
+                $total_debt_index = Util::round2((($eval_quota + $quota_eval_guarantees)/$liquid_qualification_calculated) * 100);
                 if($total_debt_index <= $debt_index)
-                    $liquid_rest = Util::round2(($liquid_qualification_calculated * $debt_index / 100) - $quota_for_evaluation - $total_guarantees);
+                    $liquid_rest = $liquid_qualification_calculated - $eval_quota - $quota_eval_guarantees;
                 else
-                    $liquid_rest = Util::round2(($liquid_qualification_calculated * $debt_index / 100) - $total_guarantees);
+                    $liquid_rest = 0;
             }else{
                 $indebtedness_calculated = 100;
                 $liquid_rest = 0;
@@ -515,9 +514,9 @@ class CalculatorController extends Controller
                 "indebtnes_calculated" => Util::round($total_debt_index),
                 "quota_calculated" => Util::round2($quota_calculated),
                 'payment_percentage' => Util::round2(100/$quantity_guarantors),
-                //"is_valid" => $total_debt_index > $debt_index ? false : true,
-                "is_valid" => true, // solo por la modificacion de reglamento 2024
-                "liquid_rest" => Util::round2($liquid_rest)
+                "is_valid" => $total_debt_index > $debt_index ? false : true,
+                "liquid_rest" => $liquid_rest < 0 ? 0 : Util::round2($liquid_rest),
+                "eval_quota" => Util::round2($eval_quota)
             );
             return $response;
         }
