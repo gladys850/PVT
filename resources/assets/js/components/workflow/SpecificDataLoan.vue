@@ -606,7 +606,7 @@
                                               <p><b>LÍMITE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated | percentage }}%</p>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
-                                              <p><b>MONTO DE EVALUACIÓN A GARANTE:</b> {{guarantor.eval_quota | moneyString }}%</p>
+                                              <p><b>MONTO DE EVALUACIÓN A GARANTE:</b> {{guarantor.eval_quota | moneyString }}</p>
                                             </v-col>
                                             <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
                                               <v-text-field

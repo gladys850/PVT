@@ -177,7 +177,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>MONTO DE EVALUACIÓN A GARANTE:</b> {{guarantor.eval_quota | moneyString }}%</p>
+                                              <p><b>MONTO DE EVALUACIÓN A GARANTE:</b> {{guarantor.eval_quota | moneyString }}</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
