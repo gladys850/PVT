@@ -583,7 +583,7 @@
                                             <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
                                               <v-text-field
                                                 dense
-                                                label="LIQUIDO PARA CALIFICACION"
+                                                label="LIQUIDO PAGABLE"
                                                 v-model="guarantor.payable_liquid_calculated"
                                                 :outlined="true"
                                               ></v-text-field>
@@ -592,12 +592,12 @@
                                               <p><b>PROMEDIO DE BONOS:</b> {{guarantor.bonus_calculated | moneyString }}</p>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
-                                              <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
+                                              <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
                                             </v-col>
                                             <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
                                               <v-text-field
                                                 dense
-                                                label="LIQUIDO PARA CALIFICACION CALCULADO"
+                                                label="LIQUIDO PARA CALIFICACION"
                                                 v-model="guarantor.liquid_qualification_calculated"
                                                 :outlined="true"
                                               ></v-text-field>
