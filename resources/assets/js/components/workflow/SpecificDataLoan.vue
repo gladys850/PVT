@@ -85,12 +85,12 @@
                                     <p><b>LIQUIDO PARA CALIFICACION: </b> {{loan.liquid_qualification_calculated | moneyString}} Bs.</p>
                                   </v-col>
                                   <v-col cols="12" md="4" v-show="!qualification_edit" class="py-0">
-                                    <p><b>PLAZO EN MESES:</b>{{' '+loan.loan_term}}</p>
+                                    <p><b>PLAZO:</b>{{' '+loan.loan_term}}</p>
                                   </v-col>
                                   <v-col cols="12" md="4" v-show="qualification_edit" class="py-0" >
                                     <v-text-field
                                       dense
-                                      label="PLAZO EN MESES"
+                                      label="PLAZO"
                                       v-model="loan.loan_term"
                                       v-on:keyup.enter="simulator()"
                                       :outlined="true"
@@ -100,7 +100,7 @@
                                     <p><b>TOTAL BONOS:</b> {{loan.borrower[0].bonus_calculated | moneyString}}</p>
                                   </v-col>
                                    <v-col cols="12" md="4" class="py-0">
-                                    <p><b>INDICE DE ENDEUDAMIENTO:</b> {{loan.indebtedness_calculated|percentage }}% </p>
+                                    <p><b>LÍMITE DE ENDEUDAMIENTO:</b> {{loan.indebtedness_calculated|percentage }}% </p>
                                   </v-col>
                                   <v-col cols="12" md="4" v-show="qualification_edit" class="py-0">
                                     <center>
@@ -495,8 +495,9 @@
                             <v-col cols="12" class="mb-0 py-0">
                               <v-col cols="12" md="12" class="mb-0 py-0">
                                 <v-card-text class="pa-0 mb-0">
-                                  <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
-                                    <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo Anticipo'">
+                                  <div >
+                                    <v-col cols="12" md="12">
+                                    <ul style="list-style: none" class="pa-0" v-if="loan.modality.procedure_type.name== 'Préstamo a Largo Plazo' || loan.modality.procedure_type.name == 'Préstamo a Corto Plazo'|| loan.modality.procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || loan.modality.procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo' || loan.modality.procedure_type.name == 'Préstamo Anticipo'">
                                       <li v-for="(guarantor) in loan.borrowerguarantors" :key="guarantor.id">
                                         <v-col cols="12" md="12" class="pa-0 mb-0">
                                           <v-row class="pa-2">
@@ -557,7 +558,7 @@
                                                     </v-btn>
                                                   </template>
                                                   <div>
-                                                    <span v-if="edit_update_loan_affiliates">Guardar Indice Garante</span>
+                                                    <span v-if="edit_update_loan_affiliates">Guardar Límite Garante</span>
                                                     <span v-else>Editar </span>
                                                   </div>
                                                 </v-tooltip>
@@ -574,7 +575,7 @@
                                               <p><b>TELÉFONO:</b> {{guarantor.cell_phone_number}}</p>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3">
-                                              <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.payment_percentage|percentage }}%</p>
+                                              <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.payment_percentage | percentage }}%</p>
                                             </v-col>
                                              <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
                                               <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.payable_liquid_calculated | moneyString}}</p>
@@ -582,32 +583,35 @@
                                             <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
                                               <v-text-field
                                                 dense
-                                                label="LIQUIDO PARA CALIFICACION"
+                                                label="LIQUIDO PAGABLE"
                                                 v-model="guarantor.payable_liquid_calculated"
                                                 :outlined="true"
                                               ></v-text-field>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3">
-                                              <p><b>PROMEDIO DE BONOS:</b> {{guarantor.bonus_calculated| moneyString }}</p>
+                                              <p><b>PROMEDIO DE BONOS:</b> {{guarantor.bonus_calculated | moneyString }}</p>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
-                                              <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
+                                              <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
                                             </v-col>
                                             <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
                                               <v-text-field
                                                 dense
-                                                label="LIQUIDO PARA CALIFICACION CALCULADO"
+                                                label="LIQUIDO PARA CALIFICACION"
                                                 v-model="guarantor.liquid_qualification_calculated"
                                                 :outlined="true"
                                               ></v-text-field>
                                             </v-col>
                                             <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
-                                              <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated|percentage }}%</p>
+                                              <p><b>LÍMITE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated | percentage }}%</p>
+                                            </v-col>
+                                            <v-col class="my-0 py-0" cols="12" md="3" v-show="!edit_update_loan_affiliates">
+                                              <p><b>MONTO DE EVALUACIÓN A GARANTE:</b> {{guarantor.eval_quota | moneyString }}</p>
                                             </v-col>
                                             <v-col cols="12" md="3" v-show="edit_update_loan_affiliates" class="pb-0" >
                                               <v-text-field
                                                 dense
-                                                label="INDICE DE ENDEUDAMIENTO CALCULADO"
+                                                label="LÍMITE DE ENDEUDAMIENTO CALCULADO"
                                                 v-model="guarantor.indebtedness_calculated"
                                                 :outlined="true"
                                               ></v-text-field>
@@ -620,7 +624,8 @@
                                       <br>
                                       <p v-if="loan.guarantors.length==0" style="color:teal"><b> NO TIENE GARANTES </b></p>
                                     </ul>
-                                    <v-col cols="12" md="12" v-if="procedure_type.name == 'Préstamo Hipotecario' || procedure_type.name == 'Refinanciamiento Préstamo Hipotecario'">
+                                    </v-col>
+                                    <v-col cols="12" md="12" v-if="loan.modality.procedure_type.name == 'Préstamo Hipotecario' || loan.modality.procedure_type.name == 'Refinanciamiento Préstamo Hipotecario'">
                                       <p style="color:teal"><b>GARANTIA HIPOTECARIA </b></p>
                                       <v-tooltip >
                                         <template v-slot:activator="{ on }">
@@ -769,11 +774,26 @@
                                         ></v-text-field>
                                       </v-col>
                                     </v-row>
-                                  </v-col>
-                                </div>
-                              </v-card-text>
+                                    </v-col>
+                                    <v-col cols="12" md="12" v-if="loan.modality.procedure_type.second_name == 'Fondo de Retiro'">
+                                      <v-row>
+                                        <p style="color:teal"><b>GARANTIA DEL FONDO DE RETIRO POLICIAL SOLIDARIO</b> </p>
+                                        <v-progress-linear></v-progress-linear><br>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>TOTAL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO: </b>{{loan.retirement.average | moneyString}} </p>
+                                      </v-col>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>COBERTURA DEL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIOS: </b>{{loan.retirement.coverage | moneyString}} </p>
+                                      </v-col>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>PORCENTAJE CALCULADO: </b>{{loan.retirement.percentage * 100}} % </p>
+                                      </v-col>
+                                      </v-row>
+                                    </v-col>
+                                  </div>
+                                </v-card-text>
+                              </v-col>
                             </v-col>
-                          </v-col>
                           </v-card-text>
                         </v-card>
                       </v-tab-item>
@@ -806,28 +826,28 @@
                                                   label="Primer Nombre"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4" >
+                                              <v-col cols="12" sm="6" md="3" >
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.second_name"
                                                   label="Segundo Nombre"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4" >
+                                              <v-col cols="12" sm="6" md="3" >
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.last_name"
                                                   label="Primer Apellido"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4">
+                                              <v-col cols="12" sm="6" md="3">
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.mothers_last_name"
                                                   label="Segundo Apellido"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4" >
+                                              <v-col cols="12" sm="6" md="3" >
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.phone_number"
@@ -835,7 +855,7 @@
                                                   v-mask="'(#) ###-###'"
                                                 ></v-text-field>
                                               </v-col>
-                                              <v-col cols="12" sm="6" md="4" >
+                                              <v-col cols="12" sm="6" md="3" >
                                                 <v-text-field
                                                   dense
                                                   v-model="editedItem.cell_phone_number"
@@ -843,6 +863,18 @@
                                                   v-mask="'(###)-#####'"
                                                 ></v-text-field>
                                               </v-col>
+                                              <v-col cols="12" sm="6" md="3">
+                                                <v-select
+                                                  :error-messages="errors"
+                                                  dense
+                                                  :items="kinships"
+                                                  item-text="name"
+                                                  item-value="id"
+                                                  v-model="editedItem.kinship_id"
+                                                  label="Parentesco"
+                                                >
+                                                </v-select>
+                                              </v-col> 
                                               <v-col cols="12" sm="6" md="12">
                                                 <v-text-field
                                                   dense
@@ -872,6 +904,9 @@
                                         </v-card-actions>
                                       </v-card>
                                     </v-dialog>
+                                </template>
+                                <template v-slot:[`item.kinship_id`]="{ item }">
+                                  {{item.kinship_id != null? kinships.find(o => o.id == item.kinship_id).name:'' }}
                                 </template>
                                 <template v-slot:[`item.actions`]="{ item }" v-if="permissionSimpleSelected.includes('update-reference-cosigner') && $route.query.workTray != 'tracingLoans'">
                                   <v-icon
@@ -1325,18 +1360,22 @@ export default {
         { text: 'TELÉFONO', value: 'phone_number' },
         { text: 'CELULAR', value: 'cell_phone_number' },
         { text: 'DIRECCION ', value: 'address' },
+        { text: "Partentesco", value: "kinship_id"
+      },
         {
       text: "Actions",
       value: "actions",
       sortable: false
     }
       ],
-    edit_number_payment_type: false
+    edit_number_payment_type: false,
+    kinships: []
   }),
   beforeMount(){
     this.getPaymentTypes()
     this.getCity()
     this.getEntity()
+    this.getKinship()
   },
   computed: {
       //Metodo para obtener Permisos por rol
@@ -1374,7 +1413,9 @@ created(){
         mothers_last_name:this.editedItem.mothers_last_name,
         phone_number:this.editedItem.phone_number,
         cell_phone_number:this.editedItem.cell_phone_number,
-        address:this.editedItem.address})
+        address:this.editedItem.address,
+        kinship_id: this.editedItem.kinship_id
+        })
         this.toastr.success('Se registró correctamente.')
     this.close()
     this.$forceUpdate()
@@ -1771,6 +1812,15 @@ created(){
           })
         this.edit_number_payment_type = false
         }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async getKinship(){
+      try {
+        let res = await axios.get('kinship')
+        this.kinships = res.data
+        console.log(this.kinships)
       } catch (e) {
         console.log(e)
       }

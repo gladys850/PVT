@@ -22,7 +22,8 @@ class PersonalReference extends Model
         'phone_number',
         'cell_phone_number',
         'city_birth_id',
-        'address'
+        'address',
+        'kinship_id'
     ];
 
     public function getIdentityCardExtAttribute()
@@ -48,5 +49,9 @@ class PersonalReference extends Model
     public function getCivilStatusGenderAttribute()
     {
         return Util::get_civil_status($this->civil_status, $this->gender);
+    }
+    public function kinship()
+    {
+        return $this->belongsTo(Kinship::class, 'kinship_id', 'id');
     }
 }

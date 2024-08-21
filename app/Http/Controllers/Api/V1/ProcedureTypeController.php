@@ -131,4 +131,48 @@ class ProcedureTypeController extends Controller
     {
         return $procedure_type->procedure_modalities;
     }
+
+    /**
+     * Obtener Modalidades de Préstamos
+     * Obtiene la lista de modalidades de préstamos según sismu o reprogramación
+     * @bodyParam sismu bool required Es SISMU?. Example: false
+     * @bodyParam reprogramming bool required Es Reprogramacion?. Example: false
+     * @authenticated
+     */
+    public function get_modality_loan(Request $request)
+    {
+        $modules_default = [
+            ['name', 'not like', '%Amortización%'],
+            ['name', 'not like', '%Reprogramación%'],
+            ['name', 'not like', '%Refinanciamiento%']
+        ];
+
+        $modules_sismu = [
+            ['name', 'like', '%Refinanciamiento%'],
+            ['name', 'not like', '%Reprogramación%'],
+            ['name', 'not like', '%Hipotecario%']
+        ];
+
+        $modules_reprogramming = [
+            ['name', 'like', '%Reprogramación%'],
+            ['name', 'not like', '%Refinanciamiento%'],
+        ];
+
+        $conditions = $modules_default;
+
+        if ($request->refinancing && $request->reprogramming === false) 
+            $conditions = $modules_sismu;
+
+        if ($request->reprogramming && $request->refinancing === false) 
+            $conditions = $modules_reprogramming;
+
+        $modules = ProcedureType::where('module_id', 6)
+            ->where(function ($query) use ($conditions) {
+                foreach ($conditions as $condition) {
+                    call_user_func_array([$query, 'where'], $condition);
+                }
+            })
+            ->get();
+        return $modules;
+    }
 }

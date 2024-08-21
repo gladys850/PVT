@@ -78,9 +78,9 @@
           <span v-if="affiliate.dead && affiliate.dead_spouse">
               *El afiliado y cónyuge se encuentran registrados como fallecidos.
           </span>
-          <span  v-if="!affiliate.dead  && !affiliate.dead_spouse">
+          <!-- <span  v-if="!affiliate.dead  && !affiliate.dead_spouse">
               **Se tiene el registro datos del cónyuge. Verifique el estado del afiliado/a
-          </span>
+          </span> -->
         </div>
         <div class="red--text pa-4" v-if="affiliate.affiliate_state_id != 4">
         <span  v-if="((cleanSpace(affiliate.death_certificate_number) != null ||

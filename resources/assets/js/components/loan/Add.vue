@@ -36,8 +36,11 @@
               </span>
               {{"TITULAR: "+this.degree_name}} {{this.$options.filters.fullName(this.affiliate, true)}}
             </v-col>
-            <v-col  cols="6">
+            <v-col  cols="3">
               {{'CATEGORÍA:'+this.category_name}}
+            </v-col>
+            <v-col  cols="3">
+              {{'ESTADO:'+this.affiliate.affiliate_state.name}}
             </v-col>
           </v-row>
           <Steps
@@ -68,7 +71,10 @@ export default {
     lenders_aux:[],
     affiliate:{
       phone_number:null,
-      cell_phone_number:null
+      cell_phone_number:null,
+      affiliate_state: {
+        name : null 
+      }
     },
     degree_name: null,
     category_name: null,

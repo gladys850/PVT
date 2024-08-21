@@ -45,7 +45,8 @@
             </tr>
             <tr>
                 <td class="data-row py-5">{{ Util::money_format($loan->amount_approved) }} <span class="capitalize">Bs.</span></td>
-                <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">Meses</span></td>
+                @php ($term_text = $loan->modality->procedure_type_id != 29 ? 'meses' : 'semestres')
+                <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">{{ $term_text }}</span></td>
                 <td class="data-row py-5">
                     @if($loan->payment_type->name=='Depósito Bancario')
                         <div class="font-bold">{{$loan->payment_type->name}}</div>
@@ -109,7 +110,6 @@
                     <td >Categoría</td>
                 @else
                     <td colspan="1">Tipo de Renta</td>
-                    <td colspan="2">MATRÍCULA</td>
                 @endif
             </tr>
             <tr>
@@ -119,12 +119,11 @@
                     <td class="data-row py-5">{{ $lender->category ? $lender->category->name : '' }}</td>
                 @else
                     <td colspan="1" class="data-row py-5">{{ $lender->pension_entity ? $lender->pension_entity->name : $lender->affiliate->pension_entity->name}}</td>
-                    <td colspan="2" class="data-row py-5">{{ $lender->registration }}</td>
                 @endif
             </tr>   
                 @if(count($lender->loans_balance)>0)
                 <tr class="bg-grey-darker text-white">
-                    <td>Codigo de Prestamo</td>
+                    <td>Codigo de Préstamo</td>
                     <td>Saldo</td>
                     <td>origen</td>
                 </tr>
@@ -137,9 +136,47 @@
                         @endforeach
                 </tr>
                 @endif
+
+                @if($lender->affiliate_state->name == 'Disponibilidad')
+                <tr class="bg-grey-darker text-white">
+                    <td     colspan="3">Información de Disponibilidad</td>
+                </tr>
+                <tr>
+                    <td colspan="3">{{ $lender->availability_info }}</td>
+                </tr>
+                @endif
         </table>
         @endforeach
     </div>
+    {{-- inicio cónyuge anuente --}}
+    @if($loan->modality->shortened == "EST-PAS-CON")
+        <div class="block">
+            <div class="font-semibold leading-tight text-left m-b-10 text-sm">{{ $n++ }}. DATOS DE CÓNYUGE ANUENTE</div>
+        </div>
+        <div class="block">
+            <table style="font-size:11px;" class="table-info w-100 text-center uppercase my-10">
+                <tr class="bg-grey-darker text-white">
+                    <td class="w-60">Cónyuge</td>
+                    <td class="w-20">CI</td>
+                    <td class="w-20">TELÉFONO(S)</td>
+                </tr>
+                <tr>
+                    <td class="data-row py-5">{{ $loan->affiliate->spouses->first()->full_name ?? '' }}</td>
+                    <td class="data-row py-5">{{ $loan->affiliate->spouses->first()->identity_card ?? '' }}</td>
+                    <td class="data-row py-5">{{ $loan->affiliate->spouses->first()->cell_phone_number ?? '' }}</td>
+                </tr>
+                <tr class="bg-grey-darker text-white">
+                    <td class="w-50">Número de partida del certificado de matrimonio</td>
+                    <td class="w-50" colspan="2">Fecha de emisión</td>
+                </tr>
+                <tr>
+                    <td class="data-row py-5">{{ $loan->affiliate->spouses->first()->departure ?? '' }}</td>
+                    <td class="data-row py-5" colspan="2">{{ $loan->affiliate->spouses->first()->marriage_issue_date ?? '' }}</td>
+                </tr>
+            </table>
+        </div>
+    @endif
+    {{-- fin cónyuge anuente --}}
 
     @if ($loan->guarantors()->count())
     <div class="block">
@@ -222,13 +259,15 @@
     <div class="block">
         <table style="font-size:11px;" class="table-info w-100 text-center uppercase my-10">
             <tr class="bg-grey-darker text-white">
-                <td class="w-40">Referencia</td>
+                <td class="w-25">Referencia</td>
+                <td class="w-15">Parentesco</td>
                 <td class="w-45">Domicilio</td>
                 <td class="w-15">Teléfono(s)</td>
             </tr>
             @foreach ($loan->personal_references as $personal_reference)
             <tr>
                 <td class="data-row py-5">{{ $personal_reference->full_name }}</td>
+                <td class="data-row py-5">{{ $personal_reference->kinship->name ?? ''}}</td>
                 <td class="data-row py-5">{{ $personal_reference->address ? $personal_reference->address : '' }}</td>
                 <td class="data-row py-5">
                     @if ($personal_reference->phone_number != "" && $personal_reference->phone_number != null)
@@ -239,7 +278,7 @@
                             <div>{{ $phone }}</div>
                         @endforeach
                     @endif
-                    </td>
+                </td>
             </tr>
             @endforeach
         </table>

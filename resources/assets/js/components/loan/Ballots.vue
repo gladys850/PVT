@@ -10,10 +10,10 @@
                   <v-col cols="12"  >
                     <v-container class="py-0 my-0 teal--text">
                       <v-row>
-                        <v-col cols="12" :md="window_size" class="py-0 my-0 text-center">
+                        <v-col cols="12" md="3" class="py-0 my-0 text-center">
                           <strong>MODALIDAD DEL PRÉSTAMO</strong><br>
                           <v-row>
-                            <v-col cols="12" md="10" class="py-0 -my-0 mt-4">
+                            <v-col cols="12" md="12" class="py-0 -my-0 mt-4">
                           <v-select
                             dense
                             v-model="loanTypeSelected.id"
@@ -27,48 +27,45 @@
                             :loading="is_loading"
                           ></v-select>
                             </v-col>
-                          <v-col cols="12" md="2" class="py-0 my-0"
-                          v-if="
-                            modalitySelected.name == 'Préstamo a Largo Plazo' ||
-                            modalitySelected.name == 'Préstamo Hipotecario' ||
-                            modalitySelected.name == 'Refinanciamiento Préstamo Hipotecario' ||
-                            modalitySelected.name == 'Refinanciamiento Préstamo a Largo Plazo'
-                          "
-                        >
-                          <v-checkbox
-                            dense
-                            v-model="affiliate_data.cpop_affiliate"
-                            label="1G"
-                            class="py-0 my-0"
-                            color="teal"
-                            @change="Onchange()"
-                          ></v-checkbox>
-                        </v-col>
                           </v-row>
                         </v-col>
 
-                        <v-col cols="12" :md="window_size" class="py-0 my-0 text-center">
-                          <strong>INTERVALO DE MONTOS </strong><br>
-                          {{monto}}
-                        </v-col>
-                        <v-col cols="12" :md="window_size" class="py-0 my-0 text-center">
-                          <strong> PLAZO EN MESES</strong><br>
-                          {{plazo}}
-                        </v-col>
-                        <!--{{contribution}}-->
-
-                        <v-col cols="12" :md="window_size" class="py-0 my-0" v-if="see_field">
-                          <strong> NETO REALIZADO (VNR)</strong><br>
-                          <ValidationProvider v-slot="{ errors }" name="VNR" :rules="'required|min_value:'+modalidad.minimun_amoun"  mode="aggressive">
-                          <v-text-field
-                            :error-messages="errors"
+                        <v-col cols="12" md="5" class="py-0 my-0 text-center">
+                          <strong>SUBMODALIDAD DEL PRÉSTAMO</strong><br>
+                          <v-row>
+                            <v-col cols="12" md="12"  class="py-0 -my-0 mt-4">
+                          <v-select
                             dense
-                            v-model="loan_detail.net_realizable_value"
-                            label="VNR"
+                            v-model="loan_modality"
+                            @change="onchangeSubmodality()"
+                            :items="submodalities"
+                            item-text="name"
+                            item-value="id"
+                            required
                             outlined
-                            editable
-                          ></v-text-field>
-                          </ValidationProvider>
+                            :disabled="edit_refi_repro"
+                            :loading="is_loading"
+                            return-object
+                          ></v-select>
+                            </v-col>
+                          </v-row>
+                        </v-col> 
+                        <template v-if="loan_modality.id === 93 || loan_modality.id === 94">
+                          <v-col cols="12" md="2" class="py-0 my-0 text-center">
+                            <strong>FONDO DE RETIRO (Promedio Bs.)</strong><br>
+                            <span v-if="affiliate.retirement_fund_average">{{ affiliate.retirement_fund_average.retirement_fund_average | money }}</span>
+                            <span v-else class="red--text">No existe un monto promedio para la categoria</span>
+                          </v-col>
+                        </template>
+                        <template v-else>
+                          <v-col cols="12" md="2" class="py-0 my-0 text-center">
+                            <strong>INTERVALO MONTOS</strong><br>
+                            {{ monto }}
+                          </v-col>
+                        </template>                    
+                        <v-col cols="12" md="2" class="py-0 my-0 text-center">
+                          <strong>PLAZO</strong><br>
+                          {{ plazo }}
                         </v-col>
                       </v-row>
                     </v-container>
@@ -95,11 +92,11 @@
                 <v-row v-for="(contrib,i) in contribution" :key="i" class="py-0 my-0">
                   <v-col cols="12" md="7" class="py-0 my-0">
                     <v-row>
-                      <v-col cols="12" md="12" class="py-0 my-0 pb-1 uppercase"> BOLETAS DE PAGO <b>{{contribution[i].month}}</b></v-col>
-                      <v-col cols="12" md="3" class="py-0 my-0" v-if="lender_contribution.state_affiliate != 'Comisión'">
+                      <v-col cols="12" md="12" class="py-0 my-0 pb-1 uppercase"> COMPROBANTE DE PAGO <b>{{contribution[i].month}}</b></v-col>
+                      <v-col cols="12" md="3" class="py-0 my-0" v-if="lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29">
                         <ValidationProvider
                           v-slot="{ errors }"
-                          name="Boleta de pago"
+                          name="Comprobante de pago"
                           :rules="'required|min_value:' + global_parameters.livelihood_amount"
                           mode="aggressive"
                         >
@@ -114,7 +111,7 @@
                           ></v-text-field>
                         </ValidationProvider>
                       </v-col>
-                      <v-col cols="12" class="py-0 my-0"  :md="lender_contribution.state_affiliate == 'Comisión' ? 4 : 2">
+                      <v-col cols="12" class="py-0 my-0"  :md="lender_contribution.state_affiliate == 'Comisión' || loanTypeSelected.id == 29 ? 4 : 2">
                         <ValidationProvider
                           v-slot="{ errors }"
                           name="Monto ajuste"
@@ -126,13 +123,13 @@
                             :error-messages="errors"
                             dense
                             v-model="contribution[i].adjustment_amount"
-                            :label= "lender_contribution.state_affiliate == 'Comisión' ? 'Liquido pagable' :  'Monto ajuste'"
-                            :outlined = "!(contribution[i].payable_liquid == 0 && lender_contribution.state_affiliate != 'Comisión')? true : false"
-                            :disabled = "!(contribution[i].payable_liquid == 0 && lender_contribution.state_affiliate != 'Comisión')? false : true"
+                            :label= "lender_contribution.state_affiliate == 'Comisión' ? 'Liquido pagable' : loanTypeSelected.id == 29 ? 'Liquido pagable último CE' :  'Monto ajuste'"
+                            :outlined = "!(contribution[i].payable_liquid == 0 && lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29) ? true : false"
+                            :disabled = "!(contribution[i].payable_liquid == 0 && lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29) ? false : true"
                           ></v-text-field>
                         </ValidationProvider>
                       </v-col>
-                      <template v-if="lender_contribution.state_affiliate != 'Comisión'">
+                      <template v-if="lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29">
                         <v-col cols="12" md="2" class="py-0 my-0" >
                           <b style="text-align: center">= {{(parseFloat(contribution[i].adjustment_amount) + parseFloat(contribution[i].payable_liquid)) | money}}</b>
                         </v-col>
@@ -161,7 +158,7 @@
 
                   <v-col cols="12" md="5" class="py-0 my-0">
                     <v-row class="py-0 my-0">
-                      <v-col cols="12" md="12" class="py-0 my-0" v-if="lender_contribution.state_affiliate != 'Comisión'"> BONOS </v-col>
+                      <v-col cols="12" md="12" class="py-0 my-0" v-if="lender_contribution.state_affiliate != 'Comisión' && loanTypeSelected.id != 29"> BONOS </v-col>
                       <template v-if="lender_contribution.state_affiliate == 'Activo'">
                         <v-col cols="12" md="3" class="py-0 my-0">
                           <ValidationProvider
@@ -232,7 +229,7 @@
                           </ValidationProvider>
                         </v-col>
                      </template> 
-                      <v-col cols="12" :md="lender_contribution.state_affiliate == 'Pasivo' ? 4 : 3" class="py-0 my-0" v-if="lender_contribution.state_affiliate == 'Pasivo'">
+                      <v-col cols="12" :md="lender_contribution.state_affiliate == 'Pasivo' && loanTypeSelected.id != 29 ? 4 : 3" class="py-0 my-0" v-if="lender_contribution.state_affiliate == 'Pasivo' && loanTypeSelected.id != 29">
                         <ValidationProvider
                           v-slot="{ errors }"
                           name="Renta dignidad"
@@ -272,14 +269,7 @@
                   </v-col>
                 </template>
               </v-container>
-              <BallotsHipotecary
-                v-show="hipotecario && (loan_detail.not_exist_modality == false)"
-                :contrib_codebtor="contrib_codebtor"
-                :modalidad.sync="modalidad"
-                :affiliate.sync="affiliate"
-                :data_loan.sync="data_loan"
-                :global_parameters="global_parameters"/>
-             </ValidationObserver>
+             </ValidationObserver> 
           </v-card>
         </v-col>
       </v-row>
@@ -292,22 +282,24 @@ import BallotsHipotecary from '@/components/loan/BallotsHipotecary'
 export default {
   name: "ballots",
   data: () => ({
+    fec:'2024-08-02',
     bus: new Vue(),
     enabled: false,
     editar:true,
     monto:null,
     plazo:null,
     visible:false,
-    hipotecario:false,
-    window_size:4,
-    see_field:false,
+    //hipotecario:false,
+    //window_size:4,
+    //see_field:false,
     loan_modality: {},
     data_ballots: [],
     contribution: [],
     choose_diff_month: false,
     number_diff_month: 1,
     lender_contribution: {},
-    modality_loan: []
+    //modality_loan: []
+    submodalities: []
   }),
    props: {
     modalidad: {
@@ -372,13 +364,14 @@ export default {
     BallotsHipotecary,
   },
   mounted() {
-    this.getModalityLoan()
+    //this.getModalityLoan()
   },
   watch: {
     'loanTypeSelected.id': function(newVal, oldVal){
       if(newVal!= oldVal)
         this.Onchange()
-    }
+    },
+
   },
   computed: {
     isNew() {
@@ -407,93 +400,46 @@ export default {
       }
       return false
     },
-    //Realiza una validación para verificar si existe o no el objeto, en caso de no existir manda un objeto vacio sin generar erroes
-    modalitySelected() {
-      let modality = (this.modality_loan.find(item => item.id == this.loanTypeSelected.id))
-      return modality || {} 
-    }
   },
-  methods: {
-
-    async getModalityLoan() {
-      try {
-        let res = await axios.get(`module/6/modality_loan`)
-        this.modality_loan = res.data
-        console.log(this.modality_loan)
-        if(this.reprogramming){
-          this.Onchange()
-        }
-       }catch (e) {
-        console.log(e)
-      }
-    },
+  methods: {        
    //muestra los intervalos de acuerdo a una modalidad
     async Onchange(){
+      //cargamos la sumodalidad
+      this.loan_modality.id = 0 //cuando cambie la modalidad la submodalidad se colca en 0
       this.choose_diff_month = false
       this.number_diff_month = 1
-      for (let i = 0; i< this.modality_loan.length; i++) {
-        if(this.loanTypeSelected.id==this.modality_loan[i].id){
-          //if($store.getters.modalityLoan.find(item => item.id == loanTypeSelected.id).name == 12){
-          if(this.modalitySelected.name == 'Préstamo Hipotecario' || this.modalitySelected.name == 'Refinanciamiento Préstamo Hipotecario'){
-            this.hipotecario=true
-            this.window_size=3
-            this.see_field=true
-          }else{
-            this.hipotecario=false
-            this.window_size=4
-            this.see_field=false
-          }
-
-          this.getLoanModalityAffiliate(this.$route.query.affiliate_id)
+      if(this.isNew || this.type_sismu){
+        for (let i = 0; i< this.modalities.length; i++) {
+          if(this.loanTypeSelected.id == this.modalities[i].id){
+            this.getLoanModalityAffiliate(this.$route.query.affiliate_id)
         } 
       }
+      }else{
+        if(this.loanTypeSelected.submodality[0].id != 0){      
+          this.loan_modality = this.loanTypeSelected.submodality[0]
+          this.submodalities = this.loanTypeSelected.submodality          
+          this.onchangeSubmodality()
+        }
+      }
     },
-
-    //Obtiene los parametros de la modalidad por afiliado
     async getLoanModalityAffiliate(id) {
       try {
-        let resp = await axios.post(`affiliate/${id}/loan_modality?procedure_type_id=${this.loanTypeSelected.id}`,{
-          type_sismu: this.data_sismu.type_sismu,
-          cpop_affiliate: this.affiliate_data.cpop_affiliate,
-          //reprogramming: this.reprogramming || this.remake
-          remake_loan: this.remake
-        })
+        this.choose_diff_month = false
+        this.number_diff_month = 1
+        let resp =await axios.get(`affiliate_loan_modality/${id}/${this.loanTypeSelected.id}`)
         if(resp.data ==''){
-
           this.loan_detail.not_exist_modality = true
+          this.submodalities = []
+          this.monto = null
+          this.plazo = null
           this.toastr.error("El afiliado no puede ser evaluado en esta modalidad")
         }else{
-
+          this.submodalities = resp.data
           this.loan_detail.not_exist_modality = false
-          this.loan_modality = resp.data
-
-          this.monto= parseFloat(this.loan_modality.loan_modality_parameter.minimum_amount_modality).toLocaleString("de-DE")+' - '+
-                      parseFloat(this.loan_modality.loan_modality_parameter.maximum_amount_modality).toLocaleString("de-DE")
-          this.plazo= this.loan_modality.loan_modality_parameter.minimum_term_modality+' - '+this.loan_modality.loan_modality_parameter.maximum_term_modality
-          //intervalos es el monto, plazo y modalidad y id de una modalidad
-          this.modalidad.maximun_amoun=this.loan_modality.loan_modality_parameter.maximum_amount_modality
-          this.modalidad.maximum_term= this.loan_modality.loan_modality_parameter.maximum_term_modality
-          this.modalidad.minimun_amoun=this.loan_modality.loan_modality_parameter.minimum_amount_modality
-          this.modalidad.minimum_term= this.loan_modality.loan_modality_parameter.minimum_term_modality
-          this.procedureLoan.procedure_id= this.loanTypeSelected.id
-
-          this.modalidad.id = this.loan_modality.id
-          this.modalidad.procedure_type_id = this.loan_modality.procedure_type_id
-          this.modalidad.procedure_type_name = this.loan_modality.procedure_type.name
-          this.modalidad.name = this.loan_modality.name
-          this.modalidad.quantity_ballots = this.loan_modality.loan_modality_parameter.quantity_ballots
-          this.modalidad.guarantors = this.loan_modality.loan_modality_parameter.guarantors
-          this.modalidad.min_guarantor_category = this.loan_modality.loan_modality_parameter.min_guarantor_category
-          this.modalidad.max_guarantor_category = this.loan_modality.loan_modality_parameter.max_guarantor_category
-          this.modalidad.personal_reference = this.loan_modality.loan_modality_parameter.personal_reference
-          this.modalidad.max_cosigner = this.loan_modality.loan_modality_parameter.max_cosigner
-          this.modalidad.max_lenders = this.loan_modality.loan_modality_parameter.max_lenders
-
-          this.loan_detail.min_guarantor_category = this.loan_modality.loan_modality_parameter.min_guarantor_category
-          this.loan_detail.max_guarantor_category = this.loan_modality.loan_modality_parameter.max_guarantor_category
-
-          this.getBallots(id)
-          this.generateContributions()
+          if(this.submodalities.length == 1){//si se obtiene una sola modalidad
+            this.loan_modality = resp.data[0]
+            this.onchangeSubmodality()
+          }
         }
       }catch (e) {
         console.log(e)
@@ -502,7 +448,60 @@ export default {
         this.loading = false
       }
     },
+    //Obtiene los parametros de la modalidad por afiliado
+    async onchangeSubmodality() {
+      try {
+        this.choose_diff_month = false
+        this.number_diff_month = 1
+ 
+        this.monto= parseFloat(this.loan_modality.loan_modality_parameter.minimum_amount_modality).toLocaleString("de-DE")+' - '+
+                    parseFloat(this.loan_modality.loan_modality_parameter.maximum_amount_modality).toLocaleString("de-DE")
+        this.plazo= this.loan_modality.loan_modality_parameter.minimum_term_modality+' - '+this.loan_modality.loan_modality_parameter.maximum_term_modality
+        //intervalos es el monto, plazo y modalidad y id de una modalidad
+        this.modalidad.maximun_amoun=this.loan_modality.loan_modality_parameter.maximum_amount_modality
+        this.modalidad.maximum_term= this.loan_modality.loan_modality_parameter.maximum_term_modality
+        this.modalidad.minimun_amoun=this.loan_modality.loan_modality_parameter.minimum_amount_modality
+        this.modalidad.minimum_term= this.loan_modality.loan_modality_parameter.minimum_term_modality
+        this.procedureLoan.procedure_id= this.loanTypeSelected.id
 
+        this.modalidad.id = this.loan_modality.id //id submodalidad
+        this.modalidad.procedure_type_id = this.loan_modality.procedure_type_id
+        this.modalidad.procedure_type_name = this.loan_modality.procedure_type.name
+        this.modalidad.name = this.loan_modality.name
+        this.modalidad.quantity_ballots = this.loan_modality.loan_modality_parameter.quantity_ballots
+        this.modalidad.guarantors = this.loan_modality.loan_modality_parameter.guarantors
+        this.modalidad.min_guarantor_category = this.loan_modality.loan_modality_parameter.min_guarantor_category
+        this.modalidad.max_guarantor_category = this.loan_modality.loan_modality_parameter.max_guarantor_category
+        this.modalidad.personal_reference = this.loan_modality.loan_modality_parameter.personal_reference
+        this.modalidad.max_cosigner = this.loan_modality.loan_modality_parameter.max_cosigner
+        this.modalidad.max_lenders = this.loan_modality.loan_modality_parameter.max_lenders
+
+        this.loan_detail.min_guarantor_category = this.loan_modality.loan_modality_parameter.min_guarantor_category
+        this.loan_detail.max_guarantor_category = this.loan_modality.loan_modality_parameter.max_guarantor_category
+
+        this.modalidad.loan_month_term = this.loan_modality.loan_modality_parameter.loan_month_term
+        this.validateAffiliateModality()
+        
+      }catch (e) {
+        console.log(e)
+        this.toastr.error(e.type)
+      }finally {
+        this.loading = false
+      }
+    },
+    //Validar afiliado con submodalidad
+    async validateAffiliateModality(){
+      try {
+        let res = await axios.get(`validate_affiliate_modality/${this.$route.query.affiliate_id}/${this.loan_modality.id}`) 
+        this.loan_detail.not_exist_modality = false
+        this.getBallots(this.$route.query.affiliate_id)
+        this.generateContributions()
+      } catch (e) {
+        console.log(e)
+        this.toastr.error(e.type)
+        this.loan_detail.not_exist_modality = true
+      }  
+    },
     //Metodo para sacar boleta de un afiliado
     async getBallots(id) {
       try {
@@ -551,7 +550,7 @@ export default {
               this.contribution[i].period = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('YYYY-MM-DD')
               this.contribution[i].month = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('MMMM')
 
-          } else if(this.lender_contribution.valid && this.lender_contribution.state_affiliate =='Pasivo'){
+          } else if(this.lender_contribution.valid && this.lender_contribution.state_affiliate =='Pasivo' && this.loanTypeSelected.id != 29){
               this.enabled = true
               this.editar = true
               if(this.data_ballots[i]){
@@ -568,7 +567,7 @@ export default {
                 this.contribution[i].month = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('MMMM')
                 }
 
-          } else if(!this.lender_contribution.valid && this.lender_contribution.state_affiliate =='Pasivo'){
+          } else if(!this.lender_contribution.valid && this.lender_contribution.state_affiliate =='Pasivo' && this.loanTypeSelected.id != 29){
               this.enabled = true
               this.editar  = true
               this.contribution[i].contributionable_id = 0
@@ -582,6 +581,19 @@ export default {
               this.contribution[i].payable_liquid = 0
               this.contribution[i].period = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('YYYY-MM-DD')
               this.contribution[i].month = this.$moment(this.lender_contribution.current_tiket).subtract(this.modalidad.quantity_ballots-1-i,'months').format('MMMM')
+
+          } 
+          else if(this.lender_contribution.state_affiliate == 'Pasivo' && this.loanTypeSelected.id == 29){
+            console.log("estacional")
+              this.contribution[i].contributionable_id = 0
+              this.contribution[i].payable_liquid = 0
+              let month_semester = this.$moment(this.lender_contribution.current_date).subtract((this.number_diff_month-this.modalidad.quantity_ballots-i) * this.loan_modality.loan_modality_parameter.loan_month_term,'months').format('YYYY-MM-DD')
+              //obtener ultima fecha del semestre
+              this.contribution[i].period = this.getSemesterDate(month_semester)
+              //armar periodo
+              let semester_date = this.$moment(this.getSemesterDate(month_semester));
+              let semester_label = semester_date.month() + 1 <= 6 ? 'PRIMER SEMESTRE' : 'SEGUNDO SEMESTRE';
+              this.contribution[i].month = `${semester_label} ${semester_date.year()}`;
 
           } else {
             this.toastr.error("Ocurrio caso especial de afiliado que no fue considerado.")}
@@ -615,18 +627,45 @@ export default {
     },
     appendIconCallback () {
       if(this.number_diff_month < this.global_parameters.max_months_go_back){
-        this.number_diff_month++
+        this.number_diff_month = this.number_diff_month+1
         this.choose_diff_month = true
         this.getBallots(this.$route.query.affiliate_id)
       }
     },
     prependIconCallback () {
       if(this.number_diff_month > 1){
-        this.number_diff_month--
+        this.number_diff_month = this.number_diff_month-1
         this.choose_diff_month = true
         this.getBallots(this.$route.query.affiliate_id)
       }
     },
+    getSemesterDate(dateInput) {
+      // Convierte la fecha de entrada en un objeto Moment
+      let date_input = this.$moment(dateInput);
+
+      // Obtener el año de la fecha de entrada
+      let year_input_date = date_input.year();
+
+      // Construye las fechas de referencia para los semestres usando el año de la fecha de entrada
+      let first_semester_end = this.$moment(year_input_date + '-06-30');
+      let second_semester_end = this.$moment(year_input_date + '-12-31');
+
+      let result;
+
+      if (date_input.isBefore(first_semester_end)) {
+          // Si estamos en el primer semestre (del 1 de enero al 30 de junio)
+          console.log('Primer semestre');
+          result = first_semester_end.format('YYYY-MM-DD');
+      } else if (date_input.isBefore(second_semester_end)) {
+          // Si estamos en el segundo semestre (del 1 de julio al 31 de diciembre)
+          console.log('Segundo semestre');
+          result = second_semester_end.format('YYYY-MM-DD');
+      } else {
+          console.log('Fecha fuera de rango');
+      }
+      console.log(result);
+      return result;
+    }
   }
 }
 </script>

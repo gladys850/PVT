@@ -113,6 +113,24 @@
                             ></v-text-field>
                           </ValidationProvider>
                         </v-col>
+                        <v-col cols="12" sm="6" md="3">
+                          <ValidationProvider
+                            v-slot="{ errors}"
+                            name="Parentesco"
+                            rules="required"
+                          >
+                            <v-select
+                              :error-messages="errors"
+                              dense
+                              :items="kinships"
+                              item-text="name"
+                              item-value="id"
+                              v-model="editedItem.kinship_id"
+                              label="Parentesco"
+                            >
+                            </v-select>
+                          </ValidationProvider>
+                        </v-col>
                         <v-col cols="12" sm="6" md="12">
                           <ValidationProvider v-slot="{ errors }" name="Dirección" rules="required">
                             <v-text-field
@@ -128,7 +146,6 @@
                   </v-card-text>
                 </v-form>
               </ValidationObserver>
-
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
@@ -138,6 +155,7 @@
           </v-dialog>
         </v-toolbar>
       </template>
+
       <template v-slot:[`item.actions`]="{ item }">
         <v-icon small class="mr-2" color="success" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small color="error" @click="deleteItem(item)">mdi-delete</v-icon>
@@ -189,6 +207,11 @@ export default {
         class: ["normal", "white--text"],
         value: "cell_phone_number"
       },
+      {
+        text: "Partentesco",
+        class: ["normal", "white--text"],
+        value: "kinship_id"
+      },
       { text: "Dirección", class: ["normal", "white--text"], value: "address" },
       {
         text: "Actions",
@@ -206,6 +229,7 @@ export default {
       mothers_last_name: null,
       phone_number: null,
       cell_phone_number: null,
+      kinship_id: null,
       address: null
     },
     defaultItem: {
@@ -215,8 +239,10 @@ export default {
       mothers_last_name: null,
       phone_number: null,
       cell_phone_number: null,
+      kinship_id: null,
       address: null
     },
+    kinships: []
 
   }),
 
@@ -233,7 +259,7 @@ export default {
     }
   },
   mounted() {
-
+    this.getKinship()
   },
   methods: {
     editItem(item) {
@@ -277,6 +303,15 @@ export default {
         this.$refs.observerReferencePerson.setErrors(e);
       }
     },
+    async getKinship(){
+      try {
+        let res = await axios.get('kinship')
+        this.kinships = res.data
+        console.log(this.kinships)
+      } catch (e) {
+        console.log(e)
+      }
+    }
   }
 };
 </script>

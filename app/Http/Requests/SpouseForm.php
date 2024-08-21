@@ -27,13 +27,13 @@ class SpouseForm extends FormRequest
     public function rules()
     {
         $rules = [
-            'first_name' => 'alpha_spaces|min:3',
+            'first_name' => 'required|alpha_spaces|min:3',
             'last_name' => 'sometimes|required_without:mothers_last_name|nullable|alpha_spaces|min:3',
-            'affiliate_id' => 'exists:affiliates,id', 
-            'identity_card' => 'min:3',
-            'civil_status' => 'in:C,D,S,V',
-            'city_birth_id' => 'exists:cities,id', 
-            'birth_date' => 'nullable|date_format:"Y-m-d"',   
+            'affiliate_id' => 'required|exists:affiliates,id', 
+            'identity_card' => 'required|min:3',
+            'civil_status' => 'required|in:C,D,S,V',
+            'city_birth_id' => 'required|exists:cities,id', 
+            'birth_date' => 'required|nullable|date_format:"Y-m-d"',   
             'second_name' =>'nullable|alpha_spaces|min:3',
             'mothers_last_name' =>'sometimes|required_without:last_name|nullable|alpha_spaces|min:3',
             'due_date' => 'nullable|date_format:"Y-m-d"',
@@ -46,9 +46,9 @@ class SpouseForm extends FormRequest
         ];
         switch ($this->method()) {
             case 'POST': {
-                foreach (array_slice($rules, 0, 8) as $key => $rule) {
-                    $rules[$key] = implode('|', ['required', $rule]);
-                }
+                // foreach (array_slice($rules, 0, 8) as $key => $rule) {
+                //     $rules[$key] = implode('|', ['required', $rule]);
+                // }
                 $rules['identity_card'] = implode('|', ['unique:spouses', $rules['identity_card']]);
                 return $rules;
             }

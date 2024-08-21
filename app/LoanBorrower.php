@@ -45,7 +45,8 @@ class LoanBorrower extends Model
         'liquid_qualification_calculated',
         'contributionable_ids',
         'contributionable_type',
-        'type'
+        'type',
+        'availability_info'
       ];
 
     public function getFullNameAttribute()
@@ -235,7 +236,7 @@ class LoanBorrower extends Model
       if($contributions_type == "loan_contribution_adjusts")
       {
         $contribution_type = "loan_contribution_adjusts";
-        $liquid_ids= LoanContributionAdjust::where('loan_id',$this->loan_id)->where('type_adjust',"liquid")->get()->pluck('id');
+        $liquid_ids= LoanContributionAdjust::where('loan_id',$this->loan_id)->where('type_adjust',"liquid")->orwhere('type_adjust','last_eco_com')->where('loan_id',$this->loan_id)->get()->pluck('id');
         $adjust_ids= LoanContributionAdjust::where('loan_id',$this->loan_id)->where('type_adjust',"adjust")->get()->pluck('id');
         foreach($liquid_ids as $liquid_id)
         {
@@ -260,11 +261,14 @@ class LoanBorrower extends Model
                         ]); 
           $sum_payable_liquid = $sum_payable_liquid + $ballot->amount;
           $sum_mount_adjust = $sum_mount_adjust + $mount_adjust; 
-        }            
-        $average_ballot_adjust->push([
-                        'average_payable_liquid' => $sum_payable_liquid/$count_records,
-                        'average_mount_adjust' => $sum_mount_adjust/$count_records,
-                    ]);         
+        }
+        if($count_records > 0)
+        {
+            $average_ballot_adjust->push([
+                'average_payable_liquid' => $sum_payable_liquid/$count_records,
+                'average_mount_adjust' => $sum_mount_adjust/$count_records,
+            ]);         
+        }
       }       
       $data = [
             'contribution_type' =>$contribution_type,

@@ -198,11 +198,6 @@ export default {
       type: Object,
       required: true
     },
-    loan_property_id: {
-      type: Number,
-      required: true,
-      default: 0
-    },
     data_loan_parent_aux: {
       type: Object,
       required: true
@@ -295,7 +290,6 @@ export default {
               indebtedness_calculated:this.loan_detail.indebtedness_calculated,
               parent_loan_id: this.parent_loan_id,
               parent_reason: this.parent_reason,
-              property_id: this.loan_detail.loan_property_id,
               personal_references: this.loan_detail.reference,
               cosigners:this.loan_detail.cosigners,
               disbursable_id: this.$route.query.affiliate_id,
