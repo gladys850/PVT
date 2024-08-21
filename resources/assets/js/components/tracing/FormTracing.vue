@@ -165,7 +165,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.payable_liquid_calculated | moneyString}}</p>
+                                              <p><b>LIQUIDO PAGABLE:</b> {{guarantor.payable_liquid_calculated | moneyString}}</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
@@ -173,7 +173,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="3">
-                                              <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
+                                              <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
                                             </v-col>
 
                                             <v-col cols="12" md="3">
