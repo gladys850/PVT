@@ -1548,13 +1548,13 @@ class LoanReportController extends Controller
                 ->where('observables.observable_type', '=', 'loans')
                 ->where($conditions)
                 ->select('*')
-                ->orderBy('code_loan', $order_loan)->distinct()
+                ->orderBy('id_loan', $order_loan)->distinct()
                 ->get();
             }else{
             $list_loan = DB::table('view_loan_borrower')
                 ->where($conditions)
                 ->select('*')
-                ->orderBy('code_loan', $order_loan)
+                ->orderBy('id_loan', $order_loan)
                 ->get();
             }
 
@@ -1614,13 +1614,13 @@ class LoanReportController extends Controller
                 ->where('observables.observable_type', '=', 'loans')
                 ->where($conditions)
                 ->select('*')
-                ->orderBy('code_loan', $order_loan)->distinct()
+                ->orderBy('id_loan', $order_loan)->distinct()
                 ->paginate($pagination_rows);
             }else{
                 $list_loan = DB::table('view_loan_borrower')
                 ->where($conditions)
                 ->select('*')
-                ->orderBy('code_loan', $order_loan)
+                ->orderBy('id_loan', $order_loan)
                 ->paginate($pagination_rows);
             }
             return $list_loan;
