@@ -1207,9 +1207,9 @@ class LoanController extends Controller
         // préstamos estacionales con cónyuge
         if($loan->modality->shortened == "EST-PAS-CON"){
             $persons->push([
-                'id' => $loan->affiliate->spouse->first()->id,
-                'full_name' => implode(' ', [$loan->affiliate->spouse->first()->full_name ?? '']),
-                'identity_card' => $loan->affiliate->spouse->first()->identity_card,
+                'id' => $loan->affiliate->spouse->id,
+                'full_name' => implode(' ', [$loan->affiliate->spouse->full_name ?? '']),
+                'identity_card' => $loan->affiliate->spouse->identity_card,
                 'position' => 'CÓNYUGE ANUENTE',
             ]);
         }
