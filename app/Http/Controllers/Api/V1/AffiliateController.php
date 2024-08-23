@@ -1757,6 +1757,8 @@ class AffiliateController extends Controller
             [$a => 10, $b => 37],                   //Corto Plazo en Disponibilidad
             [$a => 12, $b => 97],                   //Largo Plazo con Garantía Personal en Disponibilidad con un Garante
             [$a => 12, $b => 65],                   //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
+            [$a => 28, $b => 93],                   //Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor
+            [$a => 28, $b => 94],                   //Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor
             [$a => 11, $b => 66],                   //Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
             [$a => 24, $b => 73],                   //Reprogramación Corto Plazo en Disponibilidad
         ]);
