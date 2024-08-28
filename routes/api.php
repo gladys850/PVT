@@ -274,6 +274,7 @@ Route::group([
             //Route::get('calculate_percentage', 'Api\V1\LoanController@calculate_percentage');
             Route::get('my_loans', 'Api\V1\LoanController@my_loans');
             Route::post('procedure_brother', 'Api\V1\LoanController@procedure_brother');
+            Route::post('release_loan/{loan}', 'Api\V1\LoanController@release_loan');
         });
         Route::group([
             'middleware' => 'permission:create-loan'
