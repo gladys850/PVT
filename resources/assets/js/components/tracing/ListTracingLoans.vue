@@ -445,10 +445,7 @@ export default {
     async freeLoan(id_loan, code_loan){
       try {
           this.loading_table = true
-            let res = await axios.patch(`loan/${id_loan}`, {
-              user_id: null,
-              validated: false
-            });
+            let res = await axios.post(`release_loan/${id_loan}`);
             this.refreshKardexTable++
             this.toastr.success("El trámite "+ code_loan +" fue liberado" )
       } catch (e) {
