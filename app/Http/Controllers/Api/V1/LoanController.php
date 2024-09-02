@@ -2578,4 +2578,36 @@ class LoanController extends Controller
             return false;
         }
     }
+
+    //
+    public function release_loan(request $request, Loan $loan)
+    {
+        $message = "Ocurrio un error";
+        $status = false;
+        if(Auth::user()->can('release-loan-user'))
+        {
+            if($loan->state_id == LoanState::where('name', 'En Proceso')->first()->id)
+            {
+                $loan->validated = false;
+                $loan->user_id = null;
+                $loan->save();
+                $message = "Se quito la validación del tramite";
+                $status = true;
+            }
+            else
+            {
+                $message = "no se puede quitar la validación de un prestamo en estado " . $loan->state->name;
+                $status = false;
+            }
+        }
+        else
+        {
+            $message = "no tiene los permisos necesarios";
+            $state = false;
+        }
+        return [
+            'message' => $message,
+            'type' => $status
+        ];   
+    }
 }
