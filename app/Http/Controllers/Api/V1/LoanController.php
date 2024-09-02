@@ -2011,7 +2011,8 @@ class LoanController extends Controller
             [$a => 50, $b => 50, $c =>90],  //Refinanciamiento Largo Plazo con Largo Plazo con Pago Oportuno
             [$a => 49, $b => 49, $c =>92],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo SENASIR
             [$a => 71, $b => 71, $c =>91],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
-            [$a => 44, $b => 71, $c =>0],  //Largo Plazo con Garantía Personal Sector Pasivo AFP
+            [$a => 44, $b => 71, $c =>0],  //Largo Plazo con Garantía Personal Sector Pasivo AFP a GESTORA
+            [$a => 48, $b => 71, $c =>0],  //RRefinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP A GESTORA
         ]);
 
         $reference = $data_references->first(function ($item) use ($procedure_modality_id, $a) {    //Busca la la submodalidad, su refiannciamiento y reprogramación
