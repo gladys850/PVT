@@ -44,7 +44,8 @@
             </tr>
             <tr>
                 <td class="data-row py-5">{{ Util::money_format($loan->amount_approved) }} <span class="capitalize">Bs.</span></td>
-                <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">Meses</span></td>
+                @php($term_text = $loan->modality->loan_modality_parameter->loan_month_term == 6 ? 'Semestres' : 'Meses')
+                <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">{{ $term_text }}</span></td>
                 <td class="data-row py-5">
                     @if($loan->payment_type->name=='Deposito Bancario')
                         <div class="font-bold">Cuenta Entidad financiera</div>
@@ -57,7 +58,7 @@
             </tr>
             <tr class="bg-grey-darker text-xxs text-white">
                 <td>Tasa Anual (%)</td>
-                <td>Cuota Fija mensual</td>
+                <td>Cuota Fija</td>
                 <td>Fecha de Desembolso</td>
             </tr>
             <tr>

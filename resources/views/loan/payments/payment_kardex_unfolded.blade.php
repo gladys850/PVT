@@ -82,7 +82,7 @@
                 @endif
                 <td class="{{ $loan->parent_loan ? 'w-50' : 'w-50' }}" colspan="{{ $loan->parent_loan ? 1 : 2 }}">Modalidad de trámite</td>
                 <td class="w-15">Tasa Anual(%)</td>
-                <td class="w-25">Cuota Fija Mensual</td>
+                <td class="w-25">Cuota Fija</td>
             </tr>
             <tr>
                 <td class="data-row py-5 m-b-10 text-xs">{{ $loan->code }}</td>
@@ -100,7 +100,8 @@
                 <td colspan="2">Monto Desembolsado</td>
             </tr>
             <tr>          
-                <td class="data-row py-5 m-b-10 text-xs">{{ $loan->loan_term }} <span class="capitalize">Meses</span></td>
+                @php($term_text = $loan->modality->loan_modality_parameter->loan_month_term == 6 ? 'Semestres' : 'Meses')
+                <td class="data-row py-5 m-b-10 text-xs">{{ $loan->loan_term }} <span class="capitalize">{{ $term_text }}</span></td>
                 <td class="data-row py-5 m-b-10 text-xs">
                     @if($loan->payment_type->name=='Deposito Bancario')
                         <div class="font-bold">Cuenta Banco Union</div>
