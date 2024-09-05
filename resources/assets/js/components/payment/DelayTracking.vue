@@ -24,7 +24,7 @@
             {{ loan.num_accounting_voucher }}<br />
             <strong>Tasa anual: </strong> 
             {{ loan.intereses.annual_interest | percentage }}%<br />
-            <strong>Cuota fija mensual: </strong>
+            <strong>Cuota fija: </strong>
             {{ loan.estimated_quota | money }}<br />
           </v-col>
           <v-col col md="4" class="ma-0 pa-0">

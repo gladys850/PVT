@@ -12,7 +12,7 @@
           </v-col>
           <v-col md="4" class="ma-0 pa-0">
             <strong>Tasa anual: </strong> {{ loan.intereses.annual_interest | percentage }}%<br />
-            <strong>Cuota fija mensual: </strong> {{ loan.estimated_quota | money}}<br />
+            <strong>Cuota fija: </strong> {{ loan.estimated_quota | money}}<br />
           </v-col>
 
         </v-row>
