@@ -16,7 +16,7 @@
             <strong>Desembolso: </strong>{{ loan.disbursement_date | date }}<br />
             <strong>Nro de comprobante contable: </strong>{{ loan.num_accounting_voucher }}<br />
             <strong>Tasa anual: </strong> {{ loan.intereses.annual_interest | percentage }}%<br />
-            <strong>Cuota fija mensual: </strong> {{ loan.estimated_quota | money}}<br />
+            <strong>Cuota fija: </strong> {{ loan.estimated_quota | money}}<br />
           </v-col>
 
         </v-row>

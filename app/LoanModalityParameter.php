@@ -17,10 +17,12 @@ class LoanModalityParameter extends Model
         'debt_index',
         'quantity_ballots',
         'guarantors',
+        'max_lenders',
         'min_guarantor_category',
         'max_guarantor_category',
         'min_lender_category',
         'max_lender_category',
+        'max_cosigner',
         'personal_reference',
         'maximum_amount_modality',
         'minimum_amount_modality',
@@ -30,7 +32,11 @@ class LoanModalityParameter extends Model
         'print_receipt_fund_rotary',
         'print_form_qualification_platform',
         'loan_procedure_id',
-        'loan_month_term'
+        'max_approved_amount',
+        'guarantor_debt_index',
+        'loan_month_term',
+        'coverage_percentage',
+        'eval_percentage'
     ];
 
     public function getDecimalIndexAttribute()
