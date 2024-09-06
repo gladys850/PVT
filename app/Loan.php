@@ -367,8 +367,7 @@ class Loan extends Model
 
     public function getLoanMonthTermAttribute()
     {
-        $procedure_modality = ProcedureModality::find($this->procedure_modality_id);
-        return $procedure_modality->loan_modality_parameter->loan_month_term;
+        return LoanModalityParameter::where('procedure_modality_id', $this->procedure_modality_id)->first()->loan_month_term;
     }
 
     public function getEstimatedQuotaAttribute()
