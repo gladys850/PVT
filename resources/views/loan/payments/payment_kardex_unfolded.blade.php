@@ -100,7 +100,7 @@
                 <td colspan="2">Monto Desembolsado</td>
             </tr>
             <tr>          
-                @php($term_text = $loan->modality->loan_modality_parameter->loan_month_term == 6 ? 'Semestres' : 'Meses')
+                @php($term_text = $loan->loan_month_term == 6 ? 'Semestres' : 'Meses')
                 <td class="data-row py-5 m-b-10 text-xs">{{ $loan->loan_term }} <span class="capitalize">{{ $term_text }}</span></td>
                 <td class="data-row py-5 m-b-10 text-xs">
                     @if($loan->payment_type->name=='Deposito Bancario')
