@@ -2357,4 +2357,85 @@ class LoanReportController extends Controller
     $export = new ArchivoPrimarioExport($data_income);
     return Excel::download($export, $File.'.xls');
     }
+
+  public function report_loans_pay_partial() { 
+    $year=request('year');
+    $month=request('month');
+    $date = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+    $loans = DB::select("select loans_partial_payments(?)",[$date]);
+    $File="Prestamos con Pagos Parciales";
+    $data_income=array(
+        array(
+            "NUP",
+            "MATRÍCULA AFILIADO",
+            "CI AFILIADO",
+            "EXP",
+            "NOMBRE COMPLETO AFILIADO",
+            "***",
+            "MATRÍCULA",
+            "CI",
+            "EXP",
+            "NOMBRE COMPLETO",
+            "CATEGORÍA",
+            "GRADO",
+            "NRO DE CEL.1",
+            "NRO DE CEL.2",
+            "NRO FIJO",
+            "CIUDAD",
+            "DIRECCIÓN",
+            "PTMO",
+            "FECHA DESEMBOLSO",
+            "NRO DE CUOTAS",
+            "TASA ANUAL",
+            "FECHA CORTE KARDEX PAGOS",
+            "TIPO DE PAGO",
+            "CUOTA MENSUAL",
+            "SALDO ACTUAL KARDEX DE PAGO",
+            "FECHA CORTE PLAN DE PAGOS",
+            "SALDO ACTUAL DE PLAN DE PAGOS",
+            "ESTADO DEL AFILIADO",    
+            "MODALIDAD",
+            "SUB MODALIDAD"
+        )
+    );
+
+    foreach($loans as $key => $loan){
+        $loan = json_decode($loans[$key]->loans_partial_payments, true);
+        array_push($data_income, array(
+            $loan['nup_affiliate'],
+            $loan['matricula_affiliate'],
+            $loan['ci_affiliate'],
+            $loan['exp_ci_affiliate'],
+            $loan['full_name_affiliate'],
+            '***',
+            $loan['matricula_borrower'],
+            $loan['ci_borrower'],
+            $loan['exp_ci_borrower'],
+            $loan['full_name_borrower'],
+            $loan['category_borrower'],
+            $loan['degree_borrower'],
+            $loan['cell_number_borrower_one'],
+            $loan['cell_number_borrower_two'],
+            $loan['phone_number_borrower'],
+            $loan['city_borrower'],
+            $loan['address_borrower'],
+            $loan['code_loan'],
+            $loan['disbursement_date_loan'],
+            $loan['loan_term_loan'],
+            $loan['annual_interest_loan'],
+            $loan['payment_kardex_cut_date'],
+            $loan['type_pay_kardex'],
+            $loan['estimated_quota_loan'],
+            $loan['balance_kardex_loan'],
+            $loan['payment_plan_cut_date'],
+            $loan['balance_plan_payment'],
+            $loan['state_affiliate'],    
+            $loan['modality_loan'],
+            $loan['sub_modality_loan']
+            )
+        );
+    }
+    $export = new ArchivoPrimarioExport($data_income);
+    return Excel::download($export, $File.'.xls');
+  }
 }
