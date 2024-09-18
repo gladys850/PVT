@@ -362,7 +362,7 @@ export default {
       },
       {
         id: 21,
-        name: "Rep. de Prestamos Pago Parcial",
+        name: "Rep. de Prestatarios con Pagos Parciales",
         tab: 0,
         criterios: ["criteria_date"],
         service: "/report_loans_pay_partial",
