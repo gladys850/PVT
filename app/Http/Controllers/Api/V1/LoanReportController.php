@@ -2363,7 +2363,7 @@ class LoanReportController extends Controller
     $month=request('month');
     $date = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
     $loans = DB::select("select loans_partial_payments(?)",[$date]);
-    $File="Prestamos con Pagos Parciales";
+    $File="Prestatarios con Pagos Parciales";
     $data_income=array(
         array(
             "NUP",
