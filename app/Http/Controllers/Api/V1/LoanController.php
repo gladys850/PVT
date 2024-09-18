@@ -887,7 +887,8 @@ class LoanController extends Controller
         }
         /** Guardar datos garantía si es préstamo por fondo de retiro*/
         if (str_contains($loan->modality->procedure_type->name, "Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario")) {
-            $retirement_fund = $loan->borrower->first()->retirement_fund_average();
+            //$retirement_fund = $loan->borrower->first()->retirement_fund_average();
+            $retirement_fund = $loan->affiliate->retirement_fund_average();
             $data = [
                 "loan_id" => $loan->id,
                 "retirement_fund_average_id" => $retirement_fund->id,

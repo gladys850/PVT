@@ -296,8 +296,8 @@ class LoanBorrower extends Model
   {
     return $this->affiliate()->date_entry;
   }
-  public function retirement_fund_average()
+  /*public function retirement_fund_average()
   {
     return RetirementFundAverage::where('degree_id', $this->degree_id)->where('category_id', $this->category_id)->where('is_active', true)->first();
-  }
+  }*/
 }
