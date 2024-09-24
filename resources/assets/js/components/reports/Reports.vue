@@ -16,7 +16,7 @@
             <v-tabs-items v-model="tab">
               <v-tab-item v-for="item in actions" :key="item.nameTab">
                 <v-row align="center" no-gutters>
-                  <v-col cols="4" class="pa-2">
+                  <v-col cols="12" md="6" sm="12" class="pa-2">
                     <v-card class="ma-0 pa-3">
                     <v-toolbar-title>
                       <b>Seleccione un reporte</b>
@@ -33,9 +33,7 @@
                     </v-select>
                     <!-- SOLAMENTE SE MOSTRARA CUANDO HAYA UN REPORTE SELECCIONADO -->
                     <template v-if="report_selected && visible == true">
-                      <template v-if="report_selected.criterios.includes('initial_date') ||
-                                      report_selected.criterios.includes('final_date') ||
-                                      report_selected.criterios.includes('date')">
+                      <template v-if="report_selected.criterios.length > 0">
                         <v-toolbar-title>
                           <b>Criterios de búsqueda</b>
                         </v-toolbar-title>
@@ -84,6 +82,36 @@
                         >
                         </v-select>
                       </template>
+                      <template v-if="report_selected.criterios.includes('criteria_date')">
+                        <v-row>
+                          <v-col cols="6">
+                            <v-text-field
+                              dense
+                              v-model="criteria_date.year"
+                              label="Gestión"
+                              append-outer-icon="mdi-chevron-right"
+                              prepend-icon="mdi-chevron-left"
+                              @click:append-outer="appendIconCallBack"
+                              @click:prepend="prependIconCallBack"
+                              readonly
+                              outlined
+                            ></v-text-field>
+                          </v-col>
+
+                          <v-col cols="6">
+                            <v-select
+                              dense
+                              :items="months"
+                              v-model="criteria_date.month"
+                              item-text="name"
+                              item-value="id"
+                              label="Mes"
+                              outlined
+                            ></v-select>
+                          </v-col>
+                        </v-row>
+                      </template>
+
                       <v-btn
                         color="primary"
                         :loading="loading_button"
@@ -112,6 +140,20 @@ export default {
       { nameTab: "Reportes de Amortizaciones", value: "amortizaciones" },
       { nameTab: "Otros Reportes", value: "otros" },
     ],
+    months: [
+      {id:1, code:"01", name:"Enero"},
+      {id:2, code:"02", name:"Febrero"},
+      {id:3, code:"03", name:"Marzo"},
+      {id:4, code:"04", name:"Abril"},
+      {id:5, code:"05", name:"Mayo"},
+      {id:6, code:"06", name:"Junio"},
+      {id:7, code:"07", name:"Julio"},
+      {id:8, code:"08", name:"Agosto"},
+      {id:9, code:"09", name:"Septiembre"},
+      {id:10, code:"10", name:"Octubre"},
+      {id:11, code:"11", name:"Noviembre"},
+      {id:12, code:"12", name:"Dciembre"}
+    ],
     loading_button: false,
     // Reports
     reports_items: [],
@@ -124,6 +166,10 @@ export default {
     },
     type_institution: [],
     visible: false,
+    criteria_date: {
+      year: new Date().getFullYear(),
+      month: new Date().getMonth() + 1
+    }
 
   }),
 
@@ -279,7 +325,7 @@ export default {
         permissions: 'show-report-others'
       },
       {
-        id: 16,
+        id: 17,
         name: "Rep. Solicitudes de Préstamos (XLS)",
         tab: 2,
         criterios: ["initial_date","final_date"],
@@ -288,7 +334,7 @@ export default {
         permissions: 'show-report-others'
       },
       {
-        id: 17,
+        id: 18,
         name: "Rep. Dias transcurridos desde la ultima Amortización",
         tab: 0,
         criterios: ["final_date"],
@@ -297,7 +343,7 @@ export default {
         permissions: 'show-report-others'
       },
       {
-        id: 18,
+        id: 19,
         name: "Rep. de tramites procesados",
         tab: 0,
         criterios: ["initial_date", "final_date"],
@@ -306,13 +352,22 @@ export default {
         permissions: 'show-report-others'
       },
       {
-        id: 19,
+        id: 20,
         name: "Rep. de Ingresos",
         tab: 0,
         criterios: ["initial_date", "final_date"],
         service: "/report_loans_income",
         type: "xls",
         permissions: 'show-report-others'
+      },
+      {
+        id: 21,
+        name: "Rep. de Prestatarios con Pagos Parciales",
+        tab: 0,
+        criterios: ["criteria_date"],
+        service: "/report_loans_pay_partial",
+        type: "xls",
+        permissions: 'show-report-loans'
       },
     ],
     this.type_institution= [
@@ -346,7 +401,11 @@ export default {
       this.report_inputs.initial_date = this.$moment(Date.now()).format('YYYY-MM-DD')
       this.report_inputs.final_date = this.$moment(Date.now()).format('YYYY-MM-DD')
       this.report_inputs.date = this.$moment(Date.now()).format('YYYY-MM-DD')
-      this.report_inputs.origin = null
+      this.report_inputs.origin = null,
+      this.criteria_date = {
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1
+      }
     },
 
     async downloadReport() {
@@ -374,7 +433,9 @@ export default {
               final_date: this.report_inputs.final_date,
               date: this.report_inputs.date,
               origin: this.report_inputs.origin,
-              type:'xls'
+              type:'xls',
+              year: this.criteria_date.year,
+              month: this.criteria_date.month
             },
           })
             .then((response) => {
@@ -427,6 +488,12 @@ export default {
         this.loading_button = false
       }
     },
+    appendIconCallBack (){
+      this.criteria_date.year ++
+    },
+    prependIconCallBack (){
+      this.criteria_date.year--
+    }
   },
 
   computed: {
@@ -436,34 +503,25 @@ export default {
     },
 
     computedReportsItems() {
-      let reports_items =[]
-      let reports_items_collections =[]
-      let reports_items_treasury =[]
-      let reports_items_others =[]
-      let reports_items_loans =[]
-      let reports_items_loans_consult =[]
+      let permissionsMap = {
+        'show-report-collections': [],
+        'show-report-treasury': [],
+        'show-report-others': [],
+        'show-report-loans-consult': [],
+        'show-report-loans': []
+      };
 
-      if (this.permissionSimpleSelected.includes("show-report-collections")){
-         reports_items_collections = this.reports_items.filter((item) => item.permissions == 'show-report-collections');
-      }
-      if (this.permissionSimpleSelected.includes("show-report-treasury")){
-         reports_items_treasury = this.reports_items.filter((item) => item.permissions == 'show-report-treasury');
-       }
-      if (this.permissionSimpleSelected.includes("show-report-others")){
-         reports_items_others = this.reports_items.filter((item) => item.permissions == 'show-report-others');
-      }
-      if (this.permissionSimpleSelected.includes("show-report-loans-consult")){
-         reports_items_loans_consult = this.reports_items.filter((item) => item.permissions == 'show-report-loans-consult');
-      }
-      if (this.permissionSimpleSelected.includes("show-report-loans")){
-         reports_items_loans = this.reports_items.filter((item) => item.permissions == 'show-report-loans');
-      }else{
-        reports_items
-      }
-      reports_items = reports_items_collections.concat(reports_items_loans_consult.concat(reports_items_loans.concat(reports_items_treasury.concat(reports_items_others))))
-      reports_items = reports_items.filter((item) => item.tab == this.tab)
-      return reports_items
+      // Filtrar items por permiso
+      Object.keys(permissionsMap).forEach(permission => {
+        if (this.permissionSimpleSelected.includes(permission)) {
+          permissionsMap[permission] = this.reports_items.filter(item => item.permissions === permission);
+        }
+      });
+      // Concatenar todos los arrays de items
+      let reports_items = Object.values(permissionsMap).flat();
 
+      // Filtrar por la pestaña seleccionada
+      return reports_items.filter(item => item.tab === this.tab);
     },
   },
 };
