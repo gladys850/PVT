@@ -123,7 +123,7 @@
           </div>
           <v-card-text>
             <div>
-              <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS REGISTRADOS</h1>
+              <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS VIGENTES Y EN PROCESO REGISTRADOS</h1>
               <ul style="list-style: none;" class="pa-0">
                 <li v-for="(item,i) in loan" :key="i">
                   <div>
