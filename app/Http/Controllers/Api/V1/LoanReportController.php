@@ -15,6 +15,8 @@ use App\User;
 use App\Loan;
 use App\Role;
 use App\LoanState;
+use App\Observation;
+use App\ObservationType;
 use Carbon;
 use App\ProcedureModality;
 use App\LoanGlobalParameter;
@@ -2438,4 +2440,32 @@ class LoanReportController extends Controller
     $export = new ArchivoPrimarioExport($data_income);
     return Excel::download($export, $File.'.xls');
   }
+
+    public function affiliate_observation_report()
+    {
+        $observables = Observation::join('observation_types', 'observables.observation_type_id', '=', 'observation_types.id')
+        ->where('observation_types.module_id', 6)
+        ->where('observables.observable_type', 'affiliates')
+        ->where('observables.enabled', false)
+        ->select('observables.*', 'observation_types.name') // Seleccionar solo el campo 'name' de 'observation_types'
+        ->get();
+    
+        $data_income=array(
+            array("Nup","Carnet de Identidad","Nombre Completo", "Tipo de Observación", "Observacion")
+        );
+        foreach($observables as $observable)
+        {
+            $affiliate = Affiliate::find($observable->observable_id);
+            array_push($data_income, array(
+                $affiliate->id,
+                $affiliate->identity_card,
+                $affiliate->full_name,
+                $observable->name,
+                $observable->message
+            ));
+        }
+        $export = new ArchivoPrimarioExport($data_income);
+        $File="Afiliados con observaciones";
+        return Excel::download($export, $File.'.xls');
+    }
 }
