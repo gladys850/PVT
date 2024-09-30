@@ -119,6 +119,8 @@ Route::group([
         Route::get('report_request_institution', 'Api\V1\ImportationReportController@report_request_institution');
             //movementFundRotatory_Report
         Route::get('disbursements_fund_rotatory_outputs_report', 'Api\V1\MovementFundRotatoryController@disbursements_fund_rotatory_outputs_report'); //report de desembolsos anticipo 
+        // Reprte de afiliados con observaciones
+        Route::get('affiliate_observation_report', 'Api\V1\LoanReportController@affiliate_observation_report'); //report de desembolsos anticipo 
         //IMPORTACION
         Route::get('agruped_payments', 'Api\V1\ImportationController@agruped_payments');
         Route::get('importation_payments_senasir', 'Api\V1\ImportationController@importation_payment_senasir');//senasir pagos
