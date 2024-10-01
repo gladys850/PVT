@@ -30,12 +30,18 @@ class LoanModalityParameter extends Model
         'print_receipt_fund_rotary',
         'print_form_qualification_platform',
         'loan_procedure_id',
-        'loan_month_term'
+        'loan_month_term',
+        'suggested_debt_index'
     ];
 
     public function getDecimalIndexAttribute()
     {
         return $this->debt_index / (100);
+    }
+
+    public function getDecimalIndexSuggestedAttribute()
+    {
+        return $this->suggested_debt_index / (100);
     }
 
     public function procedure_modality()
