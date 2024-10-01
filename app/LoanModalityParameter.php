@@ -45,6 +45,11 @@ class LoanModalityParameter extends Model
         return $this->debt_index / (100);
     }
 
+    public function getDecimalIndexSuggestedAttribute()
+    {
+        return $this->suggested_debt_index / (100);
+    }
+
     public function procedure_modality()
     {
         return $this->belongsTo(ProcedureModality::class);
