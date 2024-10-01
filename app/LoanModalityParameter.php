@@ -36,7 +36,8 @@ class LoanModalityParameter extends Model
         'guarantor_debt_index',
         'loan_month_term',
         'coverage_percentage',
-        'eval_percentage'
+        'eval_percentage',
+        'suggested_debt_index'
     ];
 
     public function getDecimalIndexAttribute()
