@@ -31,7 +31,11 @@ class LoanModalityParameter extends Model
         'print_form_qualification_platform',
         'loan_procedure_id',
         'loan_month_term',
-        'suggested_debt_index'
+        'suggested_debt_index',
+        'max_approved_amount',
+        'guarantor_debt_index',
+        'coverage_percentage',
+        'eval_percentage'
     ];
 
     public function getDecimalIndexAttribute()
