@@ -123,7 +123,7 @@
           </div>
           <v-card-text>
             <div>
-              <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS REGISTRADOS</h1>
+              <h1 v-if="loan.length === 0">NO TIENE PRÉSTAMOS VIGENTES Y EN PROCESO REGISTRADOS</h1>
               <ul style="list-style: none;" class="pa-0">
                 <li v-for="(item,i) in loan" :key="i">
                   <div>
@@ -203,7 +203,7 @@
                     </v-tooltip>
                     </span>
 
-                    <span v-if="item.state.name == 'Vigente'">
+                    <!-- <span v-if="item.state.name == 'Vigente'">
                     <v-tooltip
                     left
                     v-if="(item.modality.procedure_type.name == 'Préstamo a Largo Plazo' || item.modality.procedure_type.name == 'Préstamo Hipotecario')
@@ -225,7 +225,7 @@
                       </template>
                       <span>Reprogramacion</span>
                     </v-tooltip>
-                    </span>
+                    </span> -->
                     <v-progress-linear
                       :color="item.default_alert_state ? 'error' : 'info'"
                       height="15"
@@ -293,7 +293,7 @@
               </template>
               <span>Refinanciamiento SISMU</span>
             </v-tooltip>
-            <v-tooltip
+            <!-- <v-tooltip
               left v-if="permissionSimpleSelected.includes('create-loan')"
             >
               <template v-slot:activator="{ on }">
@@ -313,7 +313,7 @@
                 </v-btn>
               </template>
               <span>Reprogramación SISMU</span>
-            </v-tooltip>
+            </v-tooltip> -->
           </v-card-text>
         </v-card>
       </v-col>
@@ -451,7 +451,8 @@ export default {
             guarantor:0
           }
         });
-        this.loan = res.data.data;
+        //this.loan = res.data.data;
+        this.loan = res.data.data.filter(item => item.state.name === 'Vigente' || item.state.name === 'En Proceso');
         let num = this.loan.length;
       } catch (e) {
         console.log(e);

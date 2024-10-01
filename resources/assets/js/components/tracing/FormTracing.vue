@@ -96,7 +96,7 @@
                                 </v-col>
 
                                 <v-col class="py-0">
-                                  <p><b>PLAZO EN MESES:</b>{{' '+loan.loan_term}}</p>
+                                  <p><b>PLAZO:</b>{{' '+loan.loan_term}}</p>
                                 </v-col>
 
                                 <v-col cols="12" md="4" class="py-0">
@@ -112,7 +112,7 @@
                                 </v-col>
 
                                 <v-col cols="12" md="4" class="py-0">
-                                   <p><b>INDICE DE ENDEUDAMIENTO:</b> {{loan.borrower[0].indebtedness_calculated|percentage }}% </p>
+                                   <p><b>LÍMITE DE ENDEUDAMIENTO:</b> {{loan.borrower[0].indebtedness_calculated|percentage }}% </p>
                                 </v-col>
 
                                 <v-col cols="12" md="4" class="py-0">
@@ -130,68 +130,66 @@
                             <v-card-text  class=" py-0">
                               <v-col cols="12" md="12" color="orange">
                                 <v-card-text class="pa-0 mb-0">
-
                                   <v-col cols="12" md="12" class="py-0 px-0" >
-                                    <p style="color:teal"><b>GARANTÍA</b></p>
+                                    <p style="color:teal" v-if="loan.modality.procedure_type.second_name == 'Fondo de Retiro'"><b>GARANTIA DEL FONDO DE RETIRO POLICIAL SOLIDARIO</b></p>
+                                    <p v-else style="color:teal"><b>GARANTÍA</b></p>
                                   </v-col>
-
                                   <v-progress-linear></v-progress-linear>
+                                  <br>
 
-                                  <div v-for="procedure_type in procedure_types" :key="procedure_type.id" class="pa-0 py-0" >
-                                    <ul style="list-style: none" class="pa-0" v-if="procedure_type.name == 'Préstamo a Largo Plazo' || procedure_type.name == 'Préstamo a Corto Plazo'|| procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo'">
+                                  <v-col cols="12" md="12">
+                                    <div class="pa-0" v-if="loan.modality.procedure_type.name == 'Préstamo a Largo Plazo' || loan.modality.procedure_type.name == 'Préstamo a Corto Plazo'|| loan.modality.procedure_type.name == 'Refinanciamiento Préstamo a Corto Plazo' || loan.modality.procedure_type.name == 'Refinanciamiento Préstamo a Largo Plazo'">
 
-                                      <li v-for="guarantor in loan.borrowerguarantors" :key="guarantor.id">
-                                        <v-col cols="12" md="12" class="pa-0">
-
-                                          <v-row class="pa-2">
-                                            <v-col cols="12" md="12" class="py-0">
-                                              <p style="color:black"><b>GARANTE </b></p>
-                                            </v-col>
-
+                                        <v-col cols="12" md="12" class="pa-0" v-for="guarantor in loan.borrowerguarantors" :key="guarantor.id">
+                                          <p style="color:black" class="mb-0"><b>GARANTE </b></p>          
                                             <v-progress-linear></v-progress-linear><br>
 
-                                            <v-col cols="12" md="3">
+                                          <v-row>
+                                            <v-col cols="12" md="3" class="py-2">
                                               <p><b>NOMBRE:</b> {{$options.filters.fullName(guarantor, true)}}</p>
                                             </v-col>
 
-                                            <v-col cols="12" md="3">
+                                            <v-col cols="12" md="3" class="py-2">
                                               <p><b>CÉDULA DE IDENTIDAD:</b> {{guarantor.identity_card}}</p>
                                             </v-col>
 
-                                            <v-col cols="12" md="3">
+                                            <v-col cols="12" md="3" class="py-2">
                                               <p><b>TELÉFONO:</b> {{guarantor.cell_phone_number}}</p>
                                             </v-col>
 
-                                            <v-col cols="12" md="3">
-                                              <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.payment_percentage|percentage }}%</p>
+                                            <v-col cols="12" md="3" class="py-2">
+                                              <p><b>PORCENTAJE DE PAGO:</b> {{guarantor.payment_percentage | percentage }}%</p>
                                             </v-col>
 
-                                            <v-col cols="12" md="3">
-                                              <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.payable_liquid_calculated | moneyString}}</p>
+                                            <v-col cols="12" md="3" class="py-2">
+                                              <p><b>LIQUIDO PAGABLE:</b> {{guarantor.payable_liquid_calculated | moneyString}}</p>
                                             </v-col>
 
-                                            <v-col cols="12" md="3">
-                                              <p><b>PROMEDIO DE BONOS:</b> {{guarantor.bonus_calculated| moneyString }}</p>
+                                            <v-col cols="12" md="3" class="py-2">
+                                              <p><b>PROMEDIO DE BONOS:</b> {{guarantor.bonus_calculated | moneyString }}</p>
                                             </v-col>
 
-                                            <v-col cols="12" md="3">
-                                              <p><b>LIQUIDO PARA CALIFICACION CALCULADO:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
+                                            <v-col cols="12" md="3" class="py-2">
+                                              <p><b>LIQUIDO PARA CALIFICACION:</b> {{guarantor.liquid_qualification_calculated | moneyString}}</p>
                                             </v-col>
 
-                                            <v-col cols="12" md="3">
-                                              <p><b>INDICE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated|percentage }}%</p>
+                                            <v-col cols="12" md="3" class="py-2">
+                                              <p><b>MONTO DE EVALUACIÓN A GARANTE:</b> {{guarantor.eval_quota | moneyString }}</p>
+                                            </v-col>
+
+                                            <v-col cols="12" md="3" class="py-2">
+                                              <p><b>LÍMITE DE ENDEUDAMIENTO CALCULADO:</b> {{guarantor.indebtedness_calculated | percentage }}%</p>
                                             </v-col>
                                           </v-row>
 
                                         </v-col>
-                                      </li>
+                 
+                                      <p v-if="loan.guarantors.length==0" style="color:teal"><b> NO TIENE GARANTES </b></p>
                                       <br>
+                                    </div>
+                                  </v-col>
 
-                                      <p v-if="loan.guarantors.length==0" ><b> NO TIENE GARANTES </b></p>
-
-                                    </ul>
-
-                                    <v-col cols="12" md="12" v-if="procedure_type.name == 'Préstamo Hipotecario' || procedure_type.name == 'Refinanciamiento Préstamo Hipotecario'">
+                                    <v-col cols="12" md="12" v-if="loan.modality.procedure_type.name == 'Préstamo Hipotecario' || loan.modality.procedure_type.name == 'Refinanciamiento Préstamo Hipotecario'">
                                      <p style="color:teal"><b>GARANTIA HIPOTECARIA </b></p>
                                       <v-row>
                                         <v-progress-linear></v-progress-linear><br>
@@ -241,18 +239,19 @@
                                         </v-col>
                                       </v-row>
                                     </v-col>
-                                    <ul style="list-style: none" class="pa-0 py-0" v-if="procedure_type.name == 'Préstamo Anticipo'">
-                                      <v-col cols="12" md="12" class="py-0" >
-                                        <p style="color:teal" ><b>GARANTE</b></p>
+                                    <v-col cols="12" md="12" v-if="loan.modality.procedure_type.second_name == 'Fondo de Retiro'">
+                                      <v-row>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>TOTAL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIO: </b>{{loan.retirement.average | moneyString}} </p>
                                       </v-col>
-
-                                      <v-progress-linear></v-progress-linear>
-
-                                      <br>
-                                      <p> <b>NO TIENE GARANTES</b></p>
-                                    </ul>
-
-                                  </div>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>COBERTURA DEL BENEFICIO DEL FONDO DE RETIRO POLICIAL SOLIDARIOS: </b>{{loan.retirement.coverage | moneyString}} </p>
+                                      </v-col>
+                                      <v-col class="my-0 py-0" cols="12" md="12">
+                                        <p><b>PORCENTAJE CALCULADO: </b>{{loan.retirement.percentage * 100}} % </p>
+                                      </v-col>
+                                      </v-row>
+                                    </v-col>
                                 </v-card-text>
                               </v-col>
                             </v-card-text>
@@ -267,57 +266,46 @@
                               <v-col cols="12" md="12" class="py-0" >
                                 <p style="color:teal"><b>INFORMACION DEL TRAMITE</b></p>
                               </v-col>
-
                               <v-progress-linear></v-progress-linear>
                               <br>
 
-                              <v-col cols="12" md="6" class="pa-0" >
-                                <p>DATOS DEL CONTRATO</p>
-                              </v-col>
-
-                              <v-progress-linear></v-progress-linear>
-
-                              <v-row>
-                                <v-col cols="12" md="6">
-                                  <p><b>FECHA ENTREGA DE CONTRATO:</b> {{loan.delivery_contract_date | date}}</p>
-                                </v-col>
-
-                                <v-col cols="12" md="6">
-                                  <p><b>FECHA RECEPCION DE CONTRATO:</b> {{loan.return_contract_date==null? loan.return_contract_date:' '}}</p>
-                                </v-col>
-                              </v-row>
-
-                              <v-col cols="12" class="pa-0">
-                                <v-progress-linear></v-progress-linear>
-                                <br>
-
-                                <p>DATOS DEL DESEMBOLSO</p>
-
-                                <v-progress-linear></v-progress-linear>
+                              <v-col cols="12">                  
+                              <p style="color:black" class="mb-0"><b>DATOS DEL CONTRATO </b></p>
+                              <v-progress-linear class="mb-4"></v-progress-linear>
 
                                 <v-row>
-                                  <v-col cols="12" md="6" class="py-0">
-                                    <br>
+                                  <v-col cols="12" md="6" class="py-2">
+                                    <p><b>FECHA ENTREGA DE CONTRATO:</b> {{loan.delivery_contract_date | date}}</p>
+                                  </v-col>
+
+                                  <v-col cols="12" md="6" class="py-2">
+                                    <p><b>FECHA RECEPCION DE CONTRATO:</b> {{loan.return_contract_date==null? loan.return_contract_date:' '}}</p>
+                                  </v-col>
+                                </v-row>
+                              </v-col>
+
+                              <v-col cols="12">
+                                <p style="color:black" class="mb-0"><b>DATOS DEL DESEMBOLSO </b></p>
+                                <v-progress-linear class="mb-4"></v-progress-linear>
+
+                                <v-row>
+                                  <v-col cols="12" md="6" class="py-2">
                                     <p><b>TIPO DE DESEMBOLSO:</b> {{loan.payment_type.name}}</p>
                                   </v-col>
 
-                                  <v-col cols="12" md="6" v-show="loan.payment_type.name=='Depósito Bancario'" class="py-0">
-                                    <br>
-                                    <p><b>ENTIDAD FINANCIERA:</b>{{' '+loan.payment_type.name}}</p>
-                                  </v-col>
-                                  <v-col cols="12" md="4" class="py-0">
-                                    <p><b>Saldo de Prestamo a Refinanciar:</b> {{loan_refinancing.balance_parent_loan_refinancing | money}}</p>
+                                  <v-col cols="12" md="6" class="py-2" v-show="loan.payment_type.name=='Depósito Bancario'">
+                                    <p><b>ENTIDAD FINANCIERA:</b> {{loan.payment_type.name}}</p>
                                   </v-col>
 
-                                  <v-col cols="12" md="6" v-show="loan.payment_type.name=='Depósito Bancario'" class="py-0">
-                                    <p><b>CUENTA SIGEP:</b> {{' '+loan.borrower[0].sigep_status}}</p>
+                                  <v-col cols="12" md="6" class="py-2" v-show="loan.payment_type.name=='Depósito Bancario'">
+                                    <p><b>CUENTA SIGEP:</b> {{loan.borrower[0].sigep_status}}</p>
                                   </v-col>
 
-                                  <v-col cols="12" md="6" class="py-0">
+                                  <v-col cols="12" md="6" class="py-2">
                                     <p><b>CERTIFICACIÓN PRESUPUESTARIA CONTABLE:</b> {{loan.num_accounting_voucher}}</p>
                                   </v-col>
 
-                                  <v-col cols="12" md="6" class="py-0">
+                                  <v-col cols="12" md="6" class="py-2">
                                      <p><b>FECHA DE DESEMBOLSO:</b> {{loan.disbursement_date | date}}</p>
                                   </v-col>
                                 </v-row>
@@ -328,7 +316,7 @@
                                <b><p style="color:teal">DATOS DEL PRÉSTAMO A REFINANCIAR{{' => '+ loan_refinancing.description}}</p></b>
                               </v-col>
 
-                              <v-progress-linear v-show="loan_refinancing.refinancing"></v-progress-linear  >
+                              <v-progress-linear class="mb-4" v-show="loan_refinancing.refinancing"></v-progress-linear  >
 
                               <v-row v-show="loan_refinancing.refinancing"> <v-col cols="12" md="4" class="py-2"> <p><b>Codigo de Prestamo a Padre:</b>{{' '+loan_refinancing.code}}</p> </v-col>
                                 <v-col cols="12" md="4" class="py-2" >
@@ -352,7 +340,7 @@
                                 </v-col>
 
                                 <v-col cols="12" md="4" class="py-0">
-                                  <p><b>Saldo de Prestamo a Refinanciar:</b> {{loan_refinancing.balance | money}}</p>
+                                  <p><b>Saldo de Prestamo a Refinanciar:</b> {{loan_refinancing.balance_parent_loan_refinancing | money}}</p>
                                 </v-col>
 
                                 <v-col cols="12" md="4" class="py-0" >
@@ -440,7 +428,7 @@
                                             </v-col>
 
                                             <v-col cols="12" md="4" class="py-0">
-                                              <p><b>INDICE DE ENDEUDAMIENTO:</b> {{loan.borrower[i].pivot.indebtedness_calculated|percentage }}% </p>
+                                              <p><b>LÍMITE DE ENDEUDAMIENTO:</b> {{loan.borrower[i].pivot.indebtedness_calculated|percentage }}% </p>
                                             </v-col>
 
                                             <v-col cols="12" md="4" class="py-0">

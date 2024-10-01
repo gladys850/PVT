@@ -6,9 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Contribution;
 use App\Affiliate;
-
+use App\Degree;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\Util;
+use Carbon\Carbon;
 
 /** @group Contribuciones de afiliados
 * Contribuciones de los afiliados
@@ -64,6 +65,42 @@ class ContributionController extends Controller
             return self::append_data($contribution, true);
         });
         return $data;
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    
+    public function print_contribution(Request $request, Contribution $contribution, $standalone = true)
+    {
+        $affiliate = Affiliate::find($contribution->affiliate_id);
+        $month_year = Carbon::createFromFormat('Y-m-d', $contribution->month_year);
+        $period = $month_year->format('m'). "-" .$month_year->format('Y');  
+
+        $data = [
+            'header' => [
+                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+                'unity' => 'UNIDAD DE INVERSIÓN EN PRÉSTAMOS',
+                'table' => [
+                    ['Usuario', Auth::user()->username],
+                    ['Fecha', Carbon::now()->format('d/m/Y')],
+                    ['Hora', Carbon::now()->format('h:m:s a')]
+                ]
+            ],
+            'title' => 'COMPROBANTE DE BOLETA DE PAGO',
+            'subtitle' => 'SEGÚN IMPORTACIÓN PLANILLA DE HABERES - COMANDO GENERAL DE LA POLICÍA BOLIVIANA',
+            'period' => $period,
+            'affiliate' => $affiliate,
+            'contribution' => $contribution
+        ];
+
+        $file_name='';
+        $file_name = implode('_', ['BOLETA', $affiliate->id]) . '.pdf';
+        $view = view()->make('contribution.contribution_voucher')->with($data)->render();
+        if ($standalone) return Util::pdf_to_base64([$view], $file_name, $file_name, 'letter', $request->copies ?? 1);
+        return $view;
     }
 
     /**

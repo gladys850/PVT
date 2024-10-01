@@ -205,7 +205,7 @@
                   <td><v-text-field placeholder="Usuario" spellcheck="false" class="filter-text" v-model="searching.user_loan" @keydown.enter="search_loans()"></v-text-field></td>
                   <td><v-text-field placeholder="Cod. Préstamo" spellcheck="false" class="filter-text" v-model="searching.code_loan" @keydown.enter="search_loans()"></v-text-field></td>
                   <td><v-text-field placeholder="C.I." spellcheck="false" class="filter-text" v-model="searching.identity_card_borrower" @keydown.enter="search_loans()"></v-text-field></td>
-                  <td><v-text-field placeholder="Matricula" spellcheck="false" class="filter-text" v-model="searching.registration_borrower" @keydown.enter="search_loans()"></v-text-field></td>
+                  <!-- <td><v-text-field placeholder="Matricula" spellcheck="false" class="filter-text" v-model="searching.registration_borrower" @keydown.enter="search_loans()"></v-text-field></td> -->
                   <td><v-text-field placeholder="Nombre Com." spellcheck="false" class="filter-text" v-model="searching.full_name_borrower" @keydown.enter="search_loans()"></v-text-field></td>
                   <td><v-text-field placeholder="Cor. Sub. Mod." spellcheck="false" class="filter-text" v-model="searching.shortened_sub_modality_loan" @keydown.enter="search_loans()"></v-text-field></td>
                   <td><v-text-field disabled class="filter-text"></v-text-field></td>
@@ -246,7 +246,7 @@ export default {
         { text: 'Usuario',value:'user_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
         { text: 'Cód. Préstamo', value: 'code_loan',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '15%',sortable: true},
         { text: 'CI Prestatario', value: 'identity_card_borrower',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
-        { text: 'Matrícula Prestatario', value: 'registration_borrower',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%', sortable: false},
+        // { text: 'Matrícula Prestatario', value: 'registration_borrower',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%', sortable: false},
         { text: 'Nombre Completo Prestatario',value:'full_name_borrower',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '20%', sortable: false},
         { text: 'Corto Sub modalidad',value:'shortened_sub_modality_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '10%',sortable: false},
         { text: 'Fecha Solicitud',value:'request_date_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
@@ -262,8 +262,7 @@ export default {
       options: {
         page: 1,
         itemsPerPage: 8,
-        sortBy: ["code_loan"],
-        sortDesc: [false],
+        sortDesc: 0,
       },
       totalLoans: 0,
       loading: false,
@@ -446,10 +445,7 @@ export default {
     async freeLoan(id_loan, code_loan){
       try {
           this.loading_table = true
-            let res = await axios.patch(`loan/${id_loan}`, {
-              user_id: null,
-              validated: false
-            });
+            let res = await axios.post(`release_loan/${id_loan}`);
             this.refreshKardexTable++
             this.toastr.success("El trámite "+ code_loan +" fue liberado" )
       } catch (e) {

@@ -84,6 +84,7 @@ Route::group([
         Route::post('aid_contribution/updateOrCreate', 'Api\V1\AidContributionController@updateOrCreate');
         Route::apiResource('contributions_affiliate', 'Api\V1\ContributionController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('affiliate/{affiliate}/contributions_affiliate', 'Api\V1\ContributionController@get_all_contribution_affiliate');
+        Route::get('contribution/{contribution}/print/contribution','Api\V1\ContributionController@print_contribution');
         //Conceptos de movimientos
         Route::apiResource('movement_concept', 'Api\V1\MovementConceptController')->only('index', 'show', 'store', 'update', 'destroy');
         //REPORTS
@@ -103,7 +104,8 @@ Route::group([
         Route::get('loan_application_status', 'Api\V1\LoanReportController@loan_application_status');
         Route::get('loans_days_amortization', 'Api\V1\LoanReportController@loans_days_amortization');// reporte dias transcurridos desde ultima amortización
         Route::get('processed_loan_report', 'Api\V1\LoanReportController@processed_loan_report');// Reporte de tramites procesados
-            //loanPaymentReport
+        Route::get('report_loans_pay_partial', 'Api\V1\LoanReportController@report_loans_pay_partial');
+        //loanPaymentReport
         Route::get('list_loan_payments_generate', 'Api\V1\LoanPaymentReportController@list_loan_payments_generate');
         Route::get('report_amortization_discount_months', 'Api\V1\LoanPaymentReportController@report_amortization_discount_months');
         //Route::get('report_amortization_cash_deposit', 'Api\V1\LoanPaymentReportController@report_amortization_cash_deposit');
@@ -128,7 +130,7 @@ Route::group([
         Route::get('get_list_month', 'Api\V1\LoanPaymentPeriodController@get_list_month');//listado de meses por gestion
         Route::get('get_list_year', 'Api\V1\LoanPaymentPeriodController@get_list_year');//listado de meses por gestion
         Route::apiResource('periods', 'Api\V1\LoanPaymentPeriodController')->only('index', 'show', 'store', 'update', 'destroy');//cambiar a cobranzas
-        Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
+        //Route::post('loan/update_loan_affiliates', 'Api\V1\LoanController@update_loan_affiliates');
         Route::post('committee_session/{loan}', 'Api\V1\LoanController@committee_session');
         Route::get('record_affiliate_history', 'Api\V1\RecordController@record_affiliate_history');
         Route::Post('loan_sismu', 'Api\V1\SismuController@getLoanSismu');
@@ -273,6 +275,7 @@ Route::group([
             //Route::get('calculate_percentage', 'Api\V1\LoanController@calculate_percentage');
             Route::get('my_loans', 'Api\V1\LoanController@my_loans');
             Route::post('procedure_brother', 'Api\V1\LoanController@procedure_brother');
+            Route::post('release_loan/{loan}', 'Api\V1\LoanController@release_loan');
         });
         Route::group([
             'middleware' => 'permission:create-loan'

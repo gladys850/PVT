@@ -380,7 +380,7 @@ class LoanController extends Controller
     * @responseFile responses/loan/show.200.json
     */
     public function show(Loan $loan)
-    {
+    {   
         if (Auth::user()->can('show-all-loan') || Auth::user()->can('show-loan') || Auth::user()->can('show-payment-loan') || Auth::user()->roles()->whereHas('module', function($query) {
             return $query->whereName('prestamos');
         })->pluck('id')->contains($loan->role_id)) {
@@ -394,12 +394,13 @@ class LoanController extends Controller
             foreach($loan->guarantors as $guarantor){
                 $guarantor->type_initials = "G-".$guarantor->initials;
             }
+            $loan->retirement=$loan->retirement;
             return $loan;
         } else {
             abort(403);
         }
     }
-
+    
     /**
     * Actualizar préstamo
     * Actualizar datos principales de préstamo
@@ -535,6 +536,16 @@ class LoanController extends Controller
                     $this->get_plan_payments($loan, $loan['disbursement_date']);
                     $loan_id = $loan->id;
                     $cell_phone_number = $loan->affiliate->cell_phone_number;
+					if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
+                        $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
+                        if($loan->city_id === 4) {
+                            $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS POR EL AREA DE COBRANZAS.";
+                        } else {
+                            $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS PASADO LOS 5 DIAS HABILES POR LA REGIONAL.";
+                        }
+                        $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
+                        ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
+                    }
                 }
             }else{
                 if($request->date_signal == false){
@@ -785,7 +796,8 @@ class LoanController extends Controller
                     'liquid_qualification_calculated' => $affiliate['liquid_qualification_calculated'],
                     'contributionable_type' => $affiliate['contributionable_type'],
                     'contributionable_ids' => json_encode($affiliate['contributionable_ids']),
-                    'type' =>$affiliate_lender->dead ? 'spouses':'affiliates',
+                    'type' => $affiliate_lender->dead ? 'spouses':'affiliates',
+                    'availability_info' => $affiliate_lender->availability_info,
                 ]);
                 $loan_borrower->save();
                 if(array_key_exists('loan_contributions_adjust_ids', $affiliate)){
@@ -837,7 +849,8 @@ class LoanController extends Controller
                         'liquid_qualification_calculated' => $affiliate['liquid_qualification_calculated'],
                         'contributionable_type' => $affiliate['contributionable_type'],
                         'contributionable_ids' => json_encode($affiliate['contributionable_ids']),
-                        'type' =>$affiliate_guarantor->dead ? 'spouses':'affiliates',
+                        'type' => $affiliate_guarantor->dead ? 'spouses':'affiliates',
+                        'eval_quota' => $affiliate['eval_quota'],
                     ]);
                     $loan_guarantor->save();
                     if(array_key_exists('loan_contributions_adjust_ids', $affiliate)){
@@ -884,7 +897,7 @@ class LoanController extends Controller
         }
         /** Guardar datos garantía si es préstamo por fondo de retiro*/
         if (str_contains($loan->modality->procedure_type->name, "Préstamo al Sector Activo con Garantía del Beneficio del Fondo de Retiro Policial Solidario")) {
-            $retirement_fund = $loan->affiliate->retirement_fund_average();
+            $retirement_fund = $loan->borrower->first()->retirement_fund_average();
             $data = [
                 "loan_id" => $loan->id,
                 "retirement_fund_average_id" => $retirement_fund->id,
@@ -1073,12 +1086,6 @@ class LoanController extends Controller
     public function print_contract(Request $request, Loan $loan, $standalone = true)
     {
         $procedure_modality = $loan->modality;
-        $is_refinancing=false;$is_afp=false;$is_senasir=false;$is_active=false;$is_gestora=false;
-        if(strpos($procedure_modality->name, 'Refinanciamiento') !== false ) $is_refinancing = true;
-        if(strpos($procedure_modality->name, 'AFP') !== false ) $is_afp = true;
-        if(strpos($procedure_modality->name, 'Gestora') !== false ) $is_gestora = true;
-        if(strpos($procedure_modality->name, 'SENASIR') !== false ) $is_senasir = true;
-        if(strpos($procedure_modality->name, 'Activo') || strpos($procedure_modality->name, 'Disponibilidad') !== false ) $is_active = true;
         $parent_loan = "";
         $file_title = implode('_', ['CONTRATO', $procedure_modality->shortened, $loan->code,Carbon::now()->format('m/d')]);
         if($loan->parent_loan_id) $parent_loan = Loan::findOrFail($loan->parent_loan_id);
@@ -1104,14 +1111,14 @@ class LoanController extends Controller
             'spouses' => collect($spouses),
             'parent_loan' => $parent_loan,
             'file_title' => $file_title,
-            'is_refinancing'=>$is_refinancing,
-            'is_afp'=>$is_afp,
-            'is_gestora'=>$is_gestora,
-            'is_senasir'=>$is_senasir,
-            'is_active'=>$is_active
         ];
         $file_name = implode('_', ['contrato', $procedure_modality->shortened, $loan->code]) . '.pdf';
-        $modality_type = $procedure_modality->procedure_type->name;
+
+        if(str_contains($procedure_modality->procedure_type->name, 'Reprogramación')) 
+            $modality_type = 'Reprogramación';
+        else
+            $modality_type = $procedure_modality->procedure_type->name;
+        
         switch($modality_type){
             case 'Préstamo Anticipo':
                 $view_type = 'advance';
@@ -1134,10 +1141,11 @@ class LoanController extends Controller
             case 'Préstamo Estacional para el Sector Pasivo de la Policía Boliviana':
                 $view_type = 'seasonal';
                 break;
+            case 'Reprogramación':
+                $view_type = 'reprogramming';
+                break;
         }
         $information_loan= $this->get_information_loan($loan);
-        if($loan->parent_loan_id != null && $loan->parent_reason == "REPROGRAMACIÓN" || $loan->parent_loan_id ==null && $loan->parent_reason == "REPROGRAMACIÓN")
-        $view_type = 'reprogramming';
         $view = view()->make('loan.contracts.' . $view_type)->with($data)->render();
         if ($standalone) return Util::pdf_to_base64contract([$view], $file_name,$information_loan,$loan,'legal', $request->copies ?? 1);
         return $view;
@@ -1209,9 +1217,9 @@ class LoanController extends Controller
         // préstamos estacionales con cónyuge
         if($loan->modality->shortened == "EST-PAS-CON"){
             $persons->push([
-                'id' => $loan->affiliate->spouse->first()->id,
-                'full_name' => implode(' ', [$loan->affiliate->spouse->first()->full_name ?? '']),
-                'identity_card' => $loan->affiliate->spouse->first()->identity_card,
+                'id' => $loan->affiliate->spouse->id,
+                'full_name' => implode(' ', [$loan->affiliate->spouse->full_name ?? '']),
+                'identity_card' => $loan->affiliate->spouse->identity_card,
                 'position' => 'CÓNYUGE ANUENTE',
             ]);
         }
@@ -1372,7 +1380,7 @@ class LoanController extends Controller
         $guarantors = $loan->borrowerguarantors;
         $hight_amount = false;
         if($loan->modality->loan_modality_parameter->max_approved_amount != null && $loan->amount_requested >= $loan->modality->loan_modality_parameter->max_approved_amount)
-        $hight_amount = true;
+            $hight_amount = true;
         $data = [
            'header' => [
                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
@@ -1457,7 +1465,7 @@ class LoanController extends Controller
     */
     public function get_next_payment(LoanPaymentForm $request, Loan $loan)
     {
-        if(strpos($loan->modality->name, 'Estacional'))        
+        if (strpos($loan->modality->name, 'Estacional') !== false)
             return $loan->next_payment_season($request->input('affiliate_id'),$request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
         else
             return $loan->next_payment2($request->input('affiliate_id'),$request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
@@ -2013,6 +2021,8 @@ class LoanController extends Controller
             [$a => 50, $b => 50, $c =>90],  //Refinanciamiento Largo Plazo con Largo Plazo con Pago Oportuno
             [$a => 49, $b => 49, $c =>92],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo SENASIR
             [$a => 71, $b => 71, $c =>91],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
+            [$a => 44, $b => 71, $c =>0],  //Largo Plazo con Garantía Personal Sector Pasivo AFP a GESTORA
+            [$a => 48, $b => 71, $c =>0],  //RRefinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP A GESTORA
         ]);
 
         $reference = $data_references->first(function ($item) use ($procedure_modality_id, $a) {    //Busca la la submodalidad, su refiannciamiento y reprogramación
@@ -2579,5 +2589,37 @@ class LoanController extends Controller
         } else {
             return false;
         }
+    }
+
+    //
+    public function release_loan(request $request, Loan $loan)
+    {
+        $message = "Ocurrio un error";
+        $status = false;
+        if(Auth::user()->can('release-loan-user'))
+        {
+            if($loan->state_id == LoanState::where('name', 'En Proceso')->first()->id)
+            {
+                $loan->validated = false;
+                $loan->user_id = null;
+                $loan->save();
+                $message = "Se quito la validación del tramite";
+                $status = true;
+            }
+            else
+            {
+                $message = "no se puede quitar la validación de un prestamo en estado " . $loan->state->name;
+                $status = false;
+            }
+        }
+        else
+        {
+            $message = "no tiene los permisos necesarios";
+            $state = false;
+        }
+        return [
+            'message' => $message,
+            'type' => $status
+        ];   
     }
 }

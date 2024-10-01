@@ -278,6 +278,7 @@ class AffiliateController extends Controller
                         $request->has('gender') ? $borrower->gender = $request['gender']:'';
                         $borrower->civil_status = $request['civil_status'];
                         $borrower->pension_entity_id = $request['pension_entity_id'];
+                        $borrower->availability_info = $request['availability_info'];
                     }
                     $loan->number_payment_type = $request['account_number'];
                     $loan->save();
@@ -1643,6 +1644,8 @@ class AffiliateController extends Controller
                     "quota_loan" => $loan->estimated_quota,
                     "state" => $loan->state->name,
                     "type" => "PVT",
+                    "eval_quota" => $loan->borrowerguarantors->where('affiliate_id',$affiliate->id)->first()->eval_quota,
+                    "modality" => $loan->modality->name
                 );
                 array_push($data, $loans_pvt);
             }
@@ -1657,6 +1660,8 @@ class AffiliateController extends Controller
                 "quota_loan" => $loan->PresCuotaMensual,
                 "state" => $loan->PresEstPtmo == "V" ? "Vigente" : "Pendiente",
                 "type" => "SISMU",
+                "eval_quota" => Util::round2($loan->PresCuotaMensual / $loan->quantity_guarantors),
+                "modality" => $loan->PrdDsc
             );
             array_push($data, $loans_pvt);
         }
@@ -1752,6 +1757,8 @@ class AffiliateController extends Controller
             [$a => 10, $b => 37],                   //Corto Plazo en Disponibilidad
             [$a => 12, $b => 97],                   //Largo Plazo con Garantía Personal en Disponibilidad con un Garante
             [$a => 12, $b => 65],                   //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
+            [$a => 28, $b => 93],                   //Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Menor
+            [$a => 28, $b => 94],                   //Préstamo al Sector Activo con Garantía del Beneficio Fondo de Retiro Policial Solidario Mayor
             [$a => 11, $b => 66],                   //Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
             [$a => 24, $b => 73],                   //Reprogramación Corto Plazo en Disponibilidad
         ]);

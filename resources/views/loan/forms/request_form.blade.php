@@ -110,7 +110,6 @@
                     <td >Categoría</td>
                 @else
                     <td colspan="1">Tipo de Renta</td>
-                    <td colspan="2">MATRÍCULA</td>
                 @endif
             </tr>
             <tr>
@@ -120,7 +119,6 @@
                     <td class="data-row py-5">{{ $lender->category ? $lender->category->name : '' }}</td>
                 @else
                     <td colspan="1" class="data-row py-5">{{ $lender->pension_entity ? $lender->pension_entity->name : $lender->affiliate->pension_entity->name}}</td>
-                    <td colspan="2" class="data-row py-5">{{ $lender->registration }}</td>
                 @endif
             </tr>   
                 @if(count($lender->loans_balance)>0)
@@ -136,6 +134,15 @@
                             <td>{{$loans_balance['origin']}}</td>
                         </tr>
                         @endforeach
+                </tr>
+                @endif
+
+                @if($lender->affiliate_state->name == 'Disponibilidad')
+                <tr class="bg-grey-darker text-white">
+                    <td     colspan="3">Información de Disponibilidad</td>
+                </tr>
+                <tr>
+                    <td colspan="3">{{ $lender->availability_info }}</td>
                 </tr>
                 @endif
         </table>

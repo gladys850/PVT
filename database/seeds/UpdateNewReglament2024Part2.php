@@ -250,6 +250,12 @@ class UpdateNewReglament2024Part2 extends Seeder
             ProcedureRequirement::where('procedure_document_id', 279)->delete();
             //Certificado de aportes para el Auxilio Mortuorio de los 3 últimos meses.
             ProcedureRequirement::where('procedure_document_id', 284)->delete();
+            DB::table('procedure_requirements')->where('id', '1630')->update([
+                'deleted_at' => null,
+            ]);
+            DB::table('procedure_requirements')->where('id', '1634')->update([
+                'deleted_at' => null,
+            ]);
             //Memorándum de asignación a la letra en copia simple.
             ProcedureRequirement::where('procedure_document_id', 280)->delete();
             //ACTUALIZACION DE NOMBRE DE DOCUMENTOS "en copia simple" al final.
@@ -274,7 +280,7 @@ class UpdateNewReglament2024Part2 extends Seeder
             DB::table('procedure_documents')->where('id', '309')->update([
                 'name' => 'Última boleta de pago del Garante en copia simple.',
             ]);
-            DB::table('procedure_documents')->where('id', '369')->update([
+            DB::table('procedure_documents')->where('id', '368')->update([
                 'name' => 'Certificado de haberes del Garante en copia simple.',
             ]);
             DB::table('procedure_documents')->where('id', '371')->update([
@@ -468,9 +474,7 @@ class UpdateNewReglament2024Part2 extends Seeder
                 'number' => 6,
             ]);
             ProcedureRequirement::where('id', 2007)->delete();
-            DB::table('procedure_requirements')->where('id', '1998')->update([
-                'number' => 6,
-            ]);
+            ProcedureRequirement::where('id', 1998)->delete();
             DB::table('procedure_requirements')->insert([
                 [
                     'procedure_modality_id' => 68,
@@ -484,7 +488,7 @@ class UpdateNewReglament2024Part2 extends Seeder
                 [
                     'procedure_modality_id' => 68,
                     'procedure_document_id' => 425,
-                    'number' => 2,
+                    'number' => 4,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
@@ -895,8 +899,8 @@ class UpdateNewReglament2024Part2 extends Seeder
             DB::table('procedure_requirements')->insert([
                 [
                     'procedure_modality_id' => 75,
-                    'procedure_document_id' => 368,
-                    'number' => 425,
+                    'procedure_document_id' => 425,
+                    'number' => 4,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
@@ -1637,7 +1641,7 @@ class UpdateNewReglament2024Part2 extends Seeder
                 [
                     'procedure_modality_id' => 45,
                     'procedure_document_id' => 425,
-                    'number' => 7,
+                    'number' => 4,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
@@ -3699,7 +3703,7 @@ class UpdateNewReglament2024Part2 extends Seeder
                 [
                     'procedure_modality_id' => 95,
                     'procedure_document_id' => 418,
-                    'number' => 6,
+                    'number' => 7,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]
