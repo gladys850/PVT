@@ -242,8 +242,8 @@ class CalculatorController extends Controller
                     $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_requested);
 
                     $amount_maximum = $this->maximum_amount($modality,$request->months_term,$liquid['liquid_qualification_calculated']);
-                    $amount_maximum_suggested = $this->maximum_amount_suggested($modality,$request->months_term,$liquid['liquid_qualification_calculated']);
                     $debt_index_suggested = $modality->loan_modality_parameter->suggested_debt_index;
+                    $affiliate_average_rf = 0;
                     // para prestamos con garantia delñ fondo de retiro
                     if(strpos($modality->procedure_type->name, 'Fondo de Retiro Policial Solidario'))
                     {
@@ -252,6 +252,8 @@ class CalculatorController extends Controller
                         if($amount_maximum > $affiliate_average_rf)
                             $amount_maximum = $affiliate_average_rf;
                     }
+                    //
+                    $amount_maximum_suggested = $this->maximum_amount_suggested($modality,$request->months_term,$liquid['liquid_qualification_calculated'], $affiliate_average_rf);
                     //
                     if($amount_requested > $amount_maximum){
                         $quota_calculated = $this->quota_calculator($modality, $request->months_term, $amount_maximum);
@@ -313,17 +315,18 @@ class CalculatorController extends Controller
         return $maximum_qualified_amount;
     }
 
-    public static function maximum_amount_suggested($procedure_modality,$months_term,$liquid_qualification_calculated){
+    public static function maximum_amount_suggested($procedure_modality,$months_term,$liquid_qualification_calculated, $coverage_amount){
         $parameter = (LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->numerator)/(LoanProcedure::where('is_enable', true)->first()->loan_global_parameter->denominator);
         $interest_rate = $procedure_modality->current_interest->monthly_current_interest($parameter, $procedure_modality->loan_modality_parameter->loan_month_term);
         $loan_interval = $procedure_modality->loan_modality_parameter;
         $suggested_debt_index = $procedure_modality->loan_modality_parameter->decimal_index_suggested;
         $maximum_qualified_amount = intval((1-(1/pow((1+$interest_rate),$months_term)))*($suggested_debt_index*$liquid_qualification_calculated)/$interest_rate);
-        if ($maximum_qualified_amount > ($loan_interval->maximum_amount_modality)){
+        if($maximum_qualified_amount > $loan_interval->maximum_amount_modality && $coverage_amount == 0)
             $maximum_qualified_amount = $loan_interval->maximum_amount_modality;
-        }else{
+        elseif($coverage_amount > 0 && $maximum_qualified_amount > $coverage_amount)
+            $maximum_qualified_amount = $coverage_amount;
+        else
             $maximum_qualified_amount = $maximum_qualified_amount;
-        }
         return $maximum_qualified_amount;
     }
 
