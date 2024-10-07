@@ -1876,7 +1876,7 @@ class LoanController extends Controller
                         ->where('ot.module_id', '=', $module_id)
                         ->where('observable_type', '=', 'affiliates')
                         ->where('observable_id', '=', $affiliate_id)
-                        ->where('type', 'ilike', '%A%')
+                        ->whereIn('id', [2,60])
                         ->get();
         $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $loan_disbursement = count($affiliate->disbursement_loans);
