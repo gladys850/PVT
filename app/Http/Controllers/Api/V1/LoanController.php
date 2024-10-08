@@ -1876,7 +1876,7 @@ class LoanController extends Controller
                         ->where('ot.module_id', '=', $module_id)
                         ->where('observable_type', '=', 'affiliates')
                         ->where('observable_id', '=', $affiliate_id)
-                        ->where('type', 'ilike', '%A%')
+                        ->whereIn('id', [2,60])
                         ->get();
         $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $loan_disbursement = count($affiliate->disbursement_loans);
@@ -2383,9 +2383,12 @@ class LoanController extends Controller
                             else
                                 $extra_days = 0;
                             $extra_interest = LoanPayment::interest_by_days($extra_days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
-                            $payment = $loan->estimated_quota + $extra_interest;
                             $interest = LoanPayment::interest_by_days($days + $extra_days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
                             $days = $days + $extra_days;
+                            if($loan->loan_term == 1)
+                                $payment = $loan->balance + $interest;
+                            else
+                                $payment = $loan->estimated_quota + $extra_interest;
                             $capital = $payment - $interest;
                         }
                         else
@@ -2396,7 +2399,10 @@ class LoanController extends Controller
                                 $days = $date_fin->diffInDays($date_ini);
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
                                 $capital = $estimated_quota - $interest;
-                                $payment = $capital + $interest;
+                                if($loan->term == 1)
+                                    $payment = $loan->balance + $interest;
+                                else
+                                    $payment = $capital + $interest;
                             }
                             else{
                                 $date_ini = Carbon::parse($loan->disbursement_date)->startOfDay()->format('d');
@@ -2407,6 +2413,8 @@ class LoanController extends Controller
                                 $date_fin = Carbon::parse($loan->disbursement_date)->startOfMonth()->addMonth()->endOfMonth()->endOfDay();
                                 $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator, $loan->loan_procedure->loan_global_parameter->denominator);
+                                if($loan->loan_term == 1)
+                                    $payment = $loan->balance + $interest;
                                 $capital = $payment - $interest;
                             }
                         }
