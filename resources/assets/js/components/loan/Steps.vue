@@ -937,7 +937,7 @@ export default {
                     this.nextStep(2)
                   }
                 }else{
-                  if(this.calculator_result.amount_requested>this.loan_detail.amount_maximum_suggested)
+                  if(this.calculator_result.amount_requested>this.loan_detail.amount_maximum)
                   {
                     this.toastr.error("El Monto Solicitado no puede ser mayor al Monto maximo sugerido")
                   }
