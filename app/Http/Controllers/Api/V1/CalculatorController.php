@@ -332,6 +332,7 @@ class CalculatorController extends Controller
 
     //division porcentual de las cuotas de los codeudores
     private function loan_percent(request $request){
+        $coverage_amount = 0;
         $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $procedure_modality = ProcedureModality::findOrFail($request->procedure_modality_id);
         $month_term = $procedure_modality->loan_modality_parameter->loan_month_term;
@@ -348,10 +349,12 @@ class CalculatorController extends Controller
         $liquid_qualification_calculated = $liquid_qualification_calculated + $obj["liquid_qualification_calculated"];
         }
         /** m */
-        $amount_maximum_suggested = $this->maximum_amount($procedure_modality,$plm,$liquid_qualification_calculated);
-        if($ms>$amount_maximum_suggested){
-            $ce = $this->quota_calculator($procedure_modality, $plm, $amount_maximum_suggested);
-            $ms = $amount_maximum_suggested;
+        $amount_maximum = $this->maximum_amount($procedure_modality,$plm,$liquid_qualification_calculated);
+        $amount_maximum_suggested = $this->maximum_amount_suggested($procedure_modality,$plm,$liquid_qualification_calculated, $coverage_amount);
+        $debt_index_suggested = $procedure_modality->loan_modality_parameter->suggested_debt_index;
+        if($ms>$amount_maximum){
+            $ce = $this->quota_calculator($procedure_modality, $plm, $amount_maximum);
+            $ms = $amount_maximum;
         }
         $maximum_suggested_valid = false;
         if($procedure_modality->loan_modality_parameter->minimum_amount <= $ms && $ms <= $procedure_modality->loan_modality_parameter->maximum_amount_modality)
