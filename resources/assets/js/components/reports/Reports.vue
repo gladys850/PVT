@@ -369,6 +369,15 @@ export default {
         type: "xls",
         permissions: 'show-report-loans'
       },
+      {
+        id: 22,
+        name: "Rep. de Prestatarios con Observaciones",
+        tab: 2,
+        criterios: [],
+        service: "/affiliate_observation_report",
+        type: "xls",
+        permissions: 'show-report-loans'
+      },
     ],
     this.type_institution= [
       { value:"C", name:"Comando" },
