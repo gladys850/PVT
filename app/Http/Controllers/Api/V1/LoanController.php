@@ -2635,4 +2635,18 @@ class LoanController extends Controller
             'type' => $status
         ];   
     }
+
+    public function regenerate_plan(Loan $loan)
+    {
+        try{
+            DB::beginTransaction();
+            $this->get_plan_payments($loan);
+            Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'regenero plan de pagos'));
+            DB::commit();
+            return $loan->loan_plan;
+        }catch (\Exception $e){
+            DB::rollback();
+            return response()->json(['error'=>'No se pudo regenerar el plan de pagos'],409);
+        }
+    }
 }
