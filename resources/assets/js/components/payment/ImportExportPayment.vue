@@ -141,7 +141,7 @@
               </v-row>
               <v-row v-if="period_type==='ESTACIONAL'">
                 <v-col cols="12" md="12" class="py-0">
-                  <b>Senasir <v-icon small>mdi-home-analytics</v-icon></b>
+                  <b>Estacional <v-icon small>mdi-home-analytics</v-icon></b>
                 </v-col>
                 <v-divider inset></v-divider>
                 <v-col cols="12" md="12" class="py-0">
@@ -152,13 +152,13 @@
                           v-on="on"
                           :loading="loading_ss && i == l_index"
                           :disabled="item.importation"
-                          @click.stop="l_index = i;solicitudSenasir('S', item.id,meses[item.month - 1])"
+                          @click.stop="l_index = i;solicitudEstacional('E', item.id,meses[item.month - 1])"
                         >
                           <v-icon  dark left small>mdi-arrow-down</v-icon>Solicitud
                         </v-btn>
                       </template>
                       <div>
-                        <span>Solicitud Senasir</span>
+                        <span>Solicitud Estacional</span>
                       </div>
                     </v-tooltip>
                     <v-tooltip top>
@@ -173,7 +173,7 @@
                       </v-btn>
                     </template>
                     <div>
-                      <span>Importación Senasir</span>
+                      <span>Importación Estacional</span>
                     </div>
                     </v-tooltip>
                 </v-col>
@@ -468,6 +468,11 @@
                                       Tipo de Importacion : COMANDO
                                     </label>
                                   </v-col>
+                                  <v-col cols="4" v-show="import_export.state_affiliate== 'E'">
+                                    <label>
+                                      Tipo de Importacion : ESTACIONAL
+                                    </label>
+                                  </v-col>
                                   <v-col cols="3">
                                     <label>
                                       Periodo:{{import_export.period_importation==null? period_show :import_export.period_importation}}
@@ -555,6 +560,11 @@
                                     <v-col cols="4" v-show="import_export.state_affiliate== 'C'">
                                       <label>
                                         Tipo de Importacion : COMANDO
+                                      </label>
+                                    </v-col>
+                                    <v-col cols="4" v-show="import_export.state_affiliate== 'E'">
+                                      <label>
+                                        Tipo de Importacion : ESTACIONAL
                                       </label>
                                     </v-col>
                                     <v-col cols="3">
@@ -986,7 +996,7 @@ export default {
           }
           this.dialog=true
           this.import_export.state_affiliate = 'E'
-          this.title= 'Estacional'
+          this.title= 'ESTACIONAL'
           let resp = await axios.post(`loan_payment/import_progress_bar`,{
             period_id: this.mes,
             origin: this.import_export.state_affiliate
@@ -1287,6 +1297,40 @@ export default {
            const link = document.createElement("a");
            link.href = url;
            link.setAttribute("download", `SolicitudSenasir${this.$options.filters.capitalize(month)}.xls`);
+           document.body.appendChild(link);
+           link.click();
+        })
+      } catch (e) {
+        this.loading = false;
+        console.log(e);
+      } finally {
+        this.loading = false;
+        this.loading_ss=false;
+        this.l_index=-1;
+      }
+    },
+    async solicitudEstacional(tipo, id,month){
+        try {
+        this.loading_ss=true;
+        const formData = new FormData();
+
+         await axios({
+          url: '/report_request_institution',
+          method: "GET",
+          responseType: "blob", // important
+          headers: { Accept: "application/vnd.ms-excel" },
+          //headers: { Accept: "text/plain" },
+          data: formData,
+          params: {
+            origin: tipo,
+            period: id
+          }
+        })
+          .then((response) => {
+           const url = window.URL.createObjectURL(new Blob([response.data]));
+           const link = document.createElement("a");
+           link.href = url;
+           link.setAttribute("download", `SolicitudEstacional${this.$options.filters.capitalize(month)}.xls`);
            document.body.appendChild(link);
            link.click();
         })

@@ -1427,7 +1427,7 @@ class Loan extends Model
                 if (!$this->last_payment_validated) 
                 { //Primera cuota
                     if($this->modality->loan_modality_parameter->loan_month_term == 1)
-                    {
+                    {return "asdasd";
                         $date_ini = CarbonImmutable::parse($this->disbursement_date);
                         if ($date_ini->day <= $this->loan_procedure->loan_global_parameter->offset_interest_day) {
                             $suggested_amount = $this->estimated_quota;
