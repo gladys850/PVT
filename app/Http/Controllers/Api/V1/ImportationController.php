@@ -826,6 +826,42 @@ class ImportationController extends Controller
         }
     }
 
+    public function set_payment_estacional($request, $loan)
+    {
+        if($loan->balance!=0){
+            $payment = $loan->next_payment_season($request->affiliate_id, $request->estimated_date, $request->paid_by, $request->procedure_modality_id, $request->estimated_quota, $request->liquidate);
+            $payment->description = $request->description;
+            $payment->state_id = LoanPaymentState::whereName('Pagado')->first()->id;
+            $payment->role_id = Role::whereName('PRE-cobranzas')->first()->id;
+            $payment->procedure_modality_id = $request->procedure_modality_id;
+            $payment->voucher = $request->voucher;
+            $payment->affiliate_id = $request->affiliate_id;
+
+            $affiliate_id=$request->affiliate_id;
+            $affiliate=Affiliate::find($affiliate_id);
+            $affiliate_state=$affiliate->affiliate_state->affiliate_state_type->name;
+            $payment->state_affiliate = strtoupper($affiliate_state);
+            $payment->initial_affiliate = LoanBorrower::where('loan_id',$loan->id)->first()->initials;
+            $payment->categorie_id = $request->categorie_id;
+
+            $payment->paid_by = $request->paid_by;
+            $payment->validated = true;
+            $payment->user_id = auth()->id();
+            $payment->loan_payment_date = $request->loan_payment_date;
+
+            //obtencion de codigo de pago
+            $correlative = 0;
+            $correlative = Util::correlative('payment');
+            $payment->code = implode(['PAY', str_pad($correlative, 6, '0', STR_PAD_LEFT), '-', Carbon::now()->year]);
+            //fin obtencion de codigo;
+
+            $loan_payment = $loan->payments()->create($payment->toArray());
+            return $payment;
+        }else{
+            abort(403, 'El préstamo ya fue liquidado');
+        }
+    }
+
     //borrado de pagos agrupados
     public function delete_agroups_payments($period, $origin)
     {
@@ -1053,6 +1089,7 @@ class ImportationController extends Controller
             $estimated_date = Carbon::parse($estimated_date)->endOfMonth()->format('Y-m-d');
             $query = "SELECT * FROM loan_payment_group_estacionales where period_id = '$period->id'";
             $payment_agroups = DB::select($query);
+            $payment_agroups = collect($payment_agroups);
             foreach($payment_agroups as $payment_agroup){
                 $sw = false;
                 $amount_group = $payment_agroup->amount_balance;
@@ -1080,7 +1117,7 @@ class ImportationController extends Controller
                                         'liquidate' => false,
                                         'description'=> 'Pago registrado',
                                     ];
-                                    $registry_patment = $this->set_payment($form, $loan);
+                                    $registry_patment = $this->set_payment_estacional($form, $loan);
                                     $amount_group = $amount_group - $registry_patment->estimated_quota;
                                     $update = "UPDATE loan_payment_group_estacionales set amount_balance = $amount_group where id = $payment_agroup->id";
                                     $update = DB::select($update);
