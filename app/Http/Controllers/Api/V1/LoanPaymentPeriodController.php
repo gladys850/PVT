@@ -97,7 +97,7 @@ class LoanPaymentPeriodController extends Controller
                     $estimated_date = $last_date->startOfMonth()->addMonth(6)->endOfMonth();
                     $create_period = true;
                 }else{
-                    $result['message'] = "Para realizar la creación de un nuevo periodo, debe realizar la confirmación de los pagos de Senasir del periodo de ".$last_date->isoFormat('MMMM');
+                    $result['message'] = "Para realizar la creación de un nuevo periodo, debe realizar la confirmación de los pagos por préstamo Estacional del periodo de ".$last_date->isoFormat('MMMM');
                 }
             } 
         }   

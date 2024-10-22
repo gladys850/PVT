@@ -91,6 +91,9 @@ class Util
 
     public static function money_format($value, $literal = false)
     {
+        if (!is_numeric($value)) {
+            $value = floatval($value);
+        }
         if ($literal) {
             $f = new \NumberFormatter('es', \NumberFormatter::SPELLOUT);
             $data = $f->format(intval($value)) . ' ' . explode('.', number_format(round($value, 2), 2))[1] . '/100';
