@@ -373,7 +373,7 @@ class ImportationReportController extends Controller
         $current_loans = DB::select($current_loans);
 
         $data = array(
-            array("PTMO", "Fecha Desembolso", "Ciudad", "Sector", "CI Titular", "CI Cónyuge", "Ap.Paterno", "Ap.Materno",
+            array("PTMO", "Fecha Desembolso", "Ciudad", "Sector", "CI Titular", "CI_DH", "Ap.Paterno", "Ap.Materno",
                 "Ap de Casada", "Primer Nombre", "Segundo Nombre", "Saldo Actual", "Cuota", "Descuento", "Tasa"));
 
         foreach ($current_loans as $loan) {
