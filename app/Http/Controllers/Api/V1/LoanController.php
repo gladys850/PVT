@@ -2400,8 +2400,8 @@ class LoanController extends Controller
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
                                 if($loan->loan_term == 1)
                                 {
-                                    $payment = $loan->balance + $interest;
-                                    $capital = $loan->balance;
+                                    $capital = $balance;
+                                    $payment = $capital + $interest;
                                 }
                                 else
                                 {
@@ -2419,7 +2419,8 @@ class LoanController extends Controller
                                 $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator, $loan->loan_procedure->loan_global_parameter->denominator);
                                 if($loan->loan_term == 1)
-                                    $payment = $loan->balance + $interest;
+                                    $capital = $balance;
+                                    $payment = $capital + $interest;
                                 $capital = $payment - $interest;
                             }
                         }
