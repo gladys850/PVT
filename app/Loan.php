@@ -559,7 +559,7 @@ class Loan extends Model
             {
                 $date_ini = Carbon::parse($this->disbursement_date)->startOfYear()->startOfDay();
                 $date_fin = $date ? $date : Carbon::parse($date_ini)->addMonth($period)->subDay()->endOfDay();
-                $days = $date_fine->diffInDays($this->disbursement_date);
+                $days = $date_fin->diffInDays($this->disbursement_date);
             }
             elseif(Carbon::parse($this->disbursement_date)->quarter == 2)// desembolso en el segundo trimestre
             {
