@@ -551,39 +551,39 @@ class Loan extends Model
         $denominator = $this->loan_procedure->loan_global_parameter->denominator;
         $grace_period = $this->loan_procedure->loan_global_parameter->grace_period;
         $extra_days = 0;
+        $date = Carbon::parse($estimated_date)->endOfDay();
         // definicion de fechas iniciales y finales
         if($quota->quota_number == 1)
         {
             if(Carbon::parse($this->disbursement_date)->quarter == 1)// desembolso en el primer trimestre
             {
                 $date_ini = Carbon::parse($this->disbursement_date)->startOfYear()->startOfDay();
-                $date_fin = Carbon::parse($date_ini)->addMonth($period)->subDay()->endOfDay();
-                $days = $date_fin->diffInDays($this->disbursement_date);
+                $date_fin = $date ? $date : Carbon::parse($date_ini)->addMonth($period)->subDay()->endOfDay();
+                $days = $date_fine->diffInDays($this->disbursement_date);
             }
             elseif(Carbon::parse($this->disbursement_date)->quarter == 2)// desembolso en el segundo trimestre
             {
                 $date_ini = Carbon::parse($this->disbursement_date)->startOfYear()->startOfDay()->addMonth($period);
-                $date_fin = Carbon::parse($date_ini)->addMonth($period)->endOfDay();
+                $date_fin = $date ? $date : Carbon::parse($date_ini)->addMonth($period)->endOfDay();
                 $days = $date_ini->diffInDays($date_fin);
                 $extra_days = $date_ini->diffInDays($this->disbursement_date);
             }
             elseif(Carbon::parse($this->disbursement_date)->quarter == 3)// desembolso en el tercer trimestre
             {
                 $date_ini = Carbon::parse($this->disbursement_date)->startOfYear()->startOfDay()->addMonth($period);
-                $date_fin = Carbon::parse($date_ini)->addMonth($period)->subDay()->endOfDay();
+                $date_fin = $date ? $date : Carbon::parse($date_ini)->addMonth($period)->subDay()->endOfDay();
                 $days = $date_fin->diffInDays($this->disbursement_date);
             }
             elseif(Carbon::parse($this->disbursement_date)->quarter == 4)// desembolso en el cuarto trimestre
             {
                 $date_ini = Carbon::parse($this->disbursement_date)->endOfYear()->endOfDay();
-                $date_fin = Carbon::parse($date_ini)->addMonth($period)->subDay()->endOfDay();
+                $date_fin = $date ? $date : Carbon::parse($date_ini)->addMonth($period)->subDay()->endOfDay();
                 $days = $date_ini->diffInDays($date_fin);
                 $extra_days = $date_ini->diffInDays(Carbon::parse($this->disbursement_date)->endOfDay());
             }
         }
         else
         {
-            $latest_quota = $this->last_payment_validated;
             $previous_payment_date = Carbon::parse($latest_quota->estimated_date)->endOfDay();
             $days = Carbon::parse($estimated_date)->endOfDay()->diffInDays($previous_payment_date);
         }
