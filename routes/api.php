@@ -84,6 +84,8 @@ Route::group([
         Route::apiResource('contributions_affiliate', 'Api\V1\ContributionController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('affiliate/{affiliate}/contributions_affiliate', 'Api\V1\ContributionController@get_all_contribution_affiliate');
         Route::get('contribution/{contribution}/print/contribution','Api\V1\ContributionController@print_contribution');
+        //Certificado de No Adeudo
+        Route::post('affiliate/{affiliate}/no_debt_certification','Api\V1\LoanController@no_debt_certification');
         //Conceptos de movimientos
         Route::apiResource('movement_concept', 'Api\V1\MovementConceptController')->only('index', 'show', 'store', 'update', 'destroy');
         //REPORTS
