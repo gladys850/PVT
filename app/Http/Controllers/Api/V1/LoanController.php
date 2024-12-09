@@ -1491,7 +1491,7 @@ class LoanController extends Controller
     public function set_payment(LoanPaymentForm $request, Loan $loan)
     {
         if($loan->balance!=0){
-            if(strpos($loan->modality->name, 'Estacional'))
+            if (strpos($loan->modality->name, 'Estacional') !== false)
                 $payment = $loan->next_payment_season($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
             else
                 $payment = $loan->next_payment2($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
