@@ -1081,7 +1081,7 @@ class ImportationController extends Controller
         // aumentar el tamaño de memoria permitido de este script:
         ini_set('memory_limit', '96000M');
         $period =LoanPaymentPeriod::find($request->period);
-        $procedure_modality_id = ProcedureModality::whereShortened('DES-ECO-COM')->first()->id;
+        $procedure_modality_id = ProcedureModality::whereShortened('APE')->first()->id;
         $categorie_id = LoanPaymentCategorie::whereTypeRegister('SISTEMA')->first()->id;
         $estacional_lender = 0;
         if(!$period->importation){
