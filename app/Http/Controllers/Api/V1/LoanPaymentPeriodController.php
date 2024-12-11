@@ -107,7 +107,14 @@ class LoanPaymentPeriodController extends Controller
                 $loan_payment_period->month = $estimated_date->month;
                 $loan_payment_period->description = $request->description;
                 $loan_payment_period->importation_type = $request->importation_type;
-                $loan_payment_period->importation = false;          
+                $loan_payment_period->importation = false;
+                if($request->importation_type == 'COMANDO')
+                {
+                    $loan_payment_period_ad = $loan_payment_period->replicate();
+                    $loan_payment_period_ad->importation_type = "COMANDO-AD";
+                    $loan_payment_period_ad->importation = true;
+                    LoanPaymentPeriod::create($loan_payment_period_ad->toArray());
+                }
                 return LoanPaymentPeriod::create($loan_payment_period->toArray());
             }
         return $result;      
@@ -169,6 +176,17 @@ class LoanPaymentPeriodController extends Controller
             'importation_type' => 'string|required|in:COMANDO,SENASIR,ESTACIONAL',
         ]);
         $loan_payment_period = LoanPaymentPeriod::where('year',$request->year)->where('importation_type',$request->importation_type)->orderBy('month', 'asc')->get();
+        if($request->importation_type == 'COMANDO')
+        {
+            foreach($loan_payment_period as $period)
+            {
+                $period_additional = LoanPaymentPeriod::where('year',$period->year)->where('month',$period->month)->where('importation_type','COMANDO-AD')->first();
+                if($period_additional)
+                    $period->importation_additional = $period_additional->importation;
+                else
+                $period->importation_additional = null;
+            }
+        }
         return $loan_payment_period;
     }
 
