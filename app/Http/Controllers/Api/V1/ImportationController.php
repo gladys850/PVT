@@ -45,7 +45,7 @@ class ImportationController extends Controller
 
     public function agruped_payments(Request $request){
         $request->validate([
-            'origin'=>'required|string|in:C,S,E',
+            'origin'=>'required|string|in:C,S,E,AD',
             'period'=>'required|exists:loan_payment_periods,id'
         ]);
 
@@ -84,6 +84,31 @@ class ImportationController extends Controller
                 }else{
 
                     $data_loan =  $payment_agroup;
+                    array_push($data, $data_loan);
+                    $count_no_exist++;
+                }
+            }
+        }
+        elseif($origin == 'AD'){
+            $query = "SELECT *
+                        FROM loan_payment_copy_additionals
+                        where loan_payment_copy_additionals.period_id = '$period'";
+
+            $additional_payments = DB::select($query);
+            foreach($additional_payments as $additional_payment){
+                $affiliate_id = $this->serch_id($additional_payment->identity_card);
+                $loan_id = Loan::where('code', $additional_payment->loan_code)->first()->id;
+                if($affiliate_id != 0 && $loan_id > 0){
+                    DB::table("loan_payment_copy_additionals")
+                    ->where("id", $additional_payment->id) // Condición para encontrar el registro
+                    ->update([
+                        "affiliate_id" => $affiliate_id,
+                        "loan_id" => $loan_id,
+                    ]);
+                    Log::info('Registro de importaciones adicionales de affiliado con Id: '.$affiliate_id);
+                    $count_affiliate++;
+                }else{
+                    $data_loan = $additional_payment;
                     array_push($data, $data_loan);
                     $count_no_exist++;
                 }
@@ -146,7 +171,7 @@ class ImportationController extends Controller
                 }
             }
         }else{
-            abort(409, 'Incorrecto! Debe enviar C(Comando General) ó S(Senasir) ó E(Estacional)');
+            abort(409, 'Incorrecto! Debe enviar C(Comando General) ó S(Senasir) ó E(Estacional) ó AD(Adicional)');
         }
         //verificar exixtencia de afiliados
         if($count_no_exist > 0){
@@ -154,12 +179,16 @@ class ImportationController extends Controller
             $delete_copy = $this->delete_copy_payments($period,$origin);
             Log::info('Cantidad de registros no existentes: '.$count_no_exist);
             $data_cabeceraC=array(array("NRO de CARNET", "MONTO TOTAL"));
+            $data_cabeceraAD=array(array("NRO de CARNET", "CODIGO DE PRESTAMO", "MONTO TOTAL"));
             $data_cabeceraS=array(array("MATRÍCULA", "MATRÍCULA D_H", "MONTO TOTAL"));
             $data_cabeceraE=array(array("CI", "CI_DH", "MONTO TOTAL"));
             foreach ($data as $row){
                 if($origin == 'C'){
                     array_push($data_cabeceraC, array($row->identity_card, $row->amount));
-                }elseif($origin == 'S'){
+                }elseif($origin == 'AD'){
+                    array_push($data_cabeceraAD, array($row->identity_card, $row->loan_code, $row->amount));
+                }
+                elseif($origin == 'S'){
                     array_push($data_cabeceraS, array($row->registration, $row->registration_dh, $row->amount));
                 }elseif($origin == 'E'){
                     array_push($data_cabeceraE, array($row->identity_card, $row->identity_card_dh, $row->amount));
@@ -171,6 +200,11 @@ class ImportationController extends Controller
                 $export = new ArchivoPrimarioExport($data_cabeceraC);
                 $file_name = $origin.'_'.$last_date.'.xls';
                 $base_path = 'errorValidacion_Command/'.'Command_'.$last_date;
+                Excel::store($export,$base_path.'/'.$file_name, 'ftp');
+            }elseif($origin == 'AD'){
+                $export = new ArchivoPrimarioExport($data_cabeceraAD);
+                $file_name = $origin.'_'.$last_date.'.xls';
+                $base_path = 'errorValidacion_Command_Add/'.'Command_'.$last_date;
                 Excel::store($export,$base_path.'/'.$file_name, 'ftp');
             }elseif($origin == 'S'){
                 $export = new ArchivoPrimarioExport($data_cabeceraS);
@@ -445,6 +479,37 @@ class ImportationController extends Controller
                     $consult = DB::select($consult);
                     return $consult;
                 }
+                if($request->type == 'AD'){
+                    // Crear tabla temporal
+                    DB::statement("CREATE TEMPORARY TABLE payments_aux (
+                        period_id INTEGER,
+                        identity_card VARCHAR,
+                        loan_code VARCHAR,
+                        amount FLOAT
+                    )");
+                    $copyCommand = "
+                        COPY payments_aux(identity_card, loan_code, amount)
+                        FROM PROGRAM 'wget -O - $@ --user=$username --password=$password $base_path'
+                        WITH DELIMITER ':' CSV HEADER;
+                    ";
+                    DB::statement($copyCommand);
+                    DB::table('payments_aux')->update(['period_id' => $request->period_id]);
+                    DB::statement("
+                        UPDATE payments_aux
+                        SET identity_card = REPLACE(LTRIM(REPLACE(identity_card,'0',' ')),' ','0')
+                    ");
+                    DB::statement("
+                        INSERT INTO loan_payment_copy_additionals(period_id, identity_card, loan_code, amount)
+                        SELECT period_id, identity_card, loan_code, amount FROM payments_aux
+                    ");
+                    DB::statement("DROP TABLE IF EXISTS payments_aux");
+                    $count = DB::table('loan_payment_copy_additionals')
+                                ->where('period_id', $request->period_id)
+                                ->count();
+
+                    DB::commit();
+                    return $count;
+                }
                 elseif($request->type == 'S'){
                     $temporary = "CREATE TEMPORARY TABLE payments_aux (
                         period_id INTEGER, 
@@ -509,11 +574,12 @@ class ImportationController extends Controller
         try {
             $loanPaymentPeriod = LoanPaymentPeriod::find($period);
             
-            if ($loanPaymentPeriod && in_array($origin, ['C', 'S', 'E'])) {
+            if ($loanPaymentPeriod && in_array($origin, ['C', 'S', 'E', 'AD'])) {
                 $tables = [
                     'C' => 'loan_payment_copy_commands',
                     'S' => 'loan_payment_copy_senasirs',
                     'E' => 'loan_payment_copy_estacionales',
+                    'AD' => 'loan_payment_copy_additionals',
                 ];
                 $query = "DELETE FROM {$tables[$origin]} WHERE period_id = $period";
                 DB::delete($query);
@@ -539,14 +605,14 @@ class ImportationController extends Controller
     public function upload_file_payment(Request $request){
         $request->validate([
             'file' => 'required',
-            'state'=> 'string|in:C,S,E',
+            'state'=> 'string|in:C,S,E,AD',
          ]);
          $result['validate'] = false;
         try {
             $extencion= strtolower($request->file->getClientOriginalExtension()); 
             $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
-            $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();            
-            $last_period_season = LoanPaymentPeriod::orderBy('id')->where('importation_type','ESTACIONAL')->get()->last();            
+            $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();
+            $last_period_season = LoanPaymentPeriod::orderBy('id')->where('importation_type','ESTACIONAL')->get()->last();
         if($extencion == "csv"){
             $file_name_entry = $request->file->getClientOriginalName(); 
             $file_name_entry = explode(".csv",$file_name_entry);
@@ -573,10 +639,17 @@ class ImportationController extends Controller
                 $new_file_name ="estacional-".$last_date;
                 $period_id = $last_period_season->id;
             }
+            elseif($request->state == "AD"){
+                $last_date = Carbon::parse($last_period_comand->year.'-'.$last_period_comand->month)->format('Y-m'); 
+                $origin = "comando-ad-".$last_period_comand->year;
+                $period_state = $last_period_comand->importation;
+                $new_file_name ="comando-ad-".$last_date;
+                $period_id = $last_period_comand->id;
+            }
             if($file_name_entry == $new_file_name){
-                if($period_state == false){
+                if($period_state == false || $request->state == 'AD'){
                     $file_name = $new_file_name.'.csv';
-                    $base_path = 'cobranzas-importacion/'.$origin;    
+                    $base_path = 'cobranzas-importacion/'.$origin;
                     $file_path = Storage::disk('ftp')->putFileAs($base_path,$request->file,$file_name);
                     $request['period_id'] = $period_id;
                     $request['location'] = $base_path;
@@ -760,6 +833,8 @@ class ImportationController extends Controller
                 }
                 $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
                 $update_period = DB::select($update_period);
+                $update_period_additional = "UPDATE loan_payment_periods set importation = false where year = $period->year and month = $period->month and importation_type = 'COMANDO-AD'";
+                $update_period_additional = DB::select($update_period_additional);
                 LoanController::verify_loans();
                 DB::commit();
                 $paids = [
@@ -775,6 +850,86 @@ class ImportationController extends Controller
                 'paid_by_lenders' => $c,
                 'paid_by_guarantors' => $c2,
                 'message'=>"Comando General Error! Anteriormente ya realizó la importación del periodo: ".$period->month.'/'.$period->year,
+                'importation_validated'=> false
+            ];
+            }
+            return $paids;
+        }
+        catch(Exception $e){
+            DB::rollback();
+            return $e;
+        }
+    }
+
+    /**
+    * Importar/registrar cobros de COMANDO ADICIONAL
+    * @queryParam period required id_del periodo . Example: 1
+    * @authenticated
+    * @responseFile responses/importation/importation_command.200.json
+    */
+    public function create_payments_command_additional(request $request)
+    {
+        $request->validate([
+            'period'=>'required|exists:loan_payment_periods,id'
+        ]);
+        DB::beginTransaction();
+        try{
+            $period = LoanPaymentPeriod::whereId($request->period)->first();
+            $c = 0;$sw = false;$c2 = 0;
+            if(!$period->importation)
+            {
+                $query = "select * from loan_payment_copy_additionals where period_id = $period->id order by id";
+                $payments = DB::select($query);
+                $estimated_date = Carbon::create($period->year, $period->month, 1);
+                $estimated_date = Carbon::parse($estimated_date)->endOfMonth()->format('Y-m-d');
+                $estimated_date_disbursement = Carbon::create($period->year, $period->month, LoanProcedure::where('is_enable',true)->first()->loan_global_parameter->offset_interest_day);
+                $estimated_date_disbursement = Carbon::parse($estimated_date_disbursement)->endOfMonth()->format('Y-m-d');
+                $c = 0;$sw = false;$c2 = 0;
+                foreach ($payments as $payment){
+                    $amount = $payment->amount;
+                    $affiliate = Affiliate::find($payment->affiliate_id);
+                    $loan = Loan::find($payment->loan_id);
+                    if($loan->balance > 0)
+                    {
+
+                        if($amount > 0){
+                            $form = (object)[
+                                'procedure_modality_id' => ProcedureModality::whereShortened('DES-COMANDO-AD')->first()->id,
+                                'affiliate_id' => $affiliate->id,
+                                'paid_by' => "T",
+                                'categorie_id' => LoanPaymentCategorie::whereTypeRegister('SISTEMA')->first()->id,
+                                'estimated_date' => $estimated_date,
+                                'voucher' => 'AUTOMATICO',
+                                'estimated_quota' => $amount,
+                                'user_id' => null,
+                                'loan_payment_date' => Carbon::now(),
+                                'liquidate' => false,
+                                'state_affiliate'=> "ACTIVO",
+                                'description'=> 'Pago registrado',
+                            ];
+                            $loan_payment = $this->set_payment($form, $loan);
+                            $amount = $amount - $loan_payment->estimated_quota;
+                            $c++;
+                        }
+                    }
+                }
+                $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
+                $update_period = DB::select($update_period);
+                LoanController::verify_loans();
+                DB::commit();
+                $paids = [
+                    'period'=> LoanPaymentPeriod::whereId($request->period)->first(),
+                    'paid_by_lenders' => $c,
+                    'paid_by_guarantors' => $c2,
+                    'message'=>"Comando General Importación Adicional realizada con exito! ".$period->month.'/'.$period->year,
+                    'importation_validated'=> true
+                ];
+            }else{
+            $paids = [
+                'period'=>$period,
+                'paid_by_lenders' => $c,
+                'paid_by_guarantors' => $c2,
+                'message'=>"Comando General Adicional Error! Anteriormente ya realizó la importación del periodo: ".$period->month.'/'.$period->year,
                 'importation_validated'=> false
             ];
             }
@@ -900,7 +1055,7 @@ class ImportationController extends Controller
     public function rollback_copy_groups_payments(Request $request)
     {
         $request->validate([
-            'origin' => 'required|string|in:C,S,E',
+            'origin' => 'required|string|in:C,S,E,AD',
             'period' => 'required|exists:loan_payment_periods,id'
         ]);
 
@@ -911,7 +1066,8 @@ class ImportationController extends Controller
 
             // Validar si se puede realizar el rollback
             if (!$period->importation) {
-                $this->delete_agroups_payments($period->id, $origin);
+                if($origin != 'AD')
+                    $this->delete_agroups_payments($period->id, $origin);
                 $this->delete_copy_payments($period->id, $origin);
                 $message = "Rollback realizado con éxito!";
                 $validated_rollback = true;
@@ -991,7 +1147,7 @@ class ImportationController extends Controller
                 }
             }
         }
-        if($origin == 'S'){
+        elseif($origin == 'S'){
             $origin_name = 'senasir-';
             $new_file_name = $origin_name.$last_date.'.csv';
             $base_path = $base_path.$origin_name.$period->year.'/'.$new_file_name;
@@ -1024,7 +1180,7 @@ class ImportationController extends Controller
                 }
             }
         }
-        if($origin == 'E'){
+        elseif($origin == 'E'){
             $origin_name = 'estacional-';
             $new_file_name = $origin_name.$last_date.'.csv';
             $base_path = $base_path.$origin_name.$period->year.'/'.$new_file_name;
@@ -1056,10 +1212,44 @@ class ImportationController extends Controller
                 $result['percentage'] = 30;
                 }
             }
-        }  
+        }
+        elseif ($origin == 'AD') {
+            $origin_name = 'comando-ad-';
+            $new_file_name = $origin_name . $last_date . '.csv';
+            $base_path = $base_path . $origin_name . $period->year . '/' . $new_file_name;
+            $result['file_name'] = Storage::disk('ftp')->has($base_path) ? $new_file_name : false;
+            $query = "SELECT (COUNT(*) > 0) AS num_reg, COUNT(*) AS num_tot_reg
+                      FROM loan_payment_copy_commands 
+                      WHERE period_id = $request->period_id
+                      AND loan_id is null 
+                      AND affiliate_id is null";
+            $query_result = DB::select($query)[0];
+            $query_step_1 = $query_result->num_reg;
+            $result['reg_copy'] = $query_result->num_tot_reg;
+            $query_grouped = "SELECT (COUNT(*) > 0) AS num_reg, COUNT(*) AS num_tot_reg
+                      FROM loan_payment_copy_commands 
+                      WHERE period_id = $request->period_id
+                      AND loan_id is not null 
+                      AND affiliate_id is not null";
+            $query_grouped_result = DB::select($query_grouped)[0];
+            $query_step_2 = $query_grouped_result->num_reg;
+            $result['reg_group'] = $query_grouped_result->num_reg_group;
+            $query_step_3 = $period->importation;
+            if ($query_step_1 && $query_step_2 && $query_step_3) {
+                $result['percentage'] = 100;
+                $result['query_step_3'] = true;
+            } else {
+                if ($query_step_1 && $query_step_2 && !$query_step_3) {
+                    $result['percentage'] = 60;
+                    $result['query_step_2'] = true;
+                } elseif ($query_step_1 && !$query_step_2 && !$query_step_3) {
+                    $result['percentage'] = 30;
+                    $result['query_step_1'] = true;
+                }
+            }
+        }          
         return $result; 
     }
-
 
 
     /**
