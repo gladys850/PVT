@@ -185,11 +185,13 @@ class LoanPaymentPeriodController extends Controller
                 {
                     $period->additional_importation = $period_additional->importation;
                     $period->additional_id = $period_additional->id;
+                    $period->additional_quantity = $period_additional->importation_quantity;
                 }
                 else
                 {
                     $period->additional_importation = null;
                     $period->additional_id = null;
+                    $period->additional_quantity = 0;
                 }
             }
         }
