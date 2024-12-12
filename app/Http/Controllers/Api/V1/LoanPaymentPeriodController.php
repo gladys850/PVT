@@ -209,4 +209,29 @@ class LoanPaymentPeriodController extends Controller
         return $loan_payment_period;
     }
 
+    public function validate_additional_import(Request $request)
+    {
+        $request->validate([
+            'period_id' => 'required|exists:loan_payment_periods,id',
+        ]);
+        DB::beginTransaction();
+        try {
+            $loan_payment_period = LoanPaymentPeriod::find($request->period);
+            if ($loan_payment_period && !$loan_payment_period->importation && $loan_payment_period->importation_type === 'COMANDO-AD') {
+                // Actualizar el periodo
+                $loan_payment_period->update([
+                    'importation' => true,
+                    'importation_quantity' => 0,
+                    'importation_date' => now(),
+                ]);
+                DB::commit();
+                return response()->json(['success' => true, 'message' => 'Importación validada y actualizada correctamente.']);
+            }
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'No se puede validar el periodo solicitado.'], 400);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Ocurrió un error durante la validación.', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
