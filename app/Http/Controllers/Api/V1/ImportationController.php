@@ -381,6 +381,16 @@ class ImportationController extends Controller
                 'importation_validated'=> true
             ];
             LoanController::verify_loans();
+            $importationQuantity = DB::table("loan_payment_copy_senasirs")
+                                            ->where("period_id", $period->id)
+                                            ->count();
+
+            DB::table("loan_payment_periods")
+                ->where("id", $period->id)
+                ->update([
+                    "importation_quantity" => $importationQuantity,
+                    "importation_date" => now(),
+                ]);
             DB::commit();
             return $paids;
 
@@ -499,6 +509,10 @@ class ImportationController extends Controller
                         SET identity_card = REPLACE(LTRIM(REPLACE(identity_card,'0',' ')),' ','0')
                     ");
                     DB::statement("
+                        UPDATE payments_aux
+                        SET loan_code = REPLACE(LTRIM(REPLACE(loan_code,'0',' ')),' ','0')
+                    ");
+                    DB::statement("
                         INSERT INTO loan_payment_copy_additionals(period_id, identity_card, loan_code, amount)
                         SELECT period_id, identity_card, loan_code, amount FROM payments_aux
                     ");
@@ -613,6 +627,7 @@ class ImportationController extends Controller
             $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
             $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();
             $last_period_season = LoanPaymentPeriod::orderBy('id')->where('importation_type','ESTACIONAL')->get()->last();
+            $last_period_comand_additional = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO-AD')->where('month', $last_period_comand->month)->where('year', $last_period_comand->year)->get()->last();
         if($extencion == "csv"){
             $file_name_entry = $request->file->getClientOriginalName(); 
             $file_name_entry = explode(".csv",$file_name_entry);
@@ -640,11 +655,11 @@ class ImportationController extends Controller
                 $period_id = $last_period_season->id;
             }
             elseif($request->state == "AD"){
-                $last_date = Carbon::parse($last_period_comand->year.'-'.$last_period_comand->month)->format('Y-m'); 
-                $origin = "comando-ad-".$last_period_comand->year;
-                $period_state = $last_period_comand->importation;
+                $last_date = Carbon::parse($last_period_comand_additional->year.'-'.$last_period_comand_additional->month)->format('Y-m'); 
+                $origin = "comando-ad-".$last_period_comand_additional->year;
+                $period_state = $last_period_comand_additional->importation;
                 $new_file_name ="comando-ad-".$last_date;
-                $period_id = $last_period_comand->id;
+                $period_id = $last_period_comand_additional->id;
             }
             if($file_name_entry == $new_file_name){
                 if($period_state == false || $request->state == 'AD'){
@@ -836,6 +851,16 @@ class ImportationController extends Controller
                 $update_period_additional = "UPDATE loan_payment_periods set importation = false where year = $period->year and month = $period->month and importation_type = 'COMANDO-AD'";
                 $update_period_additional = DB::select($update_period_additional);
                 LoanController::verify_loans();
+                $importationQuantity = DB::table("loan_payment_copy_commands")
+                                            ->where("period_id", $period->id)
+                                            ->count();
+
+                DB::table("loan_payment_periods")
+                    ->where("id", $period->id)
+                    ->update([
+                        "importation_quantity" => $importationQuantity,
+                        "importation_date" => now(),
+                    ]);
                 DB::commit();
                 $paids = [
                     'period'=> LoanPaymentPeriod::whereId($request->period)->first(),
@@ -916,6 +941,16 @@ class ImportationController extends Controller
                 $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
                 $update_period = DB::select($update_period);
                 LoanController::verify_loans();
+                $importationQuantity = DB::table("loan_payment_copy_additionals")
+                                            ->where("period_id", $period->id)
+                                            ->count();
+
+                DB::table("loan_payment_periods")
+                    ->where("id", $period->id)
+                    ->update([
+                        "importation_quantity" => $importationQuantity,
+                        "importation_date" => now(),
+                    ]);
                 DB::commit();
                 $paids = [
                     'period'=> LoanPaymentPeriod::whereId($request->period)->first(),
