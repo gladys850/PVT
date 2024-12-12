@@ -182,9 +182,15 @@ class LoanPaymentPeriodController extends Controller
             {
                 $period_additional = LoanPaymentPeriod::where('year',$period->year)->where('month',$period->month)->where('importation_type','COMANDO-AD')->first();
                 if($period_additional)
-                    $period->importation_additional = $period_additional->importation;
+                {
+                    $period->additional_importation = $period_additional->importation;
+                    $period->additional_id = $period_additional->id;
+                }
                 else
-                $period->importation_additional = null;
+                {
+                    $period->additional_importation = null;
+                    $period->additional_id = null;
+                }
             }
         }
         return $loan_payment_period;

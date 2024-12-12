@@ -130,6 +130,7 @@ Route::group([
         Route::get('copy_payments', 'Api\V1\ImportationController@copy_payments');
         Route::get('create_payments_command', 'Api\V1\ImportationController@create_payments_command');
         Route::get('rollback_copy_groups_payments', 'Api\V1\ImportationController@rollback_copy_groups_payments');
+        Route::get('create_payments_command_additional', 'Api\V1\ImportationController@create_payments_command_additional');
         //PERIODOS DE IMPORTACION
         Route::get('get_list_month', 'Api\V1\LoanPaymentPeriodController@get_list_month');//listado de meses por gestion
         Route::get('get_list_year', 'Api\V1\LoanPaymentPeriodController@get_list_year');//listado de meses por gestion
