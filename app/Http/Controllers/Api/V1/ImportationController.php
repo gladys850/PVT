@@ -1134,7 +1134,7 @@ class ImportationController extends Controller
     */
     public function  import_progress_bar(Request $request){
         $request->validate([
-            'origin'=>'required|string|in:C,S,E',
+            'origin'=>'required|string|in:C,S,E,AD',
             'period_id'=>'required|exists:loan_payment_periods,id'
         ]);
         $origin = $request->origin;
