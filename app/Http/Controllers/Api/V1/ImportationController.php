@@ -1261,7 +1261,7 @@ class ImportationController extends Controller
             $query_result = DB::select($query)[0];
             $query_step_1 = $query_result->num_reg;
             $result['reg_copy'] = $query_result->num_tot_reg;
-            $query_grouped = "SELECT (COUNT(*) > 0) AS num_reg, COUNT(*) AS num_tot_reg
+            $query_grouped = "SELECT (COUNT(*) > 0) AS num_reg, COUNT(*) AS num_reg_group
                       FROM loan_payment_copy_additionals
                       WHERE period_id = $request->period_id
                       AND loan_id is not null 
