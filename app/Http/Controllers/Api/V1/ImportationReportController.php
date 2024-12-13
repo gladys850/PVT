@@ -51,7 +51,7 @@ class ImportationReportController extends Controller
         $procedure_modality = [
             'C' => 'DES-COMANDO',
             'S' => 'DES-SENASIR',
-            'E' => 'APE'
+            'E' => 'APE',
             'AD' => 'DES-COMANDO-AD'
         ];
 
