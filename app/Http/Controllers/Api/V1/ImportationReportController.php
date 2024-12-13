@@ -36,7 +36,7 @@ class ImportationReportController extends Controller
     public function report_amortization_importation_payments(Request $request)
     {
         $request->validate([
-        'origin'=>'required|string|in:C,S,E',
+        'origin'=>'required|string|in:C,S,E,AD',
         'period'=>'required|exists:loan_payment_periods,id',
         'category_name'=>'string|in:Refinanciamiento,Regular',
         'state_name'=>'string|in:Pagado,Pendiente por confirmar'
@@ -51,7 +51,8 @@ class ImportationReportController extends Controller
         $procedure_modality = [
             'C' => 'DES-COMANDO',
             'S' => 'DES-SENASIR',
-            'E' => 'DES-ECO-COM'
+            'E' => 'APE'
+            'AD' => 'DES-COMANDO-AD'
         ];
 
         $procedure_modality_id = $procedure_modality[$request->origin] ?? null;

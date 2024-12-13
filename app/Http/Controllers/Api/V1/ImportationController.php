@@ -517,11 +517,9 @@ class ImportationController extends Controller
                         SELECT period_id, identity_card, loan_code, amount FROM payments_aux
                     ");
                     DB::statement("DROP TABLE IF EXISTS payments_aux");
-                    $count = DB::table('loan_payment_copy_additionals')
-                                ->where('period_id', $request->period_id)
-                                ->count();
-
                     DB::commit();
+                    $count = "select count(*) from loan_payment_copy_additionals where period_id = $request->period_id";
+                    $count = DB::select($count);
                     return $count;
                 }
                 elseif($request->type == 'S'){
@@ -1255,9 +1253,7 @@ class ImportationController extends Controller
             $result['file_name'] = Storage::disk('ftp')->has($base_path) ? $new_file_name : false;
             $query = "SELECT (COUNT(*) > 0) AS num_reg, COUNT(*) AS num_tot_reg
                       FROM loan_payment_copy_additionals
-                      WHERE period_id = $request->period_id
-                      AND loan_id is null 
-                      AND affiliate_id is null";
+                      WHERE period_id = $request->period_id";
             $query_result = DB::select($query)[0];
             $query_step_1 = $query_result->num_reg;
             $result['reg_copy'] = $query_result->num_tot_reg;
