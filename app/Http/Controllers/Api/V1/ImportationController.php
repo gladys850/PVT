@@ -932,6 +932,9 @@ class ImportationController extends Controller
                             ];
                             $loan_payment = $this->set_payment($form, $loan);
                             $amount = $amount - $loan_payment->estimated_quota;
+                            DB::table('loan_payment_copy_additionals')
+                                ->where('id', $payment->id)
+                                ->update(['amount_balance' => $amount]);
                             $c++;
                         }
                     }

@@ -24,6 +24,7 @@ class CreateLoanPaymentCopyAdditionalsTable extends Migration
             $table->unsignedBigInteger('affiliate_id')->nullable();
             $table->foreign('affiliate_id')->references('id')->on('affiliates');
             $table->float('amount',10,2);
+            $table->float('amount_balance',10,2)->nullable();
         });
     }
 
