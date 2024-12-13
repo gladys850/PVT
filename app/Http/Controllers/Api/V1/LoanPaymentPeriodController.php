@@ -8,6 +8,7 @@ use App\Helpers\Util;
 use App\User;
 use App\LoanPaymentPeriod;
 use Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\LoanPaymentPeriodForm;
 
 /** @group Periodos de cobros 
