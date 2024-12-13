@@ -218,7 +218,7 @@ class LoanPaymentPeriodController extends Controller
         ]);
         DB::beginTransaction();
         try {
-            $loan_payment_period = LoanPaymentPeriod::find($request->period);
+            $loan_payment_period = LoanPaymentPeriod::find($request->period_id);
             if ($loan_payment_period && !$loan_payment_period->importation && $loan_payment_period->importation_type === 'COMANDO-AD') {
                 // Actualizar el periodo
                 $loan_payment_period->update([
