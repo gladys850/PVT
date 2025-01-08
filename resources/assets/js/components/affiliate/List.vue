@@ -31,7 +31,7 @@
               <v-icon>mdi-eye</v-icon>
             </v-btn>
 
-            <v-btn
+            <!--<v-btn
               fab
               dark
               x-small
@@ -39,7 +39,7 @@
               @click="openDialog(props.item.id)"
             >
               <v-icon>mdi-printer</v-icon>
-            </v-btn>
+            </v-btn>-->
           </td>
         </tr>
       </template>
@@ -54,7 +54,7 @@
         <v-card-text>
           <v-text-field
             v-model="code"
-            label="REgistrar HRE"
+            label="Registrar HRE"
             required
           ></v-text-field>
         </v-card-text>

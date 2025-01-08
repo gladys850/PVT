@@ -48,7 +48,7 @@ class LoanPaymentPeriodController extends Controller
     {
         $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
         $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();
-        $last_period_comand_additonal = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO-AD')->get()->last();
+        $last_period_comand_additonal = LoanPaymentPeriod::orderBy('id')->where('importation_type','DESC-NOR-COMANDO')->get()->last();
         $last_period_season = LoanPaymentPeriod::orderBy('id')->where('importation_type','ESTACIONAL')->get()->last();
         $create_period = false;
 
@@ -113,7 +113,7 @@ class LoanPaymentPeriodController extends Controller
                 if($request->importation_type == 'COMANDO')
                 {
                     $loan_payment_period_ad = $loan_payment_period->replicate();
-                    $loan_payment_period_ad->importation_type = "COMANDO-AD";
+                    $loan_payment_period_ad->importation_type = "DESC-NOR-COMANDO";
                     $loan_payment_period_ad->importation = true;
                     LoanPaymentPeriod::create($loan_payment_period_ad->toArray());
                 }
@@ -182,7 +182,7 @@ class LoanPaymentPeriodController extends Controller
         {
             foreach($loan_payment_period as $period)
             {
-                $period_additional = LoanPaymentPeriod::where('year',$period->year)->where('month',$period->month)->where('importation_type','COMANDO-AD')->first();
+                $period_additional = LoanPaymentPeriod::where('year',$period->year)->where('month',$period->month)->where('importation_type','DESC-NOR-COMANDO')->first();
                 if($period_additional)
                 {
                     $period->additional_importation = $period_additional->importation;
@@ -219,7 +219,7 @@ class LoanPaymentPeriodController extends Controller
         DB::beginTransaction();
         try {
             $loan_payment_period = LoanPaymentPeriod::find($request->period_id);
-            if ($loan_payment_period && !$loan_payment_period->importation && $loan_payment_period->importation_type === 'COMANDO-AD') {
+            if ($loan_payment_period && !$loan_payment_period->importation && $loan_payment_period->importation_type === 'DESC-NOR-COMANDO') {
                 // Actualizar el periodo
                 $loan_payment_period->update([
                     'importation' => true,
