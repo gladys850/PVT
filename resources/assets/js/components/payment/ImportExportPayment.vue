@@ -16,9 +16,9 @@
                   <v-btn value="SENASIR">
                     Senasir
                   </v-btn>
-                  <!-- <v-btn value="ESTACIONAL">
+                  <v-btn value="ESTACIONAL">
                     Estacional
-                  </v-btn>-->
+                  </v-btn>
                 </v-btn-toggle>
                 <v-select
                   :items="year"
