@@ -2400,8 +2400,8 @@ class LoanController extends Controller
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
                                 if($loan->loan_term == 1)
                                 {
-                                    $payment = $loan->balance + $interest;
-                                    $capital = $loan->balance;
+                                    $capital = $balance;
+                                    $payment = $capital + $interest;
                                 }
                                 else
                                 {
@@ -2419,7 +2419,8 @@ class LoanController extends Controller
                                 $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator, $loan->loan_procedure->loan_global_parameter->denominator);
                                 if($loan->loan_term == 1)
-                                    $payment = $loan->balance + $interest;
+                                    $capital = $balance;
+                                    $payment = $capital + $interest;
                                 $capital = $payment - $interest;
                             }
                         }
@@ -2634,5 +2635,76 @@ class LoanController extends Controller
             'message' => $message,
             'type' => $status
         ];   
+    }
+
+    public function regenerate_plan(Loan $loan)
+    {
+        try{
+            DB::beginTransaction();
+            $this->get_plan_payments($loan);
+            Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'regenero plan de pagos'));
+            DB::commit();
+            return $loan->loan_plan;
+        }catch (\Exception $e){
+            DB::rollback();
+            return response()->json(['error'=>'No se pudo regenerar el plan de pagos'],409);
+        }
+    }
+
+    public function get_value_no_debt_certification($affiliate_id)
+    {
+        $count_loans = Loan::where('affiliate_id', $affiliate_id)->where('state_id', 3)->count();
+        
+        if($count_loans == 0)
+        {
+            $date_first_loan_pvt = Carbon::parse(Loan::min('created_at'))->toDateString();
+
+            $date_first_contribution = Affiliate::join('contributions', 'contributions.affiliate_id', '=', 'affiliates.id')
+                ->where('affiliates.id', $affiliate_id)
+                ->orderBy('contributions.month_year', 'asc')
+                ->value('contributions.month_year');
+
+            $date_entry = Affiliate::find($affiliate_id)->date_entry;
+
+            if($date_entry >= $date_first_loan_pvt && $date_first_contribution >= $date_entry)
+            {
+                $value = 'NO ADEUDO';
+            }else{
+                $value = 'REVISAR BASE DE DATOS';
+            }
+        }else{
+            $value = 'REGISTRA DEUDAS';
+        }
+        return $value;
+    }
+
+    public function no_debt_certification(Request $request, Affiliate $affiliate, $standalone = true)
+    {
+        $file_title = implode('_', ['CERT','NO','ADEUDO', $affiliate->id, Carbon::now()->format('m/d')]);
+       
+        $data = [
+            'header' => [
+                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+                'unity' => 'UNIDAD DE INVERSIÓN EN PRÉSTAMOS',
+                'table' => [
+                    ['Fecha', Carbon::now()->format('d/m/Y')],
+                    ['Hora', Carbon::now()->format('H:i')],
+                    ['Usuario', Auth::user()->username]
+                ]
+            ],
+            'institution' => 'Mutual de Servicios al Policía "MUSERPOL"',
+            'title' => 'CERTIFICADO DE NO ADEUDO',
+            'affiliate' => $affiliate,
+            'id_affiliate' => $affiliate->id,
+            'user' => Auth::user(),
+            'code' => $request->code,
+            'value' =>  $this->get_value_no_debt_certification($affiliate->id),
+            'file_title' => $file_title
+        ];
+       
+        $file_name = implode('_', ['no_debt_certification', $affiliate->id]) . '.pdf';
+        $view = view()->make('loan.certification.no_debt_certification')->with($data)->render();
+        if ($standalone) return Util::pdf_to_base64([$view], $file_name, $affiliate,'letter', $request->copies ?? 1);
+        return $view;
     }
 }

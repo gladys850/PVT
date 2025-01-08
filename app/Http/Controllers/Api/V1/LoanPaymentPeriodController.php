@@ -8,6 +8,7 @@ use App\Helpers\Util;
 use App\User;
 use App\LoanPaymentPeriod;
 use Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\LoanPaymentPeriodForm;
 
 /** @group Periodos de cobros 
@@ -44,13 +45,15 @@ class LoanPaymentPeriodController extends Controller
      * @responseFile responses/periods/store.200.json
      */
     public function store(Request $request)
-    {  //$last_period = LoanPaymentPeriod::orderBy('id')->get()->last();
+    {
         $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
         $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();
+        $last_period_comand_additonal = LoanPaymentPeriod::orderBy('id')->where('importation_type','DESC-NOR-COMANDO')->get()->last();
+        $last_period_season = LoanPaymentPeriod::orderBy('id')->where('importation_type','ESTACIONAL')->get()->last();
         $create_period = false;
 
         $request->validate([
-            'importation_type' => 'string|required|in:COMANDO,SENASIR',
+            'importation_type' => 'string|required|in:COMANDO,SENASIR,ESTACIONAL',
         ]);
        $result = [];
         if($request->importation_type == "COMANDO"){
@@ -59,7 +62,7 @@ class LoanPaymentPeriodController extends Controller
             $create_period = true;
             }else{  
                 $last_date = Carbon::parse($last_period_comand->year.'-'.$last_period_comand->month); 
-                if($last_period_comand->importation){    
+                if(($last_period_comand->importation && !$last_period_comand_additonal) || ($last_period_comand->importation && $last_period_comand_additonal->importation)){
                     $estimated_date = $last_date->addMonth();   
                     $create_period = true;
                 }else{
@@ -67,10 +70,10 @@ class LoanPaymentPeriodController extends Controller
                 }
             } 
         }
-        if($request->importation_type == "SENASIR"){
+        elseif($request->importation_type == "SENASIR"){
             if(!$last_period_senasir){
-            $estimated_date = Carbon::now()->endOfMonth();
-            $create_period = true;
+                $estimated_date = Carbon::now()->endOfMonth();
+                $create_period = true;
             }else{  
                 $last_date = Carbon::parse($last_period_senasir->year.'-'.$last_period_senasir->month); 
                 if($last_period_senasir->importation){    
@@ -81,13 +84,39 @@ class LoanPaymentPeriodController extends Controller
                 }
             } 
         }
+        elseif($request->importation_type == "ESTACIONAL"){
+            if(!$last_period_season){
+                $estimated_date = Carbon::now();
+                $semester = ($estimated_date->quarter <= 2) ? 1 : 2;
+                if($semester == 1)
+                    $estimated_date->startOfYear()->addMonth(6)->endOfMonth();
+                else
+                    $estimated_date->endOfYear()->endOfMonth();
+                $create_period = true;
+            }else{
+                $last_date = Carbon::parse($last_period_season->year.'-'.$last_period_season->month); 
+                if($last_period_season->importation){    
+                    $estimated_date = $last_date->startOfMonth()->addMonth(6)->endOfMonth();
+                    $create_period = true;
+                }else{
+                    $result['message'] = "Para realizar la creación de un nuevo periodo, debe realizar la confirmación de los pagos por préstamo Estacional del periodo de ".$last_date->isoFormat('MMMM');
+                }
+            } 
+        }   
         if($create_period){
             $loan_payment_period = new LoanPaymentPeriod;
                 $loan_payment_period->year = $estimated_date->year;
                 $loan_payment_period->month = $estimated_date->month;
                 $loan_payment_period->description = $request->description;
                 $loan_payment_period->importation_type = $request->importation_type;
-                $loan_payment_period->importation = false;          
+                $loan_payment_period->importation = false;
+                if($request->importation_type == 'COMANDO')
+                {
+                    $loan_payment_period_ad = $loan_payment_period->replicate();
+                    $loan_payment_period_ad->importation_type = "DESC-NOR-COMANDO";
+                    $loan_payment_period_ad->importation = true;
+                    LoanPaymentPeriod::create($loan_payment_period_ad->toArray());
+                }
                 return LoanPaymentPeriod::create($loan_payment_period->toArray());
             }
         return $result;      
@@ -146,9 +175,28 @@ class LoanPaymentPeriodController extends Controller
     {
         $request->validate([
             'year' => 'required|exists:loan_payment_periods,year',
-            'importation_type' => 'string|required|in:COMANDO,SENASIR',
+            'importation_type' => 'string|required|in:COMANDO,SENASIR,ESTACIONAL',
         ]);
         $loan_payment_period = LoanPaymentPeriod::where('year',$request->year)->where('importation_type',$request->importation_type)->orderBy('month', 'asc')->get();
+        if($request->importation_type == 'COMANDO')
+        {
+            foreach($loan_payment_period as $period)
+            {
+                $period_additional = LoanPaymentPeriod::where('year',$period->year)->where('month',$period->month)->where('importation_type','DESC-NOR-COMANDO')->first();
+                if($period_additional)
+                {
+                    $period->additional_importation = $period_additional->importation;
+                    $period->additional_id = $period_additional->id;
+                    $period->additional_quantity = $period_additional->importation_quantity;
+                }
+                else
+                {
+                    $period->additional_importation = null;
+                    $period->additional_id = null;
+                    $period->additional_quantity = 0;
+                }
+            }
+        }
         return $loan_payment_period;
     }
 
@@ -163,4 +211,29 @@ class LoanPaymentPeriodController extends Controller
         return $loan_payment_period;
     }
 
+    public function validate_additional_import(Request $request)
+    {
+        $request->validate([
+            'period_id' => 'required|exists:loan_payment_periods,id',
+        ]);
+        DB::beginTransaction();
+        try {
+            $loan_payment_period = LoanPaymentPeriod::find($request->period_id);
+            if ($loan_payment_period && !$loan_payment_period->importation && $loan_payment_period->importation_type === 'DESC-NOR-COMANDO') {
+                // Actualizar el periodo
+                $loan_payment_period->update([
+                    'importation' => true,
+                    'importation_quantity' => 0,
+                    'importation_date' => now(),
+                ]);
+                DB::commit();
+                return response()->json(['success' => true, 'message' => 'Importación validada y actualizada correctamente.']);
+            }
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'No se puede validar el periodo solicitado.'], 400);
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Ocurrió un error durante la validación.', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

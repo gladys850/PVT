@@ -279,6 +279,12 @@ class Affiliate extends Model
     {
       return $this->verify_balance($this->loans);
     }
+
+    public function getActiveLoansEstacionalAttribute()
+    {
+      return $this->loans->whereIn('procedure_modality_id', [95,96])->where('state_id', 3);
+    }
+
     public function current_loans()
     {
       $loan_state = LoanState::whereName('Vigente')->first();
@@ -466,7 +472,7 @@ class Affiliate extends Model
       $state_affiliate = $this->affiliate_state->affiliate_state_type->name;
       $contributions = null;
       $before_month=1;
-      $responce=false;
+      $response=false;
       $now = CarbonImmutable::now();
       if($state_affiliate == 'Activo') $table_contribution ='contributions';
       if($state_affiliate == 'Pasivo') $table_contribution ='aid_contributions';
@@ -477,10 +483,10 @@ class Affiliate extends Model
         $current_ticket = CarbonImmutable::parse($contributions->month_year);
         $current_ticket_true = $now->startOfMonth()->subMonths($before_month);
         if($now->startOfMonth()->diffInMonths($current_ticket->startOfMonth()) == $before_month){
-          $responce = true;
+          $response = true;
         }
       }
-     return  $responce;
+     return  $response;
    }
 
    public function active_guarantees_sismu(){
