@@ -45,9 +45,9 @@
             <tr>
                 <td class="data-row py-5">{{ Util::money_format($loan->amount_approved) }} <span class="capitalize">Bs.</span></td>
                 @if ($loan->modality->procedure_type_id != 29)
-                    {{ $term_text = $loan->loan_term == 1 ? 'mes' : 'meses' }}
+                    @php ($term_text = $loan->loan_term == 1 ? 'mes' : 'meses')
                 @else
-                    {{ $term_text = $loan->loan_term == 1 ? 'semestre' : 'semestres' }}
+                    @php ($term_text = $loan->loan_term == 1 ? 'semestre' : 'semestres')
                 @endif
                 <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">{{ $term_text }}</span></td>
                 <td class="data-row py-5">
