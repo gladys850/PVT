@@ -96,11 +96,11 @@ class ImportationController extends Controller
 
             $additional_payments = DB::select($query);
             foreach($additional_payments as $additional_payment){
-                $affiliate_id = $this->serch_id($additional_payment->identity_card);
                 $loan_id = Loan::where('code', $additional_payment->loan_code)->first()->id;
-                if($affiliate_id != 0 && $loan_id > 0){
+                if($loan_id > 0){
+                    $affiliate_id = Loan::find($loan_id)->affiliate_id;
                     DB::table("loan_payment_copy_additionals")
-                    ->where("id", $additional_payment->id) // Condición para encontrar el registro
+                    ->where("id", $additional_payment->id)
                     ->update([
                         "affiliate_id" => $affiliate_id,
                         "loan_id" => $loan_id,
@@ -179,14 +179,14 @@ class ImportationController extends Controller
             $delete_copy = $this->delete_copy_payments($period,$origin);
             Log::info('Cantidad de registros no existentes: '.$count_no_exist);
             $data_cabeceraC=array(array("NRO de CARNET", "MONTO TOTAL"));
-            $data_cabeceraAD=array(array("NRO de CARNET", "CODIGO DE PRESTAMO", "MONTO TOTAL"));
+            $data_cabeceraAD=array(array("CODIGO DE PRESTAMO", "MONTO TOTAL, COMPROBANTE"));
             $data_cabeceraS=array(array("MATRÍCULA", "MATRÍCULA D_H", "MONTO TOTAL"));
             $data_cabeceraE=array(array("CI", "CI_DH", "MONTO TOTAL"));
             foreach ($data as $row){
                 if($origin == 'C'){
                     array_push($data_cabeceraC, array($row->identity_card, $row->amount));
                 }elseif($origin == 'AD'){
-                    array_push($data_cabeceraAD, array($row->identity_card, $row->loan_code, $row->amount));
+                    array_push($data_cabeceraAD, array($row->loan_code, $row->amount, $row->voucher));
                 }
                 elseif($origin == 'S'){
                     array_push($data_cabeceraS, array($row->registration, $row->registration_dh, $row->amount));
@@ -493,12 +493,12 @@ class ImportationController extends Controller
                     // Crear tabla temporal
                     DB::statement("CREATE TEMPORARY TABLE payments_aux (
                         period_id INTEGER,
-                        identity_card VARCHAR,
                         loan_code VARCHAR,
-                        amount FLOAT
+                        amount FLOAT,
+                        voucher VARCHAR
                     )");
                     $copyCommand = "
-                        COPY payments_aux(identity_card, loan_code, amount)
+                        COPY payments_aux(loan_code, amount, voucher)
                         FROM PROGRAM 'wget -O - $@ --user=$username --password=$password $base_path'
                         WITH DELIMITER ':' CSV HEADER;
                     ";
@@ -506,15 +506,15 @@ class ImportationController extends Controller
                     DB::table('payments_aux')->update(['period_id' => $request->period_id]);
                     DB::statement("
                         UPDATE payments_aux
-                        SET identity_card = REPLACE(LTRIM(REPLACE(identity_card,'0',' ')),' ','0')
+                        SET voucher = REPLACE(LTRIM(REPLACE(voucher,'0',' ')),' ','0')
                     ");
                     DB::statement("
                         UPDATE payments_aux
                         SET loan_code = REPLACE(LTRIM(REPLACE(loan_code,'0',' ')),' ','0')
                     ");
                     DB::statement("
-                        INSERT INTO loan_payment_copy_additionals(period_id, identity_card, loan_code, amount)
-                        SELECT period_id, identity_card, loan_code, amount FROM payments_aux
+                        INSERT INTO loan_payment_copy_additionals(period_id, loan_code, amount, voucher)
+                        SELECT period_id, loan_code, amount, voucher FROM payments_aux
                     ");
                     DB::statement("DROP TABLE IF EXISTS payments_aux");
                     DB::commit();
@@ -625,7 +625,7 @@ class ImportationController extends Controller
             $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
             $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();
             $last_period_season = LoanPaymentPeriod::orderBy('id')->where('importation_type','ESTACIONAL')->get()->last();
-            $last_period_comand_additional = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO-AD')->where('month', $last_period_comand->month)->where('year', $last_period_comand->year)->get()->last();
+            $last_period_comand_additional = LoanPaymentPeriod::orderBy('id')->where('importation_type','DESC-NOR-COMANDO')->where('month', $last_period_comand->month)->where('year', $last_period_comand->year)->get()->last();
         if($extencion == "csv"){
             $file_name_entry = $request->file->getClientOriginalName(); 
             $file_name_entry = explode(".csv",$file_name_entry);
@@ -846,7 +846,7 @@ class ImportationController extends Controller
                 }
                 $update_period = "UPDATE loan_payment_periods set importation = true where id = $period->id";
                 $update_period = DB::select($update_period);
-                $update_period_additional = "UPDATE loan_payment_periods set importation = false where year = $period->year and month = $period->month and importation_type = 'COMANDO-AD'";
+                $update_period_additional = "UPDATE loan_payment_periods set importation = false where year = $period->year and month = $period->month and importation_type = 'DESC-NOR-COMANDO'";
                 $update_period_additional = DB::select($update_period_additional);
                 LoanController::verify_loans();
                 $importationQuantity = DB::table("loan_payment_copy_commands")
@@ -917,7 +917,7 @@ class ImportationController extends Controller
 
                         if($amount > 0){
                             $form = (object)[
-                                'procedure_modality_id' => ProcedureModality::whereShortened('DES-COMANDO-AD')->first()->id,
+                                'procedure_modality_id' => ProcedureModality::whereShortened('DESC-NOR-COMANDO')->first()->id,
                                 'affiliate_id' => $affiliate->id,
                                 'paid_by' => "T",
                                 'categorie_id' => LoanPaymentCategorie::whereTypeRegister('SISTEMA')->first()->id,

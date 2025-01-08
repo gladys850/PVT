@@ -17,7 +17,6 @@ class CreateLoanPaymentCopyAdditionalsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('period_id')->unsigned();
             $table->foreign('period_id')->references('id')->on('loan_payment_periods');
-            $table->string('identity_card');
             $table->string('loan_code');
             $table->unsignedBigInteger('loan_id')->nullable();
             $table->foreign('loan_id')->references('id')->on('loans');
@@ -25,6 +24,7 @@ class CreateLoanPaymentCopyAdditionalsTable extends Migration
             $table->foreign('affiliate_id')->references('id')->on('affiliates');
             $table->float('amount',10,2);
             $table->float('amount_balance',10,2)->nullable();
+            $table->string('voucher');
         });
     }
 

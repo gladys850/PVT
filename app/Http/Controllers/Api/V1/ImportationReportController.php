@@ -52,7 +52,7 @@ class ImportationReportController extends Controller
             'C' => 'DES-COMANDO',
             'S' => 'DES-SENASIR',
             'E' => 'APE',
-            'AD' => 'DES-COMANDO-AD'
+            'AD' => 'DESC-NOR-COMANDO'
         ];
 
         $procedure_modality_id = $procedure_modality[$request->origin] ?? null;
