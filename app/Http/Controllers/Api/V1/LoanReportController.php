@@ -2340,14 +2340,15 @@ class LoanReportController extends Controller
 
     $File="IngresosSegúnPlanDePagos";
     $data_income=array(
-        array("Número","Código de préstamo","Carnet de identidad","Nombre del prestatario","Importe capital","Importe interés","Total Cuota")
+        array("Número","Modalidad de Tramite", "Código de préstamo","Carnet de identidad","Nombre del prestatario","Importe capital","Importe interés","Total Cuota")
     );
 
     foreach($loans as $key => $loan)
     {   
         array_push($data_income, array(
             $key+1,
-            $loan->code, 
+            $loan->modality->name,
+            $loan->code,
             $loan->loanBorrowers->first()->identity_card,
             $loan->loanBorrowers->first()->first_name." ".$loan->loanBorrowers->first()->second_name." ".$loan->loanBorrowers->first()->last_name." ".$loan->loanBorrowers->first()->mothers_last_name." ".$loan->loanBorrowers->first()->surname_husband,
             $loan->loan_plan->sum('capital'),
