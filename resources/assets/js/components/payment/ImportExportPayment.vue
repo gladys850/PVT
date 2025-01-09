@@ -439,8 +439,11 @@
                                     FORMATO CABECERA DEL ARCHIVO<br>
                                   </small>
 
-                                  <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'S' || import_export.state_affiliate == 'E'">
+                                  <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'S'">
                                     MATRICULA:MATRICULA_DH:MONTO<br>
+                                  </small>
+                                  <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'E'">
+                                    CI:CI_DH:MONTO<br>
                                   </small>
                                   <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'C'">
                                     CI:MONTO<br>
@@ -454,15 +457,25 @@
                                     <v-icon>mdi-check</v-icon>
                                     Campos del Archivo CSV<br>
                                   </small>
-                                  <small v-show="import_export.state_affiliate == 'S' || import_export.state_affiliate == 'E'" class="pl-6 ma-1">
+                                  <small v-show="import_export.state_affiliate == 'S'" class="pl-6 ma-1">
                                     <v-icon>mdi-arrow-right-thick</v-icon>
                                     MATRICULA: Matricula del afiliado<br>
                                   </small>
+                                  <small v-show="import_export.state_affiliate == 'E'" class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    CI: Carnet del afiliado<br>
+                                  </small>
 
-                                  <small v-show="import_export.state_affiliate == 'S' || import_export.state_affiliate == 'E'" class="pl-6 ma-1">
+                                  <small v-show="import_export.state_affiliate == 'S'" class="pl-6 ma-1">
                                     <v-icon>mdi-arrow-right-thick</v-icon>
                                     MATRICULA DERECHO HABIENTE: Matricula del conyugue<br>
                                   </small>
+
+                                  <small v-show="import_export.state_affiliate == 'E'" class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    CI_DH: Carnet del conyugue<br>
+                                  </small>
+
                                   <small v-show="import_export.state_affiliate == 'C' || import_export.state_affiliate == 'AD'" class="pl-6 ma-1">
                                     <v-icon>mdi-arrow-right-thick</v-icon>
                                     CI: CI del afiliado<br>
