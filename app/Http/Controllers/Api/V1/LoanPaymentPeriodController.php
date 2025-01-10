@@ -48,7 +48,7 @@ class LoanPaymentPeriodController extends Controller
     {
         $last_period_senasir = LoanPaymentPeriod::orderBy('id')->where('importation_type','SENASIR')->get()->last();
         $last_period_comand = LoanPaymentPeriod::orderBy('id')->where('importation_type','COMANDO')->get()->last();
-        $last_period_comand_additonal = LoanPaymentPeriod::orderBy('id')->where('importation_type','DESC-NOR-COMANDO')->get()->last();
+        $last_period_comand_additional = LoanPaymentPeriod::orderBy('id')->where('importation_type','DESC-NOR-COMANDO')->get()->last();
         $last_period_season = LoanPaymentPeriod::orderBy('id')->where('importation_type','ESTACIONAL')->get()->last();
         $create_period = false;
 
@@ -62,7 +62,8 @@ class LoanPaymentPeriodController extends Controller
             $create_period = true;
             }else{  
                 $last_date = Carbon::parse($last_period_comand->year.'-'.$last_period_comand->month); 
-                if(($last_period_comand->importation && !$last_period_comand_additonal) || ($last_period_comand->importation && $last_period_comand_additonal->importation)){
+                //if(($last_period_comand->importation && !$last_period_comand_additional) || ($last_period_comand->importation && $last_period_comand_additional->importation)){
+                if($last_period_comand->importation){
                     $estimated_date = $last_date->addMonth();   
                     $create_period = true;
                 }else{

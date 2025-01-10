@@ -17,7 +17,7 @@
                     Senasir
                   </v-btn>
                   <v-btn value="ESTACIONAL">
-                    Estacional
+                    Beneficios
                   </v-btn>
                 </v-btn-toggle>
                 <v-select
@@ -205,7 +205,7 @@
               </v-row>
             </v-card-text>
             <v-progress-linear color="white" :style="{ height: period_type === 'COMANDO' ? '5px' : '2px' }"></v-progress-linear>
-        <!---ADICIONAL-->
+        <!---ADICIONAL
             <v-card-text v-if="period_type==='COMANDO'" class="blue-grey lighten-5" >
               <v-row >
                 <v-col cols="12" md="8" class="py-0">
@@ -213,7 +213,7 @@
                 </v-col>
                 <v-col cols="12" md="4" class="py-0">
                   <v-tooltip top v-if="period_type==='COMANDO' && item.additional_importation" class="my-0">
-                  <template v-slot:activator="{ on }"><!---true y null se consideran como importados. para desahilitar el boton-->
+                  <template v-slot:activator="{ on }">
                   <v-btn
                     :disabled="!(item.additional_importation && item.importation)" 
                     x-small
@@ -249,7 +249,7 @@
                         </v-btn>
                       </template>
                       <div>
-                        <span>Importación Comando Adcional</span>
+                        <span>Importación Comando Adicional</span>
                       </div>
                     </v-tooltip> 
                 </v-col>
@@ -279,7 +279,7 @@
 
             </v-row>
             </v-card-text>
-          <!--FIN ADCICIONAL-->
+          FIN ADCICIONAL-->
             <v-card-actions class="blue-grey lighten-5">
               <v-spacer></v-spacer>
               <!-- <v-tooltip top v-if="period_type==='COMANDO'" class="my-0">
@@ -733,7 +733,7 @@
                                     <v-col cols="4" v-show="import_export.state_affiliate== 'AD'">
                                       <label>
                                         Tipo de Importacion : COMANDO ADICIONAL
-                                      </label>
+                                      </label>|
                                     </v-col>
                                     <v-col cols="3">
                                       <label>
