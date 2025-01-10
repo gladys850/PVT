@@ -14,7 +14,6 @@ Route::group([
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
-    Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
     //ruta para saber si un afiliado cuenta con prestamos que hayan sido pagados por sus garantes
     Route::get('loans_paid_by_guarantors/{affiliate}', 'Api\V1\AffiliateController@loans_paid_by_guarantors');
     // Autenticado con token
@@ -85,6 +84,8 @@ Route::group([
         Route::apiResource('contributions_affiliate', 'Api\V1\ContributionController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('affiliate/{affiliate}/contributions_affiliate', 'Api\V1\ContributionController@get_all_contribution_affiliate');
         Route::get('contribution/{contribution}/print/contribution','Api\V1\ContributionController@print_contribution');
+        //Certificado de No Adeudo
+        Route::post('affiliate/{affiliate}/no_debt_certification','Api\V1\LoanController@no_debt_certification');
         //Conceptos de movimientos
         Route::apiResource('movement_concept', 'Api\V1\MovementConceptController')->only('index', 'show', 'store', 'update', 'destroy');
         //REPORTS
@@ -124,10 +125,13 @@ Route::group([
         //IMPORTACION
         Route::get('agruped_payments', 'Api\V1\ImportationController@agruped_payments');
         Route::get('importation_payments_senasir', 'Api\V1\ImportationController@importation_payment_senasir');//senasir pagos
+        Route::get('importation_payments_estacional', 'Api\V1\ImportationController@importation_payment_estacional');//senasir pagos
         Route::get('upload_fail_validated_group', 'Api\V1\ImportationController@upload_fail_validated_group');
         Route::get('copy_payments', 'Api\V1\ImportationController@copy_payments');
         Route::get('create_payments_command', 'Api\V1\ImportationController@create_payments_command');
         Route::get('rollback_copy_groups_payments', 'Api\V1\ImportationController@rollback_copy_groups_payments');
+        Route::get('create_payments_command_additional', 'Api\V1\ImportationController@create_payments_command_additional');
+        Route::get('validate_additional_import', 'Api\V1\LoanPaymentPeriodController@validate_additional_import');
         //PERIODOS DE IMPORTACION
         Route::get('get_list_month', 'Api\V1\LoanPaymentPeriodController@get_list_month');//listado de meses por gestion
         Route::get('get_list_year', 'Api\V1\LoanPaymentPeriodController@get_list_year');//listado de meses por gestion
@@ -256,6 +260,7 @@ Route::group([
             Route::get('loan/{loan}/note','Api\V1\LoanController@get_notes');
             Route::get('loan/{loan}/flow','Api\V1\LoanController@get_flow');
             Route::get('loan/{loan}/print/plan','Api\V1\LoanController@print_plan');
+            Route::post('regenerate_plan/{loan}', 'Api\V1\LoanController@regenerate_plan');
             Route::apiResource('note','Api\V1\NoteController')->only('show');
             Route::get('procedure_type/{procedure_type}/loan_destiny', 'Api\V1\ProcedureTypeController@get_loan_destinies');
             Route::get('loan/{loan}/observation','Api\V1\LoanController@get_observations');
