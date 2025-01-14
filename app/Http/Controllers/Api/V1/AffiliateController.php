@@ -686,6 +686,15 @@ class AffiliateController extends Controller
             return $data;
     }
 
+    public function get_loans_affiliate(Request $request, Affiliate $affiliate)
+    {
+        $data = $affiliate->active_loans_query()->paginate(10);
+        $data->getCollection()->transform(function ($loan) {
+            return LoanController::append_data($loan, true);
+        });
+        return $data;
+    }
+
     /**
     * Estado
     * Devuelve el estado policial del afiliado
