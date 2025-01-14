@@ -256,6 +256,7 @@ Route::group([
             Route::post('loan_advance/{loan}', 'Api\V1\LoanController@destroy_advance');
             Route::get('loan/{loan}/disbursable', 'Api\V1\LoanController@get_disbursable');
             Route::get('affiliate/{affiliate}/loan','Api\V1\AffiliateController@get_loans');
+            Route::get('affiliate/{affiliate}/loans_affiliate','Api\V1\AffiliateController@get_loans_affiliate');
             Route::get('loan/{loan}/document','Api\V1\LoanController@get_documents');
             Route::get('loan/{loan}/note','Api\V1\LoanController@get_notes');
             Route::get('loan/{loan}/flow','Api\V1\LoanController@get_flow');

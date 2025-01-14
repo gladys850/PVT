@@ -571,4 +571,18 @@ class Affiliate extends Model
    {
     return RetirementFundAverage::where('degree_id', $this->degree_id)->where('category_id', $this->category_id)->where('is_active', true)->first();
    }
+
+   public function active_loans_query()
+  {
+      $loan_state_ids = LoanPaymentState::whereIn('name', ['Pagado', 'Pendiente por confirmar'])->pluck('id');
+      return $this->loans()
+          ->whereRaw("
+              amount_approved - (
+                  SELECT COALESCE(SUM(capital_payment), 0)
+                  FROM loan_payments
+                  WHERE loan_payments.loan_id = loans.id
+                    AND loan_payments.state_id IN (" . $loan_state_ids->implode(',') . ")
+              ) > 0
+          ");
+  }
 }
