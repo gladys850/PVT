@@ -573,16 +573,17 @@ class Affiliate extends Model
    }
 
    public function active_loans_query()
-  {
-      $loan_state_ids = LoanPaymentState::whereIn('name', ['Pagado', 'Pendiente por confirmar'])->pluck('id');
-      return $this->loans()
-          ->whereRaw("
-              amount_approved - (
-                  SELECT COALESCE(SUM(capital_payment), 0)
-                  FROM loan_payments
-                  WHERE loan_payments.loan_id = loans.id
-                    AND loan_payments.state_id IN (" . $loan_state_ids->implode(',') . ")
-              ) > 0
-          ");
-  }
+   {
+       $loan_state_ids = LoanPaymentState::whereIn('name', ['Pagado', 'Pendiente por confirmar'])->pluck('id')->toArray();
+   
+       return $this->loans()
+           ->whereRaw("
+               amount_approved - (
+                   SELECT COALESCE(SUM(capital_payment), 0)
+                   FROM loan_payments
+                   WHERE loan_payments.loan_id = loans.id
+                     AND loan_payments.state_id IN (" . implode(',', $loan_state_ids) . ")
+               ) > 0.001
+           ");
+   }   
 }
