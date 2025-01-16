@@ -446,13 +446,13 @@ export default {
     async getLoan(id) {
       try {
         this.loading = true;
-        let res = await axios.get(`affiliate/${id}/loan`, {
+        let res = await axios.get(`affiliate/${id}/loans_affiliate`, {
           params: {
             guarantor:0
           }
         });
-        //this.loan = res.data.data;
-        this.loan = res.data.data.filter(item => item.state.name === 'Vigente' || item.state.name === 'En Proceso');
+        this.loan = res.data.data;
+        //this.loan = res.data.data.filter(item => item.state.name === 'Vigente' || item.state.name === 'En Proceso');
         let num = this.loan.length;
       } catch (e) {
         console.log(e);
