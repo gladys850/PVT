@@ -13,7 +13,7 @@ Route::group([
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
     //
-    Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
+    //Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
     //
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
