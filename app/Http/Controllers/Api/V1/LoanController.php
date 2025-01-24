@@ -2418,9 +2418,10 @@ class LoanController extends Controller
                                 $date_fin = Carbon::parse($loan->disbursement_date)->startOfMonth()->addMonth()->endOfMonth()->endOfDay();
                                 $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator, $loan->loan_procedure->loan_global_parameter->denominator);
-                                if($loan->loan_term == 1)
+                                if($loan->loan_term == 1){
                                     $capital = $balance;
                                     $payment = $capital + $interest;
+                                }
                                 $capital = $payment - $interest;
                             }
                         }
@@ -2706,5 +2707,24 @@ class LoanController extends Controller
         $view = view()->make('loan.certification.no_debt_certification')->with($data)->render();
         if ($standalone) return Util::pdf_to_base64([$view], $file_name, $affiliate,'letter', $request->copies ?? 1);
         return $view;
+    }
+
+    public function generate_plans()
+    {
+        try{
+            $loans = Loan::whereNotNull('disbursement_date')->get();
+            $c=0;
+            foreach($loans as $loan)
+            {
+                if($loan->loan_plan->count() == 0)
+                {
+                    $this->get_plan_payments($loan, $loan->disbursement_date);
+                    $c++;
+                }
+            }
+            return $c;
+        }catch(\Exception $e){
+            return $e;
+        }
     }
 }
