@@ -447,7 +447,7 @@
                                     CI:MONTO<br>
                                   </small>
                                   <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'AD'">
-                                    CI:CODIGO_PRESTAMO:MONTO<br>
+                                    CODIGO_PRESTAMO:MONTO:VOUCHER<br>
                                   </small>
 
                                   <!-- Campos del Archivo CSV -->
