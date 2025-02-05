@@ -27,4 +27,14 @@ class Module extends Model
     {
         return $this->hasMany(ObservationType::class)->orderBy('module_id')->orderBy('shortened');
     }
+
+    public function workflows()
+    {
+        return $this->hasMany(Workflow::class)->orderBy('id');
+    }
+
+    public function loan_workflows()
+    {
+        return $this->hasMany(Workflow::class)->where('shortened', 'ilike', '%PRES%')->orderBy('id');
+    }
 }

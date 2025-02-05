@@ -10,9 +10,7 @@
           v-model="filters.traySelected"
           active-class="primary white--text"
           mandatory
-          v-if="!track"
-          ><!--filtros superiores
-          v-if="!track" v-show="affiliate_id==0"-->
+          v-if="!track">
           <v-btn
             v-for="tray in trays"
             :key="tray.name"
@@ -30,7 +28,6 @@
             </v-badge>
           </v-btn>
         </v-btn-toggle>
-
         <template v-if="permissionSimpleSelected.includes('show-deleted-loan') ">
           <v-tooltip
             top
@@ -71,30 +68,6 @@
             clearable
           ></v-text-field>
         </v-flex>
-        <!--bandejas Seguimiento/Trabajo-->
-        <!--<template v-if="hasTray">
-          <v-tooltip
-            top
-          >
-            <template v-slot:activator="{ on }">
-              <v-btn
-                v-on="on"
-                icon
-                outlined
-                small
-                :color="track ? 'info' : 'brown'"
-                class="darken-2 ml-4"
-                @click="track = !track"
-              >
-                <v-icon>
-                  {{ track ? 'mdi-tray-full' : 'mdi-swap-horizontal' }}
-                </v-icon>
-              </v-btn>
-            </template>
-            <span v-if="track">Bandeja de trabajo</span>
-            <span v-else>Seguimiento de trámites</span>
-          </v-tooltip>
-        </template>-->
       </v-toolbar>
     </v-card-title>
     <v-tooltip
@@ -135,7 +108,7 @@
             :key="loan.id"
           >
             <v-list-item-content>
-              <v-list-item-title v-text="loan.code">{{index}}</v-list-item-title>
+              <v-list-item-title>{{index}}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item v-if="newLoans.length > newLoansMax">
@@ -151,21 +124,20 @@
         <v-toolbar flat>
           <v-col :cols="singleRol ? 12 : 12">
               <v-tabs
-                v-model="filters.procedureTypeSelected"
+                v-model="filters.WorkflowSelected"
                 dark
                 grow
                 center-active
                 active-class="secondary"
               >
                 <v-tab v-for="(procedureType, index) in $store.getters.modalityLoan" :key="procedureType.id">
-                   <!--:content="procedureTypesCount.hasOwnProperty(index) ? procedureTypesCount[index].toString() : '-'"-->
                   <v-badge
                    :content="procedureTypesCount.hasOwnProperty(index) ? procedureTypesCount[index].toString() : '-'"
                     :color="procedureTypeClass(index)"
                     right
                     top
                   >
-                    {{ procedureType.second_name }}
+                    {{ procedureType.name }}
                   </v-badge>
                 </v-tab>
               </v-tabs>
@@ -184,15 +156,11 @@
           <Fab v-show="allowFlow" :bus="bus"/> 
         </v-toolbar>
       </v-row>
-      <!--<v-row>  <v-col>procedureTypes{{$store.getters.procedureTypes}}</v-col>     </v-row>
-      <v-row>  <v-col>modalityLoan{{$store.getters.modalityLoan}}</v-col>     </v-row>
-     <pre>{{ permissionSimpleSelected }}</pre>
-     <pre>{{ rolePermissionSelected.id }}</pre>-->
       <v-row>
         <v-col cols="12">
           <List :bus="bus" 
           :tray="filters.traySelected" 
-          :procedureTypeSelected="parseInt(this.filters.procedureTypeSelected)"
+          :WorkflowSelected="parseInt(this.filters.WorkflowSelected)"
           :procedureModalities="procedureModalities" 
           :options.sync="options" 
           :loans="loans" 
@@ -204,7 +172,6 @@
     </v-card-text>
   </v-card>
 </template>
-
 <script>
 import Breadcrumbs from '@/components/shared/Breadcrumbs'
 import List from '@/components/workflow/List'
@@ -246,13 +213,13 @@ export default {
       ],
       filters: {
         traySelected: null,
-        procedureTypeSelected: null,
+        WorkflowSelected: null,
         roleSelected: null
       },
       params: {},
       roles: [],
       options: {
-        itemsPerPage: 8,
+        itemsPerPage: 15,
         page: 1,
         sortBy: ['request_date'],
         sortDesc: [true]
@@ -261,9 +228,6 @@ export default {
       totalLoans: 0,
       loading: true,
       procedureModalities: [],
-      //affiliate_id: this.$route.params.id > 0 ? this.$route.params.id : 0,
-      //affiliate: [],
-      //resultado:[]
       trackNull: null
     }
   },
@@ -288,10 +252,9 @@ export default {
     }
   },
   beforeCreate() {
-    let self = this
     this.$store.dispatch('selectModuleLoan', 'prestamos').then(() => {
       this.getProcedureModalities()
-      this.$store.getters.roles.filter(o => {
+      this.$store.getters.wfStates.filter(o => {
         return o.module_id == this.$store.getters.module.id && this.$store.getters.userRoles.includes(o.name)
       }).forEach(function(o, i) {
         if (i == 0) self.filters = {roleSelected: o.id}
@@ -301,28 +264,19 @@ export default {
     this.roles = self.roles
     this.filters = self.filters
   },
+
   beforeMount() {
     this.$store.getters.rolePermissionSelected.id
     Echo.channel('loan').listen('.flow', (msg) => {
       if (msg.data.role_id == this.filters.roleSelected || this.filters.roleSelected == 0) this.newLoans = msg.data.derived
     })
-    /*this.$store.commit('setBreadcrumbs', [
-      {
-        text: 'Préstamos',
-        to: { name: 'flowIndex' }
-      }
-    ])*/
-
   },
   mounted() {
-    this.filters.procedureTypeSelected = this.$store.getters.modalityLoan[0]
+    this.filters.WorkflowSelected = this.$store.getters.modalityLoan[0]
     this.procedureTypesCount = new Array(this.$store.getters.modalityLoan.length).fill('-')
     this.bus.$on('emitRefreshLoans', val => {
       this.updateLoanList();
     })
-    /*if(this.$route.params.id > 0){ //TODO revisar si se utiliza el filtro de afiliado para listar los prestamos del afiliado
-      this.getAffiliate(this.$route.params.id)
-    }*/
   },
   watch: {
     search: _.debounce(function () {
@@ -331,9 +285,9 @@ export default {
     filters: {
       deep: true,
       handler(val) {
-        if (val.traySelected != null && val.procedureTypeSelected != null && val.roleSelected != null) {
-          let procedureType = this.$store.getters.modalityLoan[this.filters.procedureTypeSelected]
-          //this.filters.procedureTypeSelected es el orden de procedure
+        if (val.traySelected != null && val.WorkflowSelected != null && val.roleSelected != null) {
+          let procedureType = this.$store.getters.modalityLoan[this.filters.WorkflowSelected]
+          //this.filters.WorkflowSelected es el orden de procedure
           if (procedureType) this.setFilters(procedureType.id)
         }
       }
@@ -346,7 +300,7 @@ export default {
     },
     track(val) {
       if (val) {
-        this.filters.procedureTypeSelected = null
+        this.filters.WorkflowSelected = null
         this.filters.roleSelected = 0
         this.filters.traySelected = 'all'
         this.search = ''
@@ -356,8 +310,8 @@ export default {
         this.newLoans = []
         this.getLoans()
       } else {
-        this.filters.procedureTypeSelected = this.$store.getters.modalityLoan[0]
-         //alert('track'+ this.filters.procedureTypeSelected)
+        this.filters.WorkflowSelected = this.$store.getters.modalityLoan[0]
+         //alert('track'+ this.filters.WorkflowSelected)
         this.filters.roleSelected = this.roles[0].id
         this.clearNotification()
       }
@@ -365,11 +319,12 @@ export default {
   },
   methods: {
     getProcedureModalities() {
-      this.$store.getters.modalityLoan.forEach(async (procedureType) => {
+      this.$store.getters.modalityLoan.forEach(async (workflow) => {
         try {
           let res = await axios.get(`procedure_modality`, {
             params: {
-              procedure_type_id: procedureType.id,
+              workflow_id: workflow.id,
+              module_id: 6,
               page: 1,
               per_page: 100
             }
@@ -382,7 +337,7 @@ export default {
     },
     updateLoanList() {
       this.getRoleStatistics()
-      this.getProcedureTypeStatistics()
+      this.getWorkflowStatistics()
       this.getLoans()
     },
     procedureTypeClass(index) {
@@ -401,14 +356,14 @@ export default {
       }
       this.newLoans = []
     },
-    setFilters(procedureType) {
+    setFilters(workflow) {
       let filters = {
-        procedure_type_id: procedureType,
+        workflow_id: workflow,
         role_id: this.filters.roleSelected
       }
       if(this.filters.traySelected != 'received'){
         filters = {
-          procedure_type_id: procedureType,
+          workflow_id: workflow,
           role_id: this.filters.roleSelected,
           user_id: this.$store.getters.id
         }
@@ -439,29 +394,6 @@ export default {
         }
         this.loading = true
         let res
-        /*if(this.affiliate_id > 0){
-          res = await axios.get(`loan`, {
-            params: {              
-              page: this.options.page,
-              per_page: this.options.itemsPerPage,
-              sortBy: this.options.sortBy,
-              sortDesc: this.options.sortDesc,
-              search: this.search
-            }
-          })
-        }
-        if(this.track){
-          res = await axios.get(`loan`, {
-            params: {
-              page: this.options.page,
-              per_page: this.options.itemsPerPage,
-              sortBy: this.options.sortBy,
-              sortDesc: this.options.sortDesc,
-              search: this.search
-            }
-          })
-        }
-        else{*/
           res = await axios.get(`loan`, {
             params: {...{
               page: this.options.page,
@@ -471,7 +403,6 @@ export default {
               search: this.search
             }, ...this.params}
           })
-        //}
         this.loans = res.data.data
         this.totalLoans = res.data.total
         delete res.data['data']
@@ -506,7 +437,7 @@ export default {
         console.log(e)
       }
     },
-    async getProcedureTypeStatistics() {
+    async getWorkflowStatistics() {
       try {
         let res = await axios.get(`statistic`, {
           params: {
@@ -535,12 +466,6 @@ export default {
           to: { name: "flowIndex" }
         }
       ]
-        /*if(this.affiliate_id > 0){
-          breadcrumbs.push({
-          text: this.$options.filters.fullName(this.affiliate, true),
-          to: { name: "affiliateAdd", params: { id: this.affiliate_id } }
-        })
-      }*/
 
       this.$store.commit("setBreadcrumbs", breadcrumbs)
     },

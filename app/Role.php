@@ -12,7 +12,7 @@ class Role extends LaratrustRole
     public $timestamps = true;
     protected $hidden = ['pivot'];
     public $guarded = ['id'];
-    protected $fillable = ['module_id', 'name', 'display_name', 'sequence_number'];
+    protected $fillable = ['module_id', 'name', 'display_name', 'sequence_number', 'wf_state_id'];
 
     public function users()
     {
@@ -37,5 +37,10 @@ class Role extends LaratrustRole
     public function loans()
     {
         return $this->hasMany(Loan::class);
+    }
+
+    public function wf_state()
+    {
+        return $this->belongsTo(WfState::class, 'wf_state_id', 'id');
     }
 }

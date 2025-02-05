@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import VuexPersistence from 'vuex-persist'
 import router from '@/plugins/router'
 import Role from '@/services/RoleService'
+import WfState from '@/services/WfStateService'
 import Module from '@/services/ModuleService'
 import ProcedureType from '@/services/ProcedureTypeService'
 import ModalityLoan from '@/services/ModalityLoanService'
@@ -20,6 +21,7 @@ export default {
     username: null,
     cityId: null,
     roles: [],
+    wfStates: [],
     module: {},
     procedureTypes: [],
     modalityLoan: [],
@@ -52,6 +54,9 @@ export default {
     },
     roles(state) {
       return state.roles
+    },
+    wfStates(state) {
+      return state.wfStates
     },
     module(state) {
       return state.module
@@ -134,6 +139,7 @@ export default {
       state.username = data.username
       state.cityId = data.city_id
       state.userRoles = data.roles
+      state.userwfStates = data.wfStates
       state.permissions = data.permissions
       state.accessToken = data.access_token
       state.tokenType = data.token_type
@@ -142,6 +148,9 @@ export default {
     },
     setRoles(state, newValue) {
       state.roles = newValue
+    },
+    setWfStates(state, newValue) {
+      state.wfStates = newValue
     },
     setDate(state, newValue) {
       state.dateNow = newValue

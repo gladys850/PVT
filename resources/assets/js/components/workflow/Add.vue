@@ -898,6 +898,7 @@ export default {
         this.getAddress(this.affiliate.id)
 
         this.role(this.loan.role_id)
+        this.wf_state(this.loan.wf_state_id)
         if(this.loan.user_id != null){
           this.user(this.loan.user_id)
         }
@@ -1064,6 +1065,14 @@ export default {
       try {
         let res = await axios.get(`role/${role_id}`)
         this.role_name = res.data.display_name
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async wfState(wf_state_id){
+      try {
+        let res = await axios.get(`wf_state/${wf_state_id}`)
+        this.wf_state_name = res.data.name
       } catch (e) {
         console.log(e)
       }

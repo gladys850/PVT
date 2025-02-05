@@ -172,7 +172,7 @@ export default {
     selectedLoans: [],
     headers: [
       {
-        text: 'Correlativo',
+        text: 'Código',
         value: 'code',
         class: ['normal', 'white--text'],
         align: 'center',

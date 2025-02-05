@@ -71,4 +71,9 @@ class ProcedureModality extends Model
     {
         return $this->loan_interests()->first();
     }
+
+    public function workflow()
+    {
+        return $this->belongsTo(Workflow::class);
+    }
 }
