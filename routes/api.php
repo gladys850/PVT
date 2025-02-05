@@ -68,8 +68,8 @@ Route::group([
         Route::get('module/{module}/workflows', 'Api\V1\ModuleController@get_loan_workflows');
         //
         Route::get('module/{module}/amortization_loan', 'Api\V1\ModuleController@get_amortization_types');
-        Route::patch('loans', 'Api\V1\LoanController@bulk_update_role');
-        Route::patch('loan_payments', 'Api\V1\LoanPaymentController@bulk_update_role');
+        Route::patch('loans', 'Api\V1\LoanController@bulk_update_state');
+        Route::patch('loan_payments', 'Api\V1\LoanPaymentController@bulk_update_state');
         Route::get('record_payment', 'Api\V1\RecordController@record_loan_payment');
         Route::apiResource('statistic', 'Api\V1\StatisticController')->only('index', 'show');
         Route::apiResource('voucher_type', 'Api\V1\VoucherTypeController')->only('index', 'show');
