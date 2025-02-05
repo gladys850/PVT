@@ -1434,7 +1434,6 @@ class LoanController extends Controller
     {
         $currentWfState = $loan->currentState;
         $workflow = $loan->modality->workflow;
-
         // Obtener los estados anterior y siguiente desde wf_sequences
         $previousStates = WfSequence::where('workflow_id', $workflow->id)
             ->where('wf_state_next_id', $currentWfState->id)
@@ -1459,7 +1458,7 @@ class LoanController extends Controller
 
         // Retornar los datos estructurados
         return response()->json([
-            "current" => $loan->role_id,
+            "current" => $loan->wf_states_id,
             "previous" => $previousStates,
             "previous_user" => $previousUsers,
             "next" => $nextStates,
@@ -1698,7 +1697,7 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/bulk_update_role.200.json
     */
-    public function bulk_update_role(LoansForm $request)
+    public function bulk_update_state(LoansForm $request)
     {
         if(!$request->user_id) 
             $user_id = null;

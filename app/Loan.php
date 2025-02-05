@@ -1714,12 +1714,6 @@ class Loan extends Model
 
     public function currentState()
     {
-        return $this->hasOneThrough(
-            WfState::class, Role::class,
-            'id', // Clave primaria de roles
-            'id', // Clave primaria de wf_states
-            'role_id', // Clave foránea en loans -> roles
-            'wf_state_id' // Clave foránea en roles -> wf_states
-        );
+        return $this->belongsTo(WfState::class, 'wf_states_id');
     }
 }
