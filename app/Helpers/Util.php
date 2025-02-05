@@ -588,48 +588,84 @@ class Util
         return $data;
     }
 
-    public static function loans_by_user($model, $object, $module,$role_id){//prestamos
-        foreach ($object as $key => $procedure_type) {
-            $data[] = [
-                'procedure_type_id' => $procedure_type->id,
-                'total' => [
-                    'received' => 0,
-                    'validated' => 0,
-                    'trashed' => 0,
-                    'my_received' => 0
-                ]
-            ];
-            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
-           // $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->get();
-            //foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $subkey => $role) {
-            foreach ($user_roles as $subkey => $role) {
-                $data[$key]['data'][$subkey] = [
-                    'role_id' => $role->id
-                ];
-                $values = [
-                    $model::whereRoleId($role->id)->whereHas('modality', function($q) use ($procedure_type) {
-                        $q->whereProcedureTypeId($procedure_type->id);
-                    })->whereValidated(false)->whereUserId(null)->count(), //received
-                    $model::whereRoleId($role->id)->whereHas('modality', function($q) use ($procedure_type) {
-                        $q->whereProcedureTypeId($procedure_type->id);
-                    })->whereValidated(true)->whereUserId(Auth::user()->id)->count(), //validated
-                    $model::whereRoleId($role->id)->whereHas('modality', function($q) use ($procedure_type) {
-                        $q->whereProcedureTypeId($procedure_type->id);
-                    })->onlyTrashed()->whereUserId(Auth::user()->id)->count(), //trashed
-                    $model::whereRoleId($role->id)->whereHas('modality', function($q) use ($procedure_type) {
-                        $q->whereProcedureTypeId($procedure_type->id);
-                    })->whereValidated(false)->whereUserId(Auth::user()->id)->count(), //my_received
-                ];
-                $i = 0;
-                foreach ($data[$key]['total'] as $total_key => $v) {
-                    $data[$key]['total'][$total_key] += $values[$i];
-                    $data[$key]['data'][$subkey]['data'][$total_key] = $values[$i];
-                    $i++;
-                }
-            }
-        }
+    public static function process_by_state($model, $module,$role_id){
+        //$user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
+        $wf_state = Role::find($role_id)->wf_state;
+        $data[] = [
+            'wf_state_id' => $wf_state->id,
+            'data' => [
+                'received' => $model::whereWfStatesId($wf_state->id)->whereValidated(false)->whereUserId(null)->count(),
+                'validated' => $model::whereWfStatesId($wf_state->id)->whereValidated(true)->whereUserId(Auth::user()->id)->count(),
+                'trashed' => $model::whereWfStatesId($wf_state->id)->onlyTrashed()->count(),
+                'my_received' => $model::whereWfStatesId($wf_state->id)->whereValidated(false)->whereUserId(Auth::user()->id)->count()
+            ]
+        ];
         return $data;
     }
+
+    public static function loans_by_user($model, $object, $module, $role_id) { 
+        $wf_state = Role::find($role_id)->wf_state; // Se obtiene el estado del rol
+        if (!$wf_state) {
+            return [];
+        }
+        $results = [];
+    
+        foreach ($object as $workflow) {
+            $workflow_id = $workflow->id;
+            $data = [
+                'received' => 0,
+                'validated' => 0,
+                'trashed' => 0,
+                'my_received' => 0
+            ];
+            $data['received'] = $model::whereWfStatesId($wf_state->id)
+                ->whereHas('modality', function($q) use ($workflow) {
+                    $q->whereWorkflowId($workflow->id);
+                })
+                ->whereValidated(false)->whereUserId(null)->count();
+    
+            $data['validated'] = $model::whereWfStatesId($wf_state->id)
+                ->whereHas('modality', function($q) use ($workflow) {
+                    $q->whereWorkflowId($workflow->id);
+                })
+                ->whereValidated(true)->whereUserId(Auth::id())->count();
+    
+            $data['trashed'] = $model::whereWfStatesId($wf_state->id)
+                ->whereHas('modality', function($q) use ($workflow) {
+                    $q->whereWorkflowId($workflow->id);
+                })
+                ->onlyTrashed()->whereUserId(Auth::id())->count();
+    
+            $data['my_received'] = $model::whereWfStatesId($wf_state->id)
+                ->whereHas('modality', function($q) use ($workflow) {
+                    $q->whereWorkflowId($workflow->id);
+                })
+                ->whereValidated(false)->whereUserId(Auth::id())->count();
+            if (!isset($results[$workflow_id])) {
+                $results[$workflow_id] = [
+                    'workflow_id' => $workflow_id,
+                    'total' => [
+                        'received' => 0,
+                        'validated' => 0,
+                        'trashed' => 0,
+                        'my_received' => 0
+                    ],
+                    'data' => []
+                ];
+            }
+            $results[$workflow_id]['total']['received'] += $data['received'];
+            $results[$workflow_id]['total']['validated'] += $data['validated'];
+            $results[$workflow_id]['total']['trashed'] += $data['trashed'];
+            $results[$workflow_id]['total']['my_received'] += $data['my_received'];
+            $results[$workflow_id]['data'][] = [
+                'wf_state_id' => $wf_state->id,
+                'data' => $data
+            ];
+        }
+
+        return array_values($results);
+    }    
+    
 
     public static function amortizations_by_user($model, $object, $module,$role_id){
         $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();

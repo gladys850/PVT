@@ -30,18 +30,19 @@
           <v-card-title>Derivar {{ " ("+selectedLoans.length +") "}} trámites</v-card-title>
            <v-spacer></v-spacer>
           </v-toolbar>
+          
           <v-card-text style="height: 300px;">
             <div>
-              <v-select v-if="$store.getters.roles.filter(o => flow.next.includes(o.id)).length > 1"
-                v-model="selectedRoleId"
-                :items="$store.getters.roles.filter(o => flow.next.includes(o.id))"
+              <v-select v-if="$store.getters.wfStates.filter(o => flow.next.includes(o.id)).length > 1"
+                v-model="selectedStateId"
+                :items="$store.getters.wfStates.filter(o => flow.next.includes(o.id))"
                 label="Seleccione el área para derivar"
                 class="pt-3 my-0"
-                item-text="display_name"
+                item-text="name"
                 item-value="id"
                 dense
               ></v-select>
-              <div v-else-if="$store.getters.roles.filter(o => flow.next.includes(o.id)).length == 1"><h3>Área para derivar: {{String($store.getters.roles.filter(o => flow.next.includes(o.id)).map(o => o.display_name))}}</h3></div>
+              <div v-else-if="$store.getters.wfStates.filter(o => flow.next.includes(o.id)).length == 1"><h3>Área para derivar: {{String($store.getters.wfStates.filter(o => flow.next.includes(o.id)).map(o => o.name))}} </h3></div>
               <div v-else><h3 class="red">No se tiene un área para derivar.</h3></div>           
             </div>
 
@@ -52,7 +53,7 @@
           <v-card-actions>
              <v-spacer></v-spacer>
             <v-btn color="error" text @click="sheet = false">Cerrar</v-btn>
-            <template v-if="$store.getters.roles.filter(o => flow.next.includes(o.id)).length >= 1">
+            <template v-if="$store.getters.wfStates.filter(o => flow.next.includes(o.id)).length >= 1">
               <v-btn 
                 color="success" 
                 text 
@@ -86,7 +87,7 @@ export default {
         previous: [],
         next: []
       },
-      selectedRoleId: null,
+      selectedStateId: null,
       idLoans: [],
       status_click: false
     }
@@ -116,41 +117,23 @@ export default {
       let res
       this.idLoans = this.selectedLoans.map(o => o.id)
       try {
-        if(this.$store.getters.roles.filter(o => this.flow.next.includes(o.id)).length > 1){
-          //this.loading = true;
+        if(this.$store.getters.wfStates.filter(o => this.flow.next.includes(o.id)).length > 1){
           this.status_click = true
             res = await axios.patch(`loans`, {
               ids: this.idLoans,
-              role_id: this.selectedRoleId,
+              next_state_id: this.selectedStateId,
               current_role_id: this.$store.getters.rolePermissionSelected.id
             });
-            /*////HACER DESDE BACK
-            for(let i = 0; i< this.idLoans.length; i++){
-               let res1 = await axios.patch(`loan/${this.idLoans[i]}`, {
-                user_id: null
-                })
-              console.log(res1)
-            }
-            ////////*/
             this.sheet = false;
             this.bus.$emit('emitRefreshLoans');
             this.toastr.success("El trámite fue derivado." ) 
         }else{
-            //this.loading = true;
              this.status_click = true
             res = await axios.patch(`loans`, {
               ids: this.idLoans,
-              role_id: parseInt(this.$store.getters.roles.filter(o => this.flow.next.includes(o.id)).map(o => o.id)),
+              next_state_id: parseInt(this.$store.getters.wfStates.filter(o => this.flow.next.includes(o.id)).map(o => o.id)),
               current_role_id: this.$store.getters.rolePermissionSelected.id
             });  
-            /*////HACER DESDE BACK
-            for(let i = 0; i< this.idLoans.length; i++){
-               let res1 = await axios.patch(`loan/${this.idLoans[i]}`, {
-                user_id: null
-                })
-              console.log(res1)
-            }
-            ////////*/
             this.sheet = false;
             this.bus.$emit('emitRefreshLoans');
             this.toastr.success("El trámite fue derivado." ) 

@@ -1,12 +1,12 @@
-export default class ModalityLoan {
+export default class WfState {
   constructor() {
-    this.resource = `module/6/workflows`
+    this.resource = `wf_state`
   }
 
-  async get(id = null, params = {}) {
+  async get(id = null) {
     try {
       let res = await axios.get(id ? `${this.resource}/${id}` : this.resource)
-      return res
+      return res.data
     } catch (e) {
       return e
     }

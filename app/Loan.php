@@ -79,7 +79,8 @@ class Loan extends Model
         'payment_plan_compliance',
         'affiliate_id',
         'loan_procedure_id',
-        'authorize_refinancing'
+        'authorize_refinancing',
+        'wf_states_id'
     ];
 
     function __construct(array $attributes = [])
@@ -1709,5 +1710,16 @@ class Loan extends Model
     public function loanGuaranteeRetirementFund()
     {
         return $this->hasOne(LoanGuaranteeRetirementFund::class,'loan_id');
+    }
+
+    public function currentState()
+    {
+        return $this->hasOneThrough(
+            WfState::class, Role::class,
+            'id', // Clave primaria de roles
+            'id', // Clave primaria de wf_states
+            'role_id', // Clave foránea en loans -> roles
+            'wf_state_id' // Clave foránea en roles -> wf_states
+        );
     }
 }

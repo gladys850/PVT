@@ -35,6 +35,7 @@ Route::group([
         Route::apiResource('liquid_calificated', 'Api\V1\CalculatorController')->only('store');
         Route::post('simulator','Api\V1\CalculatorController@simulator');
         Route::apiResource('role', 'Api\V1\RoleController')->only('index', 'show');
+        Route::apiResource('wf_state', 'Api\V1\WfStatesController')->only('index', 'show');
         Route::apiResource('permission', 'Api\V1\PermissionController')->only('index');
         Route::apiResource('loan_global_parameter', 'Api\V1\LoanGlobalParameterController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('last_loan_global_parameter', 'Api\V1\LoanGlobalParameterController@get_last_global_parameter');
@@ -63,6 +64,9 @@ Route::group([
         Route::get('module/{module}/observation_type', 'Api\V1\ModuleController@get_observation_types');
         Route::get('module/{module}/observation_type_affiliate/{affiliate}', 'Api\V1\AffiliateObservationController@get_observation_types_affiliate');
         Route::get('module/{module}/modality_loan', 'Api\V1\ModuleController@get_modality_types');
+        //nuevos flujos 
+        Route::get('module/{module}/workflows', 'Api\V1\ModuleController@get_loan_workflows');
+        //
         Route::get('module/{module}/amortization_loan', 'Api\V1\ModuleController@get_amortization_types');
         Route::patch('loans', 'Api\V1\LoanController@bulk_update_role');
         Route::patch('loan_payments', 'Api\V1\LoanPaymentController@bulk_update_role');
