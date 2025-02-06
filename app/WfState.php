@@ -10,7 +10,7 @@ class WfState extends Model
 
     public function roles()
     {
-        return $this->hasMany(Role::class, 'wf_state_id', 'id');
+        return $this->hasMany(Role::class, 'wf_states_id', 'id');
     }
 
     public function currentSequences()
