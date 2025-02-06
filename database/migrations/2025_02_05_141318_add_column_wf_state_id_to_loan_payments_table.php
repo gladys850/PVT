@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class addColumnWfStateIdToRolesTable extends Migration
+class addColumnWfStateIdToLoanPaymentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class addColumnWfStateIdToRolesTable extends Migration
      */
     public function up()
     {
-        Schema::table('roles', function (Blueprint $table) {
+        Schema::table('loan_payments', function (Blueprint $table) {
             $table->unsignedBigInteger('wf_states_id')->nullable();
             $table->foreign('wf_states_id')->references('id')->on('wf_states');
         });
@@ -26,7 +26,7 @@ class addColumnWfStateIdToRolesTable extends Migration
      */
     public function down()
     {
-        Schema::table('roles', function (Blueprint $table) {
+        Schema::table('loan_payments', function (Blueprint $table) {
             $table->dropColumn('wf_states_id');
         });
     }

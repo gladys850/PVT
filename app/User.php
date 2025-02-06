@@ -53,7 +53,7 @@ class User extends Authenticatable implements JWTSubject
             'username' => $this->username,
             'user' => $this->full_name,
             'roles' => array_values(array_filter($this->roles()->where('module_id',6)->pluck('name')->toArray())),
-            'wf_states' => array_values(array_filter($this->roles()->with('wf_state')->get()->pluck('wfState.id')->toArray())),
+            'wf_states' => array_values(array_filter($this->roles()->with('wf_states')->get()->pluck('wfState.id')->toArray())),
             'permissions' => array_values(array_filter($this->allPermissions()->pluck('name')->toArray())),
             'city_id' => $this->city ? $this->city->id : null,
         ];

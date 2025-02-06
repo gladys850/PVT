@@ -318,7 +318,7 @@ class Util
 
     public static function save_record($object, $type, $action, $recordable = null)
     {
-        $state_id = $object->state_id;
+        $state_id = $object->wf_states_id;
         if ($action) {
             $record_type = RecordType::whereName($type)->first();
             if ($record_type) {
@@ -329,7 +329,7 @@ class Util
                     'action' => $action
                 ]);
                 $record->record_type()->associate($record_type);
-                    $record->wf_state_id = $state_id ? $state_id : $role->wf_states->id;
+                $record->wf_states_id = $state_id ? $state_id : $role->wf_state->id;
                 if ($recordable) $record->recordable()->associate($recordable);
                 $record->save();
             }
@@ -512,17 +512,17 @@ class Util
         return $derived;
     }
 
-    public static function flow_message($procedure_type_id, $from_role, $to_role)
+    public static function flow_message($procedure_type_id, $from_state, $to_state)
     {
-        $sequence = RoleSequence::flow($procedure_type_id, $from_role->id);
-        if (in_array($to_role->id, $sequence->next->all())) {
+        $sequence = RoleSequence::flow($procedure_type_id, $from_state->id);
+        if (in_array($to_state->id, $sequence->next->all())) {
             $message = 'derivó';
             $type = 'derivacion';
         } else {
             $message = 'devolvió';
             $type = 'devolucion';
         }
-        $message .= ' de ' . $from_role->display_name . ' a ' . $to_role->display_name;
+        $message .= ' de ' . $from_state->name . ' a ' . $to_state->name;
         return [
             'message' => $message,
             'type' => $type
@@ -591,7 +591,7 @@ class Util
         //$user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
         $wf_state = Role::find($role_id)->wf_state;
         $data[] = [
-            'wf_state_id' => $wf_state->id,
+            'wf_states_id' => $wf_state->id,
             'data' => [
                 'received' => $model::whereWfStatesId($wf_state->id)->whereValidated(false)->whereUserId(null)->count(),
                 'validated' => $model::whereWfStatesId($wf_state->id)->whereValidated(true)->whereUserId(Auth::user()->id)->count(),
@@ -657,7 +657,7 @@ class Util
             $results[$workflow_id]['total']['trashed'] += $data['trashed'];
             $results[$workflow_id]['total']['my_received'] += $data['my_received'];
             $results[$workflow_id]['data'][] = [
-                'wf_state_id' => $wf_state->id,
+                'wf_states_id' => $wf_state->id,
                 'data' => $data
             ];
         }

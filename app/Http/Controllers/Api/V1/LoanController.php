@@ -155,9 +155,9 @@ class LoanController extends Controller
             if(!Auth::user()->can('show-all-loan')){
                 if($request->has('trashed') && !Auth::user()->can('show-deleted-loan')) abort(403);
             }
-            $wf_state_id = Role::find($request->role_id)->wf_state->id;
+            $wf_states_id = Role::find($request->role_id)->wf_states_id;
             $filters = [
-                'wf_states_id' => $wf_state_id
+                'wf_states_id' => $wf_states_id
             ];
         }
         if ($request->has('validated')) $filters['validated'] = $request->boolean('validated');
