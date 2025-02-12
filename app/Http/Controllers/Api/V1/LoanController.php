@@ -1407,7 +1407,9 @@ class LoanController extends Controller
        $information_loan= $this->get_information_loan($loan);
        $file_name =implode('_', ['calificación', $procedure_modality->shortened, $loan->code]) . '.pdf'; 
        $view = view()->make('loan.forms.qualification_form')->with($data)->render();
-       if ($standalone) return  Util::pdf_to_base64([$view], $file_name, $information_loan, 'legal', $request->copies ?? 1);  
+       $portrait = true;//impresion horizontal
+       $print_date = false;//modo retrato e impresion de la fecha en el formulario de calificación
+       if ($standalone) return  Util::pdf_to_base64([$view], $file_name, $information_loan, 'legal', $request->copies ?? 1, $portrait, $print_date);  
        return $view; 
    }
 
