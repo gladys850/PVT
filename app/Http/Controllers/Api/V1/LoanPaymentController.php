@@ -21,6 +21,7 @@ use App\Http\Requests\VoucherForm;
 use App\Events\LoanFlowEvent;
 use App\Events\LoanPaymentFlowEvent;
 use App\RoleSequence;
+use App\Workflow;
 use Carbon;
 use DB;
 use App\Helpers\Util;
@@ -85,7 +86,7 @@ class LoanPaymentController extends Controller
             if (Auth::user()->can('show-all-loan') || Auth::user()->can('show-all-payment-loan')) {
                 $request->role_id = 0;
             } else {
-                $role = Auth::user()->roles()->whereHas('module', function($query) {
+                    $role = Auth::user()->roles()->whereHas('module', function($query) {
                     return $query->whereName('prestamos');
                 })->orderBy('name')->first();
                 if ($role) {
@@ -101,8 +102,9 @@ class LoanPaymentController extends Controller
             }
         }
         if ($request->role_id != 0) {
+            $wf_states_id = Role::find($request->role_id)->wf_states_id;
             $filters = [
-                'role_id' => $request->role_id
+                'wf_states_id' => $wf_states_id
             ];
         }
         if ($request->has('validated')) $filters['validated'] = $request->boolean('validated');
@@ -414,7 +416,7 @@ class LoanPaymentController extends Controller
     * @authenticated
     * @responseFile responses/loan_payment/bullk_update_role.200.json
     */
-    public function bulk_update_role( LoanPaymentsForm $request)
+    public function bulk_update_state( LoanPaymentsForm $request)
     {
         if(!$request->user_id) 
             $user_id = null;
@@ -649,7 +651,9 @@ class LoanPaymentController extends Controller
     */
     public function get_flow(LoanPayment $loan_payment)
     {
-        return response()->json(RoleSequence::flow($loan_payment->modality->procedure_type->id, $loan_payment->role_id));
+        $flow = $loan_payment->modality->workflow->flow($loan_payment->wf_states_id);   
+        return response()->json($flow);
+        //return response()->json(Workflow::flow($loan_payment->modality->id, $loan_payment->wf_states_id));
     }
 
     /**

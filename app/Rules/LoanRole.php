@@ -35,7 +35,7 @@ class LoanRole implements Rule
         $user_roles = Auth::user()->roles->pluck('id');
         foreach ($this->loans as $loan) {
             $wfStates = WfState::whereIn('id', function ($query) use ($user_roles) {
-                $query->select('wf_state_id') // area_id hace referencia a wf_states.id
+                $query->select('wf_states_id') // area_id hace referencia a wf_states.id
                       ->from('roles')
                       ->whereIn('id', $user_roles);
             })->get();

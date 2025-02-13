@@ -318,7 +318,7 @@ class Util
 
     public static function save_record($object, $type, $action, $recordable = null)
     {
-        $state_id = $object->wf_states_id;
+        $role_id = $object->role_id;
         if ($action) {
             $record_type = RecordType::whereName($type)->first();
             if ($record_type) {
@@ -329,7 +329,7 @@ class Util
                     'action' => $action
                 ]);
                 $record->record_type()->associate($record_type);
-                $record->wf_states_id = $state_id ? $state_id : $role->wf_state->id;
+                $record->role_id = $role_id ? $role_id : $role->id;
                 if ($recordable) $record->recordable()->associate($recordable);
                 $record->save();
             }

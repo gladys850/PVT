@@ -6,29 +6,38 @@ use Illuminate\Database\Eloquent\Model;
 
 class Workflow extends Model
 {
-    protected $fillable = ['id', 'module_id', 'name','shortened'];
+    protected $fillable = ['id', 'module_id', 'name', 'shortened'];
 
+    // Relación: Un Workflow pertenece a un módulo
     public function module()
     {
-        return $this->hasOne(Module::class, 'module_id');
+        return $this->belongsTo(Module::class, 'module_id');
     }
 
-    public static function flow($modality_id, $current_role_id)
-    {
-        return (object)[
-            'current' => $current_role_id,
-            'previous' => $this->wf_sequences,
-            'next' => self::next_steps($modality_id, $current_role_id)
-        ];
-    }
-
+    // Relación: Un Workflow tiene muchas secuencias de flujo
     public function wf_sequences()
     {
         return $this->hasMany(WfSequence::class);
     }
 
-    public function next_sequence()
+    // Método actualizado para manejar el flujo
+    public function flow($current_state_id)
     {
-        return $this;
+        // Validar si se proporciona un estado actual
+        if (is_null($current_state_id)) {
+            throw new \InvalidArgumentException("El parámetro 'current_state_id' es requerido.");
+        }
+
+        return [
+            'current' => $current_state_id,
+            'previous' => $this->wf_sequences()
+                ->where('wf_state_next_id', $current_state_id)
+                ->pluck('wf_state_current_id')
+                ->toArray(), // Devuelve un array de IDs de los estados anteriores
+            'next' => $this->wf_sequences()
+                ->where('wf_state_current_id', $current_state_id)
+                ->pluck('wf_state_next_id')
+                ->toArray(), // Devuelve un array de IDs de los estados siguientes
+        ];
     }
 }
