@@ -589,7 +589,7 @@ class Util
 
     public static function process_by_state($model, $module,$role_id){
         //$user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
-        $wf_state = Role::find($role_id)->wf_state;
+        $wf_state = Role::find($role_id)->wf_states;
         $data[] = [
             'wf_states_id' => $wf_state->id,
             'data' => [
@@ -603,7 +603,7 @@ class Util
     }
 
     public static function loans_by_user($model, $object, $module, $role_id) { 
-        $wf_state = Role::find($role_id)->wf_state; // Se obtiene el estado del rol
+        $wf_state = Role::find($role_id)->wf_states; // Se obtiene el estado del rol
         if (!$wf_state) {
             return [];
         }
