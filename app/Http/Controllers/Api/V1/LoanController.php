@@ -1450,7 +1450,7 @@ class LoanController extends Controller
         // Obtener los usuarios de los estados anteriores
         $previousUsers = [];
         foreach ($previousStates as $prev) {
-            $user = Record::where('role_id', $prev)
+            $user = Record::whereIn('role_id', WfState::find($prev)->roles->pluck('id'))
                 ->where('record_type_id', 3)
                 ->where('recordable_id', $loan->id)
                 ->first();
