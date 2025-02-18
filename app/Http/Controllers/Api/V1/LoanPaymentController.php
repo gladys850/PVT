@@ -43,6 +43,8 @@ use App\Tag;
 use Carbon\CarbonImmutable;
 use App\LoanPaymentCategorie;
 use App\LoanProcedure;
+use App\WfSequence;
+use App\WfState;
 
 /** @group Cobranzas
 * Datos de los trámites de Cobranzas
@@ -416,56 +418,61 @@ class LoanPaymentController extends Controller
     * @authenticated
     * @responseFile responses/loan_payment/bullk_update_role.200.json
     */
-    public function bulk_update_state( LoanPaymentsForm $request)
+    public function bulk_update_state(LoanPaymentsForm $request)
     {
-        if(!$request->user_id) 
-            $user_id = null;
-        else
-            $user_id = $request->user_id;
-        $sequence = null;
-        $from_role = null;
-        $to_role = $request->role_id;
-
+        $from_role = Role::find($request->current_role_id);
+        $to_state = WfState::find($request->next_state_id);
         $PendientePago = LoanPaymentState::whereName('Pendiente de Pago')->first()->id;
 
-        $to_role = $request->role_id;
-        $loanPayment =  LoanPayment::whereIn('id',$request->ids)->where('role_id', '!=', $request->role_id)->where('state_id',$PendientePago)->orderBy('code');
-        $derived = $loanPayment->get();
-        $to_role = Role::find($to_role);
-        
-       
-        //
-        if (count(array_unique($loanPayment->pluck('role_id')->toArray()))) $from_role = $derived->first()->role_id;
-        if ($from_role) {
-            $from_role = Role::find($from_role);
-            $flow_message = $this->flow_message($derived->first()->modality->procedure_type->id, $from_role, $to_role);
+        if (!$from_role || !$to_state) {
+            return response()->json(['error' => 'Estado o rol no encontrado'], 404);
         }
-        $derived->map(function ($item, $key) use ($from_role, $to_role, $flow_message) {
-            if (!$from_role) {
-                $item['from_role_id'] = $item['role_id'];
-                $from_role = Role::find($item['role_id']);
-                $flow_message = $this->flow_message($item->modality->procedure_type->id, $from_role, $to_role);
-            }
-            $item['role_id'] = $to_role->id;
+        $from_state = $from_role->wf_states;
+        $loan_payments = LoanPayment::whereIn('id', $request->ids)
+            ->where('wf_states_id', '!=', $request->next_state_id)
+            ->where('state_id', $PendientePago)
+            ->orderBy('code')
+            ->get();
+
+        if (count(array_unique($loan_payments->pluck('role_id')->toArray())) > 1) {
+            $from_role = $loan_payments->first()->role_id;
+        }
+        $flow_message = $this->flow_message($loan_payments->first()->modality->workflow->id, $from_state, $to_state);
+
+        $this->updateLoanPaymentState($loan_payments, $from_state, $to_state, $flow_message);
+
+        LoanPayment::whereIn('id', $request->ids)->where('wf_states_id', '!=', $to_state->id)->update([
+            'wf_states_id' => $request->next_state_id,
+            'validated' => false,
+            'user_id' => Auth::user()->id
+        ]);
+
+        // Generar PDF
+        $pdf = $this->generatePDF($from_state, $to_state, $flow_message, $loan_payments);
+
+        event(new LoanPaymentFlowEvent($loan_payments));
+
+        return response()->json([
+            'attachment' => $pdf,
+            'derived' => $loan_payments
+        ]);
+    }
+
+
+    private function updateLoanPaymentState($loan_payments, $from_state, $to_state, $flow_message) {
+        $loan_payments->each(function ($item) use ($from_state, $to_state, $flow_message) {
+            $item['state_id'] = $from_state->id;
             $item['validated'] = false;
             Util::save_record($item, $flow_message['type'], $flow_message['message']);
         });
-        //
+    }
 
-        $loanPayment->update(array_merge($request->only('role_id'), ['validated' => false], ['user_id' => $user_id]));
-        
-        $derived->transform(function ($loanPaymen) {
-            return self::append_data($loanPaymen, true);
-        });
-
-        event(new LoanPaymentFlowEvent($derived));
-
-        // PDF template
+    private function generatePDF($from_state, $to_state, $flow_message, $derived) {
         $data = [
             'type' => 'loan_payment',
             'header' => [
                 'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
-                'unity' => 'Área de ' . $from_role->display_name,
+                'unity' => 'Área de ' . $from_state->name,
                 'table' => [
                     ['Fecha', Carbon::now()->isoFormat('L')],
                     ['Hora', Carbon::now()->format('H:i')],
@@ -474,31 +481,33 @@ class LoanPaymentController extends Controller
             ],
             'title' => ($flow_message['type'] == 'derivacion' ? 'DERIVACIÓN' : 'DEVOLUCIÓN') . ' DE TRÁMITES - MODALIDAD ' . $derived->first()->modality->procedure_type->second_name,
             'procedures' => $derived,
-            'roles' => [
-                'from' => $from_role,
-                'to' => $to_role
+            'states' => [
+                'from' => $from_state,
+                'to' => $to_state
             ]
         ];
-        $information_derivation='Fecha: '.Str::slug(Carbon::now()->isoFormat('LLL'), ' ').'  enviado a  '.$from_role->display_name;
         $file_name = implode('_', ['derivacion', 'Cobros', Str::slug(Carbon::now()->isoFormat('LLL'), '_')]) . '.pdf';
         $view = view()->make('flow.bulk_flow_procedures')->with($data)->render();
-        return response()->json([
-            'attachment' => Util::pdf_to_base64([$view], $file_name,$information_derivation, 'letter', $request->copies ?? 1, false),
-            'derived' => $derived
-        ]);
-    }
+    
+        $information_derivation = 'Fecha: ' . Str::slug(Carbon::now()->isoFormat('LLL'), ' ') . ' enviado a ' . $from_state->name;
+    
+        return Util::pdf_to_base64([$view], $file_name, $information_derivation, 'letter', 1, false);
+    }    
 
-    private function flow_message($procedure_type_id, $from_role, $to_role)
+    private function flow_message($workflow, $from_state, $to_state)
     {
-        $sequence = RoleSequence::flow($procedure_type_id, $from_role->id);
-        if (in_array($to_role->id, $sequence->next->all())) {
+        $sequences = WfSequence::where('workflow_id', $workflow)
+            ->where('wf_state_current_id', $from_state->id)
+            ->get();
+        $next_states = $sequences->pluck('wf_state_next_id')->toArray();
+        if (in_array($to_state->id, $next_states)) {
             $message = 'derivó';
             $type = 'derivacion';
         } else {
             $message = 'devolvió';
             $type = 'devolucion';
         }
-        $message .= ' de ' . $from_role->display_name . ' a ' . $to_role->display_name;
+        $message .= ' de ' . $from_state->name . ' a ' . $to_state->name;
         return [
             'message' => $message,
             'type' => $type
