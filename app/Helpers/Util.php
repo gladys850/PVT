@@ -390,9 +390,9 @@ class Util
         return $status;
     }
 
-    public static function pdf_to_base64($views, $file_name, $informationqr, $size = 'letter', $copies = 1, $portrait = true)
+    public static function pdf_to_base64($views, $file_name, $informationqr, $size = 'letter', $copies = 1, $portrait = true, $print_date = true)
     {
-        $footerHtml = view()->make('partials.footer')->with(array('paginator' => true, 'print_date' => true, 'date' => Carbon::now()->ISOFormat('L HH:mm a'),'informationqr'=>$informationqr))->render();
+        $footerHtml = view()->make('partials.footer')->with(array('paginator' => true, 'print_date' => $print_date, 'date' => Carbon::now()->ISOFormat('L HH:mm a'),'informationqr'=>$informationqr))->render();
         $options = [
             'copies' => $copies ?? 1,
             'footer-html' => $footerHtml,
