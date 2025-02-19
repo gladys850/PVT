@@ -243,7 +243,7 @@ export default {
         return this.$route.query.loan_id //PVT si es refi repro nuevo
       }
     },
-    wf_state_id(){
+    wf_states_id(){
       return this.$store.getters.rolePermissionSelected.wf_states_id
     }
   },
@@ -304,7 +304,7 @@ export default {
               notes: this.otherDocuments,
               user_id: this.$store.getters.id,
               remake_loan_id: this.$route.params.hash == 'remake' ? this.$route.query.loan_id : 0,
-              wf_state_id: this.wf_state_id
+              wf_states_id: this.wf_states_id
 
             });
             if(res.status==201 || res.status == 200){
