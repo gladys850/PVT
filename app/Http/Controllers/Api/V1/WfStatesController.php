@@ -10,7 +10,7 @@ class WfStatesController extends Controller
 {
     public function index(Request $request)
     {
-        $query = WfState::orderBy('name');
+        $query = WfState::where('module_id',6)->orderBy('name');
         if ($request->has('name')) $query = $query->whereName($request->name);
         return $query->get();
     }
