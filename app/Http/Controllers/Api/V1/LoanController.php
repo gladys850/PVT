@@ -287,10 +287,7 @@ class LoanController extends Controller
             return $query->whereName('prestamos');
         })->pluck('id');
         $procedure_modality = ProcedureModality::findOrFail($request->procedure_modality_id);
-        $request->merge([
-            'role_id' => $procedure_modality->procedure_type->workflow->pluck('role_id')->intersect($roles)->first()
-        ]);
-        if (!$request->role_id) abort(403, 'Debe crear un flujo de trabajo');
+        if (!$request->wf_states_id) abort(403, 'Debe crear un flujo de trabajo');
         // Guardar préstamo
         if(count(Affiliate::find($request->lenders[0]['affiliate_id'])->process_loans) >= LoanGlobalParameter::first()->max_loans_process && $request->remake_loan_id == null) abort(403, 'El afiliado ya tiene un préstamo en proceso');
         $saved = $this->save_loan($request);
