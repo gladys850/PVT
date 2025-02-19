@@ -126,7 +126,7 @@
         <v-toolbar flat>
           <v-col :cols="singleRol ? 12 : 12">
             <v-tabs
-              v-model="filters.WorkflowSelected"
+              v-model="filters.workflowSelected"
               dark
               grow
               center-active
@@ -163,7 +163,7 @@
           <List
             :bus="bus"
             :tray="filters.traySelected"
-            :procedureTypeSelected="parseInt(filters.WorkflowSelected)"
+            :workflowSelected="parseInt(filters.workflowSelected)"
             :procedureModalities="procedureModalities"
             :options.sync="options"
             :loans="loans"
@@ -218,7 +218,7 @@ export default {
       ],
       filters: {
         traySelected: null,
-        WorkflowSelected: null,
+        workflowSelected: null,
         roleSelected: null
       },
       params: {},
@@ -267,7 +267,7 @@ export default {
     })
   },
   mounted() {
-    this.filters.WorkflowSelected = this.$store.getters.workflowLoan[0]
+    this.filters.workflowSelected = this.$store.getters.workflowLoan[0]
     this.workflowTypesCount = new Array(this.$store.getters.workflowLoan.length).fill('-')
     this.bus.$on('emitRefreshLoans', () => {
       this.updateLoanList();
@@ -280,8 +280,8 @@ export default {
     filters: {
       deep: true,
       handler(val) {
-        if (val.traySelected != null && val.WorkflowSelected != null && val.roleSelected != null) {
-          let workflowType = this.$store.getters.workflowLoan[this.filters.WorkflowSelected]
+        if (val.traySelected != null && val.workflowSelected != null && val.roleSelected != null) {
+          let workflowType = this.$store.getters.workflowLoan[this.filters.workflowSelected]
           if (workflowType) 
             this.setFilters(workflowType.id);
         }
@@ -295,7 +295,7 @@ export default {
     },
     track(val) {
       if (val) {
-        this.filters.WorkflowSelected = null
+        this.filters.workflowSelected = null
         this.filters.roleSelected = 0
         this.filters.traySelected = 'all'
         this.search = ''
@@ -305,7 +305,7 @@ export default {
         this.newLoans = []
         this.getLoans()
       } else {
-        this.filters.WorkflowSelected = this.$store.getters.workflowLoan[0]
+        this.filters.workflowSelected = this.$store.getters.workflowLoan[0]
         this.filters.roleSelected = this.roles[0].id
         this.clearNotification()
       }

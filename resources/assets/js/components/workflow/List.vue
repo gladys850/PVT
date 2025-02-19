@@ -153,7 +153,7 @@ export default {
       type: Array,
       required: true
     },
-    procedureTypeSelected: {
+    workflowSelected: {
       type: Number,
       required: true,
       default: 0
@@ -230,7 +230,7 @@ export default {
         printDocs: []
   }),
   watch: {
-    procedureTypeSelected(newVal, oldVal) {
+    workflowSelected(newVal, oldVal) {
       if (newVal != oldVal) 
         this.selectedLoans = []
     },
