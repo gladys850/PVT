@@ -6,7 +6,7 @@ import Role from '@/services/RoleService'
 import WfState from '@/services/WfStateService'
 import Module from '@/services/ModuleService'
 import ProcedureType from '@/services/ProcedureTypeService'
-import ModalityLoan from '@/services/ModalityLoanService'
+import WorkflowLoan from '@/services/WorkflowService'
 import AmortizationLoan from '@/services/AmortizationLoanService'
 
 const vuexLocal = new VuexPersistence({
@@ -24,7 +24,7 @@ export default {
     wfStates: [],
     module: {},
     procedureTypes: [],
-    modalityLoan: [],
+    workflowLoan: [],
     amortizationLoan: [],
     userRoles: [],
     permissions: [],
@@ -64,8 +64,8 @@ export default {
     procedureTypes(state) {
       return state.procedureTypes
     },
-    modalityLoan(state) {
-      return state.modalityLoan
+    workflowLoan(state) {
+      return state.workflowLoan
     },
     amortizationLoan(state) {
       return state.amortizationLoan
@@ -130,7 +130,7 @@ export default {
       state.tokenExpiration = null
       state.module = {}
       state.procedureTypes = [],
-      state.modalityLoan = [],
+      state.workflowLoan = [],
       state.amortizationLoan = []
     },
     login(state, data) {
@@ -139,7 +139,6 @@ export default {
       state.username = data.username
       state.cityId = data.city_id
       state.userRoles = data.roles
-      state.userwfStates = data.wfStates
       state.permissions = data.permissions
       state.accessToken = data.access_token
       state.tokenType = data.token_type
@@ -173,8 +172,8 @@ export default {
     setProcedureTypes(state, data) {
       state.procedureTypes = data
     },
-    setModalityLoan(state, data) {
-      state.modalityLoan = data
+    setWorkflowLoan(state, data) {
+      state.workflowLoan = data
     },
     setAmortizationLoan(state, data) {
       state.amortizationLoan = data
@@ -206,20 +205,20 @@ export default {
     },
     selectModuleLoan({ commit }, name) {
       const module = new Module()
-      const modalityLoan = new ModalityLoan()
+      const workflowLoan = new WorkflowLoan()
       return module.get(null, {
         name: name,
         page: 1,
         per_page: 1
       }).then(res => {
         commit('setModule', res.data[0])
-        return modalityLoan.get(null, {
+        return workflowLoan.get(null, {
           module_id: res.data[0].id,
           page: 1,
           per_page: 100
         })
       }).then(res => {
-        commit('setModalityLoan', res.data)
+        commit('setWorkflowLoan', res.data)
       }).catch(e => {
         console.log(e)
       })
@@ -251,14 +250,28 @@ export default {
     login({ commit }, data) {
       const payload = jwt.decode(data.access_token)
       commit('login', Object.assign({ ...data, ...payload }, { exp: moment.unix(payload.exp).format() }))
+    
       const role = new Role()
-      role.get().then((data) => {
-        commit('setRoles', data)
-        router.go('dashboard')
-      }).catch((e) => {
-        commit('logout')
-      })
+      const wfstate = new WfState()
+    
+      // Obtener roles
+      role.get()
+        .then(roleData => {
+          commit('setRoles', roleData)
+    
+          // Obtener estados de Workflow después de obtener los roles
+          return wfstate.get();
+        })
+        .then(wfstateData => {
+          commit('setWfStates', wfstateData) // Guardar los estados en Vuex
+          router.go('dashboard')
+        })
+        .catch(e => {
+          console.error("Error en login:", e)
+          commit('logout')
+        })
     },
+    
     async refresh({ commit, state }) {
       try {
         const expiration = moment(state.tokenExpiration)

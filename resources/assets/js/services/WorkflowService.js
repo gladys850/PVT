@@ -1,4 +1,4 @@
-export default class ModalityLoan {
+export default class Workflow {
   constructor() {
     this.resource = `module/6/workflows`
   }
