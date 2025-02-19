@@ -1520,7 +1520,6 @@ class LoanController extends Controller
             }
             else
                 $payment->state_id = LoanPaymentState::whereName('Pendiente por confirmar')->first()->id;
-            $payment->role_id = $request->role_id;
             $payment->wf_states_id = Role::find($request->role_id)->wf_states_id;
             if($request->has('procedure_modality_id')){
                 $modality = ProcedureModality::findOrFail($request->procedure_modality_id)->procedure_type;
