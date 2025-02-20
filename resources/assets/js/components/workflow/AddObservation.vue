@@ -173,12 +173,21 @@ export default {
                 })
                  this.toastr.success("Se devolvio el tramite correctamente.")
               }else if(this.observation.accion=='anular'){
-                let res2 = await axios.delete(`loan/${id}`)
+                let res2 = await axios.delete(`loan/${id}`,{
+                  data: {
+                    current_role_id: this.$store.getters.rolePermissionSelected.id
+                  }
+                })
+                console.log(this.$store.getters.rolePermissionSelected.id)
                 let code = res2.data.code
                 this.toastr.success("El trámite " + code + " fue anulado correctamente.")
               }
               else if(this.observation.accion=='anular_anticipo'){
-                let res2 = await axios.post(`loan_advance/${id}`)
+                let res2 = await axios.post(`loan_advance/${id}`,{
+                  data: {
+                    current_role_id: this.$store.getters.rolePermissionSelected.id
+                  }
+                })
                 let code = res2.data.code
                 this.toastr.success("El trámite " + code + " fue anulado correctamente.")
               }
