@@ -1809,6 +1809,7 @@ created(){
             loan_id: this.loan.id,
             number_payment_type: this.loan.number_payment_type,
             financial_entity_id: this.loan.financial_entity_id,
+            current_role_id: this.$store.getters.rolePermissionSelected.id
           })
         this.edit_number_payment_type = false
         }
