@@ -37,7 +37,6 @@ class LoanPayment extends Model
         'state_id',
         'voucher',
         'paid_by',
-        'role_id',
         'affiliate_id',
         'loan_payment_date',
         'validated',

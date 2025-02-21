@@ -477,7 +477,7 @@ class LoanController extends Controller
     {
         DB::beginTransaction();
         try {
-        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+        if (!$this->can_user_loan_action($loan, $request->current_role_id)) abort(409, "El tramite no esta disponible para su rol");
         $request['validate'] = false;
          if($request->date_signal == true || ($request->date_signal == false && $request->has('disbursement_date') && $request->disbursement_date != NULL)){
             $state_id = LoanState::whereName('Vigente')->first()->id;
@@ -611,9 +611,9 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/destroy.200.json
     */
-    public function destroy(Loan $loan)
+    public function destroy(Loan $loan, request $request)
     {
-        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+        if (!$this->can_user_loan_action($loan, $request->current_role_id)) abort(409, "El tramite no esta disponible para su rol");
         $state = LoanState::whereName('Anulado')->first();
         $loan->state()->associate($state);
         $loan->save();
@@ -629,11 +629,11 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/destroy.200.json
     */
-    public function destroy_advance(Loan $loan)
+    public function destroy_advance(Loan $loan, request $request)
     {
         try {
             DB::beginTransaction();
-            if (!$this->can_user_loan_action($loan)  && $loan->modality->procedure_type->second_name != 'Anticipo') 
+            if (!$this->can_user_loan_action($loan, $request->data['current_role_id'])  && $loan->modality->procedure_type->second_name != 'Anticipo') 
                 abort(409, "El tramite no esta disponible para su rol o no es un prestamo de tipo anticipo");
             $state = LoanState::whereName('Anulado')->first();
             $loan->state()->associate($state);
@@ -2155,8 +2155,8 @@ class LoanController extends Controller
    * @authenticated
    * @responseFile responses/loan/update_refinancing_balance.200.json
    */
-    public function update_balance_refinancing(Loan $loan){
-        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+    public function update_balance_refinancing(Loan $loan, request $request){
+        if (!$this->can_user_loan_action($loan, $request->current_role_id)) abort(409, "El tramite no esta disponible para su rol");
         $balance_parent = 0;
         if($loan->data_loan){
             $balance_parent=$loan->balance_parent_refi();
@@ -2541,7 +2541,7 @@ class LoanController extends Controller
             'financial_entity_id'=>'required|integer|exists:financial_entities,id',
             ]);
             $loan = Loan::find($request->loan_id);
-            if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+            if (!$this->can_user_loan_action($loan, $request->current_role_id)) abort(409, "El tramite no esta disponible para su rol");
                 $loan->number_payment_type = $request->number_payment_type;
                 $loan->financial_entity_id = $request->financial_entity_id;
             $loan->save();
@@ -2618,14 +2618,9 @@ class LoanController extends Controller
     }
 
     //verifica si el usuario puede realizar acciones sobre el prestamo con su rol
-    public function can_user_loan_action(Loan $loan){
-        $user = Auth::user();
-        $user_roles = Auth::user()->roles->pluck('id')->toArray();
-        if (in_array($loan->role_id, $user_roles)) {
-            return true;
-        } else {
-            return false;
-        }
+    public function can_user_loan_action(Loan $loan, $role_id) {
+        $wf_states_roles = $loan->currentState->roles->pluck('id')->toArray();
+        return in_array($role_id, $wf_states_roles);
     }
 
     //

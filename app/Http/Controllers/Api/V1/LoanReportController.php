@@ -1404,7 +1404,7 @@ class LoanReportController extends Controller
         //fin filtros borrower
         //loan
         $city_loan = request('city_loan') ?? '';//DTO
-        $name_wf_state_loan = request('name_wf_state_loan') ?? '';//AREA
+        $name_state_loan = request('name_wf_states_loan') ?? '';//AREA
         $user_loan = request('user_loan') ?? '';//USUARIO
         $code_loan = request('code_loan') ?? '';//CODE LOAN
         $sub_modality_loan = request('sub_modality_loan') ?? '';
@@ -1518,8 +1518,8 @@ class LoanReportController extends Controller
         if ($user_loan != '') {
             array_push($conditions, array('view_loan_borrower.user_loan', 'ilike', "%{$user_loan}%"));
         }
-        if ($name_wf_state_loan != '') {
-            array_push($conditions, array('view_loan_borrower.name_wf_state_loan', 'ilike', "%{$name_wf_state_loan}%"));
+        if ($name_state_loan != '') {
+            array_push($conditions, array('view_loan_borrower.name_state_loan', 'ilike', "%{$name_state_loan}%"));
         }
         if ($validated_loan != '') {
             array_push($conditions, array('view_loan_borrower.validated_loan', 'ilike', "%{$validated_loan}%"));
@@ -1571,7 +1571,7 @@ class LoanReportController extends Controller
             foreach ($list_loan as $row){
                 $bodyFile = array(
                     $row->city_loan,
-                    $row->name_wf_state_loan,
+                    $row->name_state_loan,
                     $row->user_loan,
                     $row->id_loan,
                     $row->code_loan,
