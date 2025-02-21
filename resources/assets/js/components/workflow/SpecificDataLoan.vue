@@ -1672,7 +1672,9 @@ created(){
     //Metodo para guardar el corte de refinanciamiento PVT
     async  saveRefinancingCut(){
     try {
-      let res = await axios.patch(`loan/${this.loan.id}/update_refinancing_balance`)
+      let res = await axios.patch(`loan/${this.loan.id}/update_refinancing_balance`,{
+        current_role_id: this.$store.getters.rolePermissionSelected.id
+      })
       this.loan_refinancing.refinancing_balance= res.data.refinancing_balance
       this.loan_refinancing.balance_parent_loan_refinancing= res.data.balance_parent_loan_refinancing
       this.toastr.success('Se Actualizó Correctamente.')
@@ -1703,7 +1705,9 @@ created(){
                   }
                  ]
                })
-            let res = await axios.patch(`loan/${this.loan.id}/update_refinancing_balance`)
+            let res = await axios.patch(`loan/${this.loan.id}/update_refinancing_balance`, {
+              current_role_id: this.$store.getters.rolePermissionSelected.id
+            })
             this.loan_refinancing.refinancing_balance= res.data.refinancing_balance
             this.loan_refinancing.balance_parent_loan_refinancing= res.data.balance_parent_loan_refinancing
             this.toastr.success('Se Actualizó Correctamente.')
