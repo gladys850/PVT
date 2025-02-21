@@ -896,8 +896,6 @@ export default {
         }
         this.setBreadcrumbs()
         this.getAddress(this.affiliate.id)
-
-        this.role(this.loan.role_id)
         this.wf_state(this.loan.wf_states_id)
         if(this.loan.user_id != null){
           this.user(this.loan.user_id)
@@ -1058,14 +1056,6 @@ export default {
         })
       } catch (e) {
         this.toastr.error("Ocurrió un error en la impresión.")
-        console.log(e)
-      }
-    },
-    async role(role_id){
-      try {
-        let res = await axios.get(`role/${role_id}`)
-        this.role_name = res.data.display_name
-      } catch (e) {
         console.log(e)
       }
     },
