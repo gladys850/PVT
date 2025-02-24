@@ -1575,6 +1575,7 @@ created(){
       } else {
           let res = await axios.patch(`loan/${this.loan.id}`, {
           delivery_contract_date:this.loan.delivery_contract_date,
+          current_role_id: this.$store.getters.rolePermissionSelected.id
           })
           this.toastr.success('Se registró correctamente.')
           this.edit_delivery_date = false
@@ -1592,7 +1593,8 @@ created(){
           this.edit_return_date = true
         } else {
             let res = await axios.patch(`loan/${this.loan.id}`, {
-            return_contract_date: this.loan.return_contract_date
+            return_contract_date: this.loan.return_contract_date,
+            current_role_id: this.$store.getters.rolePermissionSelected.id
           })
             this.toastr.success('Se registró correctamente.')
             this.edit_return_date = false
@@ -1611,6 +1613,7 @@ created(){
         } else {
             let res = await axios.patch(`loan/${this.loan.id}`, {
             regional_delivery_contract_date:this.loan.regional_delivery_contract_date,
+            current_role_id: this.$store.getters.rolePermissionSelected.id
            })
             this.toastr.success('Se registró correctamente.')
             this.edit_delivery_date_regional = false
@@ -1628,7 +1631,8 @@ created(){
           this.edit_return_date_regional = true
         } else {
             let res = await axios.patch(`loan/${this.loan.id}`, {
-              regional_return_contract_date: this.loan.regional_return_contract_date
+              regional_return_contract_date: this.loan.regional_return_contract_date,
+              current_role_id: this.$store.getters.rolePermissionSelected.id
           })
             this.toastr.success('Se registró correctamente.')
             this.edit_return_date_regional = false
@@ -1647,12 +1651,14 @@ created(){
          } else {
             if(this.removeAccents(this.loan.disbursement_date) =='Fecha invalida'){
               let res = await axios.patch(`loan/${this.loan.id}`, {
-               num_accounting_voucher: this.loan.num_accounting_voucher
+               num_accounting_voucher: this.loan.num_accounting_voucher,
+               current_role_id: this.$store.getters.rolePermissionSelected.id
             })
           }else{
           let res = await axios.patch(`loan/${this.loan.id}`, {
             disbursement_date:this.loan.disbursement_date,
             date_signal:false,
+            current_role_id: this.$store.getters.rolePermissionSelected.id
           })
         }
             this.toastr.success('Se registró correctamente.')
@@ -1701,7 +1707,8 @@ created(){
                  let res1 = await axios.patch(`loan/${this.loan.id}/sismu`, {
                  data_loan:[{
                     date_cut_refinancing: this.loan_refinancing.date_cut_refinancing,
-                    balance : this.loan_refinancing.balance_parent_loan_refinancing
+                    balance : this.loan_refinancing.balance_parent_loan_refinancing,
+                    current_role_id: this.$store.getters.rolePermissionSelected.id
                   }
                  ]
                })
@@ -1731,7 +1738,8 @@ created(){
         } else {
           let res = await axios.patch(`edit_loan/${this.loan.id}/qualification`, {
             amount_approved: this.loan.amount_approved,
-            loan_term: this.loan.loan_term
+            loan_term: this.loan.loan_term,
+            current_role_id: this.$store.getters.rolePermissionSelected.id
           })
           if(!res.data.messaje){
              this.toastr.error(res.data.message)
