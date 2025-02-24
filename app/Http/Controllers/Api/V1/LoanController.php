@@ -516,7 +516,7 @@ class LoanController extends Controller
                         $fund_rotatory_output = MovementFundRotatory::whereLoanId($loan->id)->first();
                         if(!isset($fund_rotatory_output)){
                             if($fund_rotatory->balance >= $loan->amount_approved){
-                                MovementFundRotatory::register_advance_fund($loan->id,$loan->role_id,$moviment_concept_disbursement_id);
+                                MovementFundRotatory::register_advance_fund($loan->id,$request->current_role_id,$moviment_concept_disbursement_id);
                                 $authorized_disbursement = true;   
                             }else{ 
                                 return abort(409, "Para poder realizar el desembolso el saldo existente en el fondo rotatorio debe ser mayor o igual a ".$loan->amount_approved);

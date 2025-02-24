@@ -1009,7 +1009,8 @@ export default {
       try {
             this.loading_btn_plan = true
             let res1 = await axios.patch(`loan/${this.loan.id}`, {
-            date_signal:true
+            date_signal:true,
+            current_role_id: this.$store.getters.rolePermissionSelected.id
           })
           this.loan.disbursement_date= this.$moment(res1.data.disbursement_date).format('YYYY-MM-DD')
            let res = await axios.get(`loan/${item}/print/plan`)
