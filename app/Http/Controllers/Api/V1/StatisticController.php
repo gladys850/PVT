@@ -106,15 +106,9 @@ class StatisticController extends Controller
 
     public function amortizations_by_procedure_type(Module $module,$role_id)
     {
-        $procedure_amortizations = $module->procedure_types()->where('name', 'LIKE', '%Amortización%')->orderBy('name')->get();
-        return Util:: process_by_procedure_type(new LoanPayment(), $procedure_amortizations, $module);
+        $workflows = $module->amortization_workflows;
+        return Util:: process_by_procedure_type(new LoanPayment(), $workflows, $module, $role_id);
     }
-
-    /*public function loans_by_user(Module $module,$role_id)
-    {
-        $procedure_loans = $module->procedure_types()->where('name', 'LIKE', '%Préstamo%')->orderBy('name')->get();
-        return Util::loans_by_user(new Loan(), $procedure_loans, $module,$role_id);
-    }*/
 
     public function amortizations_by_user(Module $module,$role_id){
         $procedure_amortizations = $module->procedure_types()->where('name', 'LIKE', '%Amortización%')->orderBy('name')->get();

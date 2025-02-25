@@ -37,4 +37,9 @@ class Module extends Model
     {
         return $this->hasMany(Workflow::class)->where('shortened', 'ilike', '%PRES%')->orderBy('id');
     }
+
+    public function amortization_workflows()
+    {
+        return $this->hasMany(Workflow::class)->where('shortened', 'ilike', '%AMR%')->orderBy('id');
+    }
 }
