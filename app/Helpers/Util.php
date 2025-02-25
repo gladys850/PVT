@@ -666,17 +666,18 @@ class Util
     }    
     
 
-    public static function amortizations_by_user($model, $object, $module,$role_id){
+    public static function amortizations_by_user($model, $object, $module,$role_id)
+    {
+        $wf_state = Role::find($role_id)->wf_states; // Se obtiene el estado del rol
         $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
-       // foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $role) {
         foreach ($user_roles as $role) {
             $data[] = [
-                'role_id' => $role->id,
+                'wf_states_id' => $wf_state->id,
                 'data' => [
-                    'received' => $model::whereRoleId($role->id)->whereValidated(false)->count(),
-                    'validated' => $model::whereRoleId($role->id)->whereValidated(true)->whereUserId(Auth::user()->id)->count(),
-                    'trashed' => $model::whereRoleId($role->id)->onlyTrashed()->count(),
-                    'my_received' => $model::whereRoleId($role->id)->whereValidated(false)->whereUserId(Auth::user()->id)->count()
+                    'received' => $model::whereWfStatesId($wf_state->id)->whereValidated(false)->count(),
+                    'validated' => $model::whereWfStatesId($wf_state->id)->whereValidated(true)->whereUserId(Auth::user()->id)->count(),
+                    'trashed' => $model::whereWfStatesId($wf_state->id)->onlyTrashed()->count(),
+                    'my_received' => $model::whereWfStatesId($wf_state->id)->whereValidated(false)->whereUserId(Auth::user()->id)->count()
                 ]
             ];
         }
