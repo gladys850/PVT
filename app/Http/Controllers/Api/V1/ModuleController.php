@@ -114,4 +114,9 @@ class ModuleController extends Controller
     {
         return $module->loan_workflows;
     }
+    
+    public function get_payment_workflows(Module $module)
+    {
+        return $module->amortization_workflows;
+    }
 }
