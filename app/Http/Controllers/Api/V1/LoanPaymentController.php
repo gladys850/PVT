@@ -661,9 +661,29 @@ class LoanPaymentController extends Controller
     */
     public function get_flow(LoanPayment $loan_payment)
     {
-        $flow = $loan_payment->modality->workflow->flow($loan_payment->wf_states_id);   
-        return response()->json($flow);
-        //return response()->json(Workflow::flow($loan_payment->modality->id, $loan_payment->wf_states_id));
+        // $flow = $loan_payment->modality->workflow->flow($loan_payment->wf_states_id);   
+        // return response()->json($flow);
+        // //return response()->json(Workflow::flow($loan_payment->modality->id, $loan_payment->wf_states_id));
+
+        $currentWfState = $loan_payment->currentState;
+        $workflow = $loan_payment->modality->workflow;
+        // Obtener los estados anterior y siguiente desde wf_sequences
+        $previousStates = WfSequence::where('workflow_id', $workflow->id)
+            ->where('wf_state_next_id', $currentWfState->id)
+            ->pluck('wf_state_current_id')
+            ->toArray();
+
+        $nextStates = WfSequence::where('workflow_id', $workflow->id)
+            ->where('wf_state_current_id', $currentWfState->id)
+                ->pluck('wf_state_next_id')
+                ->toArray();
+
+        // Retornar los datos estructurados
+        return response()->json([
+            "current" => $loan_payment->wf_states_id,
+            "previous" => $previousStates,
+            "next" => $nextStates
+        ]);
     }
 
     /**
