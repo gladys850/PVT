@@ -530,45 +530,66 @@ class Util
     }
 
     public static function process_by_procedure_type($model, $object, $module,$role_id){ //aadecuar para amortizaciones
-        foreach ($object as $key => $procedure_type) {
-            $data[] = [
-                'procedure_type_id' => $procedure_type->id,
-                'total' => [
-                    'received' => 0,
-                    'validated' => 0,
-                    'trashed' => 0,
-                    'my_received' => 0
-                ]
-            ];
-            $user_roles = Auth::user()->roles()->where('module_id','=',$module->id)->where('id','=',$role_id)->get();
-           // foreach ($module->roles()->whereNotNull('sequence_number')->orderBy('sequence_number')->orderBy('display_name')->get() as $subkey => $role) {
-            foreach ( $user_roles as $subkey => $role) {
-                $data[$key]['data'][$subkey] = [
-                    'role_id' => $role->id
-                ];
-                $values = [
-                    $model::whereRoleId($role->id)->whereHas('modality', function($q) use ($procedure_type) {
-                        $q->whereProcedureTypeId($procedure_type->id);
-                    })->whereValidated(false)->count(), //received
-                    $model::whereRoleId($role->id)->whereHas('modality', function($q) use ($procedure_type) {
-                        $q->whereProcedureTypeId($procedure_type->id);
-                    })->whereValidated(true)->whereUserId(Auth::user()->id)->count(), //validated
-                    $model::whereRoleId($role->id)->whereHas('modality', function($q) use ($procedure_type) {
-                        $q->whereProcedureTypeId($procedure_type->id);
-                    })->onlyTrashed()->count(), //trashed
-                    $model::whereRoleId($role->id)->whereHas('modality', function($q) use ($procedure_type) {
-                        $q->whereProcedureTypeId($procedure_type->id);
-                    })->whereValidated(false)->count(), //my_received
-                ];
-                $i = 0;
-                foreach ($data[$key]['total'] as $total_key => $v) {
-                    $data[$key]['total'][$total_key] += $values[$i];
-                    $data[$key]['data'][$subkey]['data'][$total_key] = $values[$i];
-                    $i++;
-                }
-            }
+        $wf_state = Role::find($role_id)->wf_states; // Se obtiene el estado del rol
+        if (!$wf_state) {
+            return [];
         }
-        return $data;
+        $results = [];
+    
+        foreach ($object as $workflow) {
+            $workflow_id = $workflow->id;
+            $data = [
+                'received' => 0,
+                'validated' => 0,
+                'trashed' => 0,
+                'my_received' => 0
+            ];
+            $data['received'] = $model::whereWfStatesId($wf_state->id)
+                ->whereHas('modality', function($q) use ($workflow) {
+                    $q->whereWorkflowId($workflow->id);
+                })
+                ->whereValidated(false)->whereUserId(null)->count();
+    
+            $data['validated'] = $model::whereWfStatesId($wf_state->id)
+                ->whereHas('modality', function($q) use ($workflow) {
+                    $q->whereWorkflowId($workflow->id);
+                })
+                ->whereValidated(true)->whereUserId(Auth::id())->count();
+    
+            $data['trashed'] = $model::whereWfStatesId($wf_state->id)
+                ->whereHas('modality', function($q) use ($workflow) {
+                    $q->whereWorkflowId($workflow->id);
+                })
+                ->onlyTrashed()->whereUserId(Auth::id())->count();
+    
+            $data['my_received'] = $model::whereWfStatesId($wf_state->id)
+                ->whereHas('modality', function($q) use ($workflow) {
+                    $q->whereWorkflowId($workflow->id);
+                })
+                ->whereValidated(false)->whereUserId(Auth::id())->count();
+            if (!isset($results[$workflow_id])) {
+                $results[$workflow_id] = [
+                    'workflow_id' => $workflow_id,
+                    'total' => [
+                        'received' => 0,
+                        'validated' => 0,
+                        'trashed' => 0,
+                        'my_received' => 0
+                    ],
+                    'data' => []
+                ];
+            }
+            $results[$workflow_id]['total']['received'] += $data['received'];
+            $results[$workflow_id]['total']['validated'] += $data['validated'];
+            $results[$workflow_id]['total']['trashed'] += $data['trashed'];
+            $results[$workflow_id]['total']['my_received'] += $data['my_received'];
+            $results[$workflow_id]['data'][] = [
+                'wf_states_id' => $wf_state->id,
+                'data' => $data
+            ];
+        }
+
+        return array_values($results);
     }
 
     public static function process_by_role($model, $module,$role_id){
