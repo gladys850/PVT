@@ -19,14 +19,14 @@
       <v-simple-checkbox color="success" :value="isSelected" @input="select($event)"></v-simple-checkbox>
     </template>
 
-    <!--<template v-slot:item.procedure_modality_id="{ item }">
+    <template v-slot:item.procedure_modality_id="{ item }">
       <v-tooltip top>
         <template v-slot:activator="{ on }">
           <span v-on="on">{{ searchProcedureModality(item, 'shortened') }}</span>
         </template>
         <span>{{ searchProcedureModality(item, 'name') }}</span>
       </v-tooltip>
-    </template>-->
+    </template>
     <template v-slot:[`item.affiliate`]="{ item }">
      {{ item.borrower[0] ? item.borrower[0].full_name_borrower: ""}}
     </template>
@@ -183,10 +183,9 @@ export default {
       type: Array,
       required: true
     },
-    procedureTypeSelected:{
-      type:Number,
+    workflowTypesCount:{
+      type: Array,
       required: true,
-      default: 0
     }
   },
   computed: {
@@ -211,8 +210,14 @@ export default {
         class: ['normal', 'white--text'],
         align: 'center',
         sortable: true
+      }, {
+      text: 'Modalidad',
+        value: 'procedure_modality_id',
+        class: ['normal', 'white--text'],
+        align: 'center',
+        sortable: true
       },
-           {
+      {
         text: 'Nombre',
         value: 'affiliate',
         class: ['normal', 'white--text'],
@@ -272,7 +277,7 @@ export default {
         printDocs: []
   }),
   watch: {
-    procedureTypeSelected(newVal, oldVal) {
+    workflowTypesCount(newVal, oldVal) {
       if(newVal != oldVal)
         this.selectedLoans = []
     },
