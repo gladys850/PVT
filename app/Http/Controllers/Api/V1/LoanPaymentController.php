@@ -130,6 +130,11 @@ class LoanPaymentController extends Controller
                 'user_id' => $request->user_id
             ];
         }
+        if ($request->has('workflow_id')) {
+            $relations['modality'] = [
+                'workflow_id' => $request->workflow_id
+            ];
+        }
         $data = Util::search_sort(new LoanPayment(), $request, $filters, $relations);
         $data->getCollection()->transform(function ($loanPayment) {
             return self::append_data($loanPayment, true);

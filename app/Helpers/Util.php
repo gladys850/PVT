@@ -530,8 +530,8 @@ class Util
     }
 
     public static function process_by_procedure_type($model, $object, $module,$role_id){ //aadecuar para amortizaciones
-        $wf_state = Role::find($role_id)->wf_states; // Se obtiene el estado del rol
-        if (!$wf_state) {
+        $wf_states_id = Role::find($role_id)->wf_states_id; // Se obtiene el estado del rol
+        if (!$wf_states_id) {
             return [];
         }
         $results = [];
@@ -544,25 +544,25 @@ class Util
                 'trashed' => 0,
                 'my_received' => 0
             ];
-            $data['received'] = $model::whereWfStatesId($wf_state->id)
+            $data['received'] = $model::whereWfStatesId($wf_states_id)
                 ->whereHas('modality', function($q) use ($workflow) {
                     $q->whereWorkflowId($workflow->id);
                 })
                 ->whereValidated(false)->whereUserId(null)->count();
     
-            $data['validated'] = $model::whereWfStatesId($wf_state->id)
+            $data['validated'] = $model::whereWfStatesId($wf_states_id)
                 ->whereHas('modality', function($q) use ($workflow) {
                     $q->whereWorkflowId($workflow->id);
                 })
                 ->whereValidated(true)->whereUserId(Auth::id())->count();
     
-            $data['trashed'] = $model::whereWfStatesId($wf_state->id)
+            $data['trashed'] = $model::whereWfStatesId($wf_states_id)
                 ->whereHas('modality', function($q) use ($workflow) {
                     $q->whereWorkflowId($workflow->id);
                 })
                 ->onlyTrashed()->whereUserId(Auth::id())->count();
     
-            $data['my_received'] = $model::whereWfStatesId($wf_state->id)
+            $data['my_received'] = $model::whereWfStatesId($wf_states_id)
                 ->whereHas('modality', function($q) use ($workflow) {
                     $q->whereWorkflowId($workflow->id);
                 })
@@ -584,7 +584,7 @@ class Util
             $results[$workflow_id]['total']['trashed'] += $data['trashed'];
             $results[$workflow_id]['total']['my_received'] += $data['my_received'];
             $results[$workflow_id]['data'][] = [
-                'wf_states_id' => $wf_state->id,
+                'wf_states_id' => $wf_states_id,
                 'data' => $data
             ];
         }
