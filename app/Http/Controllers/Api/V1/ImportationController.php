@@ -928,7 +928,7 @@ class ImportationController extends Controller
                                 'loan_payment_date' => Carbon::now(),
                                 'liquidate' => false,
                                 'state_affiliate'=> "ACTIVO",
-                                'description'=> 'Pago registrado',
+                                'description'=> $payment->voucher,
                             ];
                             $loan_payment = $this->set_payment($form, $loan);
                             $amount = $amount - $loan_payment->estimated_quota;
