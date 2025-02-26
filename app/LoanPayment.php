@@ -276,4 +276,9 @@ class LoanPayment extends Model
         if($last_kardex_loan->id == $this->id) $is_last = true;
         return $is_last;
     }
+
+    public function currentState()
+    {
+        return $this->belongsTo(WfState::class, 'wf_states_id');
+    }
 }
