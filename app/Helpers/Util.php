@@ -548,7 +548,7 @@ class Util
                 ->whereHas('modality', function($q) use ($workflow) {
                     $q->whereWorkflowId($workflow->id);
                 })
-                ->whereValidated(false)->whereUserId(null)->count();
+                ->whereValidated(false)->count();
     
             $data['validated'] = $model::whereWfStatesId($wf_states_id)
                 ->whereHas('modality', function($q) use ($workflow) {
