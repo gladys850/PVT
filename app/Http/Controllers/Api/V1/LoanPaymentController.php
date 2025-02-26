@@ -436,12 +436,12 @@ class LoanPaymentController extends Controller
         $from_state = $from_role->wf_states;
         $loan_payments = LoanPayment::whereIn('id', $request->ids)
             ->where('wf_states_id', '!=', $request->next_state_id)
-            ->where('state_id', $PendientePago)
+            //->where('state_id', $PendientePago)
             ->orderBy('code')
             ->get();
 
-        if (count(array_unique($loan_payments->pluck('role_id')->toArray())) > 1) {
-            $from_role = $loan_payments->first()->role_id;
+        if (count(array_unique($loan_payments->pluck('wf_states_id')->toArray())) > 1) {
+            $from_state = $loan_payments->first()->wf_states_id;
         }
         $flow_message = $this->flow_message($loan_payments->first()->modality->workflow->id, $from_state, $to_state);
 
