@@ -11,7 +11,7 @@
         <div class="font-semibold leading-tight text-center m-b-10 text-lg">{{ $title }}</div>
 </div>
 <div class="block">
-    @php ($role = "")
+    @php ($wf_states = "")
     @php ($c = 0)
     @php ($cantidad = 0)
     @php ($amount = 0)
@@ -32,7 +32,7 @@
         </tr>
         @foreach ( $loans as $loan )
             @php ($cantidad += 1)
-            @if($role == $loan['role'] || $role == "")
+            @if($wf_states == $loan['wf_states'] || $wf_states == "")
                 <tr>
                     <td style="font-size:60%;">{{ $loan['code'] }}</td>
                     <td style="font-size:60%;">{{ $loan['procedence'] }}</td>
@@ -42,13 +42,13 @@
                         {{$lender->full_name}}<br>
                     @endforeach
                     </td>
-                    <td style="font-size:60%;">{{ $loan['role'] }}</td>
+                    <td style="font-size:60%;">{{ $loan['wf_states'] }}</td>
                     <td style="font-size:60%;">{{ $loan['update_date'] }}</td>
                     <td style="font-size:60%;">{{ $loan['user'] }}</td>
                     <td style="font-size:60%;">{{ Util::money_format($loan['amount']) }}</td>
                     <td style="font-size:60%;">{{ Util::money_format($loan['amount_dirbursement']) }}</td>
                 </tr>
-                @php ($role = $loan['role'])
+                @php ($wf_states = $loan['wf_states'])
                 @php ($c += 1)
                 @php ($amount += $loan['amount'])
                 @php ($amount_dirbursement += $loan['amount_dirbursement'])
@@ -69,7 +69,7 @@
                         {{$lender->full_name}}<br>
                     @endforeach
                     </td>
-                    <td style="font-size:60%;">{{ $loan['role'] }}</td>
+                    <td style="font-size:60%;">{{ $loan['wf_states'] }}</td>
                     <td style="font-size:60%;">{{ $loan['update_date'] }}</td>
                     <td style="font-size:60%;">{{ $loan['user'] }}</td>
                     <td style="font-size:60%;">{{ Util::money_format($loan['amount']) }}</td>
@@ -77,7 +77,7 @@
                 </tr>
                 @php ($total = $total+$amount)
                 @php ($total_dirbursement = $total_dirbursement + $amount_dirbursement)
-                @php ($role = $loan['role'])
+                @php ($wf_states = $loan['wf_states'])
                 @php ($c = 1)
                 @php ($amount = $loan['amount'])
                 @php ($amount_dirbursement = $loan['amount_dirbursement'])
