@@ -1796,7 +1796,7 @@ class LoanReportController extends Controller
             $date = Carbon::now()->format('Y-m-d');
         else
             $date = $request->date;
-        $loans = Loan::whereStateId(LoanState::whereName('En Proceso')->first()->id)->where('request_date', '<=', Carbon::parse($request->date)->endOfDay())->orderBy('role_id')->get();
+        $loans = Loan::whereStateId(LoanState::whereName('En Proceso')->first()->id)->where('request_date', '<=', Carbon::parse($request->date)->endOfDay())->orderBy('wf_states_id')->get();
         $loans_array = collect([]);
         $date = "";
         if($request->type == "xls")
@@ -1816,7 +1816,7 @@ class LoanReportController extends Controller
                 "code" => $loan->code,
                 "request_date" => Carbon::parse($loan->request_date)->format('d/m/Y'),
                 "lenders" => $loan->borrower,
-                "role" => $loan->role->display_name,
+                "wf_states" => $loan->currentState->name,
                 "update_date" => Carbon::parse($date)->format('d/m/Y H:i:s'),
                 "user" => $loan->user ? $loan->user->username : "",
                 "amount" => $loan->amount_approved,
@@ -1833,7 +1833,7 @@ class LoanReportController extends Controller
                     $loan['procedence'],
                     $loan['request_date'],
                     $loan['lenders'][0]->fullname,
-                    $loan['role'],
+                    $loan['wf_states'],
                     $loan['update_date'],
                     $loan['user'],
                     $loan['amount'],
@@ -2128,19 +2128,19 @@ class LoanReportController extends Controller
     $loans = Loan::where('request_date', '>=', $initial_date)
             ->where('request_date', '<=', $final_date)
             ->where('deleted_at', null)
-            ->orderBy('role_id')->get();
+            ->orderBy('wf_states_id')->get();
     $loans_collect = collect([]);
-    $query = "SELECT role_id, count(*)
+    $query = "SELECT wf_states_id, count(*)
             from loans l
             where l.request_date >= '$initial_date'
             and l.request_date <= '$final_date'
             and l.deleted_at is null 
-            group by role_id
-            order by role_id";
-    $roles = DB::select($query);
+            group by wf_states_id
+            order by wf_states_id";
+    $wf_states = DB::select($query);
     foreach($loans as $loan)
     {
-        $ubication = $loan->role->display_name;
+        $ubication = $loan->currentState->name;
         $query_derivation = "SELECT *
                             from records r 
                             where r.recordable_type = 'loans'
@@ -2161,7 +2161,7 @@ class LoanReportController extends Controller
                'borrower' => $loan->borrower->first()->full_name,
                'ci_borrower' => $loan->borrower->first()->identity_card,
                'user' => $loan->user ? $loan->user->username : '',
-               'role' => $loan->role->display_name,
+               'wf_states' => $loan->currentState->name,
                'city' => $loan->city->name,
                'derivation_date' => sizeof($derivation) == 0 ? '' : Carbon::parse($derivation[0]->created_at)->format('d-m-Y H:m:s'),
                'request_amount' => $loan->amount_approved,
@@ -2186,7 +2186,7 @@ class LoanReportController extends Controller
             'initial_date' => $request->initial_date,
             'final_date' => $request->final_date,
             'loans' => $loans_collect,
-            'roles' => $roles,
+            'wf_states' => $wf_states,
             'file_title' => 'Estado de Solicitud de Prestamos',
         ];
         $file_name = 'Ingresos Depositados en Tesoreria.pdf';
@@ -2213,7 +2213,7 @@ class LoanReportController extends Controller
                 $loan->borrower->first()->full_name,
                 $loan->borrower->first()->identity_card,
                 $loan->user ? $loan->user->username : '',
-                $loan->role->display_name,
+                $loan->currentState->name,
                 $loan->city->name,
                 sizeof($derivation) == 0 ? '' : Carbon::parse($derivation[0]->created_at)->format('d-m-Y H:m:s'),
                 $loan->amount_approved,
