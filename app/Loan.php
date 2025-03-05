@@ -69,7 +69,6 @@ class Loan extends Model
         'property_id',
         'destiny_id',
         'financial_entity_id',
-        'role_id',
         'validated',
         'user_id',
         'delivery_contract_date',
@@ -79,7 +78,8 @@ class Loan extends Model
         'payment_plan_compliance',
         'affiliate_id',
         'loan_procedure_id',
-        'authorize_refinancing'
+        'authorize_refinancing',
+        'wf_states_id'
     ];
 
     function __construct(array $attributes = [])
@@ -141,11 +141,6 @@ class Loan extends Model
     public function tags()
     {
         return $this->morphToMany(Tag::class, 'taggable')->withPivot('user_id', 'date')->withTimestamps();
-    }
-
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
     }
 
     public function parent_loan()
@@ -1709,5 +1704,10 @@ class Loan extends Model
     public function loanGuaranteeRetirementFund()
     {
         return $this->hasOne(LoanGuaranteeRetirementFund::class,'loan_id');
+    }
+
+    public function currentState()
+    {
+        return $this->belongsTo(WfState::class, 'wf_states_id');
     }
 }

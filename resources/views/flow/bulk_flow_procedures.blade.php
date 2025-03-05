@@ -9,7 +9,7 @@
 <body>
     @php ($plural = count($procedures) > 1)
     @php ($n = 1)
-    @php ($hasSender = !is_null($roles['from']))
+    @php ($hasSender = !is_null($states['from']))
     @include('partials.header', $header)
 
     <div class="block">
@@ -30,9 +30,9 @@
             </tr>
             <tr>
                 @if ($hasSender)
-                <td class="data-row py-5">{{ $roles['from']->display_name }}</td>
+                <td class="data-row py-5">{{ $states['from']->name }}</td>
                 @endif
-                <td class="data-row py-5">{{ $roles['to']->display_name }}</td>
+                <td class="data-row py-5">{{ $states['to']->name }}</td>
             </tr>
         </table>
     </div>
