@@ -144,6 +144,7 @@ Route::group([
         Route::get('record_affiliate_history', 'Api\V1\RecordController@record_affiliate_history');
         Route::Post('loan_sismu', 'Api\V1\SismuController@getLoanSismu');
         Route::Post('update_balance_sismu', 'Api\V1\SismuController@update_balance');
+        Route::Post('udpate_pending_interest', 'Api\V1\SismuController@update_pending_interest');
         /*Seguimiento de mora de prestamo*/
         Route::group([
             'middleware' => 'permission:print-delay-tracking'
