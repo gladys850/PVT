@@ -91,4 +91,62 @@ class SismuController extends Controller
             return response()->json(['error' => 'No se pudo actualizar el saldo'], 409);
         }
     }
+
+    
+    public function update_pending_interest(Request $request)
+    {
+        $request->validate([
+            'IdPrestamo' => 'required|integer',
+            'current_role_id' => 'required|exists:roles,id',
+            'new_interest_pending' => 'required|numeric|gt:0'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $id_prestamo = $request->IdPrestamo;
+            $username = Auth::user()->username;
+
+            // Obtener préstamo
+            $prestamo = DB::connection('sqlsrv')->select("SELECT * FROM Prestamos WHERE IdPrestamo = ?", [$id_prestamo]);
+
+            if (empty($prestamo)) {
+                return response()->json(['error' => 'Préstamo no encontrado'], 404);
+            }
+
+            $old_interest_pending = (float) $prestamo[0]->PresIntPendientes;
+
+            // Actualizar préstamo
+            $update = DB::connection('sqlsrv')->update(
+                "UPDATE Prestamos SET PresIntPendientes = ? WHERE IdPrestamo = ?",
+                [$request->new_interest_pending, $id_prestamo]
+            );
+
+            if (!$update) {
+                throw new \Exception('No se pudo actualizar el interés pendiente.');
+            }
+
+            // Registrar en sismu_records
+            $action = 'Actualizó interés pendiente del préstamo';
+            $date = now()->format('Y-m-d H:i:s');
+
+            DB::connection('sqlsrv')->insert(
+                "INSERT INTO sismu_records (UserPvt, RoleIdPvt, [Action], IdPrestamo, PresIntPendientesAnt, PresIntPendientesAct, CreatedAt) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [$username, $request->current_role_id, $action, $id_prestamo, $old_interest_pending, $request->new_interest_pending, $date]
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'new_interest_pending' => $request->new_interest_pending,
+                'interest_previous' => $old_interest_pending,
+                'status' => true,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => $e->getMessage()], 409);
+        }
+    }
 }
