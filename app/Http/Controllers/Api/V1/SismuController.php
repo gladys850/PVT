@@ -28,7 +28,8 @@ class SismuController extends Controller
             p.PresCuotaMensual, 
             p.PresSaldoAct, 
             p.PresEstPtmo, 
-            p.PresMntDesembolso
+            p.PresMntDesembolso,
+            p.PresIntPendientes
             FROM 
                 Prestamos p
             JOIN 
