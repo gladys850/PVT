@@ -115,10 +115,9 @@
                         <ValidationProvider
                           v-slot="{ errors }"
                           name="Monto ajuste"
-                          :rules="''"
+                          :rules="{ regex: /^[0-9]*\.?[0-9]+$/ }"
                           mode="aggressive"
                         >
-                          <b style="text-align: center"></b>
                           <v-text-field
                             :error-messages="errors"
                             dense
