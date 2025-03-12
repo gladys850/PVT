@@ -99,7 +99,7 @@ class SismuController extends Controller
         $request->validate([
             'IdPrestamo' => 'required|integer',
             'current_role_id' => 'required|exists:roles,id',
-            'new_interest_pending' => 'required|numeric|gt:0'
+            'new_interest_pending' => 'required|numeric|gte:0'
         ]);
 
         try {
