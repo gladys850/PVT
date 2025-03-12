@@ -290,7 +290,7 @@ Route::group([
             Route::post('loan/{affiliate_id}/validate_affiliate', 'Api\V1\LoanController@validate_affiliate');
             //Route::get('calculate_percentage', 'Api\V1\LoanController@calculate_percentage');
             Route::get('my_loans', 'Api\V1\LoanController@my_loans');
-            Route::post('procedure_brother', 'Api\V1\LoanController@procedure_brother');
+            Route::post('procedure_ref_rep', 'Api\V1\LoanController@procedure_ref_rep');
             Route::post('release_loan/{loan}', 'Api\V1\LoanController@release_loan');
         });
         Route::group([
