@@ -14,29 +14,58 @@ use Util;
 */
 class workflowController extends Controller
 {
-    /**
-    * Lista de flujos
-    * Devuelve el listado con los flujos paginados
-    * @queryParam name Filtro por nombre. Example: prestamos
-    * @queryParam sortBy Vector de ordenamiento. Example: [name]
-    * @queryParam sortDesc Vector de orden descendente(true) o ascendente(false). Example: [false]
-    * @queryParam per_page Número de datos por página. Example: 10
-    * @queryParam page Número de página. Example: 1
-    * @authenticated
-    * @responseFile responses/module/index.200.json
-    */
+    public static function append_data(Workflow $workflow)
+    {
+        $workflow->module = $workflow->module;
+        return $workflow;
+    }
+
     public function index(Request $request)
     {
-        $filter = $request->has('name') ? ['name' => $request->name] : [];
-        if (!Auth::user()->hasRole('TE-admin')) {
-            $filter['id'] = Auth::user()->modules;
-        }
-        return Util::search_sort(new Module(), $request, $filter);
-    }
+        $workflows = Workflow::where('module_id', 6)->get();
+        $workflows->transform(function ($workflow) {
+            return self::append_data($workflow);
+        });
+        return $workflows;
+    }    
 
     public function show(Workflow $workflow)
     {
         return $workflow;
+    }
+
+    public function update(Request $request, Workflow $workflow)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'shortened' => 'required|string',
+        ]);
+        $workflow->fill($request->all());
+        $workflow->save();
+        return response()->json(self::append_data($workflow), 200);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'shortened' => 'required|string',
+        ]);
+
+        $workflow = Workflow::create([
+            'module_id' => 6,
+            'name' => $request->name,
+            'shortened' => $request->shortened,
+        ]);
+        return response()->json(['message' => 'Registro creado exitosamente', 'data' => $workflow], 201);
+    }
+
+    public function destroy(Workflow $workflow)
+    {
+        $workflow->delete();
+        return response()->json([
+            'message' => 'Registro eliminado correctamente'
+        ], 200);
     }
 
     /**
