@@ -1,30 +1,38 @@
 <template>
-  <section class="px-6">
-		<v-row class="justify-center my-4">
-			<strong class="grey--text text-h5">Plataforma Virtual de Trámites</strong><br>
-		</v-row>
-		<v-row>
-			<v-col cols="3" v-for="(item, index) in rolesPermissionsItems" :key="index" class="pa-2">
-				<v-card 
-          shaped 
-          outlined 
-          @click="clickRole(item)" 
-          style="cursor: pointer;border: thin solid rgba(0, 0, 0, 0.5);"
-          elevation="2">
-					<v-card-text>
-						<v-icon color="teal">mdi-account-circle</v-icon>&nbsp;
-            <span class="teal--text font-weight-bold  text-center">{{item.display_name }}</span><br>
-            <span class=" font-weight-medium text-uppercase text-center">{{ item.module.name }}</span><br>
-					</v-card-text>
-				</v-card>
-			</v-col>
-		</v-row>
-	</section>
+  <div>
+    <Appbar/>
+    <section class="px-6">
+      <v-row class="justify-center my-4">
+        <strong class="grey--text text-h5">Plataforma Virtual de Trámites</strong><br>
+      </v-row>
+      <v-row>
+        <v-col cols="3" v-for="(item, index) in rolesPermissionsItems" :key="index" class="pa-2">
+          <v-card 
+            shaped 
+            outlined 
+            @click="clickRole(item)" 
+            style="cursor: pointer;border: thin solid rgba(0, 0, 0, 0.5);"
+            elevation="2">
+            <v-card-text>
+              <v-icon color="teal">mdi-account-circle</v-icon>&nbsp;
+              <span class="teal--text font-weight-bold  text-center">{{item.display_name }}</span><br>
+              <span class=" font-weight-medium text-uppercase text-center">{{ item.module.name }}</span><br>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </section>
+  </div>
 </template>
 
 <script>
+import Appbar from '../../layout/Appbar.vue'
+
 export default {
   name: 'changeRole',
+  components: {
+    Appbar
+  },
   data: () => ({
 		rolesPermissionsItems: [],
   }),
@@ -68,7 +76,11 @@ export default {
     },*/
 		clickRole(item) {
 			this.$store.commit('setRolePermissionSelected', item)
-			this.$router.push("dashboard")
+      if(item.id != 104)
+			  this.$router.push("dashboard")
+      else
+        this.$router.push("sismu")
+      
 		}
   },
 }

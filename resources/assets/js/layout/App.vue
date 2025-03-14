@@ -1,13 +1,13 @@
 <template>
   <v-app>
     <!-- Si no hay un rol seleccionado, no se muestra el menu -->
-    <template v-if="rolePermissionSelected">
-      <Navbar :expanded.sync="expandNavbar" v-if="$store.getters.user"/>
+    <template v-if="$store.getters.user && rolePermissionSelected && rolePermissionSelected.id != 104">
+      <Appbar :expanded.sync="expandNavbar"/>
+      <Navbar :expanded.sync="expandNavbar"/>
     </template>
-    <Appbar :expanded.sync="expandNavbar" v-if="$store.getters.user"/>
+
     <v-main>
       <router-view></router-view>
-      <div ref="container"></div>
     </v-main>
     <Footer/>
   </v-app>
