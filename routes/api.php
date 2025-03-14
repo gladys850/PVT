@@ -67,6 +67,7 @@ Route::group([
         //nuevos flujos 
         Route::get('module/{module}/workflows', 'Api\V1\ModuleController@get_loan_workflows');
         Route::get('module/{module}/workflows_payment', 'Api\V1\ModuleController@get_payment_workflows');
+        Route::apiResource('workflow', 'Api\V1\WorkflowController');
         //
         Route::get('module/{module}/amortization_loan', 'Api\V1\ModuleController@get_amortization_types');
         Route::patch('loans', 'Api\V1\LoanController@bulk_update_state');

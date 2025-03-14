@@ -1,11 +1,13 @@
 <?php
 
 namespace App;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Workflow extends Model
 {
+    use SoftDeletes;
     protected $fillable = ['id', 'module_id', 'name', 'shortened'];
 
     // Relación: Un Workflow pertenece a un módulo
