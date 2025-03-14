@@ -20,7 +20,7 @@ class workflowController extends Controller
         return $workflow;
     }
 
-    public function index(Request $request)
+    public function index()
     {
         $workflows = Workflow::where('module_id', 6)->get();
         $workflows->transform(function ($workflow) {
@@ -31,7 +31,7 @@ class workflowController extends Controller
 
     public function show(Workflow $workflow)
     {
-        return $workflow;
+        return $this->append_data($workflow);
     }
 
     public function update(Request $request, Workflow $workflow)
