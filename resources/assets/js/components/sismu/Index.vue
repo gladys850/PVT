@@ -92,7 +92,9 @@
                       <!--actualizar saldo-->
                       <v-tooltip top>
                         <template v-slot:activator="{ on }">
+                          <!--v-if="permissionSimpleSelected.includes('show-history-loan')"-->
                           <v-btn 
+                          v-if="permissionSimpleSelected.includes('show-history-loan')"
                             v-on="on"
                             color="success" 
                             x-small 
@@ -133,7 +135,7 @@
                           </v-btn>
                         </template>
                         <div>
-                          <span>Editar Interes penal</span>
+                          <span>Editar Interes Pendiente</span>
                         </div>
                       </v-tooltip>
                       <v-dialog v-model="dialog_input" max-width="700px">
@@ -262,7 +264,7 @@ export default {
       try {
         const res = await axios.post("update_balance_sismu", {
           IdPrestamo: IdPrestamo,
-          role_id: this.$store.getters.rolePermissionSelected.id,
+          current_role_id: this.$store.getters.rolePermissionSelected.id,
           balance: this.loans.find(loan => loan.IdPrestamo === IdPrestamo)?.balance || 0
         });
 
