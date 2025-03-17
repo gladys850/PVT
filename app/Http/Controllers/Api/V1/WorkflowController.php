@@ -12,7 +12,7 @@ use Util;
 /** @group Módulos
 * Flujos disponibles en el sistema
 */
-class workflowController extends Controller
+class WorkflowController extends Controller
 {
     public static function append_data(Workflow $workflow)
     {
