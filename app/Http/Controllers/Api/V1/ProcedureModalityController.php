@@ -83,4 +83,17 @@ class ProcedureModalityController extends Controller
         $sub_modalities_and_parameters[] = $procedure_modality;
         return  $sub_modalities_and_parameters;
     }
+
+    public function update(Request $request, ProcedureModality $procedure_modalitys)
+    {
+        $request->validate([
+            'name' => 'string|max:255',
+            'shortened' => 'string',
+            'is_valid' => 'boolean',
+            'workflow_id' => 'integer|exists:workflows,id',
+        ]);
+        $procedure_modality->fill($request->all());
+        $procedure_modality->save();
+        return response()->json(self::append_data($procedure_modality), 200);
+    }
 }
