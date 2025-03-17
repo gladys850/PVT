@@ -90,14 +90,22 @@
                   </template>
                     <template v-slot:item.actions="{ item }">
                       <!--actualizar saldo-->
-                      <v-btn 
-                        v-if="permissionSimpleSelected.includes('show-history-loan')"
-                        color="success" 
-                        x-small 
-                        icon 
-                        @click="dialog_balance = true">
-                        <v-icon>mdi-refresh</v-icon>
-                      </v-btn>
+                      <v-tooltip top>
+                        <template v-slot:activator="{ on }">
+                          <v-btn 
+                            v-on="on"
+                            color="success" 
+                            x-small 
+                            icon 
+                            @click="dialog_balance = true">
+                            <v-icon>mdi-refresh</v-icon>
+                          </v-btn>
+                        </template>
+                        <div>
+                          <span>Editar balance</span>
+                        </div>
+                      </v-tooltip>
+
                       <v-dialog v-model="dialog_balance" max-width="700px">
                         <v-card>
                           <v-card-title class="text-h6">
@@ -113,13 +121,21 @@
                       </v-dialog>
 
                       <!--Actualizar interes penal-->
-                      <v-btn 
-                        color="primary" 
-                        x-small 
-                        icon 
-                        @click="dialog_input = true">
-                        <v-icon>mdi-table-edit</v-icon>
-                      </v-btn>
+                      <v-tooltip top>
+                        <template v-slot:activator="{ on }">
+                          <v-btn 
+                            v-on="on"
+                            color="warning" 
+                            x-small 
+                            icon 
+                            @click="dialog_input = true">
+                            <v-icon>mdi-table-edit</v-icon>
+                          </v-btn>
+                        </template>
+                        <div>
+                          <span>Editar Interes penal</span>
+                        </div>
+                      </v-tooltip>
                       <v-dialog v-model="dialog_input" max-width="700px">
                         <v-card>
                           <v-toolbar dense flat>
@@ -266,7 +282,8 @@ export default {
         const res = await axios.post("udpate_pending_interest", {
         IdPrestamo: IdPrestamo,
         current_role_id: this.$store.getters.rolePermissionSelected.id,
-        new_interest_pending: this.mount_interest
+        new_interest_pending: this.mount_interest,
+        role_id: this.$store.getters.rolePermissionSelected.id,
       });
 
         if(res.data.status) {
