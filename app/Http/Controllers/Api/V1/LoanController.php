@@ -1743,7 +1743,7 @@ class LoanController extends Controller
                     ['Usuario', Auth::user()->username]
                 ]
             ],
-            'title' => ($flow_message['type'] == 'derivacion' ? 'DERIVACIÓN' : 'DEVOLUCIÓN') . ' DE TRÁMITES - MODALIDAD ' . $loans_pre->first()->modality->second_name,
+            'title' => ($flow_message['type'] == 'derivacion' ? 'DERIVACIÓN' : 'DEVOLUCIÓN') . ' DE TRÁMITES',
             'procedures' => $loans_pre,
             'states' => [
                 'from' => $from_state,
