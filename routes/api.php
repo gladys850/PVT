@@ -36,6 +36,7 @@ Route::group([
         Route::post('simulator','Api\V1\CalculatorController@simulator');
         Route::apiResource('role', 'Api\V1\RoleController')->only('index', 'show');
         Route::apiResource('wf_state', 'Api\V1\WfStatesController')->only('index', 'show');
+        Route::post('wf_states_filtered', 'Api\V1\WfStatesController@wf_states_filtered');
         Route::apiResource('permission', 'Api\V1\PermissionController')->only('index');
         Route::apiResource('loan_global_parameter', 'Api\V1\LoanGlobalParameterController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('last_loan_global_parameter', 'Api\V1\LoanGlobalParameterController@get_last_global_parameter');
