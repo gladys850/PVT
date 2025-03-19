@@ -92,9 +92,7 @@
                       <!--actualizar saldo-->
                       <v-tooltip top>
                         <template v-slot:activator="{ on }">
-                          <!--v-if="permissionSimpleSelected.includes('show-history-loan')"-->
                           <v-btn 
-                          v-if="permissionSimpleSelected.includes('show-history-loan')"
                             v-on="on"
                             color="success" 
                             x-small 
