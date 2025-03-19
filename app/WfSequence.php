@@ -15,11 +15,11 @@ class WfSequence extends Model
 
     public function current_state()
     {
-        return $this->belongsTo(WfState::class, 'wf_state_current_id', 'id');
+        return $this->belongsTo(WfState::class, 'wf_state_current_id');
     }
 
     public function next_state()
     {
-        return $this->belongsTo(WfState::class, 'wf_state_next_id', 'id');
+        return $this->belongsTo(WfState::class, 'wf_state_next_id');
     }
 }

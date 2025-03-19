@@ -70,6 +70,7 @@ Route::group([
         Route::apiResource('workflow', 'Api\V1\WorkflowController');
         // flujos
         Route::apiResource('wf_sequence', 'Api\V1\WfSequenceController');
+        Route::post('get_sequence', 'Api\V1\WfSequenceController@get_sequence');
         //
         Route::get('module/{module}/amortization_loan', 'Api\V1\ModuleController@get_amortization_types');
         Route::patch('loans', 'Api\V1\LoanController@bulk_update_state');
