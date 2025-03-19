@@ -57,6 +57,7 @@ Route::group([
         Route::get('validate_affiliate_modality/{affiliate}/{procedure_modality}','Api\V1\AffiliateController@validate_affiliate_modality');//Mostrar las sub modalidades a las que el afiliado puede acceder
         Route::apiResource('payment_type', 'Api\V1\PaymentTypeController')->only('index', 'show');
         Route::apiResource('procedure_modality', 'Api\V1\ProcedureModalityController')->only('index', 'show');
+        Route::post('asign_flow/{procedure_modality}', 'Api\V1\ProcedureModalityController@asign_flow');
         Route::get('procedure_modality/{procedure_modality}/loan_modality_parameter', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter');
         Route::apiResource('module', 'Api\V1\ModuleController')->only('index', 'show');
         Route::get('module/{module}/role', 'Api\V1\ModuleController@get_roles');

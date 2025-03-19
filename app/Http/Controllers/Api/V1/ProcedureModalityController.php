@@ -84,7 +84,7 @@ class ProcedureModalityController extends Controller
         return  $sub_modalities_and_parameters;
     }
 
-    public function update(Request $request, ProcedureModality $procedure_modalitys)
+    public function update(Request $request, ProcedureModality $procedure_modality)
     {
         $request->validate([
             'name' => 'string|max:255',
@@ -92,7 +92,17 @@ class ProcedureModalityController extends Controller
             'is_valid' => 'boolean',
             'workflow_id' => 'integer|exists:workflows,id',
         ]);
-        $procedure_modality->fill($request->all());
+        $procedure_modality->fill($request->all());return $procedure_modality;
+        $procedure_modality->save();
+        return response()->json(self::append_data($procedure_modality), 200);
+    }
+
+    public function asign_flow(Request $request, ProcedureModality $procedure_modality)
+    {
+        $request->validate([
+            'workflow_id' => 'integer|exists:workflows,id',
+        ]);
+        $procedure_modality->workflow_id = $request->workflow_id;
         $procedure_modality->save();
         return response()->json(self::append_data($procedure_modality), 200);
     }

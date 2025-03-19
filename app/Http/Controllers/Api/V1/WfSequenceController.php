@@ -93,7 +93,7 @@ class WfSequenceController extends Controller
         $state = false;
         if(WfSequence::whereWorkflowId($request->workflow_id)->count() == 0)
             $state = true;
-        elseif(WfSequence::whereWorkflowId($request->workflow_id)->whereWfStateNextId($request->wf_state_current_id)->count() > 0 && WfState::whereId($request->wf_state_next_id)->whereModuleId(6)->count() > 0)
+        elseif(WfSequence::whereWorkflowId($request->workflow_id)->whereWfStateNextId($request->wf_state_current_id)->count() > 0 && WfState::whereId($request->wf_state_next_id)->whereModuleId(6)->count() > 0 && $request->wf_state_current_id != $request->wf_state_next_id)
             $state = true;
         if($state)
         {
