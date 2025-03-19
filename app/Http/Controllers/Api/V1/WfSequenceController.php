@@ -19,17 +19,102 @@ class WfSequenceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(request $request)
+    public function index(Request $request)
     {
         $request->validate([
             'workflow_id' => 'required|integer|exists:workflows,id'
         ]);
-        $wf_sequence = WfSequence::whereWorkflowId($request->workflow_id)->get();
-        $wf_sequence->transform(function ($wf_sequence) {
+
+        $wf_sequences = WfSequence::whereWorkflowId($request->workflow_id)
+            ->with(['current_state', 'next_state']) // Relación con wf_state
+            ->get();
+
+        $ordered_sequences = $this->sortWorkflowSequences($wf_sequences);
+        $ordered_sequences->transform(function ($wf_sequence) {
             return self::append_data($wf_sequence);
         });
-        return $wf_sequence;
+        return $ordered_sequences;
     }
+
+    private function sortWorkflowSequences($sequences)
+    {
+        $sequences = collect($sequences);
+        $lookup = $sequences->keyBy('wf_state_current_id');
+        $start = null;
+        foreach ($sequences as $seq) {
+            $isStart = true;
+            foreach ($sequences as $otherSeq) {
+                if ($otherSeq->wf_state_next_id === $seq->wf_state_current_id) {
+                    $isStart = false;
+                    break;
+                }
+            }
+            if ($isStart) {
+                $start = $seq;
+                break;
+            }
+        }
+        if (!$start) {
+            return collect();
+        }
+        $sorted = collect();
+        $current = $start;
+        $sequenceNumber = 1;
+        private function sortWorkflowSequences($sequences)
+        {
+            $sequences = collect($sequences); // Asegurar que sea colección
+            $lookup = $sequences->keyBy('wf_state_current_id'); // Indexamos por estado actual
+        
+            // Buscar el primer estado, aquel que no está referenciado por ningún otro estado como "next"
+            $start = null;
+        
+            foreach ($sequences as $seq) {
+                $isStart = true;
+                foreach ($sequences as $otherSeq) {
+                    if ($otherSeq->wf_state_next_id === $seq->wf_state_current_id) {
+                        $isStart = false;
+                        break;
+                    }
+                }
+                if ($isStart) {
+                    $start = $seq;
+                    break;
+                }
+            }
+        
+            // Si no encontramos el primer estado, retornamos vacío
+            if (!$start) {
+                return collect();
+            }
+        
+            // Iniciamos el recorrido desde el primer estado
+            $sorted = collect();
+            $current = $start;
+            $sequenceNumber = 1; // Inicializamos el contador de secuencia
+        
+            // Recorremos mientras tengamos un siguiente estado
+            while ($current) {
+                // Añadimos el número de secuencia al estado
+                $current->number_sequence = $sequenceNumber;
+                $sorted->push($current);
+        
+                // Incrementamos el contador de secuencia
+                $sequenceNumber++;
+        
+                // Obtenemos el siguiente estado
+                $current = $lookup->get($current->wf_state_next_id);
+            }
+        
+            return $sorted;
+        }        
+        while ($current) {
+            $current->number_sequence = $sequenceNumber;
+            $sorted->push($current);
+            $sequenceNumber++;
+            $current = $lookup->get($current->wf_state_next_id);
+        }
+        return $sorted;
+    }    
 
     /**
      * Show the form for creating a new resource.
@@ -43,14 +128,23 @@ class WfSequenceController extends Controller
             'wf_state_current_id' => 'required|integer|exists:wf_states,id',
             'wf_state_next_id' => 'required|integer|exists:wf_states,id',
         ]);
-
-        $wf_sequence = WfSequence::create([
-            'workflow_id' => $request->workflow_id,
-            'wf_state_current_id' => $request->wf_state_current_id,
-            'wf_state_next_id' => $request->wf_state_next_id,
-            'action' => "Aprobar"
-        ]);
-        return response()->json(['message' => 'Registro creado exitosamente', 'data' => $wf_sequence], 201);
+        $state = false;
+        if(WfSequence::whereWorkflowId($request->workflow_id)->count() == 0)
+            $state = true;
+        elseif(WfSequence::whereWorkflowId($request->workflow_id)->whereWfStateNextId($request->wf_state_current_id)->count() > 0 && WfState::whereId($request->wf_state_next_id)->whereModuleId(6)->count() > 0)
+            $state = true;
+        if($state)
+        {
+            $wf_sequence = WfSequence::create([
+                'workflow_id' => $request->workflow_id,
+                'wf_state_current_id' => $request->wf_state_current_id,
+                'wf_state_next_id' => $request->wf_state_next_id,
+                'action' => "Aprobar"
+            ]);
+            return response()->json(['message' => 'Registro creado exitosamente', 'data' => $wf_sequence], 201);
+        }
+        else
+            return response()->json(['message' => 'El estado actual ya tiene una secuencia asignada o no es valido'], 400);
     }
 
     /**
