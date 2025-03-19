@@ -19,7 +19,16 @@ class WfSequenceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
+    {
+        $wf_sequences = WfSequence::with(['current_state', 'next_state'])->get();
+        $wf_sequences->transform(function ($wf_sequence) {
+            return self::append_data($wf_sequence);
+        });
+        return $wf_sequences;
+    }
+
+    public function get_sequence(Request $request)
     {
         $request->validate([
             'workflow_id' => 'required|integer|exists:workflows,id'
@@ -60,53 +69,6 @@ class WfSequenceController extends Controller
         $sorted = collect();
         $current = $start;
         $sequenceNumber = 1;
-        private function sortWorkflowSequences($sequences)
-        {
-            $sequences = collect($sequences); // Asegurar que sea colección
-            $lookup = $sequences->keyBy('wf_state_current_id'); // Indexamos por estado actual
-        
-            // Buscar el primer estado, aquel que no está referenciado por ningún otro estado como "next"
-            $start = null;
-        
-            foreach ($sequences as $seq) {
-                $isStart = true;
-                foreach ($sequences as $otherSeq) {
-                    if ($otherSeq->wf_state_next_id === $seq->wf_state_current_id) {
-                        $isStart = false;
-                        break;
-                    }
-                }
-                if ($isStart) {
-                    $start = $seq;
-                    break;
-                }
-            }
-        
-            // Si no encontramos el primer estado, retornamos vacío
-            if (!$start) {
-                return collect();
-            }
-        
-            // Iniciamos el recorrido desde el primer estado
-            $sorted = collect();
-            $current = $start;
-            $sequenceNumber = 1; // Inicializamos el contador de secuencia
-        
-            // Recorremos mientras tengamos un siguiente estado
-            while ($current) {
-                // Añadimos el número de secuencia al estado
-                $current->number_sequence = $sequenceNumber;
-                $sorted->push($current);
-        
-                // Incrementamos el contador de secuencia
-                $sequenceNumber++;
-        
-                // Obtenemos el siguiente estado
-                $current = $lookup->get($current->wf_state_next_id);
-            }
-        
-            return $sorted;
-        }        
         while ($current) {
             $current->number_sequence = $sequenceNumber;
             $sorted->push($current);
