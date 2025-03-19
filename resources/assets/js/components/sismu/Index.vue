@@ -102,7 +102,7 @@
                           </v-btn>
                         </template>
                         <div>
-                          <span>Editar balance</span>
+                          <span>Actualizar saldos</span>
                         </div>
                       </v-tooltip>
 
