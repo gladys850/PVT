@@ -113,6 +113,11 @@
         "title": "Flujo de trabajo",
         "icon": "mdi-chart-timeline-variant",
         "params": {}
+      }, {
+        "href": "workFlowByArea",
+        "title": "Flujo del Trámite",
+        "icon": "mdi-clipboard-flow",
+        "params": {}
       }
     ]
   }, {
