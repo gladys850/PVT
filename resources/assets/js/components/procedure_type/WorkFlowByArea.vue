@@ -252,11 +252,15 @@ export default {
     },
     async deleteItem() {
       try {
-        await axios.delete(`/workflow/${this.selectedItem.id}`); 
-        this.workflows = this.workflows.filter(w => w.id !== this.selectedItem.id);
+        let res = await axios.delete(`/workflow/${this.selectedItem.id}`); 
+        if(res.status==201 || res.status == 200){
+          this.workflows = this.workflows.filter(w => w.id !== this.selectedItem.id);
+        } else {
+          this.toastr.error("Error al eliminar el flujo de trámite.");
+        }
         this.delete_dialog = false;
       } catch (e) {
-        console.error("Error eliminando:", e);
+        console.log(e)
       }      
     },
     openSequenceModal(item) {
