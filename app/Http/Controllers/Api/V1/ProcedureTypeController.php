@@ -9,6 +9,7 @@ use App\RoleSequence;
 use App\Role;
 use App\Http\Requests\RoleSequenceForm;
 use Util;
+use App\ProcedureModality;
 
 /** @group Tipos de trámites
 * Trámites agrupados por tipo de acuerdo a un filtro de modalidad
@@ -173,4 +174,13 @@ class ProcedureTypeController extends Controller
         
         return $query->get();
     }  
+
+    public function get_loan_modalities()
+    {
+        $procedure_types = ProcedureType::whereModuleId(6)->get();
+        foreach ($procedure_types as $procedure_type) {
+            $procedure_type->procedure_modalities = ProcedureModality::whereProcedureTypeId($procedure_type->id)->whereIsValid(true)->get();
+        }
+        return $procedure_types;
+    }
 }

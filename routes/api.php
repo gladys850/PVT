@@ -59,6 +59,7 @@ Route::group([
         Route::apiResource('payment_type', 'Api\V1\PaymentTypeController')->only('index', 'show');
         Route::apiResource('procedure_modality', 'Api\V1\ProcedureModalityController')->only('index', 'show');
         Route::post('asign_flow/{procedure_modality}', 'Api\V1\ProcedureModalityController@asign_flow');
+        Route::get('get_loan_modalities', 'Api\V1\ProcedureTypeController@get_loan_modalities');
         Route::get('procedure_modality/{procedure_modality}/loan_modality_parameter', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter');
         Route::apiResource('module', 'Api\V1\ModuleController')->only('index', 'show');
         Route::get('module/{module}/role', 'Api\V1\ModuleController@get_roles');
