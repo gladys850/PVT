@@ -159,6 +159,11 @@ class WfSequenceController extends Controller
      */
     public function destroy(WfSequence $wf_sequence)
     {
+        // validar que no sea un registro intermedio del flujo
+        if(WfSequence::whereWorkflowId($wf_sequence->workflow_id)->whereWfStateNextId($wf_sequence->wf_state_current_id)->count() > 0)
+            return response()->json([
+                'message' => 'No se puede eliminar el flujo porque tiene secuencias intermedias'
+            ], 409);
         $wf_sequence->delete();
         return response()->json([
             'message' => 'Registro eliminado correctamente'
