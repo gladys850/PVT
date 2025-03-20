@@ -46,4 +46,9 @@ class Workflow extends Model
     {
         return $this->morphMany(Record::class, 'recordable')->latest('updated_at');
     }
+
+    public function procedure_modality()
+    {
+        return $this->hasMany(ProcedureModality::class, 'workflow_id');
+    }
 }

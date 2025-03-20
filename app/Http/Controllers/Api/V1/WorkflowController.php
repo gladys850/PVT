@@ -62,6 +62,11 @@ class WorkflowController extends Controller
 
     public function destroy(Workflow $workflow)
     {
+        if($workflow->procedure_modality()->count() > 0) {
+            return response()->json([
+                'message' => 'No se puede eliminar el flujo porque tiene modalidades asociados'
+            ], 409);
+        }
         $workflow->delete();
         return response()->json([
             'message' => 'Registro eliminado correctamente'
