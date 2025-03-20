@@ -25,6 +25,7 @@ import TracingAdd from '@/components/tracing/Add'
 import FundRotaryList from '@/components/fund_rotary/ListEntry'
 import SismuIndex from '@/components/sismu/Index'
 import WorkFlowByArea from '@/components/procedure_type/WorkFlowByArea'
+import ModalityFlow from '@/components/procedure_type/ModalityFlow'
 
 export const routes = [
   {
@@ -114,7 +115,14 @@ export const routes = [
     component: WorkFlowByArea,
     meta: {
       requiresAuth: true
-    }
+    }, 
+  }, {
+    path: '/procedure_type/modality_flow',
+    name: 'modalityFlow',
+    component: ModalityFlow,
+    meta: {
+      requiresAuth: true
+    }, 
   },
   // 
   {

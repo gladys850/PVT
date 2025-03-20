@@ -4,6 +4,7 @@
     fullscreen
     hide-overlay
     transition="dialog-bottom-transition"
+    persistent
   >
     <v-card>
       <v-card-title>
@@ -11,9 +12,10 @@
           <v-btn icon @click="closeModal()">
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <v-toolbar-title>Secuencia del flujo <strong>{{ item.name}}</strong> </v-toolbar-title>
+          <v-toolbar-title>Secuencia del flujo <strong>{{ item.name }}</strong></v-toolbar-title>
         </v-toolbar>
       </v-card-title>
+      
       <v-card-text>
         <v-card>
           <v-card-text>
@@ -34,6 +36,7 @@
                 </v-tooltip>
               </div>
             </v-row>
+
             <v-simple-table fixed-header class="responsive-table">
               <thead>
                 <tr>
@@ -73,9 +76,14 @@
                     ></v-select>
                   </td>
                   <td class="text-center" v-if="$store.getters.permissions.includes('update-setting')">
-                    <v-tooltip top>
+                    <v-tooltip v-if="index == wf_sequences.length - 1" top>
                       <template v-slot:activator="{ on }">
-                        <v-btn icon color="error" v-on="on" @click="deleteSequence(sequence.id, index)">
+                        <v-btn 
+                          icon 
+                          color="error" 
+                          v-on="on" 
+                          @click="deleteSequence(sequence.id, index)"
+                        >
                           <v-icon>mdi-minus-circle</v-icon>
                         </v-btn>
                       </template>
@@ -85,6 +93,7 @@
                 </tr>
               </tbody>
             </v-simple-table>
+
           </v-card-text>
         </v-card>
       </v-card-text>
@@ -105,7 +114,6 @@ export default {
       loading: true,
       wf_states: [],
       wf_sequences: [],
-      //workflow_id: 9,
     };
   },
   watch: {
@@ -170,7 +178,7 @@ export default {
           });
           this.wf_sequences[index].id = res.data.id;
         }
-        this.getWfSequences();
+        this.getWfSequences(); 
         this.toastr.success("Secuencia guardada correctamente.");
       } catch (e) {
         console.error("Error al guardar secuencia:", e);
@@ -186,15 +194,19 @@ export default {
       if (!confirm("¿Seguro que deseas eliminar esta secuencia?")) return;
       try {
         await axios.delete(`wf_sequence/${id}`);
-        this.wf_sequences.splice(index, 1);
+        this.getWfSequences();
         this.toastr.error("Secuencia eliminada correctamente.");
       } catch (e) {
         this.toastr.error("Error al eliminar secuencia:", e);
       }
     },
+    //obtene los estados que no han sido seleccionados
     availableNextStates(currentSequence) {
-      let selectedNextIds = this.wf_sequences.filter(seq => seq !== currentSequence).map(seq => seq.wf_state_next_id).filter(id => id !== null);
-      return this.wf_states.filter(state => !selectedNextIds.includes(state.id));
+      let selectedNextIds = this.wf_sequences //Se tiene todas las secuencias
+        .filter(seq => seq !== currentSequence) //Filtra todas las secuencias excepto la actual
+        .map(seq => seq.wf_state_next_id) //Obtiene los IDs de los estados siguientes en las demás secuencias
+        .filter(id => id !== null) //Elimina valores nulos
+      return this.wf_states.filter(state => !selectedNextIds.includes(state.id)) //Filtra los estados disponibles
     },
     closeModal() {
       this.dialogLocal = false;

@@ -118,6 +118,12 @@
         "title": "Flujo del Trámite",
         "icon": "mdi-clipboard-flow",
         "params": {}
+      },
+      {
+        "href": "modalityFlow",
+        "title": "Asignar Flujo a Modalidad",
+        "icon": "mdi-relation-one-to-one",
+        "params": {}
       }
     ]
   }, {
