@@ -3,7 +3,6 @@ import Profile from '@/components/login/Profile'
 import DashboardIndex from '@/components/dashboard/Index'
 import UserIndex from '@/components/user/Index'
 import RoleIndex from '@/components/role/Index'
-import ProcedureTypeWorkflow from '@/components/procedure_type/Workflow'
 import ProcedureTypeLoanDestiny from '@/components/procedure_type/LoanDestiny'
 import AffiliateIndex from '@/components/affiliate/Index'
 import AffiliateAdd from '@/components/affiliate/Add'
@@ -92,13 +91,6 @@ export const routes = [
     path: '/role',
     name: 'roleIndex',
     component: RoleIndex,
-    meta: {
-      requiresAuth: true
-    }
-  }, {
-    path: '/procedure_type/workflow',
-    name: 'procedureTypeWorkflow',
-    component: ProcedureTypeWorkflow,
     meta: {
       requiresAuth: true
     }

@@ -51,7 +51,6 @@ Route::group([
         Route::apiResource('procedure_type', 'Api\V1\ProcedureTypeController')->only('index', 'show');
         Route::apiResource('kinship', 'Api\V1\KinshipController')->only('index','show');
         Route::get('procedure_type/{procedure_type}/modality', 'Api\V1\ProcedureTypeController@get_modality');
-        Route::get('procedure_type/{procedure_type}/flow', 'Api\V1\ProcedureTypeController@get_flow');
         Route::post('procedure_type/modality/loan', 'Api\V1\ProcedureTypeController@get_modality_loan');//Mostrar Todas las modalidades de Préstamos Según Reglamento
         Route::post('affiliate_loan_modality/{affiliate}/{procedure_type}','Api\V1\AffiliateController@get_sub_modality_affiliate');//Mostrar las sub modalidades a las que el afiliado puede acceder
         Route::get('procedure_modality_parameters/{procedure_modality}', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter_remake'); //obtiene los parametros para rehacer tramite
@@ -432,7 +431,6 @@ Route::group([
         Route::group([
             'middleware' => 'permission:update-setting'
         ], function () {
-            Route::patch('procedure_type/{procedure_type}/flow', 'Api\V1\ProcedureTypeController@set_flow');
             Route::patch('procedure_type/{procedure_type}/loan_destiny', 'Api\V1\ProcedureTypeController@set_loan_destinies');
         });
 
