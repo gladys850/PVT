@@ -108,12 +108,7 @@
         "title": "Destino de Préstamos",
         "icon": "mdi-currency-usd-circle",
         "params": {}
-      }, {
-        "href": "procedureTypeWorkflow",
-        "title": "Flujo de trabajo",
-        "icon": "mdi-chart-timeline-variant",
-        "params": {}
-      }, {
+      },{
         "href": "workFlowByArea",
         "title": "Flujo del Trámite",
         "icon": "mdi-clipboard-flow",
