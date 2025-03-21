@@ -36,6 +36,7 @@ Route::group([
         Route::post('simulator','Api\V1\CalculatorController@simulator');
         Route::apiResource('role', 'Api\V1\RoleController')->only('index', 'show');
         Route::apiResource('wf_state', 'Api\V1\WfStatesController')->only('index', 'show');
+        Route::post('wf_states_filtered', 'Api\V1\WfStatesController@wf_states_filtered');
         Route::apiResource('permission', 'Api\V1\PermissionController')->only('index');
         Route::apiResource('loan_global_parameter', 'Api\V1\LoanGlobalParameterController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('last_loan_global_parameter', 'Api\V1\LoanGlobalParameterController@get_last_global_parameter');
@@ -50,13 +51,14 @@ Route::group([
         Route::apiResource('procedure_type', 'Api\V1\ProcedureTypeController')->only('index', 'show');
         Route::apiResource('kinship', 'Api\V1\KinshipController')->only('index','show');
         Route::get('procedure_type/{procedure_type}/modality', 'Api\V1\ProcedureTypeController@get_modality');
-        Route::get('procedure_type/{procedure_type}/flow', 'Api\V1\ProcedureTypeController@get_flow');
         Route::post('procedure_type/modality/loan', 'Api\V1\ProcedureTypeController@get_modality_loan');//Mostrar Todas las modalidades de Préstamos Según Reglamento
         Route::post('affiliate_loan_modality/{affiliate}/{procedure_type}','Api\V1\AffiliateController@get_sub_modality_affiliate');//Mostrar las sub modalidades a las que el afiliado puede acceder
         Route::get('procedure_modality_parameters/{procedure_modality}', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter_remake'); //obtiene los parametros para rehacer tramite
         Route::get('validate_affiliate_modality/{affiliate}/{procedure_modality}','Api\V1\AffiliateController@validate_affiliate_modality');//Mostrar las sub modalidades a las que el afiliado puede acceder
         Route::apiResource('payment_type', 'Api\V1\PaymentTypeController')->only('index', 'show');
         Route::apiResource('procedure_modality', 'Api\V1\ProcedureModalityController')->only('index', 'show');
+        Route::post('asign_flow/{procedure_modality}', 'Api\V1\ProcedureModalityController@asign_flow');
+        Route::get('get_loan_modalities', 'Api\V1\ProcedureTypeController@get_loan_modalities');
         Route::get('procedure_modality/{procedure_modality}/loan_modality_parameter', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter');
         Route::apiResource('module', 'Api\V1\ModuleController')->only('index', 'show');
         Route::get('module/{module}/role', 'Api\V1\ModuleController@get_roles');
@@ -430,7 +432,6 @@ Route::group([
         Route::group([
             'middleware' => 'permission:update-setting'
         ], function () {
-            Route::patch('procedure_type/{procedure_type}/flow', 'Api\V1\ProcedureTypeController@set_flow');
             Route::patch('procedure_type/{procedure_type}/loan_destiny', 'Api\V1\ProcedureTypeController@set_loan_destinies');
         });
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\WfSequence;
+use App\WfState;
 
 class WfSequenceController extends Controller
 {
@@ -93,7 +94,7 @@ class WfSequenceController extends Controller
         $state = false;
         if(WfSequence::whereWorkflowId($request->workflow_id)->count() == 0)
             $state = true;
-        elseif(WfSequence::whereWorkflowId($request->workflow_id)->whereWfStateNextId($request->wf_state_current_id)->count() > 0 && WfState::whereId($request->wf_state_next_id)->whereModuleId(6)->count() > 0)
+        elseif(WfSequence::whereWorkflowId($request->workflow_id)->whereWfStateNextId($request->wf_state_current_id)->count() > 0 && WfState::whereId($request->wf_state_next_id)->whereModuleId(6)->count() > 0 && $request->wf_state_current_id != $request->wf_state_next_id)
             $state = true;
         if($state)
         {
@@ -158,6 +159,11 @@ class WfSequenceController extends Controller
      */
     public function destroy(WfSequence $wf_sequence)
     {
+        // validar que no sea un registro intermedio del flujo
+        if(WfSequence::whereWorkflowId($wf_sequence->workflow_id)->whereWfStateNextId($wf_sequence->wf_state_current_id)->count() > 0)
+            return response()->json([
+                'message' => 'No se puede eliminar el flujo porque tiene secuencias intermedias'
+            ], 409);
         $wf_sequence->delete();
         return response()->json([
             'message' => 'Registro eliminado correctamente'
