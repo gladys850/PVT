@@ -747,7 +747,9 @@ export default {
         if(this.loan_detail.not_exist_modality==false){
           //validaciones de todas las contribuciones
           for(let i = 0; i < this.contributions.length; i++){
-            if((parseFloat(this.contributions[i].payable_liquid) + parseFloat(this.contributions[i].adjustment_amount)) >= this.global_parameters.livelihood_amount){
+
+            let valida_mount = this.validaFloat(this.contributions[i].adjustment_amount) && this.validaFloat(this.contributions[i].payable_liquid)
+            if( valida_mount && (parseFloat(this.contributions[i].payable_liquid) + parseFloat(this.contributions[i].adjustment_amount)) >= this.global_parameters.livelihood_amount){
               continuar = true
               if( continuar == true && (parseFloat(this.contributions[i].position_bonus)+
               parseFloat(this.contributions[i].border_bonus)+
@@ -982,6 +984,10 @@ export default {
         this.toastr.error("No se encuentra registrada ninguna dirección. Por favor registre la dirección del afiliado.")
       }
     },
+    validaFloat(value){
+      let valid = /^\d+(\.\d+)?$/.test(value)
+      return valid
+    }
   }
 }
 </script>|
