@@ -168,7 +168,7 @@ export default {
               message:this.observation.message})
               if(this.observation.accion=='devolver'){
                 let res1 = await axios.patch(`loan/${id}`, {
-                current_role_id:  $store.getters.rolePermissionSelected.id,
+                current_role_id:  this.$store.getters.rolePermissionSelected.id,
                 wf_states_id: this.valArea,
                 user_id: this.user_id_previous
                 })
