@@ -1571,7 +1571,7 @@ class LoanReportController extends Controller
             foreach ($list_loan as $row){
                 $bodyFile = array(
                     $row->city_loan,
-                    $row->name_state_loan,
+                    $row->name_wf_state_loan,
                     $row->user_loan,
                     $row->id_loan,
                     $row->code_loan,
