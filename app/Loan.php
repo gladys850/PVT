@@ -1710,4 +1710,10 @@ class Loan extends Model
     {
         return $this->belongsTo(WfState::class, 'wf_states_id');
     }
+
+    public function get_min_amount_for_refinancing()
+    {
+        $pay_for_eval = $this->loan_term - 3;
+        return $this->loan_plan->where('quota_number', $pay_for_eval)->first()->balance;
+    }
 }
