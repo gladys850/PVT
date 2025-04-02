@@ -540,7 +540,8 @@ export default {
       this.formatContributions()
       try {
         let res = await axios.post(`liquid_calificated`,{
-          liquid_calification: this.contributions_aux
+          liquid_calification: this.contributions_aux,
+          modality_id: this.modalidad.id
         })
 
         this.liquid_calificated = res.data
