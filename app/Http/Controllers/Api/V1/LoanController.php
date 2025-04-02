@@ -980,6 +980,10 @@ class LoanController extends Controller
     {
         if($request->has('data_loan')){
             $data_loan = $request->data_loan[0];
+            $data_loan = [
+                'balance' => $data_loan['balance'],
+                'date_cut_refinancing' => $data_loan['date_cut_refinancing'],
+            ];
             $loan->data_loan()->update($data_loan);
         }
         return $loan->data_loan;
