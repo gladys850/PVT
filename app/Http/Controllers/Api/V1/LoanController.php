@@ -1859,7 +1859,7 @@ class LoanController extends Controller
                 $message['percentage'] = true;
             }
         }
-        if($loan->balance >= ($loan->estimated_quota*3)){
+        if($loan->loan_term > 4 && $loan->balance >= $loan->get_min_amount_for_refinancing()){
             $message['paids'] = true;
         }
         else{
