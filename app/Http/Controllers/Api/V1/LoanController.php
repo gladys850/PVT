@@ -348,17 +348,18 @@ class LoanController extends Controller
         $information_loan= $this->get_information_loan($loan);
         $file_name = implode('_', ['solicitud', 'prestamo', $loan->code]) . '.pdf';
         if(Auth::user()->can('print-contract-loan')){
-            if($loan->modality->loan_modality_parameter->print_form_qualification_platform){
-                $loan->attachment = Util::pdf_to_base64([
-                    $this->print_form(new Request([]), $loan, false),
-                    //$this->print_contract(new Request([]), $loan, false),//ya no visualiza el contratos
-                    $this->print_qualification(new Request([]), $loan, false)//vizualiza el formulario de calificación para los que esten en true el valor print form qualification
-                ], $file_name,$information_loan, 'legal',$request->copies ?? 1);
-            }else{
-                $loan->attachment = Util::pdf_to_base64([
-                    $this->print_form(new Request([]), $loan, false),
-                ], $file_name,$information_loan, 'legal',$request->copies ?? 1);
+            $print_docs = [];
+            array_push($print_docs, $this->print_form(new Request([]), $loan, false));
+            if($loan->modality->loan_modality_parameter->print_form_qualification_platform)
+                array_push($print_docs, $this->print_qualification(new Request([]), $loan, false));
+            if($loan->modality->loan_modality_parameter->print_contract_platform)
+            {
+                $contract = $this->print_contract(new Request([]), $loan, false);
+                for($i=0; $i < 3; $i++){
+                    array_push($print_docs, $contract);
+                }
             }
+            $loan->attachment = Util::pdf_to_base64($print_docs, $file_name,$information_loan, 'legal', $request->copies ?? 1);
         }else{
             $loan->attachment = Util::pdf_to_base64([
                 $this->print_form(new Request([]), $loan, false),
