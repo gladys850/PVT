@@ -2254,7 +2254,7 @@ class LoanReportController extends Controller
    $File="PrestamosMoraPorPeriodos";
 
    $data_mora=array(
-    array("CI AFFILIADO","NOMBRE COMPLETO AFILIADO","CATEGORIA","GRADO","NRO. DE CEL.", "PTMO"
+    array("CI AFILIADO","NOMBRE COMPLETO AFILIADO","CATEGORIA","GRADO","NRO. DE CEL.", "PTMO"
     ,"FECHA DESEMBOLSO", "TASA ANUAL", "FECHA DEL ULTIMO PAGO","CUOTA MENSUAL","SALDO ACTUAL", "MODALIDAD", "SUB-MODALIDAD","DIAS TRANSCURRIDOS")
     );
    
