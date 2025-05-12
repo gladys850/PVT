@@ -289,6 +289,8 @@ class LoanController extends Controller
         })->pluck('id');
         $procedure_modality = ProcedureModality::findOrFail($request->procedure_modality_id);
         if (!$request->wf_states_id) abort(403, 'Debe crear un flujo de trabajo');
+        if(str_contains($procedure_modality->shortened,'EST-PAS-CON') && !Affiliate::find($request->lenders[0]['affiliate_id'])->spouses->count()>0)
+            abort(403, 'El afiliado no tiene esposa registrada para esta modalidad');
         // Guardar préstamo
         if(count(Affiliate::find($request->lenders[0]['affiliate_id'])->process_loans) >= LoanGlobalParameter::first()->max_loans_process && $request->remake_loan_id == null) abort(403, 'El afiliado ya tiene un préstamo en proceso');
         $saved = $this->save_loan($request);
@@ -348,17 +350,19 @@ class LoanController extends Controller
         $information_loan= $this->get_information_loan($loan);
         $file_name = implode('_', ['solicitud', 'prestamo', $loan->code]) . '.pdf';
         if(Auth::user()->can('print-contract-loan')){
-            if($loan->modality->loan_modality_parameter->print_form_qualification_platform){
-                $loan->attachment = Util::pdf_to_base64([
-                    $this->print_form(new Request([]), $loan, false),
-                    //$this->print_contract(new Request([]), $loan, false),//ya no visualiza el contratos
-                    $this->print_qualification(new Request([]), $loan, false)//vizualiza el formulario de calificación para los que esten en true el valor print form qualification
-                ], $file_name,$information_loan, 'legal',$request->copies ?? 1);
-            }else{
-                $loan->attachment = Util::pdf_to_base64([
-                    $this->print_form(new Request([]), $loan, false),
-                ], $file_name,$information_loan, 'legal',$request->copies ?? 1);
+            $print_docs = [];
+            array_push($print_docs, $this->print_form(new Request([]), $loan, false));
+            array_push($print_docs, '');
+            if($loan->modality->loan_modality_parameter->print_form_qualification_platform)
+                array_push($print_docs, $this->print_qualification(new Request([]), $loan, false));
+            if($loan->modality->loan_modality_parameter->print_contract_platform)
+            {
+                $contract = $this->print_contract(new Request([]), $loan, false);
+                for($i=0; $i < 3; $i++){
+                    array_push($print_docs, $contract);
+                }
             }
+            $loan->attachment = Util::pdf_to_base64($print_docs, $file_name,$information_loan, 'legal', $request->copies ?? 1);
         }else{
             $loan->attachment = Util::pdf_to_base64([
                 $this->print_form(new Request([]), $loan, false),
