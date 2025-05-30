@@ -707,9 +707,9 @@ class LoanReportController extends Controller
 
   public function report_loans_mora_v2(Request $request){
     // aumenta el tiempo máximo de ejecución de este script a 150 min:
-    ini_set('max_execution_time', 9000);
+    ini_set('max_execution_time', 900000);
     // aumentar el tamaño de memoria permitido de este script:
-    ini_set('memory_limit', '960M');
+    ini_set('memory_limit', '2048M');
     
     $final_date = request('date') ? Carbon::parse(request('date'))->endOfDay() : Carbon::now()->endOfDay();
 
