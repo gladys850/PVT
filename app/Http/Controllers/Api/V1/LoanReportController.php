@@ -188,7 +188,7 @@ class LoanReportController extends Controller
                 "CI GAR 2", "MATRICULA GAR 2", "APELLIDO PATERNO GAR 2", "APELLIDO MATERNO GAR 2", "APE. CASADA GAR 2", "1er NOMPRE GAR 2", "2DO NOMBRE GAR 2", "GRADO GAR 2", "Nro CELULAR GAR 2", "***",
                 "NRO. CBTE. CONTABLE", "CAPITAL PAGADO A FECHA DE CORTE", "SALDO A LA FECHA DE CORTE", "MONTO DESEMBOLSADO",
                 "MONTO REFINANCIADO", "LIQUIDO DESEMBOLSADO", "ESTADO PTMO", "AMPLIACION",
-                "FECHA ULTIMO PAGO DE INTERES", "SIGEP");
+                "FECHA ULTIMO PAGO DE INTERES", "NRO CUENTA SIGEP");
         $data = array($data);
         $data_vigente = $data_liq = $data;
         foreach ($list_loan as $loan) {
