@@ -200,10 +200,10 @@ class LoanReportController extends Controller
             $status_guarantor2 = isset($loan->guarantors[1]);
             $lastPayment = $loan->last_payment_date($final_date);
             $capitalPaid = $lastPayment
-                ? $loan->amount_approved - ($loan->last_payment_validated->previous_balance - $loan->last_payment_validated->capital_payment)
+                ? ($loan->amount_approved) - $lastPayment->previous_balance + $lastPayment->capital_payment
                 : 0;
             $remainingBalance = $lastPayment
-                ? $loan->last_payment_validated->previous_balance - $loan->last_payment_validated->capital_payment
+                ? $lastPayment->previous_balance - $lastPayment->capital_payment
                 : $loan->amount_approved;
             $refinanced = $loan->balance_parent_refi();
             $netDisbursed = $loan->amount_approved - $refinanced;                
