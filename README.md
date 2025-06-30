@@ -7,3 +7,4 @@ Sistema de administración y gestión de préstamos.
 * [Manual de instalación](./INSTALL.md)
 * [Manual de usuario](./docs/MANUAL.md)
 * [Despliegue con Docker](./docs/docker/README.md)
+* [Manejo de las colas de mensajes](./docs/queues/README.md)
