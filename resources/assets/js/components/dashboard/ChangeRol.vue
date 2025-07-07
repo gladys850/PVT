@@ -5,7 +5,7 @@
       <v-row class="justify-center align-center my-4">
         <v-col cols="auto" class="ml-auto"></v-col>
         <v-col cols="auto">
-          <strong class="grey--text text-h5">Plataforma Virtual de TrÃ¡mites</strong>
+          <strong class="grey--text text-h5">Plataforma Virtual de Trámites</strong>
         </v-col>
         <v-col cols="auto" class="ml-auto">
           <v-tooltip top>
