@@ -56,7 +56,7 @@
     </div>
     <div>
         <b>CUARTA.- (DEL PLAZO Y LA CUOTA DE AMORTIZACIÓN):</b> El plazo fijo e improrrogable para el cumplimiento de la obligación 
-        contraída por el PRESTATARIO en virtud al préstamo otorgado es de {{ $loan->loan_term }} meses computables a partir de la fecha 
+        contraída por el PRESTATARIO en virtud al préstamo otorgado es de {{ $loan->loan_term }} {{ $loan->loan_term == 1 ? 'mes' : 'meses' }} computables a partir de la fecha 
         de desembolso. La cuota de amortización mensual es de Bs.{{ Util::money_format($loan->estimated_quota) }} (<span class="uppercase">
             {{ Util::money_format($loan->estimated_quota, true) }} Bolivianos).</span>
     </div>

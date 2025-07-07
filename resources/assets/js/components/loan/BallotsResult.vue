@@ -117,7 +117,7 @@
                     <v-layout row wrap>
                       <v-flex xs12 class="px-2">
                         <fieldset class="py-0">
-                          <ul style="list-style: none" class="py-3 ps-4 ">
+                          <ul style="list-style: none" >
                             <li v-for="(liquid,i) in liquid_calificated" :key="i" >
                               <p>PROMEDIO LIQUIDO PAGABLE: {{liquid.payable_liquid_calculated | money}}</p>
                               <p class="error--text "> TOTAL BONOS: (-) {{liquid.bonus_calculated | money}} </p>
@@ -137,11 +137,13 @@
                     <v-layout row wrap>
                       <v-flex xs12 class="px-2">
                         <fieldset class="pa-3">
+                          <p v-show="calculator_result.maximum_suggested_valid" class="primary--text font-weight-black">MONTO MÁXIMO (LE = 70.00%) : {{calculator_result.amount_maximum | money}}</p>
+                          <p v-show="!calculator_result.maximum_suggested_valid" class="error--text font-weight-black">MONTO MAXIMO (LE = 70.00%) :  {{calculator_result.amount_maximum_suggested | money}}</p>
+                          <p v-show="calculator_result.maximum_suggested_valid" class="success--text font-weight-black">MONTO MÁXIMO SUGERIDO (LE: {{calculator_result.debt_index_suggested |percentage }}%): {{calculator_result.amount_maximum_suggested | money}}</p>
                           <p>CALCULO DE CUOTA: {{ calculator_result.quota_calculated_estimated_total | money}}</p>
-                          <p>LÍMITE DE ENDEUDAMIENTO: {{calculator_result.indebtedness_calculated_total|percentage }}%</p>
+                          <p>LÍMITE DE ENDEUDAMIENTO CALCULADO: {{(calculator_result.indebtedness_calculated_total) |percentage }}%</p>
                           <p>MONTO SOLICITADO: {{calculator_result.amount_requested | money}}</p>
-                          <p v-show="calculator_result.maximum_suggested_valid" class="success--text font-weight-black">MONTO MAXIMO SUGERIDO : {{calculator_result.amount_maximum_suggested | money}}</p>
-                          <p v-show="!calculator_result.maximum_suggested_valid" class="error--text font-weight-black">MONTO MAXIMO SUGERIDO : {{calculator_result.amount_maximum_suggested | money}}</p>
+                          <p class="caption" >* LÍmite de Endeudamiento (LE)</p>
                         </fieldset>
                       </v-flex>
                     </v-layout>
@@ -289,11 +291,12 @@ export default {
             liquid_calculated:this.liquid_calificated
         })
         this.calculator_result_aux = res.data
-        this.calculator_result.quota_calculated_estimated_total= this.calculator_result_aux.quota_calculated_estimated_total
-        this.calculator_result.indebtedness_calculated_total= this.calculator_result_aux.indebtedness_calculated_total
-        this.calculator_result.amount_maximum_suggested=this.calculator_result_aux.amount_maximum_suggested
+        this.calculator_result.quota_calculated_estimated_total = this.calculator_result_aux.quota_calculated_estimated_total
+        this.calculator_result.indebtedness_calculated_total = this.calculator_result_aux.indebtedness_calculated_total
+        this.calculator_result.amount_maximum_suggested = this.calculator_result_aux.amount_maximum_suggested
+        this.calculator_result.amount_maximum = this.calculator_result_aux.amount_maximum
 
-        if( this.calculator_result.amount_requested<this.calculator_result_aux.amount_maximum_suggested){
+        if( this.calculator_result.amount_requested<=this.calculator_result_aux.amount_maximum){
           this.calculator_result.amount_requested=this.calculator_result_aux.amount_requested
           this.loan_detail.amount_requested=this.calculator_result_aux.amount_requested
         }else{
@@ -305,6 +308,7 @@ export default {
 
         this.loan_detail.maximum_suggested_valid=this.calculator_result_aux.maximum_suggested_valid
         this.loan_detail.amount_maximum_suggested=this.calculator_result_aux.amount_maximum_suggested
+        this.loan_detail.amount_maximum = this.calculator_result_aux.amount_maximum
         this.loan_detail.is_valid=this.calculator_result_aux.is_valid
         this.loan_detail.quota_calculated_total_lender=this.calculator_result_aux.quota_calculated_estimated_total
 

@@ -54,3 +54,7 @@ Vue.filter('fullName', (value, byFirstName = false) => {
   }
   return fullName.filter(o => o).join(' ')
 })
+Vue.filter('quantity', value => {
+	if (value === 0) return '0';
+	return parseFloat(value).toLocaleString("de-DE", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  });

@@ -24,6 +24,8 @@ import ListTracingLoans from '@/components/tracing/ListTracingLoans'
 import TracingAdd from '@/components/tracing/Add'
 import FundRotaryList from '@/components/fund_rotary/ListEntry'
 import SismuIndex from '@/components/sismu/Index'
+import WorkFlowByArea from '@/components/procedure_type/WorkFlowByArea'
+import ModalityFlow from '@/components/procedure_type/ModalityFlow'
 
 export const routes = [
   {
@@ -78,6 +80,7 @@ export const routes = [
       requiresAuth: true
     }
   },
+  //Adminsitracion
   {
     path: '/user',
     name: 'userIndex',
@@ -107,6 +110,22 @@ export const routes = [
       requiresAuth: true
     }
   }, {
+    path: '/procedure_type/workflow_area',
+    name: 'workFlowByArea',
+    component: WorkFlowByArea,
+    meta: {
+      requiresAuth: true
+    }, 
+  }, {
+    path: '/procedure_type/modality_flow',
+    name: 'modalityFlow',
+    component: ModalityFlow,
+    meta: {
+      requiresAuth: true
+    }, 
+  },
+  // 
+  {
     path: '/affiliate',
     name: 'affiliateIndex',
     component: AffiliateIndex,

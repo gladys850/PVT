@@ -1,6 +1,6 @@
-export default class ModalityLoan {
+export default class Workflow {
   constructor() {
-    this.resource = `module/6/modality_loan` 
+    this.resource = `module/6/workflows`
   }
 
   async get(id = null, params = {}) {

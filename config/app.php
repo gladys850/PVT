@@ -154,6 +154,7 @@ return [
         App\Providers\MovementConceptServiceProvider::class,
         App\Providers\LoanGuaranteeRegisterServiceProvider::class,
         App\Providers\LoanTrackingServiceProvider::class,
+        App\Providers\WorkflowModelServiceProvider::class,
 
         /*
         * Application Service Providers...

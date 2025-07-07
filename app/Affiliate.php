@@ -279,6 +279,12 @@ class Affiliate extends Model
     {
       return $this->verify_balance($this->loans);
     }
+
+    public function getActiveLoansEstacionalAttribute()
+    {
+      return $this->loans->whereIn('procedure_modality_id', [95,96])->where('state_id', 3);
+    }
+
     public function current_loans()
     {
       $loan_state = LoanState::whereName('Vigente')->first();
@@ -466,7 +472,7 @@ class Affiliate extends Model
       $state_affiliate = $this->affiliate_state->affiliate_state_type->name;
       $contributions = null;
       $before_month=1;
-      $responce=false;
+      $response=false;
       $now = CarbonImmutable::now();
       if($state_affiliate == 'Activo') $table_contribution ='contributions';
       if($state_affiliate == 'Pasivo') $table_contribution ='aid_contributions';
@@ -477,10 +483,10 @@ class Affiliate extends Model
         $current_ticket = CarbonImmutable::parse($contributions->month_year);
         $current_ticket_true = $now->startOfMonth()->subMonths($before_month);
         if($now->startOfMonth()->diffInMonths($current_ticket->startOfMonth()) == $before_month){
-          $responce = true;
+          $response = true;
         }
       }
-     return  $responce;
+     return  $response;
    }
 
    public function active_guarantees_sismu(){
@@ -565,4 +571,19 @@ class Affiliate extends Model
    {
     return RetirementFundAverage::where('degree_id', $this->degree_id)->where('category_id', $this->category_id)->where('is_active', true)->first();
    }
+
+   public function active_loans_query()
+   {
+       $loan_state_ids = LoanPaymentState::whereIn('name', ['Pagado', 'Pendiente por confirmar'])->pluck('id')->toArray();
+   
+       return $this->loans()
+           ->whereRaw("
+               amount_approved - (
+                   SELECT COALESCE(SUM(capital_payment), 0)
+                   FROM loan_payments
+                   WHERE loan_payments.loan_id = loans.id
+                     AND loan_payments.state_id IN (" . implode(',', $loan_state_ids) . ")
+               ) > 0.001
+           ");
+   }   
 }

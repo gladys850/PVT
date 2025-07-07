@@ -12,9 +12,11 @@ Route::group([
     Route::apiResource('record', 'Api\V1\RecordController')->only('index');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/fingerprint', 'Api\V1\AffiliateController@fingerprint_saved');//TODO biometrico VERIFICAR RUTA ABIERTA 
     Route::get('affiliate/{affiliate}/deletefingerprint', 'Api\V1\AffiliateController@fingerprint_delete');//b
+    //
+    //Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
+    //
     // INDEFINIDO (TODO)
     Route::get('document/{affiliate_id}', 'Api\V1\ScannedDocumentController@create_document');
-    Route::get('generate_plans', 'Api\V1\LoanController@generate_plans');
     //ruta para saber si un afiliado cuenta con prestamos que hayan sido pagados por sus garantes
     Route::get('loans_paid_by_guarantors/{affiliate}', 'Api\V1\AffiliateController@loans_paid_by_guarantors');
     // Autenticado con token
@@ -33,6 +35,8 @@ Route::group([
         Route::apiResource('liquid_calificated', 'Api\V1\CalculatorController')->only('store');
         Route::post('simulator','Api\V1\CalculatorController@simulator');
         Route::apiResource('role', 'Api\V1\RoleController')->only('index', 'show');
+        Route::apiResource('wf_state', 'Api\V1\WfStatesController')->only('index', 'show');
+        Route::post('wf_states_filtered', 'Api\V1\WfStatesController@wf_states_filtered');
         Route::apiResource('permission', 'Api\V1\PermissionController')->only('index');
         Route::apiResource('loan_global_parameter', 'Api\V1\LoanGlobalParameterController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('last_loan_global_parameter', 'Api\V1\LoanGlobalParameterController@get_last_global_parameter');
@@ -49,11 +53,13 @@ Route::group([
         Route::get('procedure_type/{procedure_type}/modality', 'Api\V1\ProcedureTypeController@get_modality');
         Route::get('procedure_type/{procedure_type}/flow', 'Api\V1\ProcedureTypeController@get_flow');
         Route::post('procedure_type/modality/loan', 'Api\V1\ProcedureTypeController@get_modality_loan');//Mostrar Todas las modalidades de Préstamos Según Reglamento
-        Route::get('affiliate_loan_modality/{affiliate}/{procedure_type}','Api\V1\AffiliateController@get_sub_modality_affiliate');//Mostrar las sub modalidades a las que el afiliado puede acceder
+        Route::post('affiliate_loan_modality/{affiliate}/{procedure_type}','Api\V1\AffiliateController@get_sub_modality_affiliate');//Mostrar las sub modalidades a las que el afiliado puede acceder
         Route::get('procedure_modality_parameters/{procedure_modality}', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter_remake'); //obtiene los parametros para rehacer tramite
         Route::get('validate_affiliate_modality/{affiliate}/{procedure_modality}','Api\V1\AffiliateController@validate_affiliate_modality');//Mostrar las sub modalidades a las que el afiliado puede acceder
         Route::apiResource('payment_type', 'Api\V1\PaymentTypeController')->only('index', 'show');
         Route::apiResource('procedure_modality', 'Api\V1\ProcedureModalityController')->only('index', 'show');
+        Route::post('asign_flow/{procedure_modality}', 'Api\V1\ProcedureModalityController@asign_flow');
+        Route::get('get_loan_modalities', 'Api\V1\ProcedureTypeController@get_loan_modalities');
         Route::get('procedure_modality/{procedure_modality}/loan_modality_parameter', 'Api\V1\ProcedureModalityController@get_loan_modality_parameter');
         Route::apiResource('module', 'Api\V1\ModuleController')->only('index', 'show');
         Route::get('module/{module}/role', 'Api\V1\ModuleController@get_roles');
@@ -61,9 +67,17 @@ Route::group([
         Route::get('module/{module}/observation_type', 'Api\V1\ModuleController@get_observation_types');
         Route::get('module/{module}/observation_type_affiliate/{affiliate}', 'Api\V1\AffiliateObservationController@get_observation_types_affiliate');
         Route::get('module/{module}/modality_loan', 'Api\V1\ModuleController@get_modality_types');
+        //nuevos flujos 
+        Route::get('module/{module}/workflows', 'Api\V1\ModuleController@get_loan_workflows');
+        Route::get('module/{module}/workflows_payment', 'Api\V1\ModuleController@get_payment_workflows');
+        Route::apiResource('workflow', 'Api\V1\WorkflowController');
+        // flujos
+        Route::apiResource('wf_sequence', 'Api\V1\WfSequenceController');
+        Route::post('get_sequence', 'Api\V1\WfSequenceController@get_sequence');
+        //
         Route::get('module/{module}/amortization_loan', 'Api\V1\ModuleController@get_amortization_types');
-        Route::patch('loans', 'Api\V1\LoanController@bulk_update_role');
-        Route::patch('loan_payments', 'Api\V1\LoanPaymentController@bulk_update_role');
+        Route::patch('loans', 'Api\V1\LoanController@bulk_update_state');
+        Route::patch('loan_payments', 'Api\V1\LoanPaymentController@bulk_update_state');
         Route::get('record_payment', 'Api\V1\RecordController@record_loan_payment');
         Route::apiResource('statistic', 'Api\V1\StatisticController')->only('index', 'show');
         Route::apiResource('voucher_type', 'Api\V1\VoucherTypeController')->only('index', 'show');
@@ -85,6 +99,8 @@ Route::group([
         Route::apiResource('contributions_affiliate', 'Api\V1\ContributionController')->only('index', 'show', 'store', 'update', 'destroy');
         Route::get('affiliate/{affiliate}/contributions_affiliate', 'Api\V1\ContributionController@get_all_contribution_affiliate');
         Route::get('contribution/{contribution}/print/contribution','Api\V1\ContributionController@print_contribution');
+        //Certificado de No Adeudo
+        Route::post('affiliate/{affiliate}/no_debt_certification','Api\V1\LoanController@no_debt_certification');
         //Conceptos de movimientos
         Route::apiResource('movement_concept', 'Api\V1\MovementConceptController')->only('index', 'show', 'store', 'update', 'destroy');
         //REPORTS
@@ -119,13 +135,18 @@ Route::group([
         Route::get('report_request_institution', 'Api\V1\ImportationReportController@report_request_institution');
             //movementFundRotatory_Report
         Route::get('disbursements_fund_rotatory_outputs_report', 'Api\V1\MovementFundRotatoryController@disbursements_fund_rotatory_outputs_report'); //report de desembolsos anticipo 
+        // Reprte de afiliados con observaciones
+        Route::get('affiliate_observation_report', 'Api\V1\LoanReportController@affiliate_observation_report'); //report de desembolsos anticipo 
         //IMPORTACION
         Route::get('agruped_payments', 'Api\V1\ImportationController@agruped_payments');
         Route::get('importation_payments_senasir', 'Api\V1\ImportationController@importation_payment_senasir');//senasir pagos
+        Route::get('importation_payments_estacional', 'Api\V1\ImportationController@importation_payment_estacional');//senasir pagos
         Route::get('upload_fail_validated_group', 'Api\V1\ImportationController@upload_fail_validated_group');
         Route::get('copy_payments', 'Api\V1\ImportationController@copy_payments');
         Route::get('create_payments_command', 'Api\V1\ImportationController@create_payments_command');
         Route::get('rollback_copy_groups_payments', 'Api\V1\ImportationController@rollback_copy_groups_payments');
+        Route::get('create_payments_command_additional', 'Api\V1\ImportationController@create_payments_command_additional');
+        Route::get('validate_additional_import', 'Api\V1\LoanPaymentPeriodController@validate_additional_import');
         //PERIODOS DE IMPORTACION
         Route::get('get_list_month', 'Api\V1\LoanPaymentPeriodController@get_list_month');//listado de meses por gestion
         Route::get('get_list_year', 'Api\V1\LoanPaymentPeriodController@get_list_year');//listado de meses por gestion
@@ -250,10 +271,12 @@ Route::group([
             Route::post('loan_advance/{loan}', 'Api\V1\LoanController@destroy_advance');
             Route::get('loan/{loan}/disbursable', 'Api\V1\LoanController@get_disbursable');
             Route::get('affiliate/{affiliate}/loan','Api\V1\AffiliateController@get_loans');
+            Route::get('affiliate/{affiliate}/loans_affiliate','Api\V1\AffiliateController@get_loans_affiliate');
             Route::get('loan/{loan}/document','Api\V1\LoanController@get_documents');
             Route::get('loan/{loan}/note','Api\V1\LoanController@get_notes');
             Route::get('loan/{loan}/flow','Api\V1\LoanController@get_flow');
             Route::get('loan/{loan}/print/plan','Api\V1\LoanController@print_plan');
+            Route::post('regenerate_plan/{loan}', 'Api\V1\LoanController@regenerate_plan');
             Route::apiResource('note','Api\V1\NoteController')->only('show');
             Route::get('procedure_type/{procedure_type}/loan_destiny', 'Api\V1\ProcedureTypeController@get_loan_destinies');
             Route::get('loan/{loan}/observation','Api\V1\LoanController@get_observations');
@@ -274,7 +297,7 @@ Route::group([
             Route::post('loan/{affiliate_id}/validate_affiliate', 'Api\V1\LoanController@validate_affiliate');
             //Route::get('calculate_percentage', 'Api\V1\LoanController@calculate_percentage');
             Route::get('my_loans', 'Api\V1\LoanController@my_loans');
-            Route::post('procedure_brother', 'Api\V1\LoanController@procedure_brother');
+            Route::post('procedure_ref_rep', 'Api\V1\LoanController@procedure_ref_rep');
             Route::post('release_loan/{loan}', 'Api\V1\LoanController@release_loan');
         });
         Route::group([

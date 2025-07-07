@@ -94,8 +94,8 @@
               <span :class="searching.city_loan? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
-            <template v-slot:[`header.name_role_loan`]="{ header }">
-              <span :class="searching.name_role_loan? 'primary--text' : ''">{{ header.text }}</span>
+            <template v-slot:[`header.name_state_loan`]="{ header }">
+              <span :class="searching.name_state_loan? 'primary--text' : ''">{{ header.text }}</span>
             </template>
 
             <template v-slot:[`header.user_loan`]="{ header }">
@@ -178,6 +178,49 @@
                   <span>Liberar usuario del trámite</span>
                 </v-tooltip>
 
+                <v-dialog
+                  v-model="dialog_regenerate_plan"
+                  max-width="500">
+                    <v-card>
+                    <v-card-title>
+                      Esta seguro de regenerar el plan de pagos?
+                    </v-card-title>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialog_regenerate_plan = false"
+                      >
+                        Cancelar
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click.stop="RegenerateLoanPlan(item.id_loan, item.code_loan)"
+                      >
+                        Aceptar
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+
+                <v-tooltip bottom v-if="permissionSimpleSelected.includes('regenerate-plan-payment-loans')">
+                  <template v-slot:activator="{ on }" >
+                    <v-btn
+                      v-show="item.disbursement_date_loan != null"
+                      icon
+                      small
+                      v-on="on"
+                      color="error"
+                      @click.stop="dialog_regenerate_plan=true"
+                    >
+                      <v-icon>mdi-autorenew</v-icon>
+                    </v-btn>
+                  </template>
+                  <span>regenerar plan de pagos</span>
+                </v-tooltip>
+
                 <v-menu offset-y close-on-content-click>
                   <template v-slot:activator="{ on }">
                     <v-btn icon color="primary" dark v-on="on">
@@ -201,7 +244,7 @@
             <template slot="body.prepend">
               <tr v-if="show_filter">
                   <td><v-text-field placeholder="Dpto." spellcheck="false" class="filter-text" v-model="searching.city_loan" @keydown.enter="search_loans()"></v-text-field></td>
-                  <td><v-text-field placeholder="Área" spellcheck="false" class="filter-text" v-model="searching.name_role_loan" @keydown.enter="search_loans()"></v-text-field></td>
+                  <td><v-text-field placeholder="Área" spellcheck="false" class="filter-text" v-model="searching.name_state_loan" @keydown.enter="search_loans()"></v-text-field></td>
                   <td><v-text-field placeholder="Usuario" spellcheck="false" class="filter-text" v-model="searching.user_loan" @keydown.enter="search_loans()"></v-text-field></td>
                   <td><v-text-field placeholder="Cod. Préstamo" spellcheck="false" class="filter-text" v-model="searching.code_loan" @keydown.enter="search_loans()"></v-text-field></td>
                   <td><v-text-field placeholder="C.I." spellcheck="false" class="filter-text" v-model="searching.identity_card_borrower" @keydown.enter="search_loans()"></v-text-field></td>
@@ -231,7 +274,7 @@ export default {
     return {
       searching: {
         city_loan:"",
-        name_role_loan:"",
+        name_state_loan:"",
         user_loan:"",
         code_loan: "",
         identity_card_borrower: "",
@@ -240,9 +283,10 @@ export default {
         shortened_sub_modality_loan: "",
         state_loan: "",
       },
+      dialog_regenerate_plan:false,
       headers: [
         { text: 'Dpto', value: 'city_loan',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '10%', sortable: false},
-        { text: 'Área', value: 'name_role_loan',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
+        { text: 'Área', value: 'name_state_loan',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
         { text: 'Usuario',value:'user_loan',input:'', menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
         { text: 'Cód. Préstamo', value: 'code_loan',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '15%',sortable: true},
         { text: 'CI Prestatario', value: 'identity_card_borrower',input:'' , menu:false,type:"text",class: ['normal', 'white--text','text-md-center'],width: '5%',sortable: false},
@@ -317,7 +361,7 @@ export default {
         let res = await axios.get(`loan_tracking`, {
           params: {
             city_loan:this.searching.city_loan,
-            name_role_loan:this.searching.name_role_loan,
+            name_state_loan:this.searching.name_state_loan,
             user_loan:this.searching.user_loan,
             code_loan: this.searching.code_loan,
             identity_card_borrower: this.searching.identity_card_borrower,
@@ -356,7 +400,7 @@ export default {
         data: this.datos,
         params: {
             city_loan:this.searching.city_loan,
-            name_role_loan:this.searching.name_role_loan,
+            name_state_loan:this.searching.name_state_loan,
             user_loan:this.searching.user_loan,
             code_loan: this.searching.code_loan,
             identity_card_borrower: this.searching.identity_card_borrower,
@@ -386,7 +430,7 @@ export default {
 
     clearAll() {
       this.searching.city_loan = "",
-      this.searching.name_role_loan = "",
+      this.searching.name_state_loan = "",
       this.searching.user_loan = "",
       this.searching.code_loan = "",
       this.searching.identity_card_borrower = "",
@@ -451,6 +495,27 @@ export default {
       } catch (e) {
         console.log(e)
         this.toastr.error("Ocurrió un error en la liberación del trámite...")
+        this.loading_table = false
+      }
+      this.loading_table = false
+    },
+    async RegenerateLoanPlan(id_loan, code_loan){
+      try {
+        this.dialog_regenerate_plan = false
+          this.loading_table = true
+            let res = await axios.post(`regenerate_plan/${id_loan}`);
+            this.refreshKardexTable++
+            this.toastr.success("Se regenero el plan de pagos del tramite "+ code_loan )
+            let res2 = await axios.get(`loan/${id_loan}/print/plan`)
+            printJS({
+              printable: res2.data.content,
+              type: res2.data.type,
+              file_name: res2.data.file_name,
+              base64: true
+            })
+      } catch (e) {
+        console.log(e)
+        this.toastr.error("Ocurrió un error en la reimpresion del trámite...")
         this.loading_table = false
       }
       this.loading_table = false

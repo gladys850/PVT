@@ -17,6 +17,8 @@ use App\Tag;
 use App\LoanState;
 use App\LoanPaymentState;
 use App\RecordType;
+use App\Workflow;
+use App\WfSequence;
 use App\ProcedureDocument;
 use App\ProcedureModality;
 use App\PaymentType;
@@ -56,6 +58,7 @@ use App\LoanProcedure;
 use App\Jobs\ProcessNotificationSMS;
 use App\LoanGuaranteeRetirementFund;
 use App\Observation;
+use App\WfState;
 
 /** @group Préstamos
 * Datos de los trámites de préstamos y sus relaciones
@@ -77,6 +80,7 @@ class LoanController extends Controller
         $loan->user = $loan->user;
         $loan->city = $loan->city;
         $loan->observations = $loan->observations->last();
+        $loan->procedure_modality = $loan->modality;
         $loan->modality=$loan->modality->procedure_type;
         $loan->tags = $loan->tags;
         $loan->affiliate = $loan->affiliate;
@@ -152,14 +156,15 @@ class LoanController extends Controller
             if(!Auth::user()->can('show-all-loan')){
                 if($request->has('trashed') && !Auth::user()->can('show-deleted-loan')) abort(403);
             }
+            $wf_states_id = Role::find($request->role_id)->wf_states_id;
             $filters = [
-                'role_id' => $request->role_id
+                'wf_states_id' => $wf_states_id
             ];
         }
         if ($request->has('validated')) $filters['validated'] = $request->boolean('validated');
-        if ($request->has('procedure_type_id')) {
+        if ($request->has('workflow_id')) {
             $relations['modality'] = [
-                'procedure_type_id' => $request->procedure_type_id
+                'workflow_id' => $request->workflow_id
             ];
         }
         if ($request->has('affiliate_id')) {
@@ -283,10 +288,7 @@ class LoanController extends Controller
             return $query->whereName('prestamos');
         })->pluck('id');
         $procedure_modality = ProcedureModality::findOrFail($request->procedure_modality_id);
-        $request->merge([
-            'role_id' => $procedure_modality->procedure_type->workflow->pluck('role_id')->intersect($roles)->first()
-        ]);
-        if (!$request->role_id) abort(403, 'Debe crear un flujo de trabajo');
+        if (!$request->wf_states_id) abort(403, 'Debe crear un flujo de trabajo');
         // Guardar préstamo
         if(count(Affiliate::find($request->lenders[0]['affiliate_id'])->process_loans) >= LoanGlobalParameter::first()->max_loans_process && $request->remake_loan_id == null) abort(403, 'El afiliado ya tiene un préstamo en proceso');
         $saved = $this->save_loan($request);
@@ -473,9 +475,10 @@ class LoanController extends Controller
     * @responseFile responses/loan/update.200.json
     */
     public function update(LoanForm $request, Loan $loan)
-    {   DB::beginTransaction();
+    {
+        DB::beginTransaction();
         try {
-        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+        if (!$this->can_user_loan_action($loan, $request->current_role_id)) abort(409, "El tramite no esta disponible para su rol");
         $request['validate'] = false;
          if($request->date_signal == true || ($request->date_signal == false && $request->has('disbursement_date') && $request->disbursement_date != NULL)){
             $state_id = LoanState::whereName('Vigente')->first()->id;
@@ -514,7 +517,7 @@ class LoanController extends Controller
                         $fund_rotatory_output = MovementFundRotatory::whereLoanId($loan->id)->first();
                         if(!isset($fund_rotatory_output)){
                             if($fund_rotatory->balance >= $loan->amount_approved){
-                                MovementFundRotatory::register_advance_fund($loan->id,$loan->role_id,$moviment_concept_disbursement_id);
+                                MovementFundRotatory::register_advance_fund($loan->id,$request->current_role_id,$moviment_concept_disbursement_id);
                                 $authorized_disbursement = true;   
                             }else{ 
                                 return abort(409, "Para poder realizar el desembolso el saldo existente en el fondo rotatorio debe ser mayor o igual a ".$loan->amount_approved);
@@ -536,6 +539,16 @@ class LoanController extends Controller
                     $this->get_plan_payments($loan, $loan['disbursement_date']);
                     $loan_id = $loan->id;
                     $cell_phone_number = $loan->affiliate->cell_phone_number;
+					if(!is_null($cell_phone_number) && $cell_phone_number !== '') {
+                        $cell_phone_number = explode(",",Util::remove_special_char($cell_phone_number))[0];//primer numero
+                        if($loan->city_id === 4) {
+                            $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS PASADO LOS 5 DIAS HABILES POR EL AREA LEGAL.";
+                        } else {
+                            $message = "MUSERPOL%0aLE INFORMA QUE SU PRESTAMO FUE ABONADO A SU CUENTA, FAVOR RECOGER SU CONTRATO Y PLAN DE PAGOS PASADO LOS 10 DIAS HABILES POR LA REGIONAL.";
+                        }
+                        $notification_type = 4; // Tipo de notificación: 4 (Desembolso de préstamo)
+                        ProcessNotificationSMS::dispatch($cell_phone_number, $message, $loan_id, Auth::user()->id, $notification_type);
+                    }
                 }
             }else{
                 if($request->date_signal == false){
@@ -599,9 +612,9 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/destroy.200.json
     */
-    public function destroy(Loan $loan)
+    public function destroy(Loan $loan, request $request)
     {
-        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+        if (!$this->can_user_loan_action($loan, $request->current_role_id)) abort(409, "El tramite no esta disponible para su rol");
         $state = LoanState::whereName('Anulado')->first();
         $loan->state()->associate($state);
         $loan->save();
@@ -617,11 +630,11 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/destroy.200.json
     */
-    public function destroy_advance(Loan $loan)
+    public function destroy_advance(Loan $loan, request $request)
     {
         try {
             DB::beginTransaction();
-            if (!$this->can_user_loan_action($loan)  && $loan->modality->procedure_type->second_name != 'Anticipo') 
+            if (!$this->can_user_loan_action($loan, $request->data['current_role_id'])  && $loan->modality->procedure_type->second_name != 'Anticipo') 
                 abort(409, "El tramite no esta disponible para su rol o no es un prestamo de tipo anticipo");
             $state = LoanState::whereName('Anulado')->first();
             $loan->state()->associate($state);
@@ -1392,7 +1405,9 @@ class LoanController extends Controller
        $information_loan= $this->get_information_loan($loan);
        $file_name =implode('_', ['calificación', $procedure_modality->shortened, $loan->code]) . '.pdf'; 
        $view = view()->make('loan.forms.qualification_form')->with($data)->render();
-       if ($standalone) return  Util::pdf_to_base64([$view], $file_name, $information_loan, 'legal', $request->copies ?? 1);  
+       $portrait = true;//impresion horizontal
+       $print_date = false;//modo retrato e impresion de la fecha en el formulario de calificación
+       if ($standalone) return  Util::pdf_to_base64([$view], $file_name, $information_loan, 'legal', $request->copies ?? 1, $portrait, $print_date);  
        return $view; 
    }
 
@@ -1417,27 +1432,38 @@ class LoanController extends Controller
     */
     public function get_flow(Loan $loan)
     {
-        $records = $loan->records;
-        $previous_user = [];
-        $user = '';
-        $record = response()->json(RoleSequence::flow($loan->modality->procedure_type->id, $loan->role_id));
-        $previous = $record->getData()->previous;
-        $next = $record->getData()->next;
-        foreach($previous as $prev){
-            $user = Record::whereRole_id($prev)->whereRecord_type_id(3)->whereRecordable_id($loan->id)->first();
-            if($user)
-                array_push($previous_user, $user->user_id);
-            else
-                array_push($previous_user, '');
+        $currentWfState = $loan->currentState;
+        $workflow = $loan->modality->workflow;
+        // Obtener los estados anterior y siguiente desde wf_sequences
+        $previousStates = WfSequence::where('workflow_id', $workflow->id)
+            ->where('wf_state_next_id', $currentWfState->id)
+            ->pluck('wf_state_current_id')
+            ->toArray();
+
+        $nextStates = WfSequence::where('workflow_id', $workflow->id)
+            ->where('wf_state_current_id', $currentWfState->id)
+                ->pluck('wf_state_next_id')
+                ->toArray();
+
+        // Obtener los usuarios de los estados anteriores
+        $previousUsers = [];
+        foreach ($previousStates as $prev) {
+            $user = Record::whereIn('role_id', WfState::find($prev)->roles->pluck('id'))
+                ->where('record_type_id', 3)
+                ->where('recordable_id', $loan->id)
+                ->first();
+
+            $previousUsers[] = $user ? $user->user_id : '';
         }
-        $data = [
-            "current" => $loan->role_id,
-            "previous" => $previous,
-            "previous_user" => $previous_user,
-            "next" => $next,
-            "next_user" => $next // por implementar si se solicita
-        ];
-        return $data;
+
+        // Retornar los datos estructurados
+        return response()->json([
+            "current" => $loan->wf_states_id,
+            "previous" => $previousStates,
+            "previous_user" => $previousUsers,
+            "next" => $nextStates,
+            "next_user" => [] // Se puede implementar si es necesario
+        ]);
     }
 
     /** @group Cobranzas
@@ -1481,7 +1507,7 @@ class LoanController extends Controller
     public function set_payment(LoanPaymentForm $request, Loan $loan)
     {
         if($loan->balance!=0){
-            if(strpos($loan->modality->name, 'Estacional'))
+            if (strpos($loan->modality->name, 'Estacional') !== false)
                 $payment = $loan->next_payment_season($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
             else
                 $payment = $loan->next_payment2($request->input('affiliate_id'), $request->input('estimated_date', null), $request->input('paid_by'), $request->input('procedure_modality_id'), $request->input('estimated_quota', null), $request->input('liquidate', false));
@@ -1495,7 +1521,7 @@ class LoanController extends Controller
             }
             else
                 $payment->state_id = LoanPaymentState::whereName('Pendiente por confirmar')->first()->id;
-            $payment->role_id = Role::whereName('PRE-cobranzas')->first()->id;
+            $payment->wf_states_id = Role::find($request->role_id)->wf_states_id;
             if($request->has('procedure_modality_id')){
                 $modality = ProcedureModality::findOrFail($request->procedure_modality_id)->procedure_type;
                 if($modality->name == "Amortización en Efectivo" || $modality->name == "Amortización cor Deposito en Cuenta") $payment->validated = true;
@@ -1671,7 +1697,7 @@ class LoanController extends Controller
     * @authenticated
     * @responseFile responses/loan/bulk_update_role.200.json
     */
-    public function bulk_update_role(LoansForm $request)
+    public function bulk_update_state(LoansForm $request)
     {
         if(!$request->user_id) 
             $user_id = null;
@@ -1679,70 +1705,77 @@ class LoanController extends Controller
             $user_id = $request->user_id;
         $sequence = null;
         $from_role = $request->current_role_id;
-        $to_role = $request->role_id;
-        $loans = Loan::whereIn('id', $request->ids)->where('role_id', '!=', $request->role_id)->orderBy('code');
-        $derived = $loans->get();
-        $to_role = Role::whereId($to_role)->first();
-        if (count(array_unique($loans->pluck('role_id')->toArray()))) $from_role = $derived->first()->role_id;
-        if ($from_role) {
-            $from_role = Role::whereId($from_role)->first();
-            $flow_message = $this->flow_message($derived->first()->modality->procedure_type->id, $from_role, $to_role);
-        }
-        $derived->map(function ($item, $key) use ($from_role, $to_role, $flow_message) {
-            if (!$from_role) {
-                $item['from_role_id'] = $item['role_id'];
-                $from_role = Role::find($item['role_id']);
-                $flow_message = $this->flow_message($item->modality->procedure_type->id, $from_role, $to_role);
+        $to_state = WfState::find($request->next_state_id);
+        $loans_pre = Loan::whereIn('id', $request->ids)->where('wf_states_id', '!=', $to_state->id)->orderBy('code')->get();
+        if (count(array_unique($loans_pre->pluck('wf_states_id')->toArray()))) 
+            $from_state = WfState::find($loans_pre->first()->wf_states_id);
+        if ($from_state)
+            $flow_message = $this->flow_message($loans_pre->first()->modality->workflow->id, $from_state, $to_state);
+        $loans_pre->map(function ($item, $key) use ($from_state, $to_state, $flow_message) {
+            if (!$from_state) {
+                $item['from_state_id'] = $item['state_id'];
+                $from_state = Role::find($item['role_id'])->wf_state;
+                $flow_message = $this->flow_message($item->modality->workflow->id, $from_role, $to_role);
             }
-            $item['role_id'] = $from_role->id;
+            $item['state_id'] = $from_state->id;
             $item['validated'] = false;
 
             Util::save_record($item, $flow_message['type'], $flow_message['message']);
         });
-        $loans->update(array_merge($request->only('role_id'), ['validated' => false], ['user_id' => $user_id]));
-        $derived->transform(function ($loan) {
+        //$loans->update(array_merge($request->only('next_state_id'), ['validated' => false], ['user_id' => $user_id]));
+        $loans = Loan::whereIn('id', $request->ids)->where('wf_states_id', '!=', $to_state->id)->update([
+            'wf_states_id' => $request->next_state_id, 
+            'validated' => false, 
+            'user_id' => $user_id
+        ]);
+        $loans_pre->transform(function ($loan) {
             return self::append_data($loan, false);
         });
-        event(new LoanFlowEvent($derived));
+        event(new LoanFlowEvent($loans_pre));
         // PDF template
         $data = [
             'type' => 'loan',
             'header' => [
                 'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
-                'unity' => 'Área de ' . $from_role->display_name,
+                'unity' => 'Área de ' . $from_state->name,
                 'table' => [
                     ['Fecha', Carbon::now()->isoFormat('L')],
                     ['Hora', Carbon::now()->format('H:i')],
                     ['Usuario', Auth::user()->username]
                 ]
             ],
-            'title' => ($flow_message['type'] == 'derivacion' ? 'DERIVACIÓN' : 'DEVOLUCIÓN') . ' DE TRÁMITES - MODALIDAD ' . $derived->first()->modality->second_name,
-            'procedures' => $derived,
-            'roles' => [
-                'from' => $from_role,
-                'to' => $to_role
+            'title' => ($flow_message['type'] == 'derivacion' ? 'DERIVACIÓN' : 'DEVOLUCIÓN') . ' DE TRÁMITES',
+            'procedures' => $loans_pre,
+            'states' => [
+                'from' => $from_state,
+                'to' => $to_state
             ]
         ];
-        $information_derivation='Fecha: '.Str::slug(Carbon::now()->isoFormat('LLL'), ' ').'  enviado a  '.$from_role->display_name;
+        $information_derivation='Fecha: '.Str::slug(Carbon::now()->isoFormat('LLL'), ' ').'  enviado a  '.$from_state->name;
         $file_name = implode('_', ['derivacion', 'prestamos', Str::slug(Carbon::now()->isoFormat('LLL'), '_')]) . '.pdf';
         $view = view()->make('flow.bulk_flow_procedures')->with($data)->render();
         return response()->json([
             'attachment' => Util::pdf_to_base64([$view], $file_name,$information_derivation, 'letter', $request->copies ?? 1, false),
-            'derived' => $derived
+            'derived' => $loans_pre
         ]);
     }
 
-    private function flow_message($procedure_type_id, $from_role, $to_role)
+    private function flow_message($workflow, $from_state, $to_state)
     {
-        $sequence = RoleSequence::flow($procedure_type_id, $from_role->id);
-        if (in_array($to_role->id, $sequence->next->all())) {
+        $sequences = WfSequence::where('workflow_id', $workflow)
+            ->where('wf_state_current_id', $from_state->id)
+            ->get();
+        $next_states = $sequences->pluck('wf_state_next_id')->toArray();
+        if (in_array($to_state->id, $next_states)) {
             $message = 'derivó';
             $type = 'derivacion';
         } else {
             $message = 'devolvió';
             $type = 'devolucion';
         }
-        $message .= ' de ' . $from_role->display_name . ' a ' . $to_role->display_name;
+
+        $message .= ' de ' . $from_state->name . ' a ' . $to_state->name;
+
         return [
             'message' => $message,
             'type' => $type
@@ -1866,7 +1899,7 @@ class LoanController extends Controller
                         ->where('ot.module_id', '=', $module_id)
                         ->where('observable_type', '=', 'affiliates')
                         ->where('observable_id', '=', $affiliate_id)
-                        ->where('type', 'ilike', '%A%')
+                        ->whereIn('id', [2,60])
                         ->get();
         $loan_global_parameter = LoanProcedure::where('is_enable', true)->first()->loan_global_parameter;
         $loan_disbursement = count($affiliate->disbursement_loans);
@@ -1981,56 +2014,23 @@ class LoanController extends Controller
     * @bodyParam type string required tipo de entrada "refinancing" ó "reprogramming" para diferenciar entre refinanciamiento o reprogramación Example: refinancing
     * @authenticated
     */
-    public function procedure_brother(Request $request){
-       
-        $procedure_modality_id = $request->reference_modality_id;
+    public function procedure_ref_rep(Request $request)
+    {
+        $request->validate([
+            'loan_id'=>'required|integer|exists:loans,id',
+            'type'=>'required|string|in:REF,REP',
+           ]);
         $type = $request->type;
-
-        $a = 'procedure_modality_id'; //columna id submodalidad referencia
-        $b = 'refinancing';           //columna id submodalidead de refinanciamiento de la submodalidad de referencia
-        $c = 'reprogramming';         //columna id submodalidead de reprogramación de la submodalidad de referencia
-
-        $data_references = collect([        //PRESTAMO REFERENCIA
-            [$a => 36, $b => 40, $c =>73],  //Corto Plazo Sector Activo
-            [$a => 37, $b => 66, $c =>74],  //Corto Plazo en Disponibilidad
-            [$a => 39, $b => 42, $c =>76],  //Corto Plazo Sector Pasivo SENASIR
-            [$a => 68, $b => 69, $c =>75],  //Corto Plazo Sector Pasivo Gestora Pública
-            [$a => 40, $b => 40, $c =>77],  //Refinanciamiento de Préstamo a Corto Plazo Sector Activo
-            [$a => 66, $b => 66, $c =>78],  //Refinanciamiento de Préstamo a Corto Plazo en Disponibilidad
-            [$a => 42, $b => 42, $c =>80],  //Refinanciamiento de Préstamo a Corto Plazo Sector Pasivo SENASIR
-            [$a => 69, $b => 69, $c =>79],  //Refinanciamiento de Préstamo a Corto Plazo sector Pasivo Gestora Pública
-            [$a => 81, $b => 82, $c =>83],  //Largo Plazo con Garantía Personal Sector Activo con un Garante
-            [$a => 43, $b => 47, $c =>84],  //Largo Plazo con Garantía Personal Sector Activo con dos Garantes
-            [$a => 46, $b => 50, $c =>85],  //Largo Plazo con Pago Oportuno
-            [$a => 45, $b => 49, $c =>87],  //Largo Plazo con Garantía Personal Sector Pasivo SENASIR
-            [$a => 70, $b => 71, $c =>86],  //Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
-            [$a => 97, $b => 0, $c =>0],    //Largo Plazo con Garantía Personal en Disponibilidad con un Garante
-            [$a => 65, $b => 0, $c =>0],    //Largo Plazo con Garantía Personal en Disponibilidad con dos Garantes
-            [$a => 82, $b => 82, $c =>88],  //Refinanciamiento de Préstamo con Largo Plazo con Garantía Personal Sector Activo con un Garante
-            [$a => 47, $b => 47, $c =>89],  //Refinanciamiento de Préstamo con Largo Plazo con Garantía Personal Sector Activo con dos Garantes
-            [$a => 50, $b => 50, $c =>90],  //Refinanciamiento Largo Plazo con Largo Plazo con Pago Oportuno
-            [$a => 49, $b => 49, $c =>92],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo SENASIR
-            [$a => 71, $b => 71, $c =>91],  //Refinanciamiento de Préstamo a Largo Plazo con Garantía Personal Sector Pasivo Gestora Pública
-            [$a => 44, $b => 71, $c =>0],  //Largo Plazo con Garantía Personal Sector Pasivo AFP a GESTORA
-            [$a => 48, $b => 71, $c =>0],  //RRefinanciamiento de Préstamo a Largo Plazo Sector Pasivo AFP A GESTORA
-        ]);
-
-        $reference = $data_references->first(function ($item) use ($procedure_modality_id, $a) {    //Busca la la submodalidad, su refiannciamiento y reprogramación
-            return $item[$a] === $procedure_modality_id;
-        });
-
-        if (!$reference)                    //si no encuentra la submodalidad
-            abort(403, 'Esta submodalidad no admite refinanciamiento ni reprogramación');
-
-        if ($reference[$type] === 0)        //verifica si tiene refinanciamiento o reprogramación
-            abort(403, 'Esta submodalidad no admite ' . ($type === 'refinancing' ? 'refinanciamiento' : 'reprogramaciones'));
-        
-        $sub_modalities_and_parameters = [];
-        $sub_modality = ProcedureModality::findOrFail($reference[$type]); //Obtiene la submodalidad requerida de refinanciamiento o reprogramaci
-        $sub_modality->loan_modality_parameter = $sub_modality->loan_modality_parameter;  //Obtiene sus parametros
-        $sub_modality->procedure_type;                                                    //Obtiene el modulo al que pertenece
-        $sub_modalities_and_parameters[] = $sub_modality;
-        return  $sub_modalities_and_parameters;
+        if($request->type == 'REF')
+            $modality = Loan::find($request->loan_id)->modality->loan_modality_parameter->refinancing_modality;
+        elseif($request->type == 'REP')
+            $modality = Loan::find($request->loan_id)->modality->loan_modality_parameter->reprogramming_modality;
+        if(!$modality)
+            abort(403, 'No se permite para esta modalidad');
+        $modality->loan_modality_parameter = $modality->loan_modality_parameter;
+        $modality->procedure_type = $modality->procedure_type;
+        $modalities_and_parameters[] = $modality;
+        return $modalities_and_parameters;
     }
 
     public function get_balance_sismu($ci){
@@ -2123,8 +2123,8 @@ class LoanController extends Controller
    * @authenticated
    * @responseFile responses/loan/update_refinancing_balance.200.json
    */
-    public function update_balance_refinancing(Loan $loan){
-        if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+    public function update_balance_refinancing(Loan $loan, request $request){
+        if (!$this->can_user_loan_action($loan, $request->current_role_id)) abort(409, "El tramite no esta disponible para su rol");
         $balance_parent = 0;
         if($loan->data_loan){
             $balance_parent=$loan->balance_parent_refi();
@@ -2388,11 +2388,16 @@ class LoanController extends Controller
                                 $date_fin = Carbon::parse($date_ini)->endOfMonth();
                                 $days = $date_fin->diffInDays($date_ini);
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator);
-                                $capital = $estimated_quota - $interest;
-                                if($loan->term == 1)
-                                    $payment = $loan->balance + $interest;
-                                else
+                                if($loan->loan_term == 1)
+                                {
+                                    $capital = $balance;
                                     $payment = $capital + $interest;
+                                }
+                                else
+                                {
+                                    $capital = $estimated_quota - $interest;
+                                    $payment = $capital + $interest;
+                                }
                             }
                             else{
                                 $date_ini = Carbon::parse($loan->disbursement_date)->startOfDay()->format('d');
@@ -2403,8 +2408,10 @@ class LoanController extends Controller
                                 $date_fin = Carbon::parse($loan->disbursement_date)->startOfMonth()->addMonth()->endOfMonth()->endOfDay();
                                 $days = Carbon::parse($loan->disbursement_date)->diffInDays($date_fin);
                                 $interest = LoanPayment::interest_by_days($days, $loan->interest->annual_interest, $balance, $loan->loan_procedure->loan_global_parameter->denominator, $loan->loan_procedure->loan_global_parameter->denominator);
-                                if($loan->loan_term == 1)
-                                    $payment = $loan->balance + $interest;
+                                if($loan->loan_term == 1){
+                                    $capital = $balance;
+                                    $payment = $capital + $interest;
+                                }
                                 $capital = $payment - $interest;
                             }
                         }
@@ -2502,7 +2509,7 @@ class LoanController extends Controller
             'financial_entity_id'=>'required|integer|exists:financial_entities,id',
             ]);
             $loan = Loan::find($request->loan_id);
-            if (!$this->can_user_loan_action($loan)) abort(409, "El tramite no esta disponible para su rol");
+            if (!$this->can_user_loan_action($loan, $request->current_role_id)) abort(409, "El tramite no esta disponible para su rol");
                 $loan->number_payment_type = $request->number_payment_type;
                 $loan->financial_entity_id = $request->financial_entity_id;
             $loan->save();
@@ -2579,14 +2586,9 @@ class LoanController extends Controller
     }
 
     //verifica si el usuario puede realizar acciones sobre el prestamo con su rol
-    public function can_user_loan_action(Loan $loan){
-        $user = Auth::user();
-        $user_roles = Auth::user()->roles->pluck('id')->toArray();
-        if (in_array($loan->role_id, $user_roles)) {
-            return true;
-        } else {
-            return false;
-        }
+    public function can_user_loan_action(Loan $loan, $role_id) {
+        $wf_states_roles = $loan->currentState->roles->pluck('id')->toArray();
+        return in_array($role_id, $wf_states_roles);
     }
 
     //
@@ -2619,5 +2621,95 @@ class LoanController extends Controller
             'message' => $message,
             'type' => $status
         ];   
+    }
+
+    public function regenerate_plan(Loan $loan)
+    {
+        try{
+            DB::beginTransaction();
+            $this->get_plan_payments($loan);
+            Util::save_record($loan, 'datos-de-un-tramite', Util::concat_action($loan,'regenero plan de pagos'));
+            DB::commit();
+            return $loan->loan_plan;
+        }catch (\Exception $e){
+            DB::rollback();
+            return response()->json(['error'=>'No se pudo regenerar el plan de pagos'],409);
+        }
+    }
+
+    public function get_value_no_debt_certification($affiliate_id)
+    {
+        $count_loans = Loan::where('affiliate_id', $affiliate_id)->where('state_id', 3)->count();
+        
+        if($count_loans == 0)
+        {
+            $date_first_loan_pvt = Carbon::parse(Loan::min('created_at'))->toDateString();
+
+            $date_first_contribution = Affiliate::join('contributions', 'contributions.affiliate_id', '=', 'affiliates.id')
+                ->where('affiliates.id', $affiliate_id)
+                ->orderBy('contributions.month_year', 'asc')
+                ->value('contributions.month_year');
+
+            $date_entry = Affiliate::find($affiliate_id)->date_entry;
+
+            if($date_entry >= $date_first_loan_pvt && $date_first_contribution >= $date_entry)
+            {
+                $value = 'NO ADEUDO';
+            }else{
+                $value = 'REVISAR BASE DE DATOS';
+            }
+        }else{
+            $value = 'REGISTRA DEUDAS';
+        }
+        return $value;
+    }
+
+    public function no_debt_certification(Request $request, Affiliate $affiliate, $standalone = true)
+    {
+        $file_title = implode('_', ['CERT','NO','ADEUDO', $affiliate->id, Carbon::now()->format('m/d')]);
+       
+        $data = [
+            'header' => [
+                'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',
+                'unity' => 'UNIDAD DE INVERSIÓN EN PRÉSTAMOS',
+                'table' => [
+                    ['Fecha', Carbon::now()->format('d/m/Y')],
+                    ['Hora', Carbon::now()->format('H:i')],
+                    ['Usuario', Auth::user()->username]
+                ]
+            ],
+            'institution' => 'Mutual de Servicios al Policía "MUSERPOL"',
+            'title' => 'CERTIFICADO DE NO ADEUDO',
+            'affiliate' => $affiliate,
+            'id_affiliate' => $affiliate->id,
+            'user' => Auth::user(),
+            'code' => $request->code,
+            'value' =>  $this->get_value_no_debt_certification($affiliate->id),
+            'file_title' => $file_title
+        ];
+       
+        $file_name = implode('_', ['no_debt_certification', $affiliate->id]) . '.pdf';
+        $view = view()->make('loan.certification.no_debt_certification')->with($data)->render();
+        if ($standalone) return Util::pdf_to_base64([$view], $file_name, $affiliate,'letter', $request->copies ?? 1);
+        return $view;
+    }
+
+    public function generate_plans()
+    {
+        try{
+            $loans = Loan::whereNotNull('disbursement_date')->get();
+            $c=0;
+            foreach($loans as $loan)
+            {
+                if($loan->loan_plan->count() == 0)
+                {
+                    $this->get_plan_payments($loan, $loan->disbursement_date);
+                    $c++;
+                }
+            }
+            return $c;
+        }catch(\Exception $e){
+            return $e;
+        }
     }
 }

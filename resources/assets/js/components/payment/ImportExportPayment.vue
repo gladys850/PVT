@@ -16,6 +16,9 @@
                   <v-btn value="SENASIR">
                     Senasir
                   </v-btn>
+                  <v-btn value="ESTACIONAL">
+                    Beneficios
+                  </v-btn>
                 </v-btn-toggle>
                 <v-select
                   :items="year"
@@ -52,15 +55,37 @@
         </v-toolbar>
       </v-card>
       <v-row justify="center" class="py-0 mt-2">
-          <v-card class="headline font-weight-bold ma-2" max-width="200px"  v-for="(item, i) in month" :key="i">
+          <v-card class="headline font-weight-bold ma-2 blue-grey lighten-5" max-width="200px"  v-for="(item, i) in month" :key="i">
             <v-card-title class="teal text-center">
               <v-row justify="center"> <h3 class="white--text"> {{meses[item.month - 1]}}</h3></v-row>
             </v-card-title>
             <v-progress-linear color="white"></v-progress-linear>          
             <v-card-text class="blue-grey lighten-5">
               <v-row v-if="period_type==='COMANDO'">
-                <v-col cols="12" md="12" class="py-0">
-                  <b>Comando <v-icon small>mdi-city</v-icon></b>
+                <v-col cols="12" md="8" class="py-0">
+                  <b>Comando <v-icon small>mdi-file-import</v-icon></b>
+                </v-col>
+                <v-col cols="12" md="4" class="py-0">
+                  <v-tooltip top v-if="period_type==='COMANDO'" class="my-0">
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    :disabled="!item.importation"
+                    x-small
+                    :color="'primary'"
+                    fab
+                    dark
+                    v-on="on"
+                    :v-model="report_button_command[i]"
+                    :loading="report_loading_command[i]"
+                    @click.stop="reporteComandoSenasir(item.id,'C', i)"
+                  >
+                    <v-icon>mdi-file-document</v-icon>
+                  </v-btn>
+                </template>
+                <div>
+                  <span>Reporte Pago Comando</span>
+                </div>
+              </v-tooltip>
                 </v-col>
                  <v-divider inset></v-divider>
                 <v-col cols="12" md="12" class="py-0">
@@ -95,6 +120,9 @@
                         <span>Importación Comando</span>
                       </div>
                     </v-tooltip>           
+                </v-col>
+                <v-col v-if="item.importation_quantity != null">
+                  <span class="info--text">N° reg. copiados: </span><strong>{{item.importation_quantity | quantity}}</strong><br>
                 </v-col>
               </v-row>
               <v-row v-if="period_type==='SENASIR'">
@@ -136,11 +164,123 @@
                     </v-tooltip>
                 </v-col>
               </v-row>
+              <v-row v-if="period_type==='ESTACIONAL'">
+                <v-col cols="12" md="12" class="py-0">
+                  <b>Estacional <v-icon small>mdi-home-analytics</v-icon></b>
+                </v-col>
+                <v-divider inset></v-divider>
+                <v-col cols="12" md="12" class="py-0">
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on}">
+                        <v-btn
+                          class="ma-2 teal white--text btn-period"
+                          v-on="on"
+                          :loading="loading_ss && i == l_index"
+                          :disabled="item.importation"
+                          @click.stop="l_index = i;solicitudEstacional('E', item.id,meses[item.month - 1])"
+                        >
+                          <v-icon  dark left small>mdi-arrow-down</v-icon>Solicitud
+                        </v-btn>
+                      </template>
+                      <div>
+                        <span>Solicitud Estacional</span>
+                      </div>
+                    </v-tooltip>
+                    <v-tooltip top>
+                    <template v-slot:activator="{ on}">
+                      <v-btn
+                        class="ma-2 info white--text btn-period"
+                        v-on="on"
+                        :disabled="item.importation"
+                         @click.stop="importacionEstacional(item.month, item.id)"
+                      >
+                        <v-icon dark left small>mdi-arrow-up</v-icon>Importación
+                      </v-btn>
+                    </template>
+                    <div>
+                      <span>Importación Estacional</span>
+                    </div>
+                    </v-tooltip>
+                </v-col>
+              </v-row>
             </v-card-text>
-            <v-progress-linear color="white"></v-progress-linear>
+            <v-progress-linear color="white" :style="{ height: period_type === 'COMANDO' ? '5px' : '2px' }"></v-progress-linear>
+            <v-card-text v-if="period_type==='COMANDO'" class="blue-grey lighten-5" >
+              <v-row >
+                <v-col cols="12" md="8" class="py-0">
+                  <b>Adicional <v-icon small>mdi-file-plus</v-icon></b>
+                </v-col>
+                <v-col cols="12" md="4" class="py-0">
+                  <v-tooltip top v-if="period_type==='COMANDO' && item.additional_importation" class="my-0">
+                  <template v-slot:activator="{ on }">
+                  <v-btn
+                    :disabled="!(item.additional_importation && item.importation)" 
+                    x-small
+                    :color="'success'"
+                    fab
+                    dark
+                    v-on="on"
+                    :v-model="report_button_command_additional[i]"
+                    :loading="report_loading_command_additional[i]"
+                    @click.stop="reporteComandoSenasir(item.id,'AD', i)"
+                  >
+                    <v-icon>mdi-file-document</v-icon>
+                  </v-btn>
+                </template>
+                <div>
+                  <span>Reporte Pago Comando Adicional</span>
+                </div>
+               </v-tooltip>
+              </v-col>
+            </v-row>
+            <v-row>
+                 <v-divider inset></v-divider>
+                <v-col cols="12" md="10" class="py-0">
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          class="ma-2 success white--text btn-period_add"
+                          v-on="on"
+                          :disabled="item.additional_importation !== false"
+                          @click.stop="importacionComandoAdditional(item.month, item.additional_id)"
+                        >
+                          Adicional
+                        </v-btn>
+                      </template>
+                      <div>
+                        <span>Importación Comando Adicional</span>
+                      </div>
+                    </v-tooltip> 
+                </v-col>
+                    
+                <v-col cols="12" md="2" class="pa-0 pt-2">
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                    <v-btn
+                      :disabled="item.additional_importation !== false"
+                      x-small
+                      :color="'error'"
+                      icon
+                      v-on="on"
+                      @click.stop="dialog_validate_additional(item.additional_id)"
+                    >
+                      <v-icon>mdi-close-outline</v-icon>
+                    </v-btn>
+                </template>
+                <div>
+                  <span>Cerrar Periódo Adcional</span>
+                </div>
+              </v-tooltip>
+              </v-col>
+              <v-col v-if="item.importation_quantity != null">
+                  <span class="success--text">N° reg. copiados: </span><strong>{{item.additional_quantity | quantity}}</strong><br>
+              </v-col>
+
+            </v-row>
+            </v-card-text>
             <v-card-actions class="blue-grey lighten-5">
               <v-spacer></v-spacer>
-              <v-tooltip top v-if="period_type==='COMANDO'" class="my-0">
+              <!-- <v-tooltip top v-if="period_type==='COMANDO'" class="my-0">
                 <template v-slot:activator="{ on }">
                   <v-btn
                     :disabled="!item.importation"
@@ -158,8 +298,27 @@
                 <div>
                   <span>Reporte Pago Comando</span>
                 </div>
-              </v-tooltip>
+              </v-tooltip> -->
               <v-tooltip top v-if="period_type==='SENASIR'">
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    :disabled="!!!item.importation"
+                    small
+                    :color="'primary'"
+                    fab
+                    v-on="on"
+                    v-model="report_button_senasir[i]"
+                    :loading="report_loading_senasir[i]"
+                    @click.stop="reporteComandoSenasir(item.id,'S',i)"
+                  >
+                    <v-icon >mdi-file-document</v-icon> 
+                  </v-btn>
+                </template>
+                <div>
+                  <span>Reporte Pago Senasir</span>
+                </div>
+              </v-tooltip>
+              <v-tooltip top v-if="period_type==='ESTACIONAL'">
                 <template v-slot:activator="{ on }">
                   <v-btn
                     :disabled="!item.importation"
@@ -169,7 +328,7 @@
                     v-on="on"
                     v-model="report_button_senasir[i]"
                     :loading="report_loading_senasir[i]"
-                    @click.stop="reporteComandoSenasir(item.id,'S',i)"
+                    @click.stop="reporteComandoSenasir(item.id,'E',i)"
                   >
                     <v-icon >mdi-file-document</v-icon> 
                   </v-btn>
@@ -232,39 +391,106 @@
                                 <v-list>
                                   <v-list-item>
                                     <v-list-item-content>
-                                      <v-list-item-title v-show="import_export.state_affiliate !='C'">Importación Senasir</v-list-item-title>
+                                      <v-list-item-title v-show="import_export.state_affiliate =='S'">Importación Senasir</v-list-item-title>
                                        <v-list-item-title v-show="import_export.state_affiliate =='C'">Importación Comando</v-list-item-title>
+                                       <v-list-item-title v-show="import_export.state_affiliate =='E'">Importación Estacional</v-list-item-title>
+                                       <v-list-item-title v-show="import_export.state_affiliate =='AD'">Importación Comando Adcional</v-list-item-title>
                                       <v-list-item-subtitle>Descripción de documento de Importacion</v-list-item-subtitle>
                                     </v-list-item-content>
                                   </v-list-item>
                                 </v-list>
                                 <v-divider></v-divider>
                                 <div class="py-1 pl-2 ma-1">
-                                    <small class="py-0 ma-0"><v-icon class="py-1 ma-0">mdi-check</v-icon>
-                                      Archivo CSV </small> <br>
-                                    <small v-show="import_export.state_affiliate =='C'"><v-icon>mdi-check</v-icon>
-                                      NOMBRE DEL ARCHIVO EJEMPLO: comando-2021-03.csv</small>
-                                    <small v-show="import_export.state_affiliate !='C'"><v-icon>mdi-check</v-icon>
-                                      NOMBRE DEL ARCHIVO EJEMPLO: senasir-2021-03.csv</small><br>
-                                    <small class=" pl-6 ma-1"><v-icon >mdi-arrow-right-thick</v-icon>
-                                      tipo-año-periodo.csv</small><br>
-                                    <small><v-icon>mdi-check</v-icon>
-                                      FORMATO CABECERA DEL ARCHIVO</small><br v-show="import_export.state_affiliate !='C'">
-                                      <small class=" pl-6 ma-1" v-show="import_export.state_affiliate !='C'">
-                                      MATRICULA:MATRICULA_DH:MONTO</small><br v-show="import_export.state_affiliate =='C'">
-                                      <small class=" pl-6 ma-1" v-show="import_export.state_affiliate =='C'">
-                                      CI:MONTO</small><br>
-                                     <small><v-icon>mdi-check</v-icon>
-                                      Campos del Archivo CSV</small><br v-show="import_export.state_affiliate !='C'" >
-                                    <small v-show="import_export.state_affiliate !='C'" class=" pl-6 ma-1"><v-icon >mdi-arrow-right-thick</v-icon>
-                                      MATRICULA: Matricula del afiliado</small><br v-show="import_export.state_affiliate !='C'">
-                                     <small class=" pl-6 ma-1" v-show="import_export.state_affiliate !='C'"><v-icon >mdi-arrow-right-thick</v-icon>
-                                      MATRICULA DERECHO HABIENTE: Matricula del conyugue</small><br v-show="import_export.state_affiliate =='C'">
-                                    <small class=" pl-6 ma-1" v-show="import_export.state_affiliate =='C'"><v-icon >mdi-arrow-right-thick</v-icon>
-                                      CI: CI del afiliado</small><br>
-                                     <small class=" pl-6 ma-1"><v-icon >mdi-arrow-right-thick</v-icon>
-                                      MONTO : Monto de la importación</small><br>
+                                  <!-- Tipo de Archivo -->
+                                  <small>
+                                    <v-icon>mdi-check</v-icon>
+                                    TIPO DE ARCHIVO: CSV
+                                  </small>
+                                  <br>
+
+                                  <!-- Nombre del Archivo de Ejemplo -->
+                                  <small v-show="import_export.state_affiliate == 'C'">
+                                    <v-icon>mdi-check</v-icon>
+                                    NOMBRE DEL ARCHIVO EJEMPLO: comando-2021-03.csv<br>
+                                  </small>
+                                  <small v-show="import_export.state_affiliate == 'AD'">
+                                    <v-icon>mdi-check</v-icon>
+                                    NOMBRE DEL ARCHIVO EJEMPLO: comando-ad-2024-03.csv<br>
+                                  </small>
+                                  <small v-show="import_export.state_affiliate == 'S'">
+                                    <v-icon>mdi-check</v-icon>
+                                    NOMBRE DEL ARCHIVO EJEMPLO: senasir-2021-03.csv<br>
+                                  </small>
+                                  <small v-show="import_export.state_affiliate == 'E'">
+                                    <v-icon>mdi-check</v-icon>
+                                    NOMBRE DEL ARCHIVO EJEMPLO: estacional-2024-03.csv<br>
+                                  </small>
+
+                                  <small class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    tipo-año-periodo.csv<br>
+                                  </small>
+
+                                  <!-- Formato de la Cabecera del Archivo -->
+                                  <small>
+                                    <v-icon>mdi-check</v-icon>
+                                    FORMATO CABECERA DEL ARCHIVO<br>
+                                  </small>
+
+                                  <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'S'">
+                                    MATRICULA:MATRICULA_DH:MONTO<br>
+                                  </small>
+                                  <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'E'">
+                                    CI:CI_DH:MONTO<br>
+                                  </small>
+                                  <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'C'">
+                                    CI:MONTO<br>
+                                  </small>
+                                  <small class="pl-6 ma-1" v-show="import_export.state_affiliate == 'AD'">
+                                    CODIGO_PRESTAMO:MONTO:GLOSA<br>
+                                  </small>
+
+                                  <!-- Campos del Archivo CSV -->
+                                  <small>
+                                    <v-icon>mdi-check</v-icon>
+                                    Campos del Archivo CSV<br>
+                                  </small>
+                                  <small v-show="import_export.state_affiliate == 'S'" class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    MATRICULA: Matricula del afiliado<br>
+                                  </small>
+                                  <small v-show="import_export.state_affiliate == 'E'" class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    CI: Carnet del afiliado<br>
+                                  </small>
+
+                                  <small v-show="import_export.state_affiliate == 'S'" class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    MATRICULA DERECHO HABIENTE: Matricula del conyugue<br>
+                                  </small>
+
+                                  <small v-show="import_export.state_affiliate == 'E'" class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    CI_DH: Carnet del conyugue<br>
+                                  </small>
+
+                                  <small v-show="import_export.state_affiliate == 'C' || import_export.state_affiliate == 'AD'" class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    CI: CI del afiliado<br>
+                                  </small>
+
+                                  <small v-show="import_export.state_affiliate == 'AD'" class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    CODIGO_PRESTAMO: Préstamo a amortizar<br>
+                                  </small>
+
+                                  <small class="pl-6 ma-1">
+                                    <v-icon>mdi-arrow-right-thick</v-icon>
+                                    MONTO : Monto de la importación<br>
+                                  </small>
+
                                 </div>
+
                               <v-card-actions>
                               <v-spacer></v-spacer>
                               <v-btn
@@ -344,9 +570,9 @@
                                         v-model="import_export.file"
                                       ></v-file-input>
                                     </v-col>
-                                    <v-col cols="9" md="9" class="py-0">
+                                    <v-col cols="9" md="9">
                                     </v-col>
-                                    <v-col cols="2" md="2" class="py-0">
+                                    <v-col cols="2" md="2">
                                       <v-btn
                                         color="success"
                                         dark
@@ -398,6 +624,16 @@
                                       Tipo de Importacion : COMANDO
                                     </label>
                                   </v-col>
+                                  <v-col cols="4" v-show="import_export.state_affiliate== 'E'">
+                                    <label>
+                                      Tipo de Importacion : ESTACIONAL
+                                    </label>
+                                  </v-col>
+                                  <v-col cols="4" v-show="import_export.state_affiliate== 'AD'">
+                                    <label>
+                                      Tipo de Importacion : COMANDO ADICONAL
+                                    </label>
+                                  </v-col>
                                   <v-col cols="3">
                                     <label>
                                       Periodo:{{import_export.period_importation==null? period_show :import_export.period_importation}}
@@ -410,7 +646,7 @@
                                       <b>{{'Datos Copiados: '+import_export.reg_copy}}</b>
                                     </label>
                                   </v-col>
-                                  <v-col cols="3" style="color:teal">
+                                  <v-col cols="3" style="color:teal" v-show="import_export.state_affiliate != 'AD'">
                                     <label>
                                       <b>Datos Agrupados: {{import_export.reg_group==null? 0:import_export.reg_group}}</b>
                                     </label>
@@ -487,6 +723,16 @@
                                         Tipo de Importacion : COMANDO
                                       </label>
                                     </v-col>
+                                    <v-col cols="4" v-show="import_export.state_affiliate== 'E'">
+                                      <label>
+                                        Tipo de Importacion : ESTACIONAL
+                                      </label>
+                                    </v-col>
+                                    <v-col cols="4" v-show="import_export.state_affiliate== 'AD'">
+                                      <label>
+                                        Tipo de Importacion : COMANDO ADICIONAL
+                                      </label>|
+                                    </v-col>
                                     <v-col cols="3">
                                       <label>
                                           Periodo:{{import_export.period_importation}}
@@ -499,7 +745,7 @@
                                         <b>{{'Datos Copiados: '+import_export.reg_copy}}</b>
                                       </label>
                                     </v-col>
-                                    <v-col cols="3" style="color:teal">
+                                    <v-col cols="3" style="color:teal" v-show="import_export.state_affiliate != 'AD'">
                                       <label>
                                         <b>{{'Datos Agrupados: '+import_export.reg_group}}</b>
                                       </label>
@@ -602,6 +848,35 @@
                 </v-card-actions>
               </v-card>
       </v-dialog>
+
+      <v-dialog
+        v-model="dialog_validate_additional_import"
+        max-width="500"
+      >
+        <v-card>
+          <v-card-title >
+            <div class="text-red">¿Esta seguro de cerrar la importación del periódo adicional? </div><small>Tomar en cuenta que ya no se podra realizar la importación de este periódo una vez realizado este proceso.</small>
+          </v-card-title>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="red darken-1"
+              text
+              @click="dialog_validate_additional_import=false"
+            >
+              Cancelar
+            </v-btn>
+            <v-btn
+              color="green darken-1"
+              text
+              @click="validateAdditionalImport()"
+            >
+              Aceptar
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
   </v-container>
 </template>
 <script>
@@ -618,6 +893,7 @@ export default {
     dialog: false,
     dialog_confirm : false,
     dialog_confirm_import:false,
+    dialog_validate_additional_import: false,
     aux_period:null,
     period_show:null,
     title: null,
@@ -629,8 +905,12 @@ export default {
     },
     report_loading_command:[],
     report_button_command:[],
+    report_loading_command_additional:[],
+    report_button_command_additional:[],
     report_loading_senasir:[],
     report_button_senasir:[],
+    report_loading_estacional:[],
+    report_button_estacional:[],
 
     meses: [ 'ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'
     ],
@@ -640,7 +920,9 @@ export default {
     ],
     state_affiliate: [
       { name: "Activo - Comando", value: 'C' },
+      { name: "Activo - Comando - Adcional", value: 'AD' },
       { name: "Pasivo - Senasir", value: 'S' },
+      { name: "Pasivo - Estacional", value: 'E' },
     ],
   period_year:null,
   mes:null,
@@ -652,7 +934,8 @@ export default {
   l_index: -1,
   loading_sc: false,
   loading_ss: false,
-  loading_uf: false
+  loading_uf: false,
+  selected_period_additional: 0
   }),
   watch: {
     steps (val) {
@@ -731,6 +1014,7 @@ export default {
         })
         .catch((e) => {
           console.log(e);
+          this.loading_uf=false;
         });
     },
     //Metodo para sacar el año
@@ -849,6 +1133,55 @@ export default {
         this.loading = false;
       }
     },
+        //Metodo para realizar el porcentaje la importacion de Comando
+    async importacionComandoAdditional(month, id){
+      try {
+        let res = await axios.get(`periods/${id}`)
+        if(res.data.import_command){
+          this.toastr.error('Este periodo ya fue Importado')
+        }else{
+          this.aux_period= month
+          this.mes=id
+          if( this.aux_period < 10){
+            this.period_show= res.data.year+'-0'+this.aux_period
+          }else{
+            this.period_show= res.data.year+'-'+this.aux_period
+          }
+          this.dialog=true
+          this.import_export.state_affiliate = 'AD'
+          this.title= 'COMANDO ADICIONAL'
+          let resp = await axios.post(`loan_payment/import_progress_bar`,{
+            period_id: this.mes,
+            origin: this.import_export.state_affiliate
+          });
+          if(resp.data.percentage > 0){
+            this.percentage=resp.data.percentage
+            if(resp.data.query_step_1 == true)
+            {
+              this.e1=2
+              this.validate_data=true
+            }else{
+              if(resp.data.query_step_2 == true){
+                this.e1=3
+                this.show_import=true
+              }
+            }
+            this.import_export.file_name = resp.data.file_name
+            this.import_export.reg_copy = resp.data.reg_copy
+            this.import_export.reg_group = resp.data.reg_group
+            this.import_export.period_importation = resp.data.period_importation
+          }else{
+            this.percentage=0
+            this.e1=1
+          }
+        }
+      } catch (e) {
+        this.loading = false;
+        console.log(e);
+      } finally {
+        this.loading = false;
+      }
+    },
     //Metodo para realizar el porcentaje la importacion de Senasir
     async importacionSenasir(month, id){
         try {
@@ -866,6 +1199,55 @@ export default {
           this.dialog=true
           this.import_export.state_affiliate = 'S'
           this.title= 'SENASIR'
+          let resp = await axios.post(`loan_payment/import_progress_bar`,{
+            period_id: this.mes,
+            origin: this.import_export.state_affiliate
+          });
+          if(resp.data.percentage > 0){
+            this.percentage=resp.data.percentage
+            if(resp.data.query_step_1 == true)
+            {
+              this.e1=2
+              this.validate_data=true
+            }else{
+              if(resp.data.query_step_2 == true){
+                this.e1=3
+                this.show_import=true
+              }
+            }
+            this.import_export.file_name = resp.data.file_name
+            this.import_export.reg_copy = resp.data.reg_copy
+            this.import_export.reg_group = resp.data.reg_group
+            this.import_export.period_importation = resp.data.period_importation
+          }else{
+            this.percentage=0
+            this.e1=1
+          }
+        }
+      } catch (e) {
+        this.loading = false;
+        console.log(e);
+      } finally {
+        this.loading = false;
+      }
+    },
+    //Metodo para realizar el porcentaje la importacion de Prestamos estacionales
+    async importacionEstacional(month, id){
+        try {
+        let res = await axios.get(`periods/${id}`)
+        if(res.data.import_senasir){
+          this.toastr.error('Este periodo ya fue Importado')
+        }else{
+          this.aux_period= month
+          this.mes=id
+          if( this.aux_period < 10){
+            this.period_show= res.data.year+'-0'+this.aux_period
+          }else{
+            this.period_show= res.data.year+'-'+this.aux_period
+          }
+          this.dialog=true
+          this.import_export.state_affiliate = 'E'
+          this.title= 'ESTACIONAL'
           let resp = await axios.post(`loan_payment/import_progress_bar`,{
             period_id: this.mes,
             origin: this.import_export.state_affiliate
@@ -971,7 +1353,25 @@ export default {
           this.dialog_confirm_import=false
           this.toastr.error(res.data.message)
         }
-      }else{
+      }
+      else if(this.import_export.state_affiliate=='AD'){
+          let res = await axios.get(`create_payments_command_additional`,{
+            params:{
+              period: this.mes
+          }
+        })
+        if(res.data.importation_validated){
+          if(res.status==201 || res.status == 200){
+            this.dialog=false
+            this.dialog_confirm_import=false
+            this.toastr.success('Importado Correctamente: '+res.data.paid_by_lenders+ ' titulares y '+ res.data.paid_by_guarantors+' garantes' )
+          }
+        }else{
+          this.dialog_confirm_import=false
+          this.toastr.error(res.data.message)
+        }
+      }
+      else if(this.import_export.state_affiliate=='S'){
         let res = await axios.get(`importation_payments_senasir`,{
         params:{
           period: this.mes
@@ -982,6 +1382,22 @@ export default {
           this.dialog=false
           this.dialog_confirm_import=false
           this.toastr.success('Importado Correctamente: '+res.data.paid_by_lenders+ ' titulares y '+ res.data.paid_by_guarantors+' garantes' )
+        }
+      }
+      else{
+        this.toastr.error(res.data.message)
+      }
+     } else if(this.import_export.state_affiliate=='E'){
+        let res = await axios.get(`importation_payments_estacional`,{
+        params:{
+          period: this.mes
+        }
+      })
+      if(res.data.importation_validated){
+        if(res.status==201 || res.status == 200){
+          this.dialog=false
+          this.dialog_confirm_import=false
+          this.toastr.success('Importado Correctamente: '+res.data.paid_by_lenders+ ' titulares')
         }
       }
       else{
@@ -1032,17 +1448,27 @@ export default {
       {
         this.report_button_command.push(j)
         this.report_loading_command.push(false)
+        this.report_button_command_additional.push(j)
+        this.report_button_command_additional.push(false)
         this.report_button_senasir.push(j)
         this.report_loading_senasir.push(false)
+        this.report_button_estacional.push(j)
+        this.report_loading_estacional.push(false)
       }
       if(tipo=='C' )
       {
         this.report_loading_command[i]=true
       }
-      else{
+      else if(tipo=='AD' ){
+        this.report_button_command_additional[i]=true
+      }
+      else if(tipo=='S' ){
         this.report_loading_senasir[i]=true
       }
-      if(this.report_loading_command[i] ==true ||this.report_loading_senasir[i]==true ){
+      else if(tipo=='E' ){
+        this.report_loading_estacional[i]=true
+      }
+      if(this.report_loading_command[i] ==true ||this.report_button_command_additional[i]==true ||this.report_loading_senasir[i]==true ||this.report_loading_estacional[i]==true ){
 
           const formData = new FormData();
 
@@ -1070,15 +1496,25 @@ export default {
 
             this.report_button_command=[]
             this.report_loading_command=[]
+            this.report_button_command_additional=[]
+            this.report_loading_command_additional=[]
             this.report_button_senasir=[]
             this.report_loading_senasir=[]
+            this.report_button_estacional=[]
+            this.report_loading_estacional=[]
             for(let j=0;j <= i; j++)
                 {
                   this.report_button_command.push(j)
                   this.report_loading_command.push(false)
 
+                  this.report_button_command_additional.push(j)
+                  this.report_loading_command_additional.push(false)
+
                   this.report_button_senasir.push(j)
                   this.report_loading_senasir.push(false)
+
+                  this.report_button_estacional.push(j)
+                  this.report_loading_estacional.push(false)
                 }
              }
           })
@@ -1162,6 +1598,54 @@ export default {
         this.l_index=-1;
       }
     },
+    async solicitudEstacional(tipo, id,month){
+        try {
+        this.loading_ss=true;
+        const formData = new FormData();
+
+         await axios({
+          url: '/report_request_institution',
+          method: "GET",
+          responseType: "blob", // important
+          headers: { Accept: "application/vnd.ms-excel" },
+          //headers: { Accept: "text/plain" },
+          data: formData,
+          params: {
+            origin: tipo,
+            period: id
+          }
+        })
+          .then((response) => {
+           const url = window.URL.createObjectURL(new Blob([response.data]));
+           const link = document.createElement("a");
+           link.href = url;
+           link.setAttribute("download", `SolicitudEstacional${this.$options.filters.capitalize(month)}.xls`);
+           document.body.appendChild(link);
+           link.click();
+        })
+      } catch (e) {
+        this.loading = false;
+        console.log(e);
+      } finally {
+        this.loading = false;
+        this.loading_ss=false;
+        this.l_index=-1;
+      }
+    },
+    //Metodo para validar mes adcional
+    dialog_validate_additional(id){
+      this.selected_period_additional =id
+      this.dialog_validate_additional_import= true
+    },
+    async validateAdditionalImport(id){
+        let res = await axios.get(`validate_additional_import`,{
+        params:{
+          period_id: this.selected_period_additional
+        }
+      })
+      this.dialog_validate_additional_import = false
+      this.getMonthYear()
+    },
   },
 };
 </script>
@@ -1172,6 +1656,10 @@ export default {
   }
   .btn-period.v-btn:not(.v-btn--round).v-size--default{
     min-width: 160px;
+    height: 25px;
+  }
+  .btn-period_add.v-btn:not(.v-btn--round).v-size--default{
+    min-width: 100%;
     height: 25px;
   }
 </style>

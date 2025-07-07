@@ -45,8 +45,15 @@
             </tr>
             <tr>
                 <td class="data-row py-5">{{ Util::money_format($loan->amount_approved) }} <span class="capitalize">Bs.</span></td>
-                @php ($term_text = $loan->modality->procedure_type_id != 29 ? 'meses' : 'semestres')
-                <td class="data-row py-5">{{ $loan->loan_term }} <span class="capitalize">{{ $term_text }}</span></td>
+                <td class="data-row py-5">
+                    {{ $loan->loan_term }} <span class="capitalize">
+                        @if ($loan->loan_term == 1)
+                            {{ $loan->modality->procedure_type_id != 29 ? 'mes' : 'semestre' }}
+                        @else
+                            {{ $loan->modality->procedure_type_id != 29 ? 'meses' : 'semestres' }}
+                        @endif
+                    </span>
+                </td>
                 <td class="data-row py-5">
                     @if($loan->payment_type->name=='Depósito Bancario')
                         <div class="font-bold">{{$loan->payment_type->name}}</div>

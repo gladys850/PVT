@@ -701,9 +701,9 @@ export default {
         }
           //Si es PVT refinanciamiento existe un cambio en el id de modalidad
         if(this.refinancing || this.reprogramming){
-          let res3 = await axios.post(`procedure_brother/`,{
-            reference_modality_id: res.data.modality.id,    //submodalidad PVT Corto Plazo Sector Activo
-            type: this.refinancing? 'refinancing' : 'reprogramming'
+          let res3 = await axios.post(`procedure_ref_rep/`,{
+            type: this.refinancing? 'REF' : 'REP',
+            loan_id: res.data.id
           })
           this.modalities = [res3.data[0].procedure_type]
           this.loanTypeSelected.id = res3.data[0].procedure_type_id
@@ -937,7 +937,7 @@ export default {
                     this.nextStep(2)
                   }
                 }else{
-                  if(this.calculator_result.amount_requested>this.loan_detail.amount_maximum_suggested)
+                  if(this.calculator_result.amount_requested>this.loan_detail.amount_maximum)
                   {
                     this.toastr.error("El Monto Solicitado no puede ser mayor al Monto maximo sugerido")
                   }
