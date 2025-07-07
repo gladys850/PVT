@@ -11,14 +11,16 @@ class Address extends Model
 
     protected $table = "addresses";
     public $guarded =  [];
-    protected $fillable = ['city_address_id', 'zone', 'street', 'number_address','description'];
+    protected $fillable = ['city_address_id', 'zone', 'street', 'number_address','description','latitude','longitude'];
 
     protected $attributes = array(
         'city_address_id' => null,
         'zone' => null,
         'street' => null,
         'number_address' => null,
-        'description' => null
+        'description' => null,
+        'latitude' => null,
+        'longitude' => null,
     );
 
     public function getFullAddressAttribute($value)
