@@ -30,7 +30,9 @@ class AddressForm extends FormRequest
             'city_address_id' => 'exists:cities,id',
             'zone' =>'nullable',
             'street' =>'nullable',
-            'description' =>'nullable|min:3'
+            'description' =>'nullable|min:3',
+            'latitude' => 'nullable',
+            'longitude' => 'nullable',
         ];
         switch ($this->method()) {
             case 'POST': {
@@ -52,7 +54,9 @@ class AddressForm extends FormRequest
             'zone' => 'trim|uppercase',
             'street' => 'trim|uppercase',
             'number_address' => 'trim|uppercase',
-            'description' =>'trim|uppercase'
+            'description' =>'trim|uppercase',
+            'latitude' => 'trim',
+            'longitude' => 'trim',
         ];
     }
 }

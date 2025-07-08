@@ -3,9 +3,6 @@
     <ValidationObserver ref="observer">
       <v-form>
         <v-row justify="center">
-          <v-col cols="12">
-            <v-toolbar-title>INFORMACIÓN ADICIONAL DEL PRESTATARIO</v-toolbar-title>
-          </v-col>
           <v-col cols="12" md="6">
             <v-col cols="12">
               <v-toolbar-title>DOMICILIO</v-toolbar-title>
@@ -262,7 +259,7 @@ export default {
         { name: "VALIDADO", value: "VALIDADO" },
       ],
       headers: [
-        { text: "Ciudad", align: "left", value: "city_address_id" },
+        { text: "Dpto", align: "left", value: "city_address_id" },
         { text: "Zona", align: "left", value: "description" },
         { text: "Activo", align: "left", value: "" },
         //{ text: 'Nro', align: 'left', value: 'number_address' },
