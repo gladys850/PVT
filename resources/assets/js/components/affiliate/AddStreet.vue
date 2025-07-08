@@ -27,7 +27,7 @@
                           :items="countryCities"
                           item-text="name"
                           item-value="id"
-                          label="Ciudad"
+                          label="Departamento"
                           v-model="address.city_address_id"
                         ></v-select>
                       </v-col>

@@ -213,7 +213,7 @@ export default {
             lng <= limites.maxLng
           );
           if (!dentro) {
-            alert('Ubicación fuera del departamento seleccionado');
+            this.toastr.error('Ubicación fuera del departamento seleccionado');
             return;
           }
         }
@@ -278,16 +278,14 @@ export default {
         this.map.setView([this.lat, this.lng], 16);
         this.colocarMarcador(this.lat, this.lng);
       } else {
-        alert('Dirección no encontrada dentro del departamento seleccionado');
-        this.direccion = '';
-        this.provinciaSeleccionada = '';
+        this.toastr.error('Dirección no encontrada dentro del departamento seleccionado');
       }
     },
 
     procesarURL() {
       const coordenadas = this.extraerCoordenadasDesdeURL(this.url);
       if (!coordenadas) {
-        alert('No se pudieron extraer coordenadas de la URL.');
+        this.toastr.error('No se pudieron extraer coordenadas de la URL.');
         return;
       }
       const [lat, lng] = coordenadas;
