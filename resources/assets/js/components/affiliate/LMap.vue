@@ -35,7 +35,7 @@
             />
           </v-col>
           <v-col cols="12" md="12">
-            <div><strong>Buscar por URL de Google Maps</strong></div>
+            <div><strong>Buscar ubicación por URL de Google Maps</strong></div>
           </v-col>
           <v-col cols="12" md="12" class="py-0 my-0">
             <v-textarea
@@ -53,7 +53,7 @@
             />
           </v-col>
           <v-col cols="12" md="12">
-            <div><strong>Buscar por coordenadas</strong></div>
+            <div><strong>Buscar ubicación por coordenadas</strong></div>
           </v-col>
           <v-col cols="12" md="5" class="py-0 my-0">
             <v-text-field 
@@ -114,7 +114,7 @@
 
         <!-- Este se oculta al imprimir -->
         <p class="no-print">
-          <strong>Dirección seleccionada:</strong> {{ direccionSeleccionada }}
+          <strong>Ubicación seleccionada en mapa:</strong> {{ direccionSeleccionada }}
         </p>
 
         <!-- Este solo se muestra al imprimir -->
@@ -443,7 +443,7 @@ export default {
             <body style="margin:0; text-align:center;">
               <img src="${imgData}" style="width:100%; max-width:1000px;"/>
               <p style="font-size:16px; font-family:sans-serif;">
-                Dirección: ${this.direccionSeleccionada || 'Sin dirección'}
+                Ubicación seleccionada en mapa: ${this.direccionSeleccionada || 'Sin dirección'}
               </p>
             </body>
           </html>
