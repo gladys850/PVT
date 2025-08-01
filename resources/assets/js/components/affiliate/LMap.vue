@@ -16,6 +16,7 @@
               v-model="provinciaSeleccionada"
               :items="provinciasFiltradas"
               @change="buscarDireccion"
+              @focus="limpiarCamposGoogleMaps"
               clearable
               class="py-0 my-0"
             />
@@ -30,6 +31,7 @@
               @click:append="buscarDireccion"
               dense
               outlined
+              @focus="limpiarCamposGoogleMaps"
               clearable
               class="py-0 my-0"
             />
@@ -94,14 +96,6 @@
             </template>
           </v-col>
           <v-col v-if="direccionSeleccionada" class="py-0 my-0">
-            <!-- <v-btn 
-              color="primary" 
-              @click="imprimir"
-              block
-              class="pb-0 mb-0"  
-            >
-              Imprimir ubicación
-            </v-btn> -->
             <v-btn color="primary" @click="imprimirComoImagen">
               Imprimir ubicación
             </v-btn>
@@ -116,11 +110,6 @@
         <p class="no-print">
           <strong>Ubicación seleccionada en mapa:</strong> {{ direccionSeleccionada }}
         </p>
-
-        <!-- Este solo se muestra al imprimir -->
-        <!-- <div id="direccion-print" v-if="direccionSeleccionada">
-          Dirección: {{ direccionSeleccionada }}
-        </div> -->
     </v-col>
 
     </v-row>
@@ -263,9 +252,7 @@ export default {
       }
 
       const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(consulta)}&format=json&addressdetails=1&limit=1${viewbox}`;
-      const response = await fetch(url, {
-        headers: { 'User-Agent': 'TuAppMapa/1.0 (tucorreo@dominio.com)' }
-      });
+      const response = await fetch(url);
 
       const data = await response.json();
       if (data.length > 0) {
@@ -282,18 +269,6 @@ export default {
       }
     },
 
-    procesarURL() {
-      const coordenadas = this.extraerCoordenadasDesdeURL(this.url);
-      if (!coordenadas) {
-        this.toastr.error('No se pudieron extraer coordenadas de la URL.');
-        return;
-      }
-      const [lat, lng] = coordenadas;
-      this.map.setView([lat, lng], 17);
-      this.colocarMarcador(lat, lng);
-      this.obtenerDireccion(lat, lng);
-    },
-
     centrarPorCoordenadas() {
       if (!this.latInput || !this.lngInput) return;
       this.lat = parseFloat(this.latInput);
@@ -302,10 +277,6 @@ export default {
       this.colocarMarcador(this.lat, this.lng);
       this.obtenerDireccion(this.lat, this.lng);
     },
-
-    // imprimir() {
-    //   window.print();
-    // },
 
     centrarEnDepartamento() {
       const limites = this.limitesDepartamentos[this.departamentoSeleccionado];
@@ -411,6 +382,18 @@ export default {
       this.provinciasFiltradas = [...new Set(provincias)];
     },
 
+    procesarURL() {
+      const coordenadas = this.extraerCoordenadasDesdeURL(this.url);
+      if (!coordenadas) {
+        this.toastr.error('No se pudieron extraer coordenadas de la URL.');
+        return;
+      }
+      const [lat, lng] = coordenadas;
+      this.map.setView([lat, lng], 17);
+      this.colocarMarcador(lat, lng);
+      this.obtenerDireccion(lat, lng);
+    },
+
     extraerCoordenadasDesdeURL(url) {
       const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
       const match = url.match(regex);
@@ -423,6 +406,9 @@ export default {
     limpiarCampos() {
       this.provinciaSeleccionada = null;
       this.direccion = '';
+    },
+    limpiarCamposGoogleMaps() {
+      this.url = '';
     },
     imprimirComoImagen() {
       if (!this.map) return;
@@ -456,40 +442,3 @@ export default {
   }
 };
 </script>
-
-<!-- <style>
-#direccion-print {
-  display: none;
-}
-@media print {
-  body, body * {
-    visibility: hidden !important;
-  }
-  #map,
-  #map * {
-    visibility: visible !important;
-  }
-  #map {
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    width: 100vw !important;
-    height: 90vh !important;
-    z-index: 9999;
-  }
-  #direccion-print {
-    display: block !important;
-    position: absolute;
-    bottom: 1.5cm;
-    left: 1.5cm;
-    font-size: 14pt;
-    font-family: sans-serif;
-    color: #000;
-    visibility: visible !important;
-    z-index: 9999;
-  }
-  .no-print {
-    display: none !important;
-  }
-}
-</style> -->
