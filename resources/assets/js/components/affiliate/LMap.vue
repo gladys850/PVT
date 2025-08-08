@@ -95,16 +95,16 @@
               </v-tooltip>
             </template>
           </v-col>
-          <v-col v-if="direccionSeleccionada" class="py-0 my-0">
+          <!-- <v-col v-if="direccionSeleccionada" class="py-0 my-0">
             <v-btn color="primary" @click="imprimirComoImagen">
               Imprimir ubicación
             </v-btn>
-          </v-col>
+          </v-col> -->
         </v-row>
       </v-col>
 
       <v-col cols="8" class="py-0 my-0">
-        <div id="map" style="height: 500px;" class="py-0 my-0"></div>
+        <div id="map" style="height: 700px;"  class="py-0 my-0"></div>
 
         <!-- Este se oculta al imprimir -->
         <p class="no-print">
@@ -222,9 +222,20 @@ export default {
         this.marker = L.marker([lat, lng]).addTo(this.map);
       }
       this.address.latitude = lat;
-      this.address.longitude = lng;
-    },
+      this.address.longitude = lng
+      //this.address.image = 'miimagen'; // Limpiar imagen al mover el marcador
+      if (!this.map) return;
 
+
+      leafletImage(this.map, async (e, canvas) => {
+        if (e) {
+          console.error('Error al capturar el mapa:', e);
+          return;
+        }
+
+        const imgData = canvas.toDataURL('image/png');
+        this.address.image = imgData; })
+      },
     async obtenerDireccion(lat, lng) {
       const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
       const response = await fetch(url);
@@ -270,12 +281,14 @@ export default {
     },
 
     centrarPorCoordenadas() {
+      console.log('entro1')
       if (!this.latInput || !this.lngInput) return;
       this.lat = parseFloat(this.latInput);
       this.lng = parseFloat(this.lngInput);
       this.map.setView([this.lat, this.lng], 16);
       this.colocarMarcador(this.lat, this.lng);
       this.obtenerDireccion(this.lat, this.lng);
+      console.log('entro2')
     },
 
     centrarEnDepartamento() {
@@ -412,32 +425,18 @@ export default {
     },
     imprimirComoImagen() {
       if (!this.map) return;
+      this.centrarPorCoordenadas()
 
-      leafletImage(this.map, (err, canvas) => {
-        if (err) {
-          console.error('Error al capturar el mapa:', err);
+      leafletImage(this.map, async (e, canvas) => {
+        if (e) {
+          console.error('Error al capturar el mapa:', e);
           return;
         }
 
         const imgData = canvas.toDataURL('image/png');
-        const ventana = window.open('', '_blank');
-        ventana.document.write(`
-          <html>
-            <head>
-              <title>Imprimir Mapa</title>
-            </head>
-            <body style="margin:0; text-align:center;">
-              <img src="${imgData}" style="width:100%; max-width:1000px;"/>
-              <p style="font-size:16px; font-family:sans-serif;">
-                Ubicación seleccionada en mapa: ${this.direccionSeleccionada || 'Sin dirección'}
-              </p>
-            </body>
-          </html>
-        `);
-        ventana.document.close();
-        ventana.focus();
-        ventana.print();
+        this.address.image = imgData; // Guardar imagen en el objeto address
       });
+
     }
   }
 };

@@ -6,6 +6,10 @@
           <v-col cols="12" md="6">
             <v-col cols="12">
               <v-toolbar-title>DOMICILIO</v-toolbar-title>
+              <!-- <v-btn
+              text
+              @click="printAddress"
+              >print</v-btn> -->
             </v-col>
             <v-col cols="12">
               <v-tooltip top v-if="editable && permission.secondary">
@@ -208,7 +212,7 @@
         </v-row>
       </v-form>
     </ValidationObserver>
-    <AddStreet :bus="bus" :cities="cities" />
+    <AddStreet :bus="bus" :cities="cities" :affiliate="affiliate"/>
     <RemoveItem :bus="bus" />
   </v-container>
 </template>
@@ -329,6 +333,15 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    async printAddress() {
+      let res = await axios.get(`affiliates/${this.affiliate.id}/addresses/${48962}/print`)
+      printJS({
+        printable: res.data.content,
+        type: res.data.type,
+        file_name: res.data.file_name,
+        base64: true
+      })
     },
     async getCities() {
       try {
