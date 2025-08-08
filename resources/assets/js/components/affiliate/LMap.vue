@@ -16,6 +16,7 @@
               v-model="provinciaSeleccionada"
               :items="provinciasFiltradas"
               @change="buscarDireccion"
+              @focus="limpiarCamposGoogleMaps"
               clearable
               class="py-0 my-0"
             />
@@ -30,6 +31,7 @@
               @click:append="buscarDireccion"
               dense
               outlined
+              @focus="limpiarCamposGoogleMaps"
               clearable
               class="py-0 my-0"
             />
@@ -93,34 +95,21 @@
               </v-tooltip>
             </template>
           </v-col>
-          <v-col v-if="direccionSeleccionada" class="py-0 my-0">
-            <!-- <v-btn 
-              color="primary" 
-              @click="imprimir"
-              block
-              class="pb-0 mb-0"  
-            >
-              Imprimir ubicación
-            </v-btn> -->
+          <!-- <v-col v-if="direccionSeleccionada" class="py-0 my-0">
             <v-btn color="primary" @click="imprimirComoImagen">
               Imprimir ubicación
             </v-btn>
-          </v-col>
+          </v-col> -->
         </v-row>
       </v-col>
 
       <v-col cols="8" class="py-0 my-0">
-        <div id="map" style="height: 500px;" class="py-0 my-0"></div>
+        <div id="map" style="height: 700px;"  class="py-0 my-0"></div>
 
         <!-- Este se oculta al imprimir -->
         <p class="no-print">
           <strong>Ubicación seleccionada en mapa:</strong> {{ direccionSeleccionada }}
         </p>
-
-        <!-- Este solo se muestra al imprimir -->
-        <!-- <div id="direccion-print" v-if="direccionSeleccionada">
-          Dirección: {{ direccionSeleccionada }}
-        </div> -->
     </v-col>
 
     </v-row>
@@ -233,9 +222,20 @@ export default {
         this.marker = L.marker([lat, lng]).addTo(this.map);
       }
       this.address.latitude = lat;
-      this.address.longitude = lng;
-    },
+      this.address.longitude = lng
+      //this.address.image = 'miimagen'; // Limpiar imagen al mover el marcador
+      if (!this.map) return;
 
+
+      leafletImage(this.map, async (e, canvas) => {
+        if (e) {
+          console.error('Error al capturar el mapa:', e);
+          return;
+        }
+
+        const imgData = canvas.toDataURL('image/png');
+        this.address.image = imgData; })
+      },
     async obtenerDireccion(lat, lng) {
       const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
       const response = await fetch(url);
@@ -263,9 +263,7 @@ export default {
       }
 
       const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(consulta)}&format=json&addressdetails=1&limit=1${viewbox}`;
-      const response = await fetch(url, {
-        headers: { 'User-Agent': 'TuAppMapa/1.0 (tucorreo@dominio.com)' }
-      });
+      const response = await fetch(url);
 
       const data = await response.json();
       if (data.length > 0) {
@@ -282,30 +280,16 @@ export default {
       }
     },
 
-    procesarURL() {
-      const coordenadas = this.extraerCoordenadasDesdeURL(this.url);
-      if (!coordenadas) {
-        this.toastr.error('No se pudieron extraer coordenadas de la URL.');
-        return;
-      }
-      const [lat, lng] = coordenadas;
-      this.map.setView([lat, lng], 17);
-      this.colocarMarcador(lat, lng);
-      this.obtenerDireccion(lat, lng);
-    },
-
     centrarPorCoordenadas() {
+      console.log('entro1')
       if (!this.latInput || !this.lngInput) return;
       this.lat = parseFloat(this.latInput);
       this.lng = parseFloat(this.lngInput);
       this.map.setView([this.lat, this.lng], 16);
       this.colocarMarcador(this.lat, this.lng);
       this.obtenerDireccion(this.lat, this.lng);
+      console.log('entro2')
     },
-
-    // imprimir() {
-    //   window.print();
-    // },
 
     centrarEnDepartamento() {
       const limites = this.limitesDepartamentos[this.departamentoSeleccionado];
@@ -411,6 +395,18 @@ export default {
       this.provinciasFiltradas = [...new Set(provincias)];
     },
 
+    procesarURL() {
+      const coordenadas = this.extraerCoordenadasDesdeURL(this.url);
+      if (!coordenadas) {
+        this.toastr.error('No se pudieron extraer coordenadas de la URL.');
+        return;
+      }
+      const [lat, lng] = coordenadas;
+      this.map.setView([lat, lng], 17);
+      this.colocarMarcador(lat, lng);
+      this.obtenerDireccion(lat, lng);
+    },
+
     extraerCoordenadasDesdeURL(url) {
       const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
       const match = url.match(regex);
@@ -424,72 +420,24 @@ export default {
       this.provinciaSeleccionada = null;
       this.direccion = '';
     },
+    limpiarCamposGoogleMaps() {
+      this.url = '';
+    },
     imprimirComoImagen() {
       if (!this.map) return;
+      this.centrarPorCoordenadas()
 
-      leafletImage(this.map, (err, canvas) => {
-        if (err) {
-          console.error('Error al capturar el mapa:', err);
+      leafletImage(this.map, async (e, canvas) => {
+        if (e) {
+          console.error('Error al capturar el mapa:', e);
           return;
         }
 
         const imgData = canvas.toDataURL('image/png');
-        const ventana = window.open('', '_blank');
-        ventana.document.write(`
-          <html>
-            <head>
-              <title>Imprimir Mapa</title>
-            </head>
-            <body style="margin:0; text-align:center;">
-              <img src="${imgData}" style="width:100%; max-width:1000px;"/>
-              <p style="font-size:16px; font-family:sans-serif;">
-                Ubicación seleccionada en mapa: ${this.direccionSeleccionada || 'Sin dirección'}
-              </p>
-            </body>
-          </html>
-        `);
-        ventana.document.close();
-        ventana.focus();
-        ventana.print();
+        this.address.image = imgData; // Guardar imagen en el objeto address
       });
+
     }
   }
 };
 </script>
-
-<!-- <style>
-#direccion-print {
-  display: none;
-}
-@media print {
-  body, body * {
-    visibility: hidden !important;
-  }
-  #map,
-  #map * {
-    visibility: visible !important;
-  }
-  #map {
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    width: 100vw !important;
-    height: 90vh !important;
-    z-index: 9999;
-  }
-  #direccion-print {
-    display: block !important;
-    position: absolute;
-    bottom: 1.5cm;
-    left: 1.5cm;
-    font-size: 14pt;
-    font-family: sans-serif;
-    color: #000;
-    visibility: visible !important;
-    z-index: 9999;
-  }
-  .no-print {
-    display: none !important;
-  }
-}
-</style> -->
