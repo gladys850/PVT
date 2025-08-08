@@ -63,7 +63,7 @@
       <v-card-actions v-show="address.edit" class="pt-0 mt-0">
         <v-spacer></v-spacer>
         <v-btn color="error" text @click.stop="close()">Cerrar</v-btn>
-        <v-btn color="success" text @click.stop="adicionar()">Guardar</v-btn>
+        <v-btn color="success" text :loading="loading" @click.stop="adicionar()">Guardar</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -82,6 +82,10 @@ export default {
     cities: {
       type: Array,
       required: true
+    },
+    affiliate: {
+      type: Object,
+      required: true
     }
   },
   components: {
@@ -89,12 +93,14 @@ export default {
   },
   data: () => ({
     dialog: false,
+    loading: false,
     address: {
       city_address_id: '',
       description: null,
       id: null,      
       latitude: null,
       longitude: null,
+      image: null
     }
   }),
   mounted() {
@@ -110,9 +116,11 @@ export default {
   },
   methods: {
     async adicionar() {
+      this.loading = true
       if (await this.$refs.observer.validate()) {
         this.saveAddress()
         this.bus.$emit('saveAddress', this.address)
+        this.loading = false
         this.close()
       }
     },
@@ -122,20 +130,44 @@ export default {
     },
 
     async saveAddress() {
+      console.log(this.address)
+
+
+      let image = this.address.image
       try {
+        let res = {}
         if (this.address.id) {
-          let res = await axios.patch(`address/${this.address.id}`, this.address)
+          res = await axios.patch(`address/${this.address.id}`, this.address)
           this.toastr.success('Domicilio Modificado')
           this.bus.$emit('saveAddress', res.data)
         } else {
-          let res = await axios.post(`address`, this.address)
+          res = await axios.post(`address`, this.address)
           this.toastr.success('Domicilio Adicionado')
           this.bus.$emit('saveAddress', res.data)
         }
+        console.log(res.data)
+
+        //const url = `/affiliates/${8}/addresses/${4776}/print`;
+
+        console.log(this.address.image)
+        console.log(image)
+        console.log(res.data.id)
+        let res2 = await axios.post(`/affiliates/${this.affiliate.id}/addresses/${res.data.id}/print`, {
+          imagen: image
+        }); // el backend retorna PDF en base64
+
+          printJS({
+            printable: res2.data.content,  // base64
+            type: res2.data.type,          // debe ser 'pdf'
+            file_name: res2.data.file_name,
+            base64: true
+          });
+
       } catch (e) {
         this.$refs.observer.setErrors(e)
+        this.loading = false
       }
-    }
+    },    
   }
 }
 </script>
