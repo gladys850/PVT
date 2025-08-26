@@ -57,12 +57,36 @@
                 </td>
             </tr>
             <tr class="bg-grey-darker text-white">
-                <td colspan="4" style="text-align: center; font-weight: bold;">
-                    DOMICILIO ACTUAL
+                <td style="text-align: center; font-weight: bold;">
+                    DEPARRTAMENTO
+                </td>
+                <td style="text-align: center; font-weight: bold;">
+                    ZOMA / BARRIO / URB.
+                </td>
+                <td style="text-align: center; font-weight: bold;">
+                    CALLE / AV. / CAM. / CARR.
+                </td>
+                <td style="text-align: center; font-weight: bold;">
+                    N° DOM.
                 </td>
             </tr>
             <tr>
-                <td colspan="4" class="data-row py-5 w-100">{{$address->description}}</td>
+                <td class="data-row py-5 w-25">{{$address->city_name}}</td>
+                <td class="data-row py-5 w-35">{{$address->zone}}</td>
+                <td class="data-row py-5 w-25">{{$address->street}}</td>
+                <td class="data-row py-5 w-15">{{$address->number_address}}</td>
+            </tr>
+            <tr class="bg-grey-darker text-white">
+                <td colspan="2" style="text-align: center; font-weight: bold;">
+                    COND. / EDIF. / TORRRE (BLOQUE, PISO, N° DPTO)
+                </td>
+                <td colspan="2" style="text-align: center; font-weight: bold;">
+                    REFERENCIA
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="data-row py-5 w-50">{{$address->housing_unit}}</td>
+                <td colspan="2" class="data-row py-5 w-50">{{$address->description}}</td>
             </tr>
             <tr class="bg-grey-darker text-white">
                 <td colspan="4" style="text-align: center; font-weight: bold;">
