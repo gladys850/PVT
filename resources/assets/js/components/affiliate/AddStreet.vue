@@ -19,7 +19,7 @@
                 ></v-select>
               </v-col>
               <v-col cols="12" md="2" v-show="address.edit" class="pb-0 mb-0">
-                <ValidationProvider v-slot="{ errors }" vid="description" name="Dirección" rules="required">
+                <ValidationProvider v-slot="{ errors }" vid="zone" name="Dirección" rules="required">
                   <v-text-field
                     :error-messages="errors"
                     dense
@@ -30,7 +30,7 @@
                 </ValidationProvider>
               </v-col>
               <v-col cols="12" md="2" v-show="address.edit" class="pb-0 mb-0">
-                <ValidationProvider v-slot="{ errors }" vid="description" name="Dirección" rules="required">
+                <ValidationProvider v-slot="{ errors }" vid="street" name="Dirección" rules="required">
                   <v-text-field
                     :error-messages="errors"
                     dense
@@ -41,7 +41,7 @@
                 </ValidationProvider>
               </v-col>
               <v-col cols="12" md="3" v-show="address.edit" class="pb-0 mb-0">
-                <ValidationProvider v-slot="{ errors }" vid="description" name="Dirección" rules="required">
+                <ValidationProvider v-slot="{ errors }" vid="housing_unit" name="Dirección" rules="">
                   <v-text-field
                     :error-messages="errors"
                     dense
@@ -52,7 +52,7 @@
                 </ValidationProvider>
               </v-col>
               <v-col cols="12" md="1" v-show="address.edit" class="pb-0 mb-0">
-                <ValidationProvider v-slot="{ errors }" vid="description" name="Dirección" rules="required">
+                <ValidationProvider v-slot="{ errors }" vid="number_address" name="Dirección" rules="required">
                   <v-text-field
                     :error-messages="errors"
                     dense
@@ -63,7 +63,7 @@
                 </ValidationProvider>
               </v-col>
               <v-col cols="12" md="2" v-show="address.edit" class="pb-0 mb-0">
-                <ValidationProvider v-slot="{ errors }" vid="description" name="Dirección" rules="required">
+                <ValidationProvider v-slot="{ errors }" vid="description" name="Dirección" rules="">
                   <v-text-field
                     :error-messages="errors"
                     dense
@@ -146,6 +146,7 @@ export default {
         this.loading = false
         this.close()
       }
+      this.loading = false
     },
     close() {
       this.dialog = false
