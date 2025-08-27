@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col cols="3">
-        <v-row>
+        <v-row style="border: 1px solid #ccc;">
           <v-col cols="12" md="12">
             <div><strong>Buscar la ubicación en:</strong> {{ departamentoSeleccionado }}</div>
           </v-col>

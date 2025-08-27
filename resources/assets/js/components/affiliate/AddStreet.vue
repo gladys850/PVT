@@ -4,11 +4,10 @@
       <v-container>
           <v-card-title class="px-0 mx-0" v-show="address.edit">Añadir Dirección</v-card-title>
           <v-card-title class="px-0 mx-0" v-show="!address.edit">Dirección</v-card-title>
-        <v-divider></v-divider>
 
         <ValidationObserver ref="observer">            
             <v-row>
-              <v-col cols="12" md="2" v-show="address.edit" class="pb-0 mb-0">
+              <v-col cols="12" md="1" v-show="address.edit" class="pb-0 mb-0">
                 <v-select
                   dense
                   :items="countryCities"
@@ -18,7 +17,7 @@
                   v-model="address.city_address_id"
                 ></v-select>
               </v-col>
-              <v-col cols="12" md="2" v-show="address.edit" class="pb-0 mb-0">
+              <v-col cols="12" md="3" v-show="address.edit" class="pb-0 mb-0">
                 <ValidationProvider v-slot="{ errors }" vid="zone" name="Dirección" rules="required">
                   <v-text-field
                     :error-messages="errors"
@@ -73,6 +72,7 @@
                   ></v-text-field>
                 </ValidationProvider>
               </v-col>
+              <v-card-title class="ma-0 pl-2">Geolocalización</v-card-title>
               <LMap
                   v-if="dialog"
                   :address.sync="address"
