@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="4">
-        <v-row>
+      <v-col cols="3">
+        <v-row style="border: 1px solid #ccc;">
           <v-col cols="12" md="12">
             <div><strong>Buscar la ubicación en:</strong> {{ departamentoSeleccionado }}</div>
           </v-col>
@@ -75,6 +75,7 @@
               label="Longitud" 
               v-model="lngInput" 
               class="py-0 my-0"
+              @keyup.enter="centrarPorCoordenadas"
             />
           </v-col>
           <v-col cols="12" md="2" class="py-0 my-0">
@@ -103,14 +104,14 @@
         </v-row>
       </v-col>
 
-      <v-col cols="8" class="py-0 my-0">
+      <v-col cols="9" class="py-0 my-0">
         <div id="map" style="height: 700px;"  class="py-0 my-0"></div>
 
         <!-- Este se oculta al imprimir -->
         <p class="no-print">
           <strong>Ubicación seleccionada en mapa:</strong> {{ direccionSeleccionada }}
         </p>
-    </v-col>
+      </v-col>
 
     </v-row>
   </v-container>
@@ -190,6 +191,25 @@ export default {
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(this.map);
+
+      // // Capa base OSM normal
+      // const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      //   attribution: "© OpenStreetMap contributors"
+      // });
+
+      // // Capa satélite de ESRI
+      // const esriSat = L.tileLayer(
+      //   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", 
+      //   {
+      //     attribution: "Tiles © Esri & the GIS User Community"
+      //   }
+      // );
+
+      // this.map = L.map('map').setView([-16.5, -68.15], 6);
+      // L.control.layers({
+      //   "OpenStreetMap": osm,
+      //   "Satélite (Esri)": esriSat
+      // }).addTo(this.map);
 
       this.map.on('click', async (e) => {
         const { lat, lng } = e.latlng;

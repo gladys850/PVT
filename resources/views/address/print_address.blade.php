@@ -37,32 +37,68 @@
 
             </tr>
             <tr class="bg-grey-darker text-white">
-                <td colspan="4" style="text-align: center; font-weight: bold;">
-                    ESPECIFIQUE EL TIPO DE PROPIEDAD SI MARCO LA OPCIÓN 4.OTRO
+                <td colspan="2" style="text-align: center; font-weight: bold;">
+                    ESPECIFIQUE, SI MARCO LA OPCIÓN 4.OTRO
                 </td>
-            </tr>
-            <tr>
-                <td colspan="4" class="data-row py-5 w-100 text-justify px-5">ESPECIFICAR: 
-                    <span class="w-85 inline-block" style=" border-bottom: 1px dotted #000; position: relative; top: 2px;"></span>
-                </td>
-            </tr>
-            <tr class="bg-grey-darker text-white">
-                <td colspan="4" style="text-align: center; font-weight: bold;">
+                <td colspan="2" style="text-align: center; font-weight: bold;">
                     TIEMPO QUE RESIDE EN EL LUGAR
                 </td>
             </tr>
             <tr>
-                <td colspan="4" class="data-row py-5 w-100 text-justify px-5">ESPECIFICAR:
-                    <span class="w-85 inline-block" style=" border-bottom: 1px dotted #000; position: relative; top: 2px;"></span>
+                <td colspan="2" class="data-row py-5 w-50 text-justify px-5">ESPECIFICAR: 
+                    <span class="w-65 inline-block" style=" border-bottom: 1px dotted #000; position: relative; top: 2px;"></span>
+                </td>
+                <td colspan="4" class="data-row py-5 w-50 text-justify px-5">ESPECIFICAR:
+                    <span class="w-65 inline-block" style=" border-bottom: 1px dotted #000; position: relative; top: 2px;"></span>
+                </td>
+            </tr>
+            <tr class="bg-grey-darker text-white">
+                <td style="text-align: center; font-weight: bold;">
+                    DEPARTAMENTO
+                </td>
+                <td style="text-align: center; font-weight: bold;">
+                    ZOMA / BARRIO / URB.
+                </td>
+                <td style="text-align: center; font-weight: bold;">
+                    CALLE / AV. / CAM. / CARR.
+                </td>
+                <td style="text-align: center; font-weight: bold;">
+                    N° DOM.
+                </td>
+            </tr>
+            <tr>
+                <td class="data-row py-5 w-25">{{$address->city_name}}</td>
+                <td class="data-row py-5 w-25">{{$address->zone}}</td>
+                <td class="data-row py-5 w-25">{{$address->street}}</td>
+                <td class="data-row py-5 w-25">{{$address->number_address}}</td>
+            </tr>
+            <tr class="bg-grey-darker text-white">
+                <td colspan="4" style="text-align: center; font-weight: bold;">
+                    COND. / EDIF. / TORRRE (BLOQUE, PISO, N° DPTO)
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="data-row py-5 w-100">
+                    @if(!empty($address->housing_unit))
+                        {{ $address->housing_unit }}
+                    @else
+                        &nbsp;
+                    @endif
                 </td>
             </tr>
             <tr class="bg-grey-darker text-white">
                 <td colspan="4" style="text-align: center; font-weight: bold;">
-                    DOMICILIO ACTUAL
+                    REFERENCIA
                 </td>
             </tr>
             <tr>
-                <td colspan="4" class="data-row py-5 w-100">{{$address->description}}</td>
+                <td colspan="4" class="data-row py-5 w-100">
+                @if(!empty($address->description))
+                        {{ $address->description }}
+                    @else
+                        &nbsp;
+                    @endif
+                </td>
             </tr>
             <tr class="bg-grey-darker text-white">
                 <td colspan="4" style="text-align: center; font-weight: bold;">
