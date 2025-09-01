@@ -65,18 +65,13 @@ class AddressController extends Controller
 
     public function print_address(Request $request, Affiliate $affiliate, Address $address, $standalone =true)
     {
-        // $affiliate = Affiliate::find($affiliate);
-        // $address = $affiliate->addresses()->where('addresses.id', $address)->first();
         $image_map = $request->input('imagen');
         $spouse = $affiliate->getSpouseAttribute();
+        $address->city_name = $address->cityName();
         if($spouse){
             $spouse->fullname = $spouse->fullname;
         }
         
-        // Verificar que la dirección pertenece al afiliado
-        // if (!$affiliate->addresses->contains($address)) {
-        //     abort(403, 'La dirección no pertenece al afiliado.');
-        // }
         $data = [
             'header' => [
                 'direction' => 'DIRECCIÓN DE ESTRATEGIAS SOCIALES E INVERSIONES',

@@ -28,8 +28,9 @@ class AddressForm extends FormRequest
     {
         $rules = [
             'city_address_id' => 'exists:cities,id',
-            'zone' =>'nullable',
-            'street' =>'nullable',
+            'zone' =>'nullable|min:3',
+            'street' =>'nullable|min:3',
+            'housing_unit' =>'nullable',
             'description' =>'nullable|min:3',
             'latitude' => 'nullable',
             'longitude' => 'nullable',
@@ -53,6 +54,7 @@ class AddressForm extends FormRequest
         return [
             'zone' => 'trim|uppercase',
             'street' => 'trim|uppercase',
+            'housing_unit' => 'trim|uppercase',
             'number_address' => 'trim|uppercase',
             'description' =>'trim|uppercase',
             'latitude' => 'trim',
