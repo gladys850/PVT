@@ -57,7 +57,7 @@
                     DEPARTAMENTO
                 </td>
                 <td style="text-align: center; font-weight: bold;">
-                    ZOMA / BARRIO / URB.
+                    ZONA / BARRIO / URB.
                 </td>
                 <td style="text-align: center; font-weight: bold;">
                     CALLE / AV. / CAM. / CARR.
