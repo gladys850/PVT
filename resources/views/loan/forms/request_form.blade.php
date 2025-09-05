@@ -103,7 +103,7 @@
                 <td class="data-row py-5">{{$lender->address ? $lender->address->number_address : '' }}</td>
             </tr>
             <tr class="bg-grey-darker text-white">
-                <td>COND. / EDIF. / TORRRE (BLOQUE, PISO, N° DPTO)</td>
+                <td>COND. / EDIF. / TORRE (BLOQUE, PISO, N° DPTO)</td>
                 <td colspan="2">Teléfono(s)</td>
             </tr>
             <tr>
@@ -229,7 +229,7 @@
                 <td class="data-row py-5">{{$guarantor->address ? $guarantor->address->number_address : '' }}</td>
             </tr>
             <tr class="bg-grey-darker text-white">
-                <td>COND. / EDIF. / TORRRE (BLOQUE, PISO, N° DPTO)</td>
+                <td>COND. / EDIF. / TORRE (BLOQUE, PISO, N° DPTO)</td>
                 <td colspan="2">Teléfono(s)</td>
             </tr>
             <tr>
