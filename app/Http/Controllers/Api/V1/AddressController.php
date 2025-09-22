@@ -108,14 +108,14 @@ class AddressController extends Controller
         }
 
         try {
-            // 1️⃣ Resolver short URL (goo.gl, maps.app.goo.gl)
+            // 1️ Resolver short URL (goo.gl, maps.app.goo.gl)
             if (preg_match('/goo\.gl|maps\.app\.goo\.gl/', $url)) {
                 $response = Http::withOptions(['allow_redirects' => true])
                                 ->get($url);
                 $url = (string) $response->effectiveUri();
             }
 
-            // 2️⃣ Patrones para extraer coordenadas
+            // 2️ Patrones para extraer coordenadas
             $patterns = [
                 '/@(-?\d+\.\d+),(-?\d+\.\d+)/',
                 '/\/search\/(-?\d+\.\d+)[,|%2C]\+?(-?\d+\.\d+)/i',
