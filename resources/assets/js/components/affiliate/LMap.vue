@@ -243,7 +243,7 @@ export default {
       }
       this.address.latitude = lat;
       this.address.longitude = lng
-      //this.address.image = 'miimagen'; // Limpiar imagen al mover el marcador
+
       if (!this.map) return;
 
 
@@ -417,7 +417,6 @@ export default {
 
     async procesarURL() {
       try {
-        // 🔹 Llamada al backend
         const { data } = await axios.get('/resolve_map_url', {
           params: { url: this.url }
         });
